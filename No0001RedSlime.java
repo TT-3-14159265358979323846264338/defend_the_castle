@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import defaultdata.DefaultAtackPattern;
+import defaultdata.DefaultEnemy;
 
 public class No0001RedSlime extends EnemyData{
 	@Override
@@ -28,17 +29,17 @@ public class No0001RedSlime extends EnemyData{
 
 	@Override
 	public int getMove() {
-		return 0;
+		return DefaultEnemy.GROUND;
 	}
 
 	@Override
 	public int getType() {
-		return 0;
+		return DefaultEnemy.NORMAL;
 	}
 
 	@Override
 	public List<Integer> getElement() {
-		return Arrays.asList(2);
+		return Arrays.asList(DefaultEnemy.STRIKE);
 	}
 
 	@Override
