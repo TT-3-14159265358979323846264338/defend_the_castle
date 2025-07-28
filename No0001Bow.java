@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import defaultdata.DefaultAtackPattern;
+import defaultdata.DefaultUnit;
 
 public class No0001Bow extends WeaponData{
 	@Override
@@ -38,17 +39,17 @@ public class No0001Bow extends WeaponData{
 
 	@Override
 	public int getDistance() {
-		return 1;
+		return DefaultUnit.FAR;
 	}
 
 	@Override
 	public int getHandle() {
-		return 1;
+		return DefaultUnit.BOTH;
 	}
 
 	@Override
 	public List<Integer> getElement() {
-		return Arrays.asList(1);
+		return Arrays.asList(DefaultUnit.PIERCE);
 	}
 
 	@Override
