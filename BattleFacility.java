@@ -19,6 +19,8 @@ public class BattleFacility extends BattleData{
 		FacilityData FacilityData = DefaultStage.FACILITY_DATA_MAP.get(StageData.getFacility().get(number));
 		name = FacilityData.getName();
 		rightActionImage = StageData.getFacilityDirection().get(number)? FacilityData.getActionFrontImage(4): FacilityData.getActionSideImage(4);
+		bulletImage = FacilityData.getBulletImage(4);
+		hitImage = FacilityData.getHitImage(4);
 		breakImage = FacilityData.getBreakImage(4);
 		positionX = StageData.getFacilityPoint().get(number).x;
 		positionY = StageData.getFacilityPoint().get(number).y;

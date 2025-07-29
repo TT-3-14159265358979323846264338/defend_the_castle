@@ -26,6 +26,8 @@ public class BattleEnemy extends BattleData{
 		EnemyData EnemyData = DefaultEnemy.DATA_MAP.get(StageData.getEnemy().get(number).get(0));
 		name = EnemyData.getName();
 		rightActionImage = EnemyData.getActionImage(4);
+		bulletImage = EnemyData.getBulletImage(4);
+		hitImage = EnemyData.getHitImage(4);
 		move = EnemyData.getMove();
 		type = EnemyData.getType();
 		route = StageData.getRoute().get(StageData.getEnemy().get(number).get(1));

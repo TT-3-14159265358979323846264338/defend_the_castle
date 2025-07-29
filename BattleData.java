@@ -3,6 +3,7 @@ package battle;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -19,6 +20,9 @@ public class BattleData{
 	List<BattleData> enemyData;
 	List<BufferedImage> rightActionImage;
 	List<BufferedImage> leftActionImage;
+	BufferedImage bulletImage;
+	List<BufferedImage> hitImage;
+	List<Bullet> bulletList = Arrays.asList();
 	boolean existsRight = true;
 	int motionNumber = 0;
 	boolean canAtack;
@@ -58,6 +62,14 @@ public class BattleData{
 		return rightActionImage.get(0);
 	}
 	
+	protected List<Bullet> getBulletList(){
+		return bulletList;
+	}
+	
+	protected boolean getAtackMotion() {
+		return canAtack;
+	}
+	
 	protected void atackTimer() {
 		int nowSpeed = getAtackSpeed();
 		if(nowSpeed <= 0) {
@@ -85,13 +97,13 @@ public class BattleData{
 		List<BattleData> targetList = AtackPattern.getTarget();
 		do {
 			Battle.timerWait();
-			if(!canActivate) {
-				return Arrays.asList();
-			}
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+			}
+			if(!canActivate) {
+				return Arrays.asList();
 			}
 			targetList = AtackPattern.getTarget();
 		}while(targetList.isEmpty());
@@ -107,14 +119,19 @@ public class BattleData{
 		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 		scheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
-			if(5 <= motionNumber) {
-				targetList.stream().forEach(i -> motionResult(i));
+			if(rightActionImage.size() - 1 <= motionNumber) {
+				//bulletList = targetList.stream().map(i -> new Bullet(Battle, this, i, bulletImage, hitImage)).toList();
+				//CompletableFuture.allOf(atackProcess()).join();
 				timerRestart();
 				scheduler.shutdown();
 				return;
 			}
 			motionNumber++;
 		}, 0, 1000 * getAtackSpeed() / 50, TimeUnit.MICROSECONDS);
+	}
+	
+	private CompletableFuture<?>[] atackProcess(){
+		return bulletList.stream().map(i -> CompletableFuture.supplyAsync(i::waitCompletion).thenAccept(this::result)).toArray(CompletableFuture[]::new);
 	}
 	
 	protected synchronized void timerWait() {
@@ -129,11 +146,12 @@ public class BattleData{
 	
 	private synchronized void timerRestart() {
 		notifyAll();
+		bulletList = Arrays.asList();
 		canAtack = false;
 		motionNumber = 0;
 	}
 	
-	private void motionResult(BattleData target) {
+	private void result(BattleData target) {
 		if(getAtack() == 0) {
 			buff(target);
 			return;

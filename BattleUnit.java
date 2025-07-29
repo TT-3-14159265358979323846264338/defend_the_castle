@@ -27,6 +27,8 @@ public class BattleUnit extends BattleData{
 		name = new DisplayStatus().getUnitName(composition);
 		try {
 			rightActionImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(0)).getRightActionImage(4);
+			bulletImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(0)).getBulletImage(4);
+			hitImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(0)).getHitImage(4);
 		}catch(Exception e) {
 			rightActionImage = Arrays.asList(getBlankImage());
 		}
@@ -51,6 +53,8 @@ public class BattleUnit extends BattleData{
 		StatusCalculation StatusCalculation = new StatusCalculation(composition);
 		try {
 			rightActionImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(2)).getLeftActionImage(4);
+			bulletImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(2)).getBulletImage(4);
+			hitImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(2)).getHitImage(4);
 		}catch(Exception e) {
 			rightActionImage = Arrays.asList(getBlankImage());
 		}

@@ -56,8 +56,8 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	public Battle(MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, int difficultyCode) {
 		addMouseListener(this);
-    	addMouseMotionListener(this);
-    	install(StageData);
+		addMouseMotionListener(this);
+		install(StageData);
 		addRangeDrawButton();
 		addMeritButton(StageData, clearMerit);
 		addPauseButton(MainFrame);
@@ -76,6 +76,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		drawEnemy(g);
 		drawBackground(g);
 		drawUnit(g);
+		drawBullet(g);
 		drawSelectUnit(g);
 		requestFocus();
 	}
@@ -230,6 +231,17 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 				drawHP(g, unitMainData[i]);
 			}
 		});
+	}
+	
+	private void drawBullet(Graphics g) {
+		drawBullet(g, unitMainData);
+		drawBullet(g, unitLeftData);
+		drawBullet(g, facilityData);
+		drawBullet(g, enemyData);
+	}
+	
+	private void drawBullet(Graphics g, BattleData[] data) {
+		//Stream.of(data).filter(i -> i.getAtackMotion()).forEach(i -> i.getBulletList().stream().forEach(j -> g.drawImage(j.getImage(), j.getPsitionX(), j.getPsitionY(), this)));
 	}
 	
 	private void drawSelectUnit(Graphics g) {
