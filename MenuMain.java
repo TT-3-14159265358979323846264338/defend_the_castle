@@ -129,7 +129,7 @@ public class MenuMain extends JPanel{
 //落下コアの位置調整
 class FallMotion{
 	ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-	double angle = (double) (new Random().nextInt((int)(Math.PI * 2 * 100)) / 100);
+	double angle = new Random().nextInt((int) (Math.PI * 2 * 100)) / 100;
 	int x = new Random().nextInt(400);
 	int y = -100;
 	boolean canStart;
