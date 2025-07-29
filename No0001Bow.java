@@ -33,6 +33,16 @@ public class No0001Bow extends WeaponData{
 	}
 
 	@Override
+	public String getBulletImageName() {
+		return "image/soldier/bow bullet.png";
+	}
+
+	@Override
+	public List<String> getHitImageName() {
+		return Arrays.asList();
+	}
+	
+	@Override
 	public int getRarity() {
 		return 1;
 	}
