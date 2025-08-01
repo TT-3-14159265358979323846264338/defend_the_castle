@@ -22,6 +22,16 @@ public class No0000Castle extends FacilityData{
 	}
 
 	@Override
+	public String getBulletImageName() {
+		return null;
+	}
+
+	@Override
+	public List<String> getHitImageName() {
+		return Arrays.asList();
+	}
+
+	@Override
 	public String getBreakImageName() {
 		return "image/field/castle.png";
 	}

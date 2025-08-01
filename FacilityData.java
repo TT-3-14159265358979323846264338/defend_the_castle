@@ -16,10 +16,26 @@ public abstract class FacilityData {
 	
 	//攻撃時の画像
 	public List<BufferedImage> getActionFrontImage(double ratio) {
-		return new EditImage().input(getActionFrontImageName(), ratio);
+		return EditImage.input(getActionFrontImageName(), ratio);
 	}
 	public List<BufferedImage> getActionSideImage(double ratio) {
-		return new EditImage().input(getActionSideImageName(), ratio);
+		return EditImage.input(getActionSideImageName(), ratio);
+	}
+	
+	//弾丸の画像ファイル名
+	public abstract String getBulletImageName();
+	
+	//弾丸の画像
+	public BufferedImage getBulletImage(double ratio) {
+		return EditImage.input(getBulletImageName(), ratio);
+	}
+	
+	//ヒット画像ファイル名
+	public abstract List<String> getHitImageName();
+	
+	//ヒット画像
+	public List<BufferedImage> getHitImage(double ratio){
+		return EditImage.input(getHitImageName(), ratio);
 	}
 	
 	//破損時画像ファイル名
@@ -27,7 +43,7 @@ public abstract class FacilityData {
 	
 	//破損時画像
 	public BufferedImage getBreakImage(double ratio) {
-		return new EditImage().input(getBreakImageName(), ratio);
+		return EditImage.input(getBreakImageName(), ratio);
 	}
 	
 	//武器属性はその武器の全ての属性(DefaultStage.ELEMENT_MAP)を登録　攻撃しない時は空のlist
