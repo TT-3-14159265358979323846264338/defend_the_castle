@@ -120,6 +120,7 @@ public class BattleData{
 		scheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			if(rightActionImage.size() - 1 <= motionNumber) {
+				motionNumber = 0;
 				bulletList = targetList.stream().map(i -> new Bullet(Battle, this, i, bulletImage, hitImage)).toList();
 				CompletableFuture.allOf(atackProcess()).join();
 				timerRestart();
@@ -148,7 +149,6 @@ public class BattleData{
 		notifyAll();
 		bulletList = Arrays.asList();
 		canAtack = false;
-		motionNumber = 0;
 	}
 	
 	private void result(BattleData target) {
