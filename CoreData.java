@@ -14,7 +14,7 @@ public abstract class CoreData {
 	
 	//通常時の画像
 	public BufferedImage getImage(double ratio) {
-		return new EditImage().input(getImageName(), ratio);
+		return EditImage.input(getImageName(), ratio);
 	}
 	
 	//攻撃時の画像ファイル名
@@ -22,7 +22,7 @@ public abstract class CoreData {
 	
 	//攻撃時の画像
 	public BufferedImage getActionImage(double ratio) {
-		return new EditImage().input(getActionImageName(), ratio);
+		return EditImage.input(getActionImageName(), ratio);
 	}
 	
 	//レアリティ
