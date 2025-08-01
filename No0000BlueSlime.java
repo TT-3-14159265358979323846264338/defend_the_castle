@@ -28,6 +28,16 @@ public class No0000BlueSlime extends EnemyData{
 	}
 
 	@Override
+	public String getBulletImageName() {
+		return null;
+	}
+
+	@Override
+	public List<String> getHitImageName() {
+		return Arrays.asList();
+	}
+
+	@Override
 	public int getMove() {
 		return DefaultEnemy.GROUND;
 	}

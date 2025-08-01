@@ -14,7 +14,7 @@ public abstract class EnemyData {
 	
 	//通常時の画像
 	public BufferedImage getImage(double ratio) {
-		return new EditImage().input(getImageName(), ratio);
+		return EditImage.input(getImageName(), ratio);
 	}
 	
 	//攻撃時の画像ファイル名
@@ -22,7 +22,23 @@ public abstract class EnemyData {
 	
 	//攻撃時の画像
 	public List<BufferedImage> getActionImage(double ratio) {
-		return new EditImage().input(getActionImageName(), ratio);
+		return EditImage.input(getActionImageName(), ratio);
+	}
+	
+	//弾丸の画像ファイル名
+	public abstract String getBulletImageName();
+	
+	//弾丸の画像
+	public BufferedImage getBulletImage(double ratio) {
+		return EditImage.input(getBulletImageName(), ratio);
+	}
+	
+	//ヒット画像ファイル名
+	public abstract List<String> getHitImageName();
+	
+	//ヒット画像
+	public List<BufferedImage> getHitImage(double ratio){
+		return EditImage.input(getHitImageName(), ratio);
 	}
 	
 	//移動経路(DefaultEnemy.MOVE_MAP)で登録
