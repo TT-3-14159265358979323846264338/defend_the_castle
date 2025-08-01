@@ -8,6 +8,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Bullet {
+	ScheduledExecutorService bulletScheduler = Executors.newSingleThreadScheduledExecutor();
+	ScheduledExecutorService hitScheduler = Executors.newSingleThreadScheduledExecutor();
 	Battle Battle;
 	BattleData myself;
 	BattleData target;
@@ -28,16 +30,16 @@ public class Bullet {
 	}
 	
 	private void bulletTimer() {
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		scheduler.scheduleWithFixedDelay(() -> {
+		if(Objects.isNull(bulletImage)) {
+			hitTimer();
+			bulletScheduler.shutdown();
+			return;
+		}
+		bulletScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			if(5 < bulletNumber) {
-				if(Objects.isNull(hitImage)) {
-					completion();
-				}else {
-					hitTimer();
-				}
-				scheduler.shutdown();
+				hitTimer();
+				bulletScheduler.shutdown();
 				return;
 			}
 			bulletNumber++;
@@ -54,19 +56,26 @@ public class Bullet {
 	}
 	
 	private void hitTimer() {
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		scheduler.scheduleWithFixedDelay(() -> {
+		if(Objects.isNull(hitImage)) {
+			completion();
+			hitScheduler.shutdown();
+			return;
+		}
+		hitScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			if(hitImage.size() - 1 <= hitNumber) {
 				completion();
-				scheduler.shutdown();
+				hitScheduler.shutdown();
 				return;
 			}
 			hitNumber++;
-		}, 20, 20, TimeUnit.MILLISECONDS);
+		}, 0, 20, TimeUnit.MILLISECONDS);
 	}
 	
 	protected synchronized BattleData waitCompletion() {
+		if(bulletScheduler.isShutdown() && hitScheduler.isShutdown()) {
+			return target;
+		}
 		try {
 			wait();
 		} catch (InterruptedException e) {

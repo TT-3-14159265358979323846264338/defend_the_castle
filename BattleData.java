@@ -131,7 +131,7 @@ public class BattleData{
 	}
 	
 	private CompletableFuture<?>[] atackProcess(){
-		return bulletList.stream().map(i -> CompletableFuture.supplyAsync(i::waitCompletion).thenAccept(this::result)).toArray(CompletableFuture[]::new);
+		return bulletList.stream().map(Bullet -> CompletableFuture.supplyAsync(Bullet::waitCompletion).thenAccept(this::result)).toArray(CompletableFuture[]::new);
 	}
 	
 	protected synchronized void timerWait() {
