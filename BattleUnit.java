@@ -33,7 +33,7 @@ public class BattleUnit extends BattleData{
 			rightActionImage = Arrays.asList(getBlankImage());
 		}
 		rightCoreImage = DefaultUnit.CORE_DATA_MAP.get(composition.get(1)).getActionImage(4);
-		leftCoreImage = new EditImage().mirrorImage(rightCoreImage);
+		leftCoreImage = EditImage.mirrorImage(rightCoreImage);
 		this.positionX = positionX;
 		this.positionY = positionY;
 		initialPosition = new Point(positionX, positionY);

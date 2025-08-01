@@ -44,7 +44,7 @@ public class BattleData{
 	boolean canActivate;
 	
 	protected void initialize() {
-		leftActionImage = rightActionImage.stream().map(i -> new EditImage().mirrorImage(i)).toList();
+		leftActionImage = rightActionImage.stream().map(i -> EditImage.mirrorImage(i)).toList();
 		collectionWeaponStatus = defaultWeaponStatus.stream().map(i -> 0).collect(Collectors.toList());
 		collectionUnitStatus = defaultUnitStatus.stream().map(i -> 0).collect(Collectors.toList());
 		collectionCutStatus = defaultCutStatus.stream().map(i -> 0).collect(Collectors.toList());
@@ -120,8 +120,8 @@ public class BattleData{
 		scheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			if(rightActionImage.size() - 1 <= motionNumber) {
-				//bulletList = targetList.stream().map(i -> new Bullet(Battle, this, i, bulletImage, hitImage)).toList();
-				//CompletableFuture.allOf(atackProcess()).join();
+				bulletList = targetList.stream().map(i -> new Bullet(Battle, this, i, bulletImage, hitImage)).toList();
+				CompletableFuture.allOf(atackProcess()).join();
 				timerRestart();
 				scheduler.shutdown();
 				return;

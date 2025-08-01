@@ -23,7 +23,7 @@ import defaultdata.stage.StageData;
 
 //画像処理
 public class EditImage{
-	public BufferedImage input(String imageName, double ratio) {
+	public static BufferedImage input(String imageName, double ratio) {
 		if(imageName == null) {
 			return null;
 		}
@@ -36,11 +36,11 @@ public class EditImage{
 		return image;
 	}
 	
-	public List<BufferedImage> input(List<String> imageNameList, double ratio){
+	public static List<BufferedImage> input(List<String> imageNameList, double ratio){
 		return imageNameList.stream().map(i -> (i == null)? null: input(i, ratio)).toList();
 	}
 	
-	private BufferedImage getImage(BufferedImage originalImage, double ratio) {
+	private static BufferedImage getImage(BufferedImage originalImage, double ratio) {
 		int width = originalImage.getWidth();
 		int height = originalImage.getHeight();
 		BufferedImage image = getBlankImage(width, height);
@@ -52,7 +52,7 @@ public class EditImage{
 		return scalingImage(image, ratio);
 	}
 	
-	public BufferedImage scalingImage(BufferedImage originalImage, double ratio) {
+	public static BufferedImage scalingImage(BufferedImage originalImage, double ratio) {
 		int resizeWidth = (int) (originalImage.getWidth() / ratio);
 		int resizeHeight = (int) (originalImage.getHeight() / ratio);
 		BufferedImage resizeImage = getBlankImage(resizeWidth, resizeHeight);
@@ -62,7 +62,7 @@ public class EditImage{
 		return resizeImage;
 	}
 	
-	public BufferedImage compositeImage(List<BufferedImage> originalImage) {
+	public static BufferedImage compositeImage(List<BufferedImage> originalImage) {
 		int width = originalImage.get(1).getWidth();
 		int height = originalImage.get(1).getHeight();
 		BufferedImage image = getBlankImage(width, height);
@@ -72,7 +72,7 @@ public class EditImage{
 		return image;
 	}
 	
-	public BufferedImage rotateImage(BufferedImage originalImage, double angle) {
+	public static BufferedImage rotateImage(BufferedImage originalImage, double angle) {
 		int width = originalImage.getWidth();
 		int height = originalImage.getHeight();
 		BufferedImage image = getBlankImage(width, height);
@@ -85,13 +85,13 @@ public class EditImage{
 		return image;
 	}
 	
-	public BufferedImage mirrorImage(BufferedImage originalImage) {
+	public static BufferedImage mirrorImage(BufferedImage originalImage) {
 		AffineTransform mirror = AffineTransform.getScaleInstance(-1.0, 1.0);
 		mirror.translate(- originalImage.getWidth(), 0);
 		return new AffineTransformOp(mirror, null).filter(originalImage, null);
 	}
 	
-	public BufferedImage effectImage(BufferedImage originalImage, int expansion, int color) {
+	public static BufferedImage effectImage(BufferedImage originalImage, int expansion, int color) {
 		int width = originalImage.getWidth();
 		int height = originalImage.getHeight();
 		BufferedImage image = getBlankImage(width, height);
@@ -113,7 +113,7 @@ public class EditImage{
 		return blur.filter(resizeImage, null);
 	}
 	
-	public BufferedImage stageImage(StageData StageData, double ratio) {
+	public static BufferedImage stageImage(StageData StageData, double ratio) {
 		BufferedImage image = StageData.getImage(2);
 		Graphics g = image.getGraphics();
 		BiConsumer<BufferedImage, Point> drawImage = (displayImage, point) -> {
@@ -133,7 +133,7 @@ public class EditImage{
 		return scalingImage(image, ratio / 2);
 	}
 	
-	private BufferedImage getBlankImage(int width, int height) {
+	private static BufferedImage getBlankImage(int width, int height) {
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		IntStream.range(0, height).forEach(y -> IntStream.range(0, width).forEach(x -> image.setRGB(x, y, 0)));
 		return image;

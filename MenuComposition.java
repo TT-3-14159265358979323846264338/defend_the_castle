@@ -275,7 +275,7 @@ public class MenuComposition extends JPanel implements MouseListener{
 						}
 					}
 				}catch(Exception notSelect) {
-					new DisplayStatus().unit(new EditImage().compositeImage(getImageList(SaveData.getActiveUnit(i))), SaveData.getActiveUnit(i));
+					new DisplayStatus().unit(EditImage.compositeImage(getImageList(SaveData.getActiveUnit(i))), SaveData.getActiveUnit(i));
 				}
 			}
 		});

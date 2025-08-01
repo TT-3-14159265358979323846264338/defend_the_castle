@@ -73,7 +73,7 @@ public class DisplayStatus extends StatusPanel{
 		setWeapon(unitMainData, unitLeftData);
 		setUnit(unitMainData.getUnit(), DefaultUnit.WEAPON_UNIT_MAP);
 		setCut(unitMainData.getCut());
-		super.setStatusPanel(new EditImage().compositeImage(Arrays.asList(unitMainData.getDefaultImage(), unitMainData.getDefaultCoreImage(), unitLeftData.getDefaultImage())));
+		super.setStatusPanel(EditImage.compositeImage(Arrays.asList(unitMainData.getDefaultImage(), unitMainData.getDefaultCoreImage(), unitLeftData.getDefaultImage())));
 	}
 	
 	public void facility(BattleFacility facilityData) {

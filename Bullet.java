@@ -26,6 +26,8 @@ public class Bullet {
 		this.target = target;
 		this.bulletImage = bulletImage;
 		this.hitImage = hitImage;
+		positionX = (int) myself.getPositionX();
+		positionY = (int) myself.getPositionY();
 		bulletTimer();
 	}
 	
@@ -48,7 +50,6 @@ public class Bullet {
 	}
 	
 	private void changePosition() {
-		
 		
 		
 		

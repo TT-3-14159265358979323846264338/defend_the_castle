@@ -156,23 +156,23 @@ public class MenuItemGet extends JPanel implements ActionListener{
 	private void drawGachaImage(Graphics g) {
 		g.drawImage(machineImage.get(0), 55, 20, null);
 		Point point = BallMotion.getBallPosition();
-		g.drawImage(new EditImage().rotateImage(ballImage, BallMotion.getBallAngel()), point.x, point.y, null);
+		g.drawImage(EditImage.rotateImage(ballImage, BallMotion.getBallAngel()), point.x, point.y, null);
 		g.drawImage(machineImage.get(1), 55, 20, null);
-		g.drawImage(new EditImage().rotateImage(handleImage, HandleMotion.getAngle()), 145, 220, null);
+		g.drawImage(EditImage.rotateImage(handleImage, HandleMotion.getAngle()), 145, 220, null);
 		if(OpenBallMotion.getTimerStatus()) {
 			List<Double> angle = OpenBallMotion.getBallAngle();
 			List<Point> position = OpenBallMotion.getBallPosition();
 			Consumer<Integer> drawBallOpen = (i) -> {
-				g.drawImage(new EditImage().rotateImage(halfBallImage.get(i), angle.get(i)), position.get(i).x, position.get(i).y, null);
+				g.drawImage(EditImage.rotateImage(halfBallImage.get(i), angle.get(i)), position.get(i).x, position.get(i).y, null);
 			};
 			drawBallOpen.accept(0);
 			drawBallOpen.accept(1);
 			int expansion = OpenBallMotion.getExpansion();
 			int color = OpenBallMotion.getColor();
-			g.drawImage(new EditImage().effectImage(effectImage, expansion, new Color(255, 255, color, color).getRGB()), 30 - expansion / 2, 210 - expansion / 2, null);
+			g.drawImage(EditImage.effectImage(effectImage, expansion, new Color(255, 255, color, color).getRGB()), 30 - expansion / 2, 210 - expansion / 2, null);
 		}
 		if(canPlay && HoldMedal.checkMedal()) {
-			g.drawImage(new EditImage().rotateImage(turnImage, angle), 105, 180, null);
+			g.drawImage(EditImage.rotateImage(turnImage, angle), 105, 180, null);
 		}
 	}
 	

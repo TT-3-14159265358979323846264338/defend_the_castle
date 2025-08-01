@@ -99,7 +99,7 @@ public class MenuMain extends JPanel{
 			IntStream.range(0, NUMBER).forEach(i -> g.drawImage(coreImage.get(randamList.get(i)), FinalMotion[i].getX(), FinalMotion[i].getY(), this));
 			g.drawImage(titleImage, 40, 100, this);
 		}else {
-			IntStream.range(0, NUMBER).filter(i -> FallMotion[i].getTimerStatus()).forEach(i -> g.drawImage(new EditImage().rotateImage(coreImage.get(randamList.get(i)), FallMotion[i].getAngle()), FallMotion[i].getX(), FallMotion[i].getY(), this));
+			IntStream.range(0, NUMBER).filter(i -> FallMotion[i].getTimerStatus()).forEach(i -> g.drawImage(EditImage.rotateImage(coreImage.get(randamList.get(i)), FallMotion[i].getAngle()), FallMotion[i].getX(), FallMotion[i].getY(), this));
 		}
 	}
 
