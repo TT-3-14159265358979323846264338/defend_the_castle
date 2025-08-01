@@ -38,6 +38,16 @@ public class No0000JapaneseSword extends WeaponData{
 	}
 
 	@Override
+	public String getBulletImageName() {
+		return null;
+	}
+
+	@Override
+	public List<String> getHitImageName() {
+		return Arrays.asList();
+	}
+
+	@Override
 	public int getRarity() {
 		return 1;
 	}

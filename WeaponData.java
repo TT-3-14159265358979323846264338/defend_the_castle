@@ -14,7 +14,7 @@ public abstract class WeaponData {
 	
 	//通常時の画像
 	public BufferedImage getImage(double ratio) {
-		return new EditImage().input(getImageName(), ratio);
+		return EditImage.input(getImageName(), ratio);
 	}
 	
 	//攻撃時の画像ファイル名
@@ -24,10 +24,26 @@ public abstract class WeaponData {
 	
 	//攻撃時の画像
 	public List<BufferedImage> getRightActionImage(double ratio) {
-		return new EditImage().input(getRightActionImageName(), ratio);
+		return EditImage.input(getRightActionImageName(), ratio);
 	}
 	public List<BufferedImage> getLeftActionImage(double ratio) {
-		return new EditImage().input(getLeftActionImageName(), ratio);
+		return EditImage.input(getLeftActionImageName(), ratio);
+	}
+	
+	//弾丸の画像ファイル名
+	public abstract String getBulletImageName();
+	
+	//弾丸の画像
+	public BufferedImage getBulletImage(double ratio) {
+		return EditImage.input(getBulletImageName(), ratio);
+	}
+	
+	//ヒット画像ファイル名
+	public abstract List<String> getHitImageName();
+	
+	//ヒット画像
+	public List<BufferedImage> getHitImage(double ratio){
+		return EditImage.input(getHitImageName(), ratio);
 	}
 	
 	//レアリティ
