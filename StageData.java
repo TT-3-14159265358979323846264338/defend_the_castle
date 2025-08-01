@@ -15,7 +15,7 @@ public abstract class StageData {
 	
 	//ステージ画像
 	public BufferedImage getImage(double ratio) {
-		return new EditImage().input(getImageName(), ratio);
+		return EditImage.input(getImageName(), ratio);
 	}
 	
 	//設備の種類番号
