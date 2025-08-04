@@ -70,6 +70,10 @@ public class BattleData{
 		return canAtack;
 	}
 	
+	public boolean getActivate() {
+		return canActivate;
+	}
+	
 	protected void atackTimer() {
 		int nowSpeed = getAtackSpeed();
 		if(nowSpeed <= 0) {
@@ -185,8 +189,12 @@ public class BattleData{
 		double cutRatio = element.stream().mapToDouble(i -> target.getCut(i)).sum() / element.size();
 		target.nowHP -= (int) (baseDamage * (100 - cutRatio) / 100);
 		if(target.nowHP <= 0) {
-			target.canActivate = false;
+			target.defeat();
 		}
+	}
+	
+	protected void defeat() {
+		//詳細は@Overrideで記載
 	}
 	
 	protected void healTimer() {
@@ -258,7 +266,7 @@ public class BattleData{
 		return unitCalculate(4);
 	}
 	
-	private int getcost() {
+	protected int getCost() {
 		return unitCalculate(5);
 	}
 	
@@ -288,9 +296,5 @@ public class BattleData{
 	
 	private int calculate(int fixedValue, int flexValue, double ratio) {
 		return (int) ((fixedValue + flexValue) * ratio);
-	}
-	
-	public boolean getActivate() {
-		return canActivate;
 	}
 }

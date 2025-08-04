@@ -165,4 +165,10 @@ public class BattleEnemy extends BattleData{
 			canActivate = false;
 		}
 	}
+	
+	@Override
+	protected void defeat() {
+		canActivate = false;
+		Battle.addCost(getCost());
+	}
 }

@@ -105,13 +105,12 @@ public class BattleUnit extends BattleData{
 		healTimer();
 	}
 	
-	private void deactivate() {
+	@Override
+	protected void defeat() {
 		canActivate = false;
 		positionX = initialPosition.x;
 		positionY = initialPosition.y;
 		existsRight = true;
 		super.initialize();
 	}
-	
-	
 }

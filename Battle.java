@@ -35,6 +35,7 @@ import screendisplay.DisplayStatus;
 
 //バトル画面制御
 public class Battle extends JPanel implements MouseListener, MouseMotionListener{
+	JLabel costLabel = new JLabel();
 	JButton rangeDrawButton = new JButton();
 	JButton meritButton = new JButton();
 	JButton pauseButton = new JButton();
@@ -53,11 +54,14 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	int time;
 	boolean canStop;
 	boolean canRangeDraw;
+	int cost = 50;
 	
 	public Battle(MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, int difficultyCode) {
 		addMouseListener(this);
 		addMouseMotionListener(this);
+		setBackground(new Color(240, 170, 80));
 		install(StageData);
+		addCostLabel();
 		addRangeDrawButton();
 		addMeritButton(StageData, clearMerit);
 		addPauseButton(MainFrame);
@@ -68,6 +72,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		rangeDrawButton.setBounds(0, 0, 95, 40);
+		setCostLabel();
 		setButton(rangeDrawButton, "射程表示", 1010, 465, 95, 40);
 		setButton(meritButton, "戦功表示", 1110, 465, 95, 40);
 		setButton(pauseButton, "一時停止", 1010, 515, 95, 40);
@@ -123,6 +128,13 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		return time;
 	}
 	
+	private void addCostLabel() {
+		add(costLabel);
+		costLabel.setBackground(Color.WHITE);
+		costLabel.setOpaque(true);
+		costLabel.setHorizontalAlignment(JLabel.CENTER);
+	}
+	
 	private void addRangeDrawButton() {
 		add(rangeDrawButton);
 		rangeDrawButton.addActionListener(e->{
@@ -154,10 +166,16 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		});
 	}
 	
+	private void setCostLabel() {
+		costLabel.setText("コスト: " + cost);
+		costLabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
+		costLabel.setBounds(1010, 15, 150, 30);
+	}
+	
 	private void setButton(JButton button, String name, int x, int y, int width, int height) {
 		button.setText(name);
-		button.setBounds(x, y, width, height);
 		button.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 12));
+		button.setBounds(x, y, width, height);
 	}
 	
 	private int initialX(int i) {
@@ -317,8 +335,10 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			int y = initialY(i) + 30;
 			if(ValueRange.of(x, x + SIZE).isValidIntValue(e.getX())
 					&& ValueRange.of(y, y + SIZE).isValidIntValue(e.getY())) {
-				select = i;
-				canSelect = true;
+				if(unitMainData[i].getCost() <= cost) {
+					select = i;
+					canSelect = true;
+				}
 			}
 		});
 	}
@@ -376,10 +396,19 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		placementList.get(placementCode).stream().filter(i -> positionCheck.test(i)).forEach(i -> {
 			if(ValueRange.of(i.get(0).intValue(), i.get(0).intValue() + SIZE).isValidIntValue(mouse.x)
 					&& ValueRange.of(i.get(1).intValue(), i.get(1).intValue() + SIZE).isValidIntValue(mouse.y)) {
+				consumeCost(unitMainData[select].getCost());
 				unitMainData[select].activate(correctPosition.apply(i.get(0)), correctPosition.apply(i.get(1)));
 				unitLeftData[select].activate(correctPosition.apply(i.get(0)), correctPosition.apply(i.get(1)));
 			}
 		});
+	}
+	
+	private void consumeCost(int consumeValue) {
+		cost -= consumeValue;
+	}
+	
+	protected void addCost(int addValue) {
+		cost += addValue;
 	}
 }
 

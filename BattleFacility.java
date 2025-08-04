@@ -55,4 +55,9 @@ public class BattleFacility extends BattleData{
 	protected BufferedImage getBreakImage() {
 		return breakImage;
 	}
+	
+	@Override
+	protected void defeat() {
+		canActivate = false;
+	}
 }
