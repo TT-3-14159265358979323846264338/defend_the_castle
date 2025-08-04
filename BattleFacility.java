@@ -55,17 +55,4 @@ public class BattleFacility extends BattleData{
 	protected BufferedImage getBreakImage() {
 		return breakImage;
 	}
-	
-	private void deactivate() {
-		canActivate = false;
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
 }

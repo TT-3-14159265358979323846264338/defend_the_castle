@@ -31,8 +31,6 @@ public class Bullet {
 		this.target = target;
 		this.bulletImage = bulletImage;
 		this.hitImage = hitImage;
-		positionX = (int) myself.getPositionX() + CORRECTION;
-		positionY = (int) myself.getPositionY() + CORRECTION;
 		bulletTimer();
 	}
 	
@@ -42,6 +40,8 @@ public class Bullet {
 			bulletScheduler.shutdown();
 			return;
 		}
+		positionX = (int) myself.getPositionX() + CORRECTION;
+		positionY = (int) myself.getPositionY() + CORRECTION;
 		double oneTimeMoveX = (myself.getPositionX() - target.getPositionX()) / COUNT;
 		double oneTimeMoveY = (myself.getPositionY() - target.getPositionY()) / COUNT;
 		bulletImage = EditImage.rotateImage(bulletImage, getAngle());

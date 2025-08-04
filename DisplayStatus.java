@@ -20,6 +20,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import battle.BattleData;
 import battle.BattleEnemy;
 import battle.BattleFacility;
 import battle.BattleUnit;
@@ -71,7 +72,7 @@ public class DisplayStatus extends StatusPanel{
 	public void unit(BattleUnit unitMainData, BattleUnit unitLeftData) {
 		setLabelName(unitMainData.getName());
 		setWeapon(unitMainData, unitLeftData);
-		setUnit(unitMainData.getUnit(), DefaultUnit.WEAPON_UNIT_MAP);
+		setUnit(unitMainData, DefaultUnit.WEAPON_UNIT_MAP);
 		setCut(unitMainData.getCut());
 		super.setStatusPanel(EditImage.compositeImage(Arrays.asList(unitMainData.getDefaultImage(), unitMainData.getDefaultCoreImage(), unitLeftData.getDefaultImage())));
 	}
@@ -79,7 +80,7 @@ public class DisplayStatus extends StatusPanel{
 	public void facility(BattleFacility facilityData) {
 		setLabelName(facilityData.getName());
 		setWeapon(facilityData);
-		setUnit(facilityData.getUnit(), DefaultUnit.WEAPON_UNIT_MAP);
+		setUnit(facilityData, DefaultUnit.WEAPON_UNIT_MAP);
 		setCut(facilityData.getCut());
 		super.setStatusPanel(facilityData.getDefaultImage());
 	}
@@ -87,7 +88,7 @@ public class DisplayStatus extends StatusPanel{
 	public void enemy(BattleEnemy enemyData) {
 		setLabelName(enemyData.getName());
 		setWeapon(enemyData);
-		setUnit(enemyData.getUnit(), DefaultEnemy.UNIT_MAP);
+		setUnit(enemyData, DefaultEnemy.UNIT_MAP);
 		setCut(enemyData.getCut());
 		super.setStatusPanel(enemyData.getDefaultImage());
 	}
@@ -256,6 +257,20 @@ public class DisplayStatus extends StatusPanel{
 			unit[i].setText(map.get(i));
 			if(statusList.get(i) < 0) {
 				unit[i + 6].setText("∞");
+			}else {
+				unit[i + 6].setText(statusList.get(i) + "");
+			}
+		});
+	}
+	
+	private void setUnit(BattleData data, Map<Integer, String> map) {
+		List<Integer> statusList = data.getUnit();
+		IntStream.range(0, statusList.size()).forEach(i -> {
+			unit[i].setText(map.get(i));
+			if(statusList.get(i) < 0) {
+				unit[i + 6].setText("∞");
+			}else if(i == 1) {
+				unit[i + 6].setText(data.getNowHP() + "");
 			}else {
 				unit[i + 6].setText(statusList.get(i) + "");
 			}

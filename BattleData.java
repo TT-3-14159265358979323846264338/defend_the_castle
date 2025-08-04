@@ -160,19 +160,33 @@ public class BattleData{
 			heal(target);
 			return;
 		}
-		atack(target);
+		damage(target);
 	}
 	
 	private void buff(BattleData target) {
 		
+		
+		
+		
+		
+		
 	}
 	
 	private void heal(BattleData target) {
-		
+		int healValue = getAtack() * (100 + getCut(11)) / 100 + target.nowHP;
+		target.nowHP = (target.getMaxHP() < healValue)? target.getMaxHP(): healValue;
 	}
 	
-	private void atack(BattleData target) {
-		
+	private void damage(BattleData target) {
+		if(getAtack() == 0 && target.getDefense() == 0) {
+			return;
+		}
+		double baseDamage = Math.pow(getAtack(), 2) / (getAtack() + target.getDefense());
+		double cutRatio = element.stream().mapToDouble(i -> target.getCut(i)).sum() / element.size();
+		target.nowHP -= (int) (baseDamage * (100 - cutRatio) / 100);
+		if(target.nowHP <= 0) {
+			target.canActivate = false;
+		}
 	}
 	
 	protected void healTimer() {
@@ -183,8 +197,8 @@ public class BattleData{
 				scheduler.shutdown();
 				return;
 			}
-			int futureHP = nowHP + getRecover();
-			nowHP = (futureHP < getMaxHP())? futureHP: getMaxHP();
+			int healValue = nowHP + getRecover();
+			nowHP = (getMaxHP() < healValue)? getMaxHP(): healValue;
 		}, 0, 3, TimeUnit.SECONDS);
 	}
 	
@@ -228,7 +242,7 @@ public class BattleData{
 		return unitCalculate(0);
 	}
 	
-	protected int getNowHP() {
+	public int getNowHP() {
 		return nowHP;
 	}
 	
