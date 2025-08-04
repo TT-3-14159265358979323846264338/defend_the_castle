@@ -53,7 +53,7 @@ public class Bullet {
 				return;
 			}
 			moveBullet(oneTimeMoveX, oneTimeMoveY);
-		}, 0, 20, TimeUnit.MILLISECONDS);
+		}, 0, 30, TimeUnit.MILLISECONDS);
 	}
 	
 	private double getAngle() {
@@ -88,6 +88,8 @@ public class Bullet {
 			completion();
 			return;
 		}
+		positionX = (int) target.getPositionX() + CORRECTION;
+		positionY = (int) target.getPositionY() + CORRECTION;
 		hitScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			if(hitImage.size() - 1 <= hitNumber) {
@@ -96,7 +98,7 @@ public class Bullet {
 				return;
 			}
 			hitNumber++;
-		}, 0, 20, TimeUnit.MILLISECONDS);
+		}, 0, 50, TimeUnit.MILLISECONDS);
 	}
 	
 	protected synchronized BattleData waitCompletion() {
