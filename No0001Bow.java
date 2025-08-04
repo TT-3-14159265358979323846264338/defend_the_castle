@@ -39,7 +39,9 @@ public class No0001Bow extends WeaponData{
 
 	@Override
 	public List<String> getHitImageName() {
-		return Arrays.asList();
+		return Arrays.asList("image/soldier/bow hit 1.png",
+				"image/soldier/bow hit 2.png",
+				"image/soldier/bow hit 3.png");
 	}
 	
 	@Override

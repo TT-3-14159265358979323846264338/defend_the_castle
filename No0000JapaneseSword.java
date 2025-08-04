@@ -44,7 +44,9 @@ public class No0000JapaneseSword extends WeaponData{
 
 	@Override
 	public List<String> getHitImageName() {
-		return Arrays.asList();
+		return Arrays.asList("image/soldier/Japanese sword hit 1.png",
+				"image/soldier/Japanese sword hit 2.png",
+				"image/soldier/Japanese sword hit 3.png");
 	}
 
 	@Override
