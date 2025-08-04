@@ -241,7 +241,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void drawBullet(Graphics g, BattleData[] data) {
-		Stream.of(data).filter(i -> i.getAtackMotion()).forEach(i -> i.getBulletList().stream().forEach(j -> g.drawImage(j.getImage(), j.getPsitionX(), j.getPsitionY(), this)));
+		Stream.of(data).filter(i -> i.getAtackMotion()).forEach(i -> i.getBulletList().stream().forEach(j -> g.drawImage(j.getImage(), (int) j.getPsitionX(), (int) j.getPsitionY(), this)));
 	}
 	
 	private void drawSelectUnit(Graphics g) {

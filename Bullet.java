@@ -18,10 +18,12 @@ public class Bullet {
 	BattleData target;
 	BufferedImage bulletImage;
 	List<BufferedImage> hitImage;
-	int positionX;
-	int positionY;
+	double positionX;
+	double positionY;
 	int bulletNumber = 0;
 	int hitNumber = -1;
+	final static int CORRECTION = 25;
+	final static int COUNT = 5;
 	
 	protected Bullet(Battle Battle, BattleData myself, BattleData target, BufferedImage bulletImage, List<BufferedImage> hitImage) {
 		this.Battle = Battle;
@@ -29,8 +31,8 @@ public class Bullet {
 		this.target = target;
 		this.bulletImage = bulletImage;
 		this.hitImage = hitImage;
-		positionX = (int) myself.getPositionX();
-		positionY = (int) myself.getPositionY();
+		positionX = (int) myself.getPositionX() + CORRECTION;
+		positionY = (int) myself.getPositionY() + CORRECTION;
 		bulletTimer();
 	}
 	
@@ -40,15 +42,17 @@ public class Bullet {
 			bulletScheduler.shutdown();
 			return;
 		}
+		double oneTimeMoveX = (myself.getPositionX() - target.getPositionX()) / COUNT;
+		double oneTimeMoveY = (myself.getPositionY() - target.getPositionY()) / COUNT;
 		bulletImage = EditImage.rotateImage(bulletImage, getAngle());
 		bulletScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
-			if(5 < bulletNumber) {
+			if(COUNT <= bulletNumber) {
 				hitTimer();
 				bulletScheduler.shutdown();
 				return;
 			}
-			moveBullet();
+			moveBullet(oneTimeMoveX, oneTimeMoveY);
 		}, 0, 20, TimeUnit.MILLISECONDS);
 	}
 	
@@ -72,26 +76,23 @@ public class Bullet {
 		return (0 < outerProductDirection)? Math.PI * 2 - cosineTheoremAngle: cosineTheoremAngle;
 	}
 	
-	private void moveBullet() {
+	private void moveBullet(double oneTimeMoveX, double oneTimeMoveY) {
 		bulletNumber++;
-		
-		
-		
-		
-		
+		positionX -= oneTimeMoveX;
+		positionY -= oneTimeMoveY;
 	}
 	
 	private void hitTimer() {
 		if(Objects.isNull(hitImage)) {
-			completion();
 			hitScheduler.shutdown();
+			completion();
 			return;
 		}
 		hitScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			if(hitImage.size() - 1 <= hitNumber) {
-				completion();
 				hitScheduler.shutdown();
+				completion();
 				return;
 			}
 			hitNumber++;
@@ -118,11 +119,11 @@ public class Bullet {
 		return (0 <= hitNumber)? hitImage.get(hitNumber): bulletImage;
 	}
 	
-	protected int getPsitionX() {
+	protected double getPsitionX() {
 		return positionX;
 	}
 	
-	protected int getPsitionY() {
+	protected double getPsitionY() {
 		return positionY;
 	}
 }
