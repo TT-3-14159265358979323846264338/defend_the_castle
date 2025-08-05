@@ -7,7 +7,6 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -505,14 +504,12 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 //ユニット用JButtonの編集
 class UnitButton extends JButton{
 	protected UnitButton() {
-		super();
 		setPreferredSize(new Dimension(60, 30));
 		setContentAreaFilled(false);
 	}
 	
 	protected void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D)g;
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		if(getModel().isArmed()) {
 			g2.setPaint(new GradientPaint(25.0f, 5.0f, Color.LIGHT_GRAY, 30.0f, 20.0f, Color.GRAY));
 		}else {
@@ -523,7 +520,6 @@ class UnitButton extends JButton{
 	}
 	
 	protected void paintBorder(Graphics g) {
-		g.setColor(Color.BLACK);
 		g.drawOval(0, 0, getSize().width, getSize().height);
 	}
 }
