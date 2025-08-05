@@ -169,7 +169,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private void setCostLabel() {
 		costLabel.setText("コスト: " + cost);
 		costLabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
-		costLabel.setBounds(1010, 15, 150, 30);
+		costLabel.setBounds(1010, 15, 200, 30);
 	}
 	
 	private void setButton(JButton button, String name, int x, int y, int width, int height) {
@@ -308,23 +308,17 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	public void mouseClicked(MouseEvent e) {
 		int number = clickPointCheck(e, unitMainData);
 		if(0 <= number) {
-			canStop = true;
-			new DisplayStatus().unit(unitMainData[number], unitLeftData[number]);
-			timerRestart();
+			unitStatus(number);
 			return;
 		}
 		number = clickPointCheck(e, facilityData);
-		if(0 <= number) {
-			canStop = true;
-			new DisplayStatus().facility(facilityData[number]);
-			timerRestart();
+		if(0 <= number && facilityData[number].getActivate()) {
+			facilityStatus(number);
 			return;
 		}
 		number = clickPointCheck(e, enemyData);
-		if(0 <= number) {
-			canStop = true;
-			new DisplayStatus().enemy(enemyData[number]);
-			timerRestart();
+		if(0 <= number && enemyData[number].getActivate()) {
+			enemyStatus(number);
 		}
 	}
 	@Override
@@ -383,6 +377,24 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			}
 		}
 		return -1;
+	}
+	
+	private void unitStatus(int number) {
+		canStop = true;
+		new DisplayStatus().unit(unitMainData[number], unitLeftData[number]);
+		timerRestart();
+	}
+	
+	private void facilityStatus(int number) {
+		canStop = true;
+		new DisplayStatus().facility(facilityData[number]);
+		timerRestart();
+	}
+	
+	private void enemyStatus(int number) {
+		canStop = true;
+		new DisplayStatus().enemy(enemyData[number]);
+		timerRestart();
 	}
 	
 	private void placeUnit(int placementCode) {
