@@ -214,12 +214,12 @@ public class BattleData{
 		return name;
 	}
 	
-	public double getPositionX() {
-		return positionX;
+	public int getPositionX() {
+		return (int) positionX;
 	}
 	
-	public double getPositionY() {
-		return positionY;
+	public int getPositionY() {
+		return (int) positionY;
 	}
 	
 	public List<Integer> getElement(){

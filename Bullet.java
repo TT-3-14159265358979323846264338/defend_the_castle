@@ -121,11 +121,11 @@ public class Bullet {
 		return (0 <= hitNumber)? hitImage.get(hitNumber): bulletImage;
 	}
 	
-	protected double getPsitionX() {
-		return positionX;
+	protected int getPsitionX() {
+		return (int) positionX;
 	}
 	
-	protected double getPsitionY() {
-		return positionY;
+	protected int getPsitionY() {
+		return (int) positionY;
 	}
 }

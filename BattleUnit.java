@@ -17,8 +17,9 @@ import screendisplay.StatusCalculation;
 public class BattleUnit extends BattleData{
 	BufferedImage rightCoreImage;
 	BufferedImage leftCoreImage;
-	Point initialPosition;
+	Point initialPosition = new Point();
 	int type;
+	int defeatNumber;
 	
 	//右武器/コア用　攻撃・被弾などの判定はこちらで行う
 	protected BattleUnit(Battle Battle, List<Integer> composition, int positionX, int positionY) {
@@ -97,6 +98,10 @@ public class BattleUnit extends BattleData{
 		return type;
 	}
 	
+	protected int getDefeatNumber() {
+		return defeatNumber;
+	}
+	
 	protected void activate(int x, int y) {
 		canActivate = true;
 		positionX = x;
@@ -107,6 +112,9 @@ public class BattleUnit extends BattleData{
 	
 	@Override
 	protected void defeat() {
+		if(nowHP <= 0) {
+			defeatNumber++;
+		}
 		canActivate = false;
 		positionX = initialPosition.x;
 		positionY = initialPosition.y;
