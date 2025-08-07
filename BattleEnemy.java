@@ -44,7 +44,8 @@ public class BattleEnemy extends BattleData{
 		routeTimer();
 	}
 	
-	protected void install(BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
+	protected void install(GameData GameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
+		this.GameData = GameData;
 		allyData = Stream.of(enemyData).toList();
 		this.enemyData = Stream.concat(Stream.of(facilityData), Stream.of(unitMainData)).toList();
 		if(element.stream().anyMatch(i -> i == 11)){
@@ -76,6 +77,7 @@ public class BattleEnemy extends BattleData{
 		scheduler.scheduleWithFixedDelay(() -> {
 			if(actitateTime <= Battle.getMainTime()) {
 				canActivate = true;
+				GameData.moraleBoost(battle.GameData.ENEMY, 10);
 				atackTimer();
 				healTimer();
 				scheduler.shutdown();
@@ -102,6 +104,7 @@ public class BattleEnemy extends BattleData{
 				return;
 			}
 			if(actitateTime <= Battle.getMainTime()) {
+				GameData.moraleBoost(battle.GameData.ENEMY, 5);
 				activate();
 			}
 		}, 0, 2000000 / nowSpeed, TimeUnit.MICROSECONDS);
@@ -167,8 +170,14 @@ public class BattleEnemy extends BattleData{
 	}
 	
 	@Override
+	protected int moraleRatio() {
+		return (0 <= GameData.getMoraleDifference())? GameData.getMoraleDifference(): 0;
+	}
+	
+	@Override
 	protected void defeat() {
 		canActivate = false;
-		Battle.addCost(getCost());
+		GameData.addCost(getCost());
+		GameData.lowMorale(battle.GameData.ENEMY, 3);
 	}
 }

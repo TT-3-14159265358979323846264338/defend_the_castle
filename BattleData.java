@@ -16,6 +16,7 @@ import defaultdata.atackpattern.AtackPattern;
 //全キャラクターの共通システム
 public class BattleData{
 	Battle Battle;
+	GameData GameData;
 	List<BattleData> allyData;
 	List<BattleData> enemyData;
 	List<BufferedImage> rightActionImage;
@@ -177,7 +178,7 @@ public class BattleData{
 	}
 	
 	private void heal(BattleData target) {
-		int healValue = getAtack() * (100 + getCut(11)) / 100 + target.nowHP;
+		int healValue = (getAtack() * (100 + getCut(11)) / 100) * (100 + moraleRatio()) / 100 + target.nowHP;
 		target.nowHP = (target.getMaxHP() < healValue)? target.getMaxHP(): healValue;
 	}
 	
@@ -185,12 +186,20 @@ public class BattleData{
 		if(getAtack() == 0 && target.getDefense() == 0) {
 			return;
 		}
-		double baseDamage = Math.pow(getAtack(), 2) / (getAtack() + target.getDefense());
-		double cutRatio = element.stream().mapToDouble(i -> target.getCut(i)).sum() / element.size();
+		double baseDamage = (Math.pow(getAtack(), 2) / (getAtack() + target.getDefense())) * (100 + moraleRatio()) / 100;
+		double cutRatio = element.stream().mapToInt(i -> target.getCut(i)).sum() / element.size();
+		if(100 <= cutRatio) {
+			cutRatio = 100;
+		}
 		target.nowHP -= (int) (baseDamage * (100 - cutRatio) / 100);
-		if(target.nowHP <= 0) {
+		if(target.nowHP <= 0 && canActivate) {
 			target.defeat();
 		}
+	}
+	
+	protected int moraleRatio() {
+		//詳細は@Overrideで記載
+		return 0;
 	}
 	
 	protected void defeat() {
@@ -207,7 +216,7 @@ public class BattleData{
 			}
 			int healValue = nowHP + getRecover();
 			nowHP = (getMaxHP() < healValue)? getMaxHP(): healValue;
-		}, 0, 3, TimeUnit.SECONDS);
+		}, 0, 5, TimeUnit.SECONDS);
 	}
 	
 	public String getName() {

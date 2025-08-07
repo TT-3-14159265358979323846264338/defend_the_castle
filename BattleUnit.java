@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import defaultdata.DefaultAtackPattern;
@@ -19,6 +20,7 @@ public class BattleUnit extends BattleData{
 	BufferedImage leftCoreImage;
 	Point initialPosition = new Point();
 	int type;
+	int awakeningNumber;
 	int defeatNumber;
 	
 	//右武器/コア用　攻撃・被弾などの判定はこちらで行う
@@ -41,9 +43,9 @@ public class BattleUnit extends BattleData{
 		type = StatusCalculation.getType();
 		element = StatusCalculation.getRightElement().stream().toList();
 		AtackPattern = new DefaultAtackPattern().getAtackPattern(StatusCalculation.getRightAtackPattern());
-		defaultWeaponStatus = StatusCalculation.getRightWeaponStatus().stream().toList();
-		defaultUnitStatus = StatusCalculation.getUnitStatus().stream().toList();
-		defaultCutStatus = StatusCalculation.getCutStatus().stream().toList();
+		defaultWeaponStatus = StatusCalculation.getRightWeaponStatus().stream().collect(Collectors.toList());
+		defaultUnitStatus = StatusCalculation.getUnitStatus().stream().collect(Collectors.toList());
+		defaultCutStatus = StatusCalculation.getCutStatus().stream().collect(Collectors.toList());
 		canActivate = false;
 		super.initialize();
 	}
@@ -67,7 +69,8 @@ public class BattleUnit extends BattleData{
 		super.initialize();
 	}
 	
-	protected void install(BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
+	protected void install(GameData GameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
+		this.GameData = GameData;
 		if(Objects.isNull(AtackPattern)) {
 			return;
 		}
@@ -98,22 +101,39 @@ public class BattleUnit extends BattleData{
 		return type;
 	}
 	
+	protected int getAwakeningNumber() {
+		return awakeningNumber;
+	}
+	
 	protected int getDefeatNumber() {
 		return defeatNumber;
 	}
 	
 	protected void activate(int x, int y) {
 		canActivate = true;
+		GameData.moraleBoost(battle.GameData.UNIT, 5);
 		positionX = x;
 		positionY = y;
 		atackTimer();
 		healTimer();
 	}
 	
+	protected void awakening() {
+		awakeningNumber++;
+	}
+	
+	@Override
+	protected int moraleRatio() {
+		return (GameData.getMoraleDifference() <= 0)? Math.abs(GameData.getMoraleDifference()): 0;
+	}
+	
 	@Override
 	protected void defeat() {
 		if(nowHP <= 0) {
 			defeatNumber++;
+			GameData.lowMorale(battle.GameData.UNIT, 60);
+		}else {
+			GameData.lowMorale(battle.GameData.UNIT, 5 + 30 * (getMaxHP() - nowHP) / getMaxHP());
 		}
 		canActivate = false;
 		positionX = initialPosition.x;

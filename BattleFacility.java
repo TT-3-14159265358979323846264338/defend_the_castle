@@ -39,7 +39,8 @@ public class BattleFacility extends BattleData{
 		healTimer();
 	}
 	
-	protected void install(BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
+	protected void install(GameData GameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
+		this.GameData = GameData;
 		if(Objects.isNull(AtackPattern)) {
 			return;
 		}
@@ -57,7 +58,13 @@ public class BattleFacility extends BattleData{
 	}
 	
 	@Override
+	protected int moraleRatio() {
+		return 0;
+	}
+	
+	@Override
 	protected void defeat() {
 		canActivate = false;
+		GameData.lowMorale(battle.GameData.UNIT, 30);
 	}
 }

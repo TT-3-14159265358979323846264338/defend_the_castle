@@ -45,7 +45,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	JButton stageReturnButton = new JButton();
 	JButton statusButton = new UnitButton();
 	JButton retreatButton = new UnitButton();
-	JButton reinforcementButton = new UnitButton();
+	JButton awakeningButton = new UnitButton();
 	JButton unitReturnButton = new UnitButton();
 	BufferedImage stageImage;
 	List<BufferedImage> placementImage = new DefaultStage().getPlacementImage(4);
@@ -54,6 +54,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	BattleUnit[] unitLeftData;//左武器用
 	BattleFacility[] facilityData;
 	BattleEnemy[] enemyData;
+	GameData GameData;
 	Point mouse;
 	Point menuPoint;
 	int select;
@@ -62,7 +63,6 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	int time;
 	boolean canStop;
 	boolean canRangeDraw;
-	int cost = 50;
 	
 	public Battle(MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, int difficultyCode) {
 		addMouseListener(this);
@@ -88,7 +88,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		if(statusButton.isValid()) {
 			setUnitButton(statusButton, "能力", menuPoint.x + 15, menuPoint.y - 10);
 			setUnitButton(retreatButton, "撤退", menuPoint.x - 45, menuPoint.y + 30);
-			setUnitButton(reinforcementButton, "強化", menuPoint.x + 75, menuPoint.y + 30);
+			setUnitButton(awakeningButton, "覚醒", menuPoint.x + 75, menuPoint.y + 30);
 			setUnitButton(unitReturnButton, "戻る", menuPoint.x + 15, menuPoint.y + 70);
 		}
 		drawField(g);
@@ -97,10 +97,12 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		drawUnit(g);
 		drawBullet(g);
 		drawSelectUnit(g);
+		drawMorale(g);
 		requestFocus();
 	}
 	
 	private void install(StageData StageData) {
+		GameData = new GameData(StageData);
 		stageImage = StageData.getImage(2);
 		placementList = StageData.getPlacementPoint();
 		SaveComposition SaveComposition = new SaveComposition();
@@ -110,10 +112,10 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		unitLeftData = IntStream.range(0, composition.size()).mapToObj(i -> new BattleUnit(this, composition.get(i))).toArray(BattleUnit[]::new);;
 		facilityData = IntStream.range(0, StageData.getFacility().size()).mapToObj(i -> new BattleFacility(this, StageData, i)).toArray(BattleFacility[]::new);
 		enemyData = IntStream.range(0, StageData.getEnemy().size()).mapToObj(i -> new BattleEnemy(this, StageData, i)).toArray(BattleEnemy[]::new);
-		Stream.of(unitMainData).forEach(i -> i.install(unitMainData, facilityData, enemyData));
-		Stream.of(unitLeftData).forEach(i -> i.install(unitMainData, facilityData, enemyData));
-		Stream.of(facilityData).forEach(i -> i.install(unitMainData, facilityData, enemyData));
-		Stream.of(enemyData).forEach(i -> i.install(unitMainData, facilityData, enemyData));
+		Stream.of(unitMainData).forEach(i -> i.install(GameData, unitMainData, facilityData, enemyData));
+		Stream.of(unitLeftData).forEach(i -> i.install(GameData, unitMainData, facilityData, enemyData));
+		Stream.of(facilityData).forEach(i -> i.install(GameData, unitMainData, facilityData, enemyData));
+		Stream.of(enemyData).forEach(i -> i.install(GameData, unitMainData, facilityData, enemyData));
 	}
 	
 	private void mainTimer() {
@@ -181,7 +183,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void setCostLabel() {
-		costLabel.setText("コスト: " + cost);
+		costLabel.setText("コスト: " + GameData.getCost());
 		costLabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
 		costLabel.setBounds(1010, 15, 200, 30);
 	}
@@ -312,6 +314,21 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		g.drawRect(x, y, SIZE, height);
 	}
 	
+	private void drawMorale(Graphics g) {
+		g.setColor(Color.BLUE);
+		g.fillRect(25, 525, 950, 30);
+		int moralePosition = 475 + GameData.getMoraleDifference() * 2;
+		if(moralePosition <= 50) {
+			moralePosition = 50;
+		}else if(900 <= moralePosition) {
+			moralePosition = 900;
+		}
+		g.setColor(Color.RED);
+		g.fillRect(25, 525, moralePosition, 30);
+		g.setColor(Color.BLACK);
+		g.fillPolygon(new int[] {490, 500, 510}, new int[] {500, 525, 500}, 3);
+	}
+	
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		if(canSelect) {
@@ -352,7 +369,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			int y = initialY(i) + 30;
 			if(ValueRange.of(x, x + SIZE).isValidIntValue(e.getX())
 					&& ValueRange.of(y, y + SIZE).isValidIntValue(e.getY())) {
-				if(unitMainData[i].getCost() <= cost) {
+				if(unitMainData[i].getCost() <= GameData.getCost()) {
 					select = i;
 					canSelect = true;
 				}
@@ -406,7 +423,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		menuPoint = new Point(unitMainData[number].getPositionX(), unitMainData[number].getPositionY());
 		addStatusButton(number);
 		addRetreatButton(number);
-		addReinforcementButton(number);
+		addAwakeningButton(number);
 		addUnitReturnButton(number);
 	}
 	
@@ -414,22 +431,23 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		add(statusButton);
 		statusButton.addActionListener(e->{
 			unitStatus(number);
+			removeMenu();
 		});
 	}
 	
 	private void addRetreatButton(int number) {
 		add(retreatButton);
 		retreatButton.addActionListener(e->{
-			addCost((int) Math.ceil(unitMainData[number].getCost() / 2));
+			GameData.addCost((int) Math.ceil(unitMainData[number].getCost() / 2));
 			unitMainData[number].defeat();
 			unitLeftData[number].defeat();
 			removeMenu();
 		});
 	}
 	
-	private void addReinforcementButton(int number) {
-		add(reinforcementButton);
-		reinforcementButton.addActionListener(e->{
+	private void addAwakeningButton(int number) {
+		add(awakeningButton);
+		awakeningButton.addActionListener(e->{
 			
 			
 			
@@ -452,7 +470,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		};
 		removeButton.accept(statusButton);
 		removeButton.accept(retreatButton);
-		removeButton.accept(reinforcementButton);
+		removeButton.accept(awakeningButton);
 		removeButton.accept(unitReturnButton);
 	}
 	
@@ -485,19 +503,11 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		placementList.get(placementCode).stream().filter(i -> positionCheck.test(i)).forEach(i -> {
 			if(ValueRange.of(i.get(0).intValue(), i.get(0).intValue() + SIZE).isValidIntValue(mouse.x)
 					&& ValueRange.of(i.get(1).intValue(), i.get(1).intValue() + SIZE).isValidIntValue(mouse.y)) {
-				consumeCost(unitMainData[select].getCost());
+				GameData.consumeCost(unitMainData[select].getCost());
 				unitMainData[select].activate(correctPosition.apply(i.get(0)), correctPosition.apply(i.get(1)));
 				unitLeftData[select].activate(correctPosition.apply(i.get(0)), correctPosition.apply(i.get(1)));
 			}
 		});
-	}
-	
-	private void consumeCost(int consumeValue) {
-		cost -= consumeValue;
-	}
-	
-	protected void addCost(int addValue) {
-		cost += addValue;
 	}
 }
 
