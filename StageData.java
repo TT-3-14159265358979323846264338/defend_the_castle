@@ -30,6 +30,12 @@ public abstract class StageData {
 	//配置位置　near, far, allの順にList<Point>を追加
 	public abstract List<List<List<Double>>> getPlacementPoint();
 	
+	//初期コスト
+	public abstract int getCost();
+	
+	//初期士気(味方, 敵 の順にリスト化)
+	public abstract List<Integer> getMorale();
+	
 	//戦功内容　実際の表示では"("で改行が入るため"("の前のスペース禁止
 	public abstract List<String> getMerit();
 	

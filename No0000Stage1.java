@@ -74,6 +74,16 @@ public class No0000Stage1 extends StageData{
 						Arrays.asList(centerX + size * 11, centerY - size * 5),
 						Arrays.asList(centerX + size * 15, centerY - size * 5)));
 	}
+	
+	@Override
+	public int getCost() {
+		return 50;
+	}
+	
+	@Override
+	public List<Integer> getMorale(){
+		return Arrays.asList(0, 0);
+	}
 
 	@Override
 	public List<String> getMerit() {
