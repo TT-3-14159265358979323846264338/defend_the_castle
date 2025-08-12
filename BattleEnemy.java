@@ -1,6 +1,7 @@
 package battle;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -20,6 +21,7 @@ public class BattleEnemy extends BattleData{
 	int actitateTime;
 	int pauseCount;
 	int deactivateCount;
+	Object key = new Object();
 	
 	protected BattleEnemy(Battle Battle, StageData StageData, int number) {
 		this.Battle = Battle;
@@ -41,7 +43,6 @@ public class BattleEnemy extends BattleData{
 		defaultCutStatus = EnemyData.getCutStatus().stream().toList();
 		canActivate = false;
 		super.initialize();
-		routeTimer();
 	}
 	
 	protected void install(GameData GameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
@@ -53,6 +54,7 @@ public class BattleEnemy extends BattleData{
 		}else {
 			AtackPattern.install(this, this.enemyData);
 		}
+		routeTimer();
 	}
 	
 	public int getMove() {
@@ -89,12 +91,17 @@ public class BattleEnemy extends BattleData{
 		scheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			timerWait();
-			if(nowSpeed != getMoveSpeedOrBlock()) {
-				routeTimer();
+			BattleData blockTarget = blockTarget();
+			if(Objects.nonNull(blockTarget)) {
+				blockTarget.addBlock(this);
+				blockWait();
+			}
+			if(nowHP <= 0) {
 				scheduler.shutdown();
 				return;
 			}
-			if(nowHP <= 0) {
+			if(nowSpeed != getMoveSpeedOrBlock()) {
+				routeTimer();
 				scheduler.shutdown();
 				return;
 			}
@@ -108,6 +115,42 @@ public class BattleEnemy extends BattleData{
 				activate();
 			}
 		}, 0, 2000000 / nowSpeed, TimeUnit.MICROSECONDS);
+	}
+	
+	private BattleData blockTarget() {
+		List<BattleData> nearList = enemyData.stream().filter(i -> i.getActivate()).filter(this::distanceCheck).toList();
+		if(nearList.isEmpty()) {
+			return null;
+		}
+		for(int i = 0; i < nearList.size(); i++) {
+			if(nearList.get(i).getMoveSpeedOrBlock() < 0) {
+				return nearList.get(i);
+			}
+			if(nearList.get(i).getBlock().size() < nearList.get(i).getMoveSpeedOrBlock()) {
+				return nearList.get(i);
+			}
+		}
+		return null;
+	}
+	
+	private boolean distanceCheck(BattleData BattleData) {
+		return Math.sqrt(Math.pow(positionX - BattleData.getPositionX(), 2) + Math.pow(positionY - BattleData.getPositionY(), 2)) <= battle.Battle.SIZE;
+	}
+	
+	private void blockWait() {
+		synchronized (key) {
+			try {
+				key.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	protected void releaseBlock() {
+		synchronized (key) {
+			key.notify();
+		}
 	}
 	
 	private void move() {
@@ -178,6 +221,7 @@ public class BattleEnemy extends BattleData{
 	protected void defeat() {
 		canActivate = false;
 		GameData.addCost(getCost());
+		removeBlock(this);
 		GameData.lowMorale(battle.GameData.ENEMY, 3);
 	}
 }

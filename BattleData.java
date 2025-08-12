@@ -1,6 +1,7 @@
 package battle;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -43,6 +44,7 @@ public class BattleData{
 	List<Double> ratioCutStatus;
 	int nowHP;
 	boolean canActivate;
+	List<BattleEnemy> block = new ArrayList<>();
 	
 	protected void initialize() {
 		leftActionImage = rightActionImage.stream().map(i -> EditImage.mirrorImage(i)).toList();
@@ -305,5 +307,23 @@ public class BattleData{
 	
 	private int calculate(int fixedValue, int flexValue, double ratio) {
 		return (int) ((fixedValue + flexValue) * ratio);
+	}
+	
+	protected List<BattleEnemy> getBlock(){
+		return block;
+	}
+	
+	protected void addBlock(BattleEnemy BattleEnemy) {
+		block.add(BattleEnemy);
+	}
+	
+	protected void removeBlock(BattleEnemy BattleEnemy) {
+		BattleEnemy.releaseBlock();
+		enemyData.stream().forEach(i -> i.getBlock().remove(BattleEnemy));
+	}
+	
+	protected void clearBlock() {
+		block.stream().forEach(i -> i.releaseBlock());
+		block.clear();
 	}
 }

@@ -139,6 +139,7 @@ public class BattleUnit extends BattleData{
 		positionX = initialPosition.x;
 		positionY = initialPosition.y;
 		existsRight = true;
+		clearBlock();
 		super.initialize();
 	}
 }

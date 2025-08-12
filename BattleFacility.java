@@ -65,6 +65,7 @@ public class BattleFacility extends BattleData{
 	@Override
 	protected void defeat() {
 		canActivate = false;
+		clearBlock();
 		GameData.lowMorale(battle.GameData.UNIT, 30);
 	}
 }

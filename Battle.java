@@ -135,6 +135,10 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		}
 	}
 	
+	private void timerStop() {
+		canStop = true;
+	}
+	
 	protected synchronized void timerRestart() {
 		notifyAll();
 		canStop = false;
@@ -161,7 +165,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private void addMeritButton(StageData StageData, List<Boolean> clearMerit) {
 		add(meritButton);
 		meritButton.addActionListener(e->{
-			canStop = true;
+			timerStop();
 			new PauseDialog(this, StageData, clearMerit);
 		});
 	}
@@ -169,7 +173,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private void addPauseButton(MainFrame MainFrame) {
 		add(pauseButton);
 		pauseButton.addActionListener(e->{
-			canStop = true;
+			timerStop();
 			new PauseDialog(this);
 		});
 	}
@@ -177,7 +181,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private void addStageReturnButton(MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, int difficultyCode) {
 		add(stageReturnButton);
 		stageReturnButton.addActionListener(e->{
-			canStop = true;
+			timerStop();
 			new PauseDialog(this, MainFrame, StageData, clearMerit, difficultyCode);
 		});
 	}
@@ -420,6 +424,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void unitMenu(int number) {
+		timerStop();
 		menuPoint = new Point(unitMainData[number].getPositionX(), unitMainData[number].getPositionY());
 		addStatusButton(number);
 		addRetreatButton(number);
@@ -452,7 +457,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			
 			
 			
-			
+			removeMenu();
 		});
 	}
 	
@@ -472,22 +477,23 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		removeButton.accept(retreatButton);
 		removeButton.accept(awakeningButton);
 		removeButton.accept(unitReturnButton);
+		timerRestart();
 	}
 	
 	private void unitStatus(int number) {
-		canStop = true;
+		timerStop();
 		new DisplayStatus().unit(unitMainData[number], unitLeftData[number]);
 		timerRestart();
 	}
 	
 	private void facilityStatus(int number) {
-		canStop = true;
+		timerStop();
 		new DisplayStatus().facility(facilityData[number]);
 		timerRestart();
 	}
 	
 	private void enemyStatus(int number) {
-		canStop = true;
+		timerStop();
 		new DisplayStatus().enemy(enemyData[number]);
 		timerRestart();
 	}
