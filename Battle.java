@@ -220,7 +220,9 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 				rangeDraw(g, new Color(255, 0, 0, 20), facilityData[i].getPositionX(), facilityData[i].getPositionY(), facilityData[i].getRange());
 			}
 			g.drawImage(facilityData[i].getActivate()? facilityData[i].getActionImage(): facilityData[i].getBreakImage(), facilityData[i].getPositionX(), facilityData[i].getPositionY(), this);
-			drawHP(g, facilityData[i]);
+			if(facilityData[i].getActivate()) {
+				drawHP(g, facilityData[i]);
+			}
 		});
 	}
 	

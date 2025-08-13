@@ -21,7 +21,7 @@ public class BattleEnemy extends BattleData{
 	int actitateTime;
 	int pauseCount;
 	int deactivateCount;
-	Object key = new Object();
+	Object blockLock = new Object();
 	
 	protected BattleEnemy(Battle Battle, StageData StageData, int number) {
 		this.Battle = Battle;
@@ -138,9 +138,9 @@ public class BattleEnemy extends BattleData{
 	}
 	
 	private void blockWait() {
-		synchronized (key) {
+		synchronized (blockLock) {
 			try {
-				key.wait();
+				blockLock.wait();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -148,8 +148,8 @@ public class BattleEnemy extends BattleData{
 	}
 	
 	protected void releaseBlock() {
-		synchronized (key) {
-			key.notify();
+		synchronized (blockLock) {
+			blockLock.notifyAll();
 		}
 	}
 	

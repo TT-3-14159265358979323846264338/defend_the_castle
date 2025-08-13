@@ -45,6 +45,7 @@ public class BattleData{
 	int nowHP;
 	boolean canActivate;
 	List<BattleEnemy> block = new ArrayList<>();
+	Object HPLock = new Object();
 	
 	protected void initialize() {
 		leftActionImage = rightActionImage.stream().map(i -> EditImage.mirrorImage(i)).toList();
@@ -180,23 +181,27 @@ public class BattleData{
 	}
 	
 	private void heal(BattleData target) {
-		int healValue = (getAtack() * (100 + getCut(11)) / 100) * (100 + moraleRatio()) / 100 + target.nowHP;
-		target.nowHP = (target.getMaxHP() < healValue)? target.getMaxHP(): healValue;
+		target.HPDecrease(- healValue());
+	}
+	
+	private int healValue() {
+		return (getAtack() * (100 + getCut(11)) / 100) * (100 + moraleRatio()) / 100;
 	}
 	
 	private void damage(BattleData target) {
 		if(getAtack() == 0 && target.getDefense() == 0) {
 			return;
 		}
+		target.HPDecrease(damageValue(target));
+	}
+	
+	private int damageValue(BattleData target) {
 		double baseDamage = (Math.pow(getAtack(), 2) / (getAtack() + target.getDefense())) * (100 + moraleRatio()) / 100;
 		double cutRatio = element.stream().mapToInt(i -> target.getCut(i)).sum() / element.size();
 		if(100 <= cutRatio) {
 			cutRatio = 100;
 		}
-		target.nowHP -= (int) (baseDamage * (100 - cutRatio) / 100);
-		if(target.nowHP <= 0 && canActivate) {
-			target.defeat();
-		}
+		return (int) (baseDamage * (100 - cutRatio) / 100);
 	}
 	
 	protected int moraleRatio() {
@@ -216,8 +221,7 @@ public class BattleData{
 				scheduler.shutdown();
 				return;
 			}
-			int healValue = nowHP + getRecover();
-			nowHP = (getMaxHP() < healValue)? getMaxHP(): healValue;
+			HPDecrease(- getRecover());
 		}, 0, 5, TimeUnit.SECONDS);
 	}
 	
@@ -263,6 +267,18 @@ public class BattleData{
 	
 	public int getNowHP() {
 		return nowHP;
+	}
+	
+	private void HPDecrease(int decrease) {
+		synchronized(HPLock) {
+			nowHP -= decrease;
+			if(nowHP <= 0 && canActivate) {
+				defeat();
+			}
+			if(getMaxHP() < nowHP) {
+				nowHP = getMaxHP();
+			}
+		}
 	}
 	
 	private int getDefense() {
