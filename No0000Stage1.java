@@ -156,8 +156,8 @@ public class No0000Stage1 extends StageData{
 						Arrays.asList(0, 50, 225, 0, 0),
 						Arrays.asList(0, 30, 200, 0, 0),
 						Arrays.asList(0, 10, 180, 0, 0),
-						Arrays.asList(655, 0, 155, 0, 0),
-						Arrays.asList(630, 0, 135, 0, 0)
+						Arrays.asList(635, 0, 155, 0, 0),
+						Arrays.asList(610, 0, 135, 0, 0)
 						),
 				//route3: 右下から直行
 				Arrays.asList(
@@ -165,7 +165,8 @@ public class No0000Stage1 extends StageData{
 						Arrays.asList(0, 440, 0, 200, 0),
 						Arrays.asList(0, 0, 225, 0, 0),
 						Arrays.asList(660, 0, 0, 200, 0),
-						Arrays.asList(0, 0, 225, 0, 0)
+						Arrays.asList(0, 0, 225, 0, 0),
+						Arrays.asList(550, 0, 270, 0, 0)
 						)
 				);
 	}
