@@ -9,6 +9,8 @@ public class GameData{
 	int unitMorale;
 	int enemyMorale;
 	int cost;
+	Object moraleLock = new Object();
+	Object costLock = new Object();
 	
 	protected GameData(StageData StageData) {
 		unitMorale = StageData.getMorale().get(0);
@@ -17,27 +19,35 @@ public class GameData{
 	}
 	
 	protected void moraleBoost(boolean code, int boost) {
-		if(code) {
-			unitMorale += boost;
-			return;
+		synchronized(moraleLock) {
+			if(code) {
+				unitMorale += boost;
+				return;
+			}
+			enemyMorale += boost;
 		}
-		enemyMorale += boost;
 	}
 	
 	protected void lowMorale(boolean code, int decline) {
-		if(code) {
-			unitMorale -= decline;
-			return;
+		synchronized(moraleLock) {
+			if(code) {
+				unitMorale -= decline;
+				return;
+			}
+			enemyMorale -= decline;
 		}
-		enemyMorale -= decline;
 	}
 	
 	protected void consumeCost(int consumeValue) {
-		cost -= consumeValue;
+		synchronized(costLock) {
+			cost -= consumeValue;
+		}
 	}
 	
 	protected void addCost(int addValue) {
-		cost += addValue;
+		synchronized(costLock) {
+			cost += addValue;
+		}
 	}
 	
 	protected int getMoraleDifference() {
