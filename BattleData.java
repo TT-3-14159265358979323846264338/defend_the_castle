@@ -46,6 +46,7 @@ public class BattleData{
 	boolean canActivate;
 	List<BattleEnemy> block = new ArrayList<>();
 	Object HPLock = new Object();
+	Object blockLock = new Object();
 	
 	protected void initialize() {
 		leftActionImage = rightActionImage.stream().map(i -> EditImage.mirrorImage(i)).toList();
@@ -274,6 +275,7 @@ public class BattleData{
 			nowHP -= decrease;
 			if(nowHP <= 0 && canActivate) {
 				defeat();
+				return;
 			}
 			if(getMaxHP() < nowHP) {
 				nowHP = getMaxHP();
@@ -330,7 +332,9 @@ public class BattleData{
 	}
 	
 	protected void addBlock(BattleEnemy BattleEnemy) {
-		block.add(BattleEnemy);
+		synchronized(blockLock) {
+			block.add(BattleEnemy);
+		}
 	}
 	
 	protected void removeBlock(BattleEnemy BattleEnemy) {
