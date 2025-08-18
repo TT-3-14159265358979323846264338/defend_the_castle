@@ -135,7 +135,7 @@ public class Buff {
 			if(activateCheck(scheduler)) {
 				return;
 			}
-			if(buffInformation.get(RECAST) * 1000 / DELEY <= recastCount) {
+			if(recastMax() <= recastCount) {
 				recastCount = 0;
 				canRecast = true;
 				scheduler.shutdown();
@@ -304,12 +304,16 @@ public class Buff {
 		durationCount = 0;
 	}
 	
-	private boolean intervalCheck() {
-		return getInterval() == NONE;
+	private double recastMax() {
+		return buffInformation.get(RECAST) * 1000 / DELEY;
 	}
 	
 	private int getInterval() {
 		return buffInformation.get(INTERVAL).intValue();
+	}
+	
+	private boolean intervalCheck() {
+		return getInterval() == NONE;
 	}
 	
 	private boolean durationCheck() {
@@ -340,15 +344,39 @@ public class Buff {
 	}
 	
 	//データ返却
-	protected List<BattleData> getTarget(){
-		return target;
+	protected boolean targetCheck(BattleData BattleData){
+		return target.stream().anyMatch(i -> i.equals(BattleData));
 	}
 	
-	protected List<Double> getEffect(){
-		return effect;
+	protected double additionalEffect(BattleData BattleData, double status){
+		if(buffInformation.get(CALCULATION_CODE) == ADDITION) {
+			return status += buffValue(BattleData);
+		}
+		if(buffInformation.get(CALCULATION_CODE) == SUBTRACTION) {
+			return status -= buffValue(BattleData);
+		}
+		return status;
+	}
+	
+	protected double ratioEffect(BattleData BattleData, double status) {
+		if(buffInformation.get(CALCULATION_CODE) == MULTIPLICATION) {
+			return status *= buffValue(BattleData);
+		}
+		if(buffInformation.get(CALCULATION_CODE) == DIVISION) {
+			return status /= buffValue(BattleData);
+		}
+		return status;
+	}
+	
+	private double buffValue(BattleData BattleData) {
+		return effect.get(target.indexOf(BattleData));
 	}
 	
 	protected boolean getRecast() {
 		return canRecast;
+	}
+	
+	protected double recastRatio() {
+		return recastCount / recastMax();
 	}
 }
