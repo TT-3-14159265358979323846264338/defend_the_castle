@@ -6,11 +6,10 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-//各バフの発生管理
+//各バフの管理
 public class Buff {
 	//発生タイミングコード
 	public final static double BIGINNING = 0;
@@ -26,9 +25,9 @@ public class Buff {
 	
 	//効果範囲コード
 	public final static double ALL = 0;
-	public final static double WITHIN_RANGE = 1;
-	public final static double OUT_RANGE = 2;
-	public final static double MYSELF = 3;
+	public final static double MYSELF = 1;
+	public final static double WITHIN_RANGE = 2;
+	public final static double OUT_RANGE = 3;
 	
 	//対象ステータスコード
 	public final static double POWER = 0;
@@ -79,7 +78,7 @@ public class Buff {
 	public final static int DURATION = 8;
 	public final static int RECAST = 9;
 	
-	//インスタンス変数
+	//バフの管理
 	List<Double> buffInformation;
 	BattleData myself;
 	BattleData[] candidate;
@@ -90,6 +89,7 @@ public class Buff {
 	int durationCount = 0;
 	int recastCount = 0;
 	boolean canRecast = true;
+	final static int DELEY = 20;
 	
 	protected Buff(List<Double> buffInformation, BattleData myself, BattleData[] ally, BattleData[] enemy, Battle Battle, GameData GameData) {
 		//テスト用
@@ -130,12 +130,15 @@ public class Buff {
 		scheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			recastCount++;
-			if(buffInformation.get(RECAST) * 1000 / 20 <= recastCount) {
+			if(activateCheck(scheduler)) {
+				return;
+			}
+			if(buffInformation.get(RECAST) * 1000 / DELEY <= recastCount) {
 				recastCount = 0;
 				canRecast = true;
 				scheduler.shutdown();
 			}
-		}, 0, 20, TimeUnit.MILLISECONDS);
+		}, 0, DELEY, TimeUnit.MILLISECONDS);
 	}
 	
 	//ゲームバフ
@@ -148,27 +151,15 @@ public class Buff {
 		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 		scheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
+			if(activateCheck(scheduler)) {
+				return;
+			}
 			gameBuffSelect();
 			if(maxCheck(0)) {
 				scheduler.shutdown();
 			}
-		}, 0, buffInformation.get(INTERVAL).intValue(), TimeUnit.SECONDS);
+		}, 0, getInterval(), TimeUnit.SECONDS);
 		durationControl(scheduler);
-	}
-	
-	private void durationControl(ScheduledExecutorService scheduler) {
-		if(buffInformation.get(DURATION) == NONE) {
-			return;
-		}
-		scheduler.scheduleWithFixedDelay(() -> {
-			Battle.timerWait();
-			durationCount++;
-			if(buffInformation.get(DURATION) * 1000 / 20 <= durationCount) {
-				effect.clear();
-				durationCount = 0;
-				scheduler.shutdown();
-			}
-		}, 0, 20, TimeUnit.MILLISECONDS);
 	}
 	
 	private void gameBuffSelect() {
@@ -182,20 +173,19 @@ public class Buff {
 	private void moraleBuff() {
 		addEffect(0);
 		if(additionCheck()) {
-			
-			GameData.moraleBoost(allyCheck(), effect());
+			GameData.moraleBoost(allyCheck(), (int) effect());
 			return;
 		}
-		GameData.lowMorale(allyCheck(), effect());
+		GameData.lowMorale(allyCheck(), (int) effect());
 	}
 	
 	private void costBuff() {
 		addEffect(0);
 		if(additionCheck()) {
-			GameData.addCost(effect());
+			GameData.addCost((int) effect());
 			return;
 		}
-		GameData.consumeCost(effect());
+		GameData.consumeCost((int) effect());
 	}
 	
 	//ユニットバフ
@@ -209,70 +199,98 @@ public class Buff {
 			return;
 		}
 		if(buffInformation.get(RANGE_CODE) == WITHIN_RANGE) {
-			
-			
-			
-			
-			
+			withinBuff();
 			return;
 		}
-		if(buffInformation.get(RANGE_CODE) == OUT_RANGE) {
-			
-			
-			
-			
-			
-			return;
-		}
+		outBuff();
 	}
 	
 	private void allBuff() {
-		target = Stream.of(candidate).collect(Collectors.toList());
-		effect = Stream.of(candidate).map(i -> 0.0).collect(Collectors.toList());
-		if(intervalCheck()) {
-			IntStream.range(0, effect.size()).forEach(i -> addEffect(i));
-			return;
-		}
 		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		scheduler.scheduleWithFixedDelay(() -> {
-			Battle.timerWait();
-			IntStream.range(0, effect.size()).filter(i -> !maxCheck(i)).forEach(i -> addEffect(i));
-		}, 0, buffInformation.get(INTERVAL).intValue(), TimeUnit.SECONDS);
+		targetControl(scheduler);
+		intervalControl(scheduler);
 		durationControl(scheduler);
 	}
 	
-	private void allBuffControl() {
-		Stream.of(candidate).filter(i -> i.getActivate()).forEach(this::updateBuff);
-		
-		
-		
-		
-		
-		
-		
-		
-		
+	private void targetControl(ScheduledExecutorService scheduler) {
+		scheduler.scheduleWithFixedDelay(() -> {
+			Battle.timerWait();
+			if(activateCheck(scheduler)) {
+				return;
+			}
+			Stream<BattleData> newTarget = Stream.of(candidate).filter(i -> i.getActivate());
+			IntStream.range(0, target.size()).forEach(i -> removeBuff(i, newTarget));
+			newTarget.forEach(this::addBuff);
+		}, 0, DELEY, TimeUnit.MILLISECONDS);
 	}
 	
-	private void updateBuff(BattleData BattleData) {
-		if(target.stream().noneMatch(i -> i.equals(BattleData))) {
-			
-			
-			
+	private void removeBuff(int number, Stream<BattleData> newTarget) {
+		if(newTarget.noneMatch(i -> i.equals(target.get(number)))) {
+			target.remove(number);
+			effect.remove(number);
 		}
 	}
 	
+	private void addBuff(BattleData BattleData) {
+		if(target.stream().noneMatch(i -> i.equals(BattleData))) {
+			target.add(BattleData);
+			effect.add(effect());
+		}
+	}
 	
-	
+	private void intervalControl(ScheduledExecutorService scheduler) {
+		if(intervalCheck()) {
+			return;
+		}
+		scheduler.scheduleWithFixedDelay(() -> {
+			Battle.timerWait();
+			if(activateCheck(scheduler)) {
+				return;
+			}
+			IntStream.range(0, effect.size()).filter(i -> !maxCheck(i)).forEach(i -> addEffect(i));
+		}, getInterval(), getInterval(), TimeUnit.SECONDS);
+	}
 	
 	private void myselfBuff() {
 		target = Arrays.asList(myself);
-		effect = Arrays.asList(buffInformation.get(EFFECT));
+		effect = Arrays.asList(effect());
+		if(intervalCheck() && durationCheck()) {
+			return;
+		}
+		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+		intervalControl(scheduler);
+		durationControl(scheduler);
+	}
+	
+	private void withinBuff() {
+		
+		
+		
+		
+		
 		
 		
 		
 		
 	}
+	
+	private void outBuff() {
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	}
+	
+	
+	
+	
+	
 	
 	
 	
@@ -281,8 +299,45 @@ public class Buff {
 	
 	
 	//共通メソッド
+	private void durationControl(ScheduledExecutorService scheduler) {
+		if(durationCheck()) {
+			return;
+		}
+		scheduler.scheduleWithFixedDelay(() -> {
+			Battle.timerWait();
+			durationCount++;
+			if(buffInformation.get(DURATION) * 1000 / 20 <= durationCount) {
+				resetBuff();
+				scheduler.shutdown();
+			}
+		}, 0, 20, TimeUnit.MILLISECONDS);
+	}
+	
+	private boolean activateCheck(ScheduledExecutorService scheduler) {
+		if(!myself.getActivate()) {
+			resetBuff();
+			scheduler.shutdown();
+			return true;
+		}
+		return false;
+	}
+	
+	private void resetBuff() {
+		target.clear();
+		effect.clear();
+		durationCount = 0;
+	}
+	
 	private boolean intervalCheck() {
-		return buffInformation.get(INTERVAL) == NONE;
+		return getInterval() == NONE;
+	}
+	
+	private int getInterval() {
+		return buffInformation.get(INTERVAL).intValue();
+	}
+	
+	private boolean durationCheck() {
+		return buffInformation.get(DURATION) == NONE;
 	}
 	
 	private boolean maxCheck(int number) {
@@ -300,21 +355,13 @@ public class Buff {
 		return buffInformation.get(TARGET_CODE) == ALLY;
 	}
 	
-	private int effect() {
-		return buffInformation.get(EFFECT).intValue();
+	private double effect() {
+		return buffInformation.get(EFFECT);
 	}
 	
 	private void addEffect(int number) {
 		effect.set(number, effect.get(number) + effect());
 	}
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	//データ返却
 	protected List<BattleData> getTarget(){
@@ -325,7 +372,7 @@ public class Buff {
 		return effect;
 	}
 	
-	protected boolean recast() {
+	protected boolean getRecast() {
 		return canRecast;
 	}
 }
