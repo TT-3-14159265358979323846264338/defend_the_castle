@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -24,8 +26,8 @@ public class Buff {
 	public final static double GAME = 2;
 	
 	//効果範囲コード
-	public final static double ALL = 0;
-	public final static double MYSELF = 1;
+	public final static double MYSELF = 0;
+	public final static double ALL = 1;
 	public final static double WITHIN_RANGE = 2;
 	public final static double OUT_RANGE = 3;
 	
@@ -190,35 +192,56 @@ public class Buff {
 	
 	//ユニットバフ
 	private void unitBuff() {
-		if(buffInformation.get(RANGE_CODE) == ALL) {
-			allBuff();
-			return;
-		}
 		if(buffInformation.get(RANGE_CODE) == MYSELF) {
 			myselfBuff();
 			return;
 		}
-		if(buffInformation.get(RANGE_CODE) == WITHIN_RANGE) {
-			withinBuff();
+		if(buffInformation.get(RANGE_CODE) == ALL) {
+			multipleBuff(i -> true);
 			return;
 		}
-		outBuff();
+		if(buffInformation.get(RANGE_CODE) == WITHIN_RANGE) {
+			multipleBuff(i -> withinCheck(i));
+			return;
+		}
+		multipleBuff(i -> !withinCheck(i));
 	}
 	
-	private void allBuff() {
+	private void myselfBuff() {
+		target = Arrays.asList(myself);
+		effect = Arrays.asList(effect());
+		if(intervalCheck() && durationCheck()) {
+			return;
+		}
 		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		targetControl(scheduler);
 		intervalControl(scheduler);
 		durationControl(scheduler);
 	}
 	
-	private void targetControl(ScheduledExecutorService scheduler) {
+	private void multipleBuff(Predicate<? super BattleData> rangeFilter) {
+		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+		targetControl(scheduler, rangeFilter);
+		intervalControl(scheduler);
+		durationControl(scheduler);
+	}
+	
+	private boolean withinCheck(BattleData BattleData) {
+		Function<BattleData, Double> distanceCalculate = (data) -> {
+			return Math.sqrt(Math.pow(myself.getPositionX() - data.getPositionX(), 2) + Math.pow(myself.getPositionY() - data.getPositionY(), 2));
+		};
+		Predicate<BattleData> distanceCheck = (data) -> {
+			return distanceCalculate.apply(data) <= myself.getRange() + battle.Battle.SIZE / 2;
+		};
+		return distanceCheck.test(BattleData);
+	}
+	
+	private void targetControl(ScheduledExecutorService scheduler, Predicate<? super BattleData> rangeFilter) {
 		scheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			if(activateCheck(scheduler)) {
 				return;
 			}
-			Stream<BattleData> newTarget = Stream.of(candidate).filter(i -> i.getActivate());
+			Stream<BattleData> newTarget = Stream.of(candidate).filter(i -> i.getActivate()).filter(rangeFilter);
 			IntStream.range(0, target.size()).forEach(i -> removeBuff(i, newTarget));
 			newTarget.forEach(this::addBuff);
 		}, 0, DELEY, TimeUnit.MILLISECONDS);
@@ -250,53 +273,6 @@ public class Buff {
 			IntStream.range(0, effect.size()).filter(i -> !maxCheck(i)).forEach(i -> addEffect(i));
 		}, getInterval(), getInterval(), TimeUnit.SECONDS);
 	}
-	
-	private void myselfBuff() {
-		target = Arrays.asList(myself);
-		effect = Arrays.asList(effect());
-		if(intervalCheck() && durationCheck()) {
-			return;
-		}
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		intervalControl(scheduler);
-		durationControl(scheduler);
-	}
-	
-	private void withinBuff() {
-		
-		
-		
-		
-		
-		
-		
-		
-		
-	}
-	
-	private void outBuff() {
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	//共通メソッド
 	private void durationControl(ScheduledExecutorService scheduler) {
