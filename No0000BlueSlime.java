@@ -71,4 +71,9 @@ public class No0000BlueSlime extends EnemyData{
 	public List<Integer> getCutStatus() {
 		return Arrays.asList(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 	}
+	
+	@Override
+	public List<List<Double>> getBuff(){
+		return Arrays.asList();
+	}
 }

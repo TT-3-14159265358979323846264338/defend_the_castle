@@ -59,7 +59,7 @@ public class No0001RedSlime extends EnemyData{
 
 	@Override
 	public List<Integer> getWeaponStatus() {
-		return Arrays.asList(30, 30, 1000, 1);
+		return Arrays.asList(500, 30, 1000, 1);
 	}
 
 	@Override
@@ -70,5 +70,10 @@ public class No0001RedSlime extends EnemyData{
 	@Override
 	public List<Integer> getCutStatus() {
 		return Arrays.asList(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+	}
+	
+	@Override
+	public List<List<Double>> getBuff(){
+		return Arrays.asList();
 	}
 }
