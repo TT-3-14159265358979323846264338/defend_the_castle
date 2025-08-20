@@ -83,4 +83,9 @@ public class No0001Bow extends WeaponData{
 	public List<Integer> getCutStatus() {
 		return Arrays.asList(0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 	}
+	
+	@Override
+	public List<List<Double>> getBuff(){
+		return Arrays.asList();
+	}
 }

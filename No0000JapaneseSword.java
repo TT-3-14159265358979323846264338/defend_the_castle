@@ -88,4 +88,9 @@ public class No0000JapaneseSword extends WeaponData{
 	public List<Integer> getCutStatus() {
 		return Arrays.asList(5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 	}
+	
+	@Override
+	public List<List<Double>> getBuff(){
+		return Arrays.asList();
+	}
 }
