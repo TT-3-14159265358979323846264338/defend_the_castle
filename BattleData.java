@@ -51,7 +51,7 @@ public class BattleData{
 	
 	protected void initialize() {
 		leftActionImage = rightActionImage.stream().map(i -> EditImage.mirrorImage(i)).toList();
-		nowHP = statusControl(Buff.HP);
+		nowHP = defaultUnitStatus.get(0);
 	}
 	
 	//画像管理
@@ -221,7 +221,7 @@ public class BattleData{
 	
 	private double additionalBuff(double statusCode) {
 		double buff = 0;
-		for(Buff i: receivedBuff){
+		for(Buff i: receivedBuffList()){
 			if(i.buffStatusCode() == statusCode) {
 				buff = i.additionalEffect(this, buff);
 			}
@@ -231,12 +231,17 @@ public class BattleData{
 	
 	private double ratioBuff(double statusCode) {
 		double buff = 1;
-		for(Buff i: receivedBuff){
+		for(Buff i: receivedBuffList()){
 			if(i.buffStatusCode() == statusCode) {
 				buff = i.ratioEffect(this, buff);
 			}
 		}
 		return buff;
+	}
+	
+	protected List<Buff> receivedBuffList(){
+		//BattleUnitのみ@Overrideで記載
+		return receivedBuff;
 	}
 	
 	//ブロック管理

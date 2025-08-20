@@ -17,6 +17,7 @@ import screendisplay.StatusCalculation;
 
 //ユニットのバトル情報
 public class BattleUnit extends BattleData{
+	BattleUnit otherWeapon;
 	BufferedImage rightCoreImage;
 	BufferedImage leftCoreImage;
 	Point initialPosition = new Point();
@@ -72,8 +73,9 @@ public class BattleUnit extends BattleData{
 		super.initialize();
 	}
 	
-	protected void install(GameData GameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
+	protected void install(GameData GameData, BattleUnit otherWeapon, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
 		this.GameData = GameData;
+		this.otherWeapon = otherWeapon;
 		if(Objects.isNull(AtackPattern)) {
 			return;
 		}
@@ -129,6 +131,11 @@ public class BattleUnit extends BattleData{
 	@Override
 	protected int moraleRatio() {
 		return (GameData.getMoraleDifference() <= 0)? Math.abs(GameData.getMoraleDifference()): 0;
+	}
+	
+	@Override
+	protected List<Buff> receivedBuffList(){
+		return Stream.concat(receivedBuff.stream(), otherWeapon.receivedBuff.stream()).toList();
 	}
 	
 	@Override
