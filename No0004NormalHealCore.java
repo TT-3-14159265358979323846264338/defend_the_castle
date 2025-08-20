@@ -38,4 +38,9 @@ public class No0004NormalHealCore extends CoreData{
 	public List<Integer> getCutStatus(){
 		return Arrays.asList(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5);
 	}
+	
+	@Override
+	public List<List<Double>> getBuff(){
+		return Arrays.asList();
+	}
 }
