@@ -60,4 +60,20 @@ public abstract class FacilityData {
 	
 	//DefaultStage.ELEMENT_MAPの順にステータスをリスト化
 	public abstract List<Integer> getCutStatus();
+	
+	/*
+	発生タイミングコード, 
+	発生対象コード, 
+	効果範囲コード, 
+	対象ステータスコード, 
+	加減乗除コード, 
+	効果量, 
+	効果発生間隔[s](Buff.NONE: なし), 
+	上限量(Buff.NONE: なし), 
+	効果時間[s](Buff.NONE: 無限), 
+	再使用時間[s](Buff.NONE: なし)
+	
+		の順にリスト化
+	*/
+	public abstract List<List<Double>> getBuff();
 }
