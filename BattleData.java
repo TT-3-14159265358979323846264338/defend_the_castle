@@ -8,7 +8,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import defaultdata.EditImage;
@@ -20,45 +19,42 @@ public class BattleData{
 	GameData GameData;
 	List<BattleData> allyData;
 	List<BattleData> enemyData;
+	
+	AtackPattern AtackPattern;
+	boolean canAtack;
+	boolean existsRight = true;
+	int motionNumber = 0;
 	List<BufferedImage> rightActionImage;
 	List<BufferedImage> leftActionImage;
 	BufferedImage bulletImage;
 	List<BufferedImage> hitImage;
 	List<Bullet> bulletList = Arrays.asList();
-	boolean existsRight = true;
-	int motionNumber = 0;
-	boolean canAtack;
+	
+	List<List<Double>> generatedBuffInformation;
+	List<Buff> generatedBuff;
+	List<Buff> receivedBuff = new ArrayList<>();
+	
 	String name;
+	boolean canActivate;
+	int nowHP;
 	double positionX;
 	double positionY;
 	List<Integer> element;
-	AtackPattern AtackPattern;
 	List<Integer> defaultWeaponStatus;
 	List<Integer> defaultUnitStatus;
 	List<Integer> defaultCutStatus;
-	List<Integer> collectionWeaponStatus;
-	List<Integer> collectionUnitStatus;
-	List<Integer> collectionCutStatus;
-	List<Double> ratioWeaponStatus;
-	List<Double> ratioUnitStatus;
-	List<Double> ratioCutStatus;
-	int nowHP;
-	boolean canActivate;
 	List<BattleEnemy> block = new ArrayList<>();
-	Object HPLock = new Object();
+	
+	Object buffLock = new Object();
 	Object blockLock = new Object();
+	Object HPLock = new Object();
 	
 	protected void initialize() {
 		leftActionImage = rightActionImage.stream().map(i -> EditImage.mirrorImage(i)).toList();
-		collectionWeaponStatus = defaultWeaponStatus.stream().map(i -> 0).collect(Collectors.toList());
-		collectionUnitStatus = defaultUnitStatus.stream().map(i -> 0).collect(Collectors.toList());
-		collectionCutStatus = defaultCutStatus.stream().map(i -> 0).collect(Collectors.toList());
-		ratioWeaponStatus = defaultWeaponStatus.stream().map(i -> 1.0).collect(Collectors.toList());
-		ratioUnitStatus = defaultUnitStatus.stream().map(i -> 1.0).collect(Collectors.toList());
-		ratioCutStatus = defaultCutStatus.stream().map(i -> 1.0).collect(Collectors.toList());
-		nowHP = unitCalculate(1);
+		nowHP = statusControl(Buff.HP);
 	}
 	
+	//画像管理
 	protected BufferedImage getActionImage(){
 		return existsRight? rightActionImage.get(motionNumber): leftActionImage.get(motionNumber);
 	}
@@ -174,7 +170,7 @@ public class BattleData{
 	}
 	
 	private int healValue() {
-		return (getAtack() * (100 + getCut(11)) / 100) * (100 + moraleRatio()) / 100;
+		return (getAtack() * (100 + getCut(Buff.SUPPORT)) / 100) * (100 + moraleRatio()) / 100;
 	}
 	
 	private void damage(BattleData target) {
@@ -186,7 +182,7 @@ public class BattleData{
 	
 	private int damageValue(BattleData target) {
 		double baseDamage = (Math.pow(getAtack(), 2) / (getAtack() + target.getDefense())) * (100 + moraleRatio()) / 100;
-		double cutRatio = element.stream().mapToInt(i -> target.getCut(i)).sum() / element.size();
+		double cutRatio = element.stream().mapToInt(i -> target.getCut(i + 100)).sum() / element.size();
 		if(100 <= cutRatio) {
 			cutRatio = 100;
 		}
@@ -210,7 +206,61 @@ public class BattleData{
 		}, 0, 5, TimeUnit.SECONDS);
 	}
 	
-	//ステータス関連
+	//被バフ管理
+	protected void receiveBuff(Buff Buff) {
+		synchronized(buffLock) {
+			receivedBuff.add(Buff);
+		}
+	}
+	
+	protected void removeBuff(Buff Buff) {
+		synchronized(buffLock) {
+			receivedBuff.remove(Buff);
+		}
+	}
+	
+	private double additionalBuff(double statusCode) {
+		double buff = 0;
+		for(Buff i: receivedBuff){
+			if(i.buffStatusCode() == statusCode) {
+				buff = i.additionalEffect(this, buff);
+			}
+		}
+		return buff;
+	}
+	
+	private double ratioBuff(double statusCode) {
+		double buff = 1;
+		for(Buff i: receivedBuff){
+			if(i.buffStatusCode() == statusCode) {
+				buff = i.ratioEffect(this, buff);
+			}
+		}
+		return buff;
+	}
+	
+	//ブロック管理
+	protected List<BattleEnemy> getBlock(){
+		return block;
+	}
+	
+	protected void addBlock(BattleEnemy BattleEnemy) {
+		synchronized(blockLock) {
+			block.add(BattleEnemy);
+		}
+	}
+	
+	protected void removeBlock(BattleEnemy BattleEnemy) {
+		BattleEnemy.releaseBlock();
+		enemyData.stream().forEach(i -> i.getBlock().remove(BattleEnemy));
+	}
+	
+	protected void clearBlock() {
+		block.stream().forEach(i -> i.releaseBlock());
+		block.clear();
+	}
+	
+	//ステータス計算
 	public String getName() {
 		return name;
 	}
@@ -232,23 +282,27 @@ public class BattleData{
 	}
 	
 	private int getAtack() {
-		return weaponCalculate(0);
+		return statusControl(Buff.POWER);
 	}
 	
 	public int getRange() {
-		return weaponCalculate(1);
+		return statusControl(Buff.RANGE);
 	}
 	
 	private int getAtackSpeed() {
-		return weaponCalculate(2);
+		return statusControl(Buff.ATACK_SPEED);
 	}
 	
 	public int getAtackNumber() {
-		return weaponCalculate(3);
+		return statusControl(Buff.ATACK_NUMBER);
+	}
+	
+	public List<Integer> getWeapon(){
+		return IntStream.range(0, defaultWeaponStatus.size()).mapToObj(i -> statusControl(i)).toList();
 	}
 	
 	protected int getMaxHP() {
-		return unitCalculate(0);
+		return statusControl(Buff.HP);
 	}
 	
 	public int getNowHP() {
@@ -273,67 +327,47 @@ public class BattleData{
 	}
 	
 	private int getDefense() {
-		return unitCalculate(2);
+		return statusControl(Buff.DEFENCE);
 	}
 	
 	private int getRecover() {
-		return unitCalculate(3);
+		return statusControl(Buff.HEAL);
 	}
 	
 	protected int getMoveSpeedOrBlock() {
-		return unitCalculate(4);
+		return statusControl(Buff.MOVE_SPEED_OR_BLOCK);
 	}
 	
 	protected int getCost() {
-		return unitCalculate(5);
-	}
-	
-	public List<Integer> getWeapon(){
-		return IntStream.range(0, defaultWeaponStatus.size()).mapToObj(i -> weaponCalculate(i)).toList();
-	}
-	
-	private int weaponCalculate(int number) {
-		return calculate(defaultWeaponStatus.get(number), collectionWeaponStatus.get(number), ratioWeaponStatus.get(number));
+		return statusControl(Buff.COST);
 	}
 	
 	public List<Integer> getUnit(){
-		return IntStream.range(0, defaultUnitStatus.size()).mapToObj(i -> unitCalculate(i)).toList();
+		return IntStream.range(10, defaultUnitStatus.size() + 10).mapToObj(i -> statusControl(i)).toList();
 	}
 	
-	private int unitCalculate(int number) {
-		return calculate(defaultUnitStatus.get(number), collectionUnitStatus.get(number), ratioUnitStatus.get(number));
+	private int getCut(double number) {
+		return statusControl(number);
 	}
 	
 	public List<Integer> getCut(){
-		return IntStream.range(0, defaultCutStatus.size()).mapToObj(i -> getCut(i)).toList();
+		return IntStream.range(100, defaultCutStatus.size() + 100).mapToObj(i -> statusControl(i)).toList();
 	}
 	
-	private int getCut(int number) {
-		return calculate(defaultCutStatus.get(number), collectionCutStatus.get(number), ratioCutStatus.get(number));
-	}
-	
-	private int calculate(int fixedValue, int flexValue, double ratio) {
-		return (int) ((fixedValue + flexValue) * ratio);
-	}
-	
-	//ブロック関連
-	protected List<BattleEnemy> getBlock(){
-		return block;
-	}
-	
-	protected void addBlock(BattleEnemy BattleEnemy) {
-		synchronized(blockLock) {
-			block.add(BattleEnemy);
+	private int statusControl(double number) {
+		if(number < 10) {
+			return calculate(defaultWeaponStatus.get((int) number), additionalBuff(number), ratioBuff(number));
 		}
+		if(number < 100) {
+			return calculate(defaultUnitStatus.get((int) number - 10), additionalBuff(number), ratioBuff(number));
+		}
+		if(number < 1000) {
+			return calculate(defaultCutStatus.get((int) number - 100), additionalBuff(number), ratioBuff(number));
+		}
+		return 0;
 	}
 	
-	protected void removeBlock(BattleEnemy BattleEnemy) {
-		BattleEnemy.releaseBlock();
-		enemyData.stream().forEach(i -> i.getBlock().remove(BattleEnemy));
-	}
-	
-	protected void clearBlock() {
-		block.stream().forEach(i -> i.releaseBlock());
-		block.clear();
+	private int calculate(int initialValue, double additionalValue, double ratio) {
+		return (int) ((initialValue + additionalValue) * ratio);
 	}
 }

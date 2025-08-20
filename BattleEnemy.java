@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import defaultdata.DefaultAtackPattern;
@@ -29,6 +30,7 @@ public class BattleEnemy extends BattleData{
 		name = EnemyData.getName();
 		rightActionImage = EnemyData.getActionImage(4);
 		bulletImage = EnemyData.getBulletImage(4);
+		generatedBuffInformation = EnemyData.getBuff();
 		hitImage = EnemyData.getHitImage(4);
 		move = EnemyData.getMove();
 		type = EnemyData.getType();
@@ -54,6 +56,7 @@ public class BattleEnemy extends BattleData{
 		}else {
 			AtackPattern.install(this, this.enemyData);
 		}
+		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData)).toList();
 		routeTimer();
 	}
 	

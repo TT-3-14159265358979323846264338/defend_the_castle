@@ -56,8 +56,8 @@ public class Buff {
 	public final static double DARK = 110;
 	public final static double SUPPORT = 111;
 	
-	public final static double MORALE = 0;
-	public final static double GAME_COST = 1;
+	public final static double MORALE = 1000;
+	public final static double GAME_COST = 1001;
 	
 	//加減乗除コード
 	public final static double ADDITION = 0;
@@ -83,7 +83,7 @@ public class Buff {
 	//バフの管理
 	List<Double> buffInformation;
 	BattleData myself;
-	BattleData[] candidate;
+	List<BattleData> candidate;
 	Battle Battle;
 	GameData GameData;
 	List<BattleData> target = new ArrayList<>();
@@ -93,12 +93,12 @@ public class Buff {
 	boolean canRecast = true;
 	final static int DELEY = 20;
 	
-	protected Buff(List<Double> buffInformation, BattleData myself, BattleData[] ally, BattleData[] enemy, Battle Battle, GameData GameData) {
+	protected Buff(List<Double> buffInformation, BattleData myself, List<BattleData> ally, List<BattleData> enemy, Battle Battle, GameData GameData) {
 		//テスト用
 		//発生タイミングコード, 発生対象コード, 効果範囲コード, 対象ステータスコード, 加減乗除コード, 効果量, 効果発生間隔[s](Buff.NONE: なし), 上限量(Buff.NONE: なし), 効果時間[s](Buff.NONE: 無限), 再使用時間[s](Buff.NONE: なし)
-		this.buffInformation = Arrays.asList(Buff.BIGINNING, Buff.ALLY, Buff.ALL, Buff.POWER, Buff.ADDITION, 10.0, Buff.NONE, Buff.NONE, Buff.NONE, Buff.NONE);
+		//this.buffInformation = Arrays.asList(Buff.BIGINNING, Buff.ALLY, Buff.ALL, Buff.POWER, Buff.ADDITION, 10.0, Buff.NONE, Buff.NONE, Buff.NONE, Buff.NONE);
 		
-		//this.buffInformation = buffInformation;
+		this.buffInformation = buffInformation;
 		this.myself = myself;
 		this.Battle = Battle;
 		if(buffInformation.get(TARGET_CODE) == ALLY) {
@@ -107,9 +107,6 @@ public class Buff {
 			candidate = enemy;
 		}else {
 			this.GameData = GameData;
-		}
-		if(buffInformation.get(TIMING_CODE) == BIGINNING) {
-			buffStart();
 		}
 	}
 	
@@ -165,7 +162,7 @@ public class Buff {
 	}
 	
 	private void gameBuffSelect() {
-		if(buffInformation.get(STATUS_CODE) == MORALE) {
+		if(buffStatusCode() == MORALE) {
 			moraleBuff();
 		}else {
 			costBuff();
@@ -241,7 +238,7 @@ public class Buff {
 			if(activateCheck(scheduler)) {
 				return;
 			}
-			Stream<BattleData> newTarget = Stream.of(candidate).filter(i -> i.getActivate()).filter(rangeFilter);
+			Stream<BattleData> newTarget = candidate.stream().filter(i -> i.getActivate()).filter(rangeFilter);
 			IntStream.range(0, target.size()).forEach(i -> removeBuff(i, newTarget));
 			newTarget.forEach(this::addBuff);
 		}, 0, DELEY, TimeUnit.MILLISECONDS);
@@ -249,6 +246,7 @@ public class Buff {
 	
 	private void removeBuff(int number, Stream<BattleData> newTarget) {
 		if(newTarget.noneMatch(i -> i.equals(target.get(number)))) {
+			newTarget.toList().get(number).removeBuff(this);
 			target.remove(number);
 			effect.remove(number);
 		}
@@ -256,6 +254,7 @@ public class Buff {
 	
 	private void addBuff(BattleData BattleData) {
 		if(target.stream().noneMatch(i -> i.equals(BattleData))) {
+			BattleData.receiveBuff(this);
 			target.add(BattleData);
 			effect.add(effect());
 		}
@@ -299,6 +298,7 @@ public class Buff {
 	}
 	
 	private void resetBuff() {
+		target.stream().forEach(i -> i.removeBuff(this));
 		target.clear();
 		effect.clear();
 		durationCount = 0;
@@ -344,8 +344,8 @@ public class Buff {
 	}
 	
 	//データ返却
-	protected boolean targetCheck(BattleData BattleData){
-		return target.stream().anyMatch(i -> i.equals(BattleData));
+	protected double buffStatusCode() {
+		return buffInformation.get(STATUS_CODE);
 	}
 	
 	protected double additionalEffect(BattleData BattleData, double status){

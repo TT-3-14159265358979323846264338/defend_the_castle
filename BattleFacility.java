@@ -21,6 +21,7 @@ public class BattleFacility extends BattleData{
 		rightActionImage = StageData.getFacilityDirection().get(number)? FacilityData.getActionFrontImage(4): FacilityData.getActionSideImage(4);
 		bulletImage = FacilityData.getBulletImage(4);
 		hitImage = FacilityData.getHitImage(4);
+		generatedBuffInformation = FacilityData.getBuff();
 		breakImage = FacilityData.getBreakImage(4);
 		positionX = StageData.getFacilityPoint().get(number).x;
 		positionY = StageData.getFacilityPoint().get(number).y;
@@ -51,6 +52,7 @@ public class BattleFacility extends BattleData{
 		}else {
 			AtackPattern.install(this, this.enemyData);
 		}
+		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData)).toList();
 	}
 	
 	protected BufferedImage getBreakImage() {

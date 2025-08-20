@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import defaultdata.DefaultAtackPattern;
@@ -37,6 +38,7 @@ public class BattleUnit extends BattleData{
 		}
 		rightCoreImage = DefaultUnit.CORE_DATA_MAP.get(composition.get(1)).getActionImage(4);
 		leftCoreImage = EditImage.mirrorImage(rightCoreImage);
+		generatedBuffInformation = StatusCalculation.getRightBuffList();
 		this.positionX = positionX;
 		this.positionY = positionY;
 		initialPosition = new Point(positionX, positionY);
@@ -61,6 +63,7 @@ public class BattleUnit extends BattleData{
 		}catch(Exception e) {
 			rightActionImage = Arrays.asList(getBlankImage());
 		}
+		generatedBuffInformation = StatusCalculation.getLeftBuffList();
 		element = StatusCalculation.getLeftElement().stream().toList();
 		AtackPattern = new DefaultAtackPattern().getAtackPattern(StatusCalculation.getLeftAtackPattern());
 		defaultWeaponStatus = StatusCalculation.getLeftWeaponStatus();
@@ -81,6 +84,7 @@ public class BattleUnit extends BattleData{
 		}else {
 			AtackPattern.install(this, this.enemyData);
 		}
+		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData)).toList();
 	}
 	
 	private BufferedImage getBlankImage() {
