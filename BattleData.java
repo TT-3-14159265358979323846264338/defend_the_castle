@@ -79,6 +79,7 @@ public class BattleData{
 		return canActivate;
 	}
 	
+	//攻撃・回復処理
 	protected void atackTimer() {
 		int nowSpeed = getAtackSpeed();
 		if(nowSpeed <= 0) {
@@ -161,24 +162,11 @@ public class BattleData{
 	}
 	
 	private void result(BattleData target) {
-		if(getAtack() == 0) {
-			buff(target);
-			return;
-		}
 		if(element.stream().anyMatch(i -> i == 11)) {
 			heal(target);
 			return;
 		}
 		damage(target);
-	}
-	
-	private void buff(BattleData target) {
-		
-		
-		
-		
-		
-		
 	}
 	
 	private void heal(BattleData target) {
@@ -210,10 +198,6 @@ public class BattleData{
 		return 0;
 	}
 	
-	protected void defeat() {
-		//詳細は@Overrideで記載
-	}
-	
 	protected void healTimer() {
 		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 		scheduler.scheduleWithFixedDelay(() -> {
@@ -226,6 +210,7 @@ public class BattleData{
 		}, 0, 5, TimeUnit.SECONDS);
 	}
 	
+	//ステータス関連
 	public String getName() {
 		return name;
 	}
@@ -283,6 +268,10 @@ public class BattleData{
 		}
 	}
 	
+	protected void defeat() {
+		//詳細は@Overrideで記載
+	}
+	
 	private int getDefense() {
 		return unitCalculate(2);
 	}
@@ -327,6 +316,7 @@ public class BattleData{
 		return (int) ((fixedValue + flexValue) * ratio);
 	}
 	
+	//ブロック関連
 	protected List<BattleEnemy> getBlock(){
 		return block;
 	}
