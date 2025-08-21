@@ -43,4 +43,9 @@ public class No0005NormalSpeedCore extends CoreData{
 	public List<List<Double>> getBuff(){
 		return Arrays.asList();
 	}
+
+	@Override
+	public String getSkillImageName() {
+		return null;
+	}
 }

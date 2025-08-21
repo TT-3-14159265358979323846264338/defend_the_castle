@@ -43,4 +43,9 @@ public class No0003NormalRangeCore extends CoreData{
 	public List<List<Double>> getBuff(){
 		return Arrays.asList();
 	}
+
+	@Override
+	public String getSkillImageName() {
+		return null;
+	}
 }

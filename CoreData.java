@@ -52,4 +52,12 @@ public abstract class CoreData {
 		の順にリスト化
 	*/
 	public abstract List<List<Double>> getBuff();
+	
+	//スキルのアイコン画像ファイル名
+	public abstract String getSkillImageName();
+	
+	//スキルのアイコン画像
+	public BufferedImage getSkillImage(double ratio) {
+		return EditImage.input(getSkillImageName(), ratio);
+	}
 }

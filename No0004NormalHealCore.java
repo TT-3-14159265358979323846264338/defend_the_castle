@@ -43,4 +43,9 @@ public class No0004NormalHealCore extends CoreData{
 	public List<List<Double>> getBuff(){
 		return Arrays.asList();
 	}
+
+	@Override
+	public String getSkillImageName() {
+		return null;
+	}
 }
