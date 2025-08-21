@@ -20,6 +20,7 @@ public class BattleUnit extends BattleData{
 	BattleUnit otherWeapon;
 	BufferedImage rightCoreImage;
 	BufferedImage leftCoreImage;
+	BufferedImage skillImage;
 	Point initialPosition = new Point();
 	int type;
 	int awakeningNumber;
@@ -40,6 +41,7 @@ public class BattleUnit extends BattleData{
 		}
 		rightCoreImage = DefaultUnit.CORE_DATA_MAP.get(composition.get(1)).getActionImage(4);
 		leftCoreImage = EditImage.mirrorImage(rightCoreImage);
+		skillImage = DefaultUnit.CORE_DATA_MAP.get(composition.get(1)).getSkillImage(4);
 		generatedBuffInformation = StatusCalculation.getRightBuffList();
 		this.positionX = positionX;
 		this.positionY = positionY;
@@ -103,6 +105,10 @@ public class BattleUnit extends BattleData{
 	
 	public BufferedImage getDefaultCoreImage(){
 		return rightCoreImage;
+	}
+	
+	protected BufferedImage getSkillImage() {
+		return skillImage;
 	}
 	
 	public int getType() {

@@ -277,8 +277,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			g2.fill(new Arc2D.Double(BattleUnit.initialPosition().x, BattleUnit.initialPosition().y, 90, 90, 90, 360 * BattleUnit.recastRatio(), Arc2D.PIE));
 			return;
 		}
-		//いずれskillアイコンを表示させる
-		//g.drawImage();?
+		g.drawImage(BattleUnit.getSkillImage(), BattleUnit.initialPosition().x, BattleUnit.initialPosition().y, this);
 	}
 	
 	private void drawUnit(Graphics g) {
