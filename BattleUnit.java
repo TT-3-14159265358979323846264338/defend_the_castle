@@ -24,6 +24,7 @@ public class BattleUnit extends BattleData{
 	int type;
 	int awakeningNumber;
 	int defeatNumber;
+	boolean canPossessSkill;
 	
 	//右武器/コア用　攻撃・被弾などの判定はこちらで行う
 	protected BattleUnit(Battle Battle, List<Integer> composition, int positionX, int positionY) {
@@ -87,6 +88,7 @@ public class BattleUnit extends BattleData{
 			AtackPattern.install(this, this.enemyData);
 		}
 		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData)).toList();
+		canPossessSkill = generatedBuff.stream().anyMatch(i -> i.possessSkill());
 	}
 	
 	private BufferedImage getBlankImage() {
@@ -111,8 +113,33 @@ public class BattleUnit extends BattleData{
 		return awakeningNumber;
 	}
 	
+	protected void awakening() {
+		awakeningNumber++;
+	}
+	
 	protected int getDefeatNumber() {
 		return defeatNumber;
+	}
+	
+	protected boolean possessSkill() {
+		return canPossessSkill;
+	}
+	
+	protected boolean getRecast() {
+		return generatedBuff.stream().anyMatch(i -> i.getRecast());
+	}
+	
+	protected Point initialPosition() {
+		return initialPosition;
+	}
+	
+	protected double recastRatio() {
+		for(Buff i: generatedBuff) {
+			if(i.possessSkill()) {
+				return i.recastRatio();
+			}
+		}
+		return 0;
 	}
 	
 	protected void activate(int x, int y) {
@@ -122,10 +149,6 @@ public class BattleUnit extends BattleData{
 		positionY = y;
 		atackTimer();
 		healTimer();
-	}
-	
-	protected void awakening() {
-		awakeningNumber++;
 	}
 	
 	@Override

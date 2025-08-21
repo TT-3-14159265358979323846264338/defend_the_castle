@@ -12,6 +12,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.geom.Arc2D;
 import java.awt.image.BufferedImage;
 import java.time.temporal.ValueRange;
 import java.util.Comparator;
@@ -94,6 +95,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		drawField(g);
 		drawEnemy(g);
 		drawBackground(g);
+		drawSkill(g);
 		drawUnit(g);
 		drawBullet(g);
 		drawSelectUnit(g);
@@ -260,6 +262,23 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		g.setColor(Color.BLACK);
 		IntStream.range(0, 3).forEach(i -> g.drawLine(1010 + i * 100, 50, 1010 + i * 100, 450));
 		IntStream.range(0, 5).forEach(i -> g.drawLine(1010, 50 + i * 100, 1210, 50 + i * 100));
+	}
+	
+	private void drawSkill(Graphics g) {
+		Stream.of(UnitMainData).filter(i -> i.getActivate() && i.possessSkill()).forEach(i -> skill(g, i));
+	}
+	
+	private void skill(Graphics g, BattleUnit BattleUnit) {
+		if(BattleUnit.getRecast()) {
+			Graphics2D g2 = (Graphics2D)g;
+			g2.setColor(Color.GRAY);
+			g2.fillOval(BattleUnit.initialPosition().x, BattleUnit.initialPosition().y, 90, 90);
+			g2.setColor(Color.LIGHT_GRAY);
+			g2.fill(new Arc2D.Double(BattleUnit.initialPosition().x, BattleUnit.initialPosition().y, 90, 90, 90, 360 * BattleUnit.recastRatio(), Arc2D.PIE));
+			return;
+		}
+		//いずれskillアイコンを表示させる
+		//g.drawImage();?
 	}
 	
 	private void drawUnit(Graphics g) {

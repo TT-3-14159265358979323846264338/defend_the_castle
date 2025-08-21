@@ -90,7 +90,7 @@ public class Buff {
 	List<Double> effect = new ArrayList<>();
 	int durationCount = 0;
 	int recastCount = 0;
-	boolean canRecast = true;
+	boolean canRecast;
 	final static int DELEY = 20;
 	
 	protected Buff(List<Double> buffInformation, BattleData myself, List<BattleData> ally, List<BattleData> enemy, Battle Battle, GameData GameData) {
@@ -108,6 +108,7 @@ public class Buff {
 		}else {
 			this.GameData = GameData;
 		}
+		canRecast = (possessSkill())? true: false;
 	}
 	
 	protected void buffStart() {
@@ -130,6 +131,7 @@ public class Buff {
 			Battle.timerWait();
 			recastCount++;
 			if(activateCheck(scheduler)) {
+				canRecast = true;
 				return;
 			}
 			if(recastMax() <= recastCount) {
@@ -370,6 +372,10 @@ public class Buff {
 	
 	private double buffValue(BattleData BattleData) {
 		return effect.get(target.indexOf(BattleData));
+	}
+	
+	protected boolean possessSkill() {
+		return buffInformation.get(TIMING_CODE) == SKILL;
 	}
 	
 	protected boolean getRecast() {
