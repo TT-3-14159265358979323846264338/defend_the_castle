@@ -7,5 +7,5 @@ defaultのdataはソースファイル数が多くなる予定のため、各bra
 画像保存時はimageフォルダにenemy、field、gacha、soldierのフォルダを作り、これらに各branchの画像を保存するように。  
 defaultは下書きのため、無くてもゲームに影響はない。  
   
-過去に作成したプログラム  
+過去に作成した練習用プログラム  
 https://github.com/TT-3-14159265358979323846264338/practice-code
