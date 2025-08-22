@@ -38,7 +38,6 @@ public class BattleFacility extends BattleData{
 		super.initialize();
 		atackTimer();
 		healTimer();
-		activateBuff(Buff.BIGINNING);
 	}
 	
 	protected void install(GameData GameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
@@ -54,6 +53,7 @@ public class BattleFacility extends BattleData{
 			AtackPattern.install(this, this.enemyData);
 		}
 		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData)).toList();
+		activateBuff(Buff.BIGINNING);
 	}
 	
 	protected BufferedImage getBreakImage() {
