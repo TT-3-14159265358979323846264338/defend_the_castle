@@ -350,6 +350,10 @@ public class Buff {
 		return buffInformation.get(STATUS_CODE);
 	}
 	
+	protected double buffTiming() {
+		return buffInformation.get(TIMING_CODE);
+	}
+	
 	protected double additionalEffect(BattleData BattleData, double status){
 		if(buffInformation.get(CALCULATION_CODE) == ADDITION) {
 			return status += buffValue(BattleData);
@@ -375,7 +379,7 @@ public class Buff {
 	}
 	
 	protected boolean possessSkill() {
-		return buffInformation.get(TIMING_CODE) == SKILL;
+		return buffTiming() == SKILL;
 	}
 	
 	protected boolean getRecast() {

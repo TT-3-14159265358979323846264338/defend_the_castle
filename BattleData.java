@@ -158,6 +158,7 @@ public class BattleData{
 	}
 	
 	private void result(BattleData target) {
+		activateBuff(Buff.ATACK);
 		if(element.stream().anyMatch(i -> i == 11)) {
 			heal(target);
 			return;
@@ -206,7 +207,11 @@ public class BattleData{
 		}, 0, 5, TimeUnit.SECONDS);
 	}
 	
-	//被バフ管理
+	//バフ管理
+	protected void activateBuff(double timingCode){
+		generatedBuff.stream().filter(i -> i.buffTiming() == timingCode).forEach(i -> i.buffStart());
+	}
+	
 	protected void receiveBuff(Buff Buff) {
 		synchronized(buffLock) {
 			receivedBuff.add(Buff);
@@ -317,6 +322,7 @@ public class BattleData{
 	private void HPDecrease(int decrease) {
 		synchronized(HPLock) {
 			nowHP -= decrease;
+			activateBuff(Buff.HIT);
 			if(nowHP <= 0 && canActivate) {
 				defeat();
 				return;

@@ -155,6 +155,7 @@ public class BattleUnit extends BattleData{
 		positionY = y;
 		atackTimer();
 		healTimer();
+		activateBuff(Buff.BIGINNING);
 	}
 	
 	@Override
@@ -180,6 +181,7 @@ public class BattleUnit extends BattleData{
 		positionY = initialPosition.y;
 		existsRight = true;
 		clearBlock();
+		activateBuff(Buff.DEFEAT);
 		super.initialize();
 	}
 }

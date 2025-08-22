@@ -38,6 +38,7 @@ public class BattleFacility extends BattleData{
 		super.initialize();
 		atackTimer();
 		healTimer();
+		activateBuff(Buff.BIGINNING);
 	}
 	
 	protected void install(GameData GameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
@@ -69,5 +70,6 @@ public class BattleFacility extends BattleData{
 		canActivate = false;
 		clearBlock();
 		GameData.lowMorale(battle.GameData.UNIT, 30);
+		activateBuff(Buff.DEFEAT);
 	}
 }

@@ -205,6 +205,7 @@ public class BattleEnemy extends BattleData{
 			canActivate = true;
 			atackTimer();
 			healTimer();
+			activateBuff(Buff.BIGINNING);
 		}
 	}
 	
@@ -226,5 +227,6 @@ public class BattleEnemy extends BattleData{
 		GameData.addCost(getCost());
 		removeBlock(this);
 		GameData.lowMorale(battle.GameData.ENEMY, 3);
+		activateBuff(Buff.DEFEAT);
 	}
 }

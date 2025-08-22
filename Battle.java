@@ -374,6 +374,9 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			unitStatus(number);
 			return;
 		}
+		if(activateSkill(e)) {
+			return;
+		}
 		number = clickPointCheck(e, FacilityData);
 		if(0 <= number && FacilityData[number].getActivate()) {
 			facilityStatus(number);
@@ -441,6 +444,23 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			}
 		}
 		return -1;
+	}
+	
+	private boolean activateSkill(MouseEvent e) {
+		for(int i = 0; i < UnitMainData.length; i++) {
+			if(!UnitMainData[i].getActivate() || !UnitMainData[i].possessSkill()) {
+				continue;
+			}
+			//いずれ範囲は調整する
+			int x = UnitMainData[i].initialPosition().x;
+			int y = UnitMainData[i].initialPosition().y;
+			if(ValueRange.of(x, x + SIZE * 3).isValidIntValue(e.getX())
+					&& ValueRange.of(y, y + SIZE * 3).isValidIntValue(e.getY())) {
+				UnitMainData[i].activateBuff(Buff.SKILL);
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private void unitMenu(int number) {
