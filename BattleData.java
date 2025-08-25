@@ -253,6 +253,11 @@ public class BattleData{
 		return buff;
 	}
 	
+	protected int buffRange() {
+		//BattleUnitのみ@Overrideで記載
+		return getRange();
+	}
+	
 	//ブロック管理
 	protected List<BattleEnemy> getBlock(){
 		return block;

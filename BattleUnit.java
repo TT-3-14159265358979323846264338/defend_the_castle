@@ -26,6 +26,7 @@ public class BattleUnit extends BattleData{
 	int awakeningNumber;
 	int defeatNumber;
 	boolean canPossessSkill;
+	boolean existsOtherBuffRange;
 	
 	//右武器/コア用　攻撃・被弾などの判定はこちらで行う
 	protected BattleUnit(Battle Battle, List<Integer> composition, int positionX, int positionY) {
@@ -81,6 +82,7 @@ public class BattleUnit extends BattleData{
 		this.otherWeapon = otherWeapon;
 		allyData = Stream.concat(Stream.of(unitMainData), Stream.of(facilityData)).toList();
 		this.enemyData = Stream.of(enemyData).toList();
+		existsOtherBuffRange = (defaultWeaponStatus.get((int) Buff.RANGE) <= otherWeapon.defaultWeaponStatus.get((int) Buff.RANGE))? true: false;
 		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData)).toList();
 		canPossessSkill = generatedBuff.stream().anyMatch(i -> i.possessSkill());
 		if(Objects.isNull(AtackPattern)) {
@@ -173,6 +175,11 @@ public class BattleUnit extends BattleData{
 	protected double ratioBuff(double statusCode){
 		double totalMyBuff = totalRatioBuff(1, statusCode, this);
 		return totalRatioBuff(totalMyBuff, statusCode, otherWeapon);
+	}
+	
+	@Override
+	protected int buffRange() {
+		return existsOtherBuffRange? otherWeapon.getRange(): getRange();
 	}
 	
 	@Override

@@ -174,10 +174,10 @@ public class Buff {
 	private void moraleBuff() {
 		addEffect(0);
 		if(additionCheck()) {
-			GameData.moraleBoost(allyCheck(), (int) effect());
+			GameData.moraleBoost(battle.GameData.UNIT, (int) effect());
 			return;
 		}
-		GameData.lowMorale(allyCheck(), (int) effect());
+		GameData.lowMorale(battle.GameData.UNIT, (int) effect());
 	}
 	
 	private void costBuff() {
@@ -230,7 +230,7 @@ public class Buff {
 			return Math.sqrt(Math.pow(myself.getPositionX() - data.getPositionX(), 2) + Math.pow(myself.getPositionY() - data.getPositionY(), 2));
 		};
 		Predicate<BattleData> distanceCheck = (data) -> {
-			return distanceCalculate.apply(data) <= myself.getRange() + battle.Battle.SIZE / 2;
+			return distanceCalculate.apply(data) <= myself.buffRange() + battle.Battle.SIZE / 2;
 		};
 		return distanceCheck.test(BattleData);
 	}
@@ -336,10 +336,6 @@ public class Buff {
 	
 	private double calculationCode() {
 		return buffInformation.get(CALCULATION_CODE);
-	}
-	
-	private boolean allyCheck() {
-		return buffInformation.get(TARGET_CODE) == ALLY;
 	}
 	
 	private double effect() {

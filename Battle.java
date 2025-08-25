@@ -448,7 +448,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	private boolean activateSkill(MouseEvent e) {
 		for(int i = 0; i < UnitMainData.length; i++) {
-			if(!UnitMainData[i].getActivate() || !UnitMainData[i].possessSkill()) {
+			if(!UnitMainData[i].getActivate() || !UnitMainData[i].possessSkill() || !UnitMainData[i].getRecast()) {
 				continue;
 			}
 			int x = UnitMainData[i].initialPosition().x;
