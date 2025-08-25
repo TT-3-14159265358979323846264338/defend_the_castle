@@ -2,6 +2,7 @@ package battle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -9,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 //各バフの管理
 public class Buff {
@@ -130,10 +130,6 @@ public class Buff {
 		scheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			recastCount++;
-			if(activateCheck(scheduler)) {
-				canRecast = true;
-				return;
-			}
 			if(recastMax() <= recastCount) {
 				recastCount = 0;
 				canRecast = true;
@@ -241,18 +237,17 @@ public class Buff {
 			if(activateCheck(scheduler)) {
 				return;
 			}
-			Stream<BattleData> newTarget = candidate.stream().filter(i -> i.getActivate()).filter(rangeFilter);
-			IntStream.range(target.size(), 0).forEach(i -> targetUpdate(i, newTarget));
+			List<BattleData> newTarget = candidate.stream().filter(i -> i.getActivate()).filter(rangeFilter).toList();
+			IntStream.range(0, target.size()).boxed().sorted(Comparator.reverseOrder()).forEach(i -> targetUpdate(i, newTarget));
 			newTarget.forEach(this::targetUpdate);
 		}, 0, DELEY, TimeUnit.MILLISECONDS);
 	}
 	
-	private void targetUpdate(int number, Stream<BattleData> newTarget) {
-		if(newTarget.noneMatch(i -> i.hashCode() == target.get(number).hashCode())) {
-			BattleData BattleData = newTarget.toList().get(number);
-			BattleData.removeBuff(this);
+	private void targetUpdate(int number, List<BattleData> newTarget) {
+		if(newTarget.stream().noneMatch(i -> i.equals(target.get(number)))) {
+			target.get(number).removeBuff(this);
 			if(HPCheck()) {
-				BattleData.HPBuff(0);
+				target.get(number).HPBuff(0);
 			}
 			target.remove(number);
 			effect.remove(number);
@@ -260,7 +255,7 @@ public class Buff {
 	}
 	
 	private void targetUpdate(BattleData BattleData) {
-		if(target.stream().noneMatch(i -> i.hashCode() == BattleData.hashCode())) {
+		if(target.stream().noneMatch(i -> i.equals(BattleData))) {
 			if(HPCheck()) {
 				int defaultHP = BattleData.getMaxHP();
 				addBuff(BattleData);
@@ -397,16 +392,7 @@ public class Buff {
 	}
 	
 	private double buffValue(BattleData BattleData) {
-		return effect.get(buffNumber(BattleData));
-	}
-	
-	private int buffNumber(BattleData BattleData) {
-		for(int i = 0; i < target.size(); i++) {
-			if(target.get(i).hashCode() == BattleData.hashCode()) {
-				return i;
-			}
-		}
-		return -1;
+		return effect.get(target.indexOf(BattleData));
 	}
 	
 	protected boolean possessSkill() {
