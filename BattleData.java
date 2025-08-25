@@ -225,29 +225,32 @@ public class BattleData{
 		}
 	}
 	
-	private double additionalBuff(double statusCode) {
-		double buff = 0;
-		for(Buff i: receivedBuffList()){
-			if(i.buffStatusCode() == statusCode) {
-				buff = i.additionalEffect(this, buff);
-			}
-		}
-		return buff;
-	}
-	
-	private double ratioBuff(double statusCode) {
-		double buff = 1;
-		for(Buff i: receivedBuffList()){
-			if(i.buffStatusCode() == statusCode) {
-				buff = i.ratioEffect(this, buff);
-			}
-		}
-		return buff;
-	}
-	
-	protected List<Buff> receivedBuffList(){
+	protected double additionalBuff(double statusCode) {
 		//BattleUnitのみ@Overrideで記載
-		return receivedBuff;
+		return totalAdditionalBuff(0, statusCode, this);
+	}
+	
+	protected double totalAdditionalBuff(double buff, double statusCode, BattleData BattleData) {
+		for(Buff i: BattleData.receivedBuff){
+			if(i.buffStatusCode() == statusCode) {
+				buff = i.additionalEffect(BattleData, buff);
+			}
+		}
+		return buff;
+	}
+	
+	protected double ratioBuff(double statusCode) {
+		//BattleUnitのみ@Overrideで記載
+		return totalRatioBuff(1, statusCode, this);
+	}
+	
+	protected double totalRatioBuff(double buff, double statusCode, BattleData BattleData) {
+		for(Buff i: BattleData.receivedBuff){
+			if(i.buffStatusCode() == statusCode) {
+				buff = i.ratioEffect(BattleData, buff);
+			}
+		}
+		return buff;
 	}
 	
 	//ブロック管理

@@ -284,11 +284,12 @@ public class Buff {
 		scheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			durationCount++;
-			if(buffInformation.get(DURATION) * 1000 / 20 <= durationCount) {
+			if(buffInformation.get(DURATION) * 1000 / DELEY <= durationCount) {
+				durationCount = 0;
 				resetBuff();
 				scheduler.shutdown();
 			}
-		}, 0, 20, TimeUnit.MILLISECONDS);
+		}, 0, DELEY, TimeUnit.MILLISECONDS);
 	}
 	
 	private boolean activateCheck(ScheduledExecutorService scheduler) {
@@ -304,7 +305,6 @@ public class Buff {
 		target.stream().forEach(i -> i.removeBuff(this));
 		target.clear();
 		effect.clear();
-		durationCount = 0;
 	}
 	
 	private double recastMax() {
@@ -380,7 +380,16 @@ public class Buff {
 	}
 	
 	private double buffValue(BattleData BattleData) {
-		return effect.get(target.indexOf(BattleData));
+		return effect.get(buffNumber(BattleData));
+	}
+	
+	private int buffNumber(BattleData BattleData) {
+		for(int i = 0; i < target.size(); i++) {
+			if(target.get(i).hashCode() == BattleData.hashCode()) {
+				return i;
+			}
+		}
+		return -1;
 	}
 	
 	protected boolean possessSkill() {

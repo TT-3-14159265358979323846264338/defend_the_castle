@@ -79,18 +79,18 @@ public class BattleUnit extends BattleData{
 	protected void install(GameData GameData, BattleUnit otherWeapon, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
 		this.GameData = GameData;
 		this.otherWeapon = otherWeapon;
+		allyData = Stream.concat(Stream.of(unitMainData), Stream.of(facilityData)).toList();
+		this.enemyData = Stream.of(enemyData).toList();
+		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData)).toList();
+		canPossessSkill = generatedBuff.stream().anyMatch(i -> i.possessSkill());
 		if(Objects.isNull(AtackPattern)) {
 			return;
 		}
-		allyData = Stream.concat(Stream.of(unitMainData), Stream.of(facilityData)).toList();
-		this.enemyData = Stream.of(enemyData).toList();
 		if(element.stream().anyMatch(i -> i == 11)){
 			AtackPattern.install(this, allyData);
 		}else {
 			AtackPattern.install(this, this.enemyData);
 		}
-		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData)).toList();
-		canPossessSkill = generatedBuff.stream().anyMatch(i -> i.possessSkill());
 	}
 	
 	private BufferedImage getBlankImage() {
@@ -164,8 +164,15 @@ public class BattleUnit extends BattleData{
 	}
 	
 	@Override
-	protected List<Buff> receivedBuffList(){
-		return Stream.concat(receivedBuff.stream(), otherWeapon.receivedBuff.stream()).toList();
+	protected double additionalBuff(double statusCode){
+		double totalMyBuff = totalAdditionalBuff(0, statusCode, this);
+		return totalAdditionalBuff(totalMyBuff, statusCode, otherWeapon);
+	}
+	
+	@Override
+	protected double ratioBuff(double statusCode){
+		double totalMyBuff = totalRatioBuff(1, statusCode, this);
+		return totalRatioBuff(totalMyBuff, statusCode, otherWeapon);
 	}
 	
 	@Override
