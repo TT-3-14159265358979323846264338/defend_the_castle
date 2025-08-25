@@ -242,13 +242,13 @@ public class Buff {
 				return;
 			}
 			Stream<BattleData> newTarget = candidate.stream().filter(i -> i.getActivate()).filter(rangeFilter);
-			IntStream.range(0, target.size()).forEach(i -> removeBuff(i, newTarget));
+			IntStream.range(target.size(), 0).forEach(i -> removeBuff(i, newTarget));
 			newTarget.forEach(this::addBuff);
 		}, 0, DELEY, TimeUnit.MILLISECONDS);
 	}
 	
 	private void removeBuff(int number, Stream<BattleData> newTarget) {
-		if(newTarget.noneMatch(i -> i.equals(target.get(number)))) {
+		if(newTarget.noneMatch(i -> i.hashCode() == target.get(number).hashCode())) {
 			newTarget.toList().get(number).removeBuff(this);
 			target.remove(number);
 			effect.remove(number);
@@ -256,7 +256,7 @@ public class Buff {
 	}
 	
 	private void addBuff(BattleData BattleData) {
-		if(target.stream().noneMatch(i -> i.equals(BattleData))) {
+		if(target.stream().noneMatch(i -> i.hashCode() == BattleData.hashCode())) {
 			BattleData.receiveBuff(this);
 			target.add(BattleData);
 			effect.add(effect());
