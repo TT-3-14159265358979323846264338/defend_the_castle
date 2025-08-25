@@ -16,8 +16,8 @@ public class Buff {
 	//発生タイミングコード
 	public final static double BIGINNING = 0;
 	public final static double SKILL = 1;
-	public final static double ATACK = 2;
-	public final static double HIT = 3;
+	public final static double HIT = 2;
+	public final static double DAMAGE = 3;
 	public final static double DEFEAT = 4;
 	
 	//発生対象コード
@@ -32,7 +32,7 @@ public class Buff {
 	public final static double OUT_RANGE = 3;
 	
 	//対象ステータスコード
-	public final static double POWER = 0;
+	public final static double ATACK = 0;
 	public final static double RANGE = 1;
 	public final static double ATACK_SPEED = 2;
 	public final static double ATACK_NUMBER = 3;
@@ -96,7 +96,7 @@ public class Buff {
 	protected Buff(List<Double> buffInformation, BattleData myself, List<BattleData> ally, List<BattleData> enemy, Battle Battle, GameData GameData) {
 		//テスト用
 		//発生タイミングコード, 発生対象コード, 効果範囲コード, 対象ステータスコード, 加減乗除コード, 効果量, 効果発生間隔[s](Buff.NONE: なし), 上限量(Buff.NONE: なし), 効果時間[s](Buff.NONE: 無限), 再使用時間[s](Buff.NONE: なし)
-		//this.buffInformation = Arrays.asList(Buff.BIGINNING, Buff.ALLY, Buff.ALL, Buff.POWER, Buff.ADDITION, 10.0, Buff.NONE, Buff.NONE, Buff.NONE, Buff.NONE);
+		//this.buffInformation = Arrays.asList(Buff.BIGINNING, Buff.ALLY, Buff.ALL, Buff.ATACK, Buff.ADDITION, 10.0, Buff.NONE, Buff.NONE, Buff.NONE, Buff.NONE);
 		
 		this.buffInformation = buffInformation;
 		this.myself = myself;

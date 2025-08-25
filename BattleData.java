@@ -158,8 +158,8 @@ public class BattleData{
 	}
 	
 	private void result(BattleData target) {
-		activateBuff(Buff.ATACK);
-		target.activateBuff(Buff.HIT);
+		activateBuff(Buff.HIT);
+		target.activateBuff(Buff.DAMAGE);
 		if(element.stream().anyMatch(i -> i == 11)) {
 			heal(target);
 			return;
@@ -308,7 +308,7 @@ public class BattleData{
 	}
 	
 	private int getAtack() {
-		return statusControl(Buff.POWER);
+		return statusControl(Buff.ATACK);
 	}
 	
 	public int getRange() {
