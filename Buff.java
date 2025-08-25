@@ -242,25 +242,39 @@ public class Buff {
 				return;
 			}
 			Stream<BattleData> newTarget = candidate.stream().filter(i -> i.getActivate()).filter(rangeFilter);
-			IntStream.range(target.size(), 0).forEach(i -> removeBuff(i, newTarget));
-			newTarget.forEach(this::addBuff);
+			IntStream.range(target.size(), 0).forEach(i -> targetUpdate(i, newTarget));
+			newTarget.forEach(this::targetUpdate);
 		}, 0, DELEY, TimeUnit.MILLISECONDS);
 	}
 	
-	private void removeBuff(int number, Stream<BattleData> newTarget) {
+	private void targetUpdate(int number, Stream<BattleData> newTarget) {
 		if(newTarget.noneMatch(i -> i.hashCode() == target.get(number).hashCode())) {
-			newTarget.toList().get(number).removeBuff(this);
+			BattleData BattleData = newTarget.toList().get(number);
+			BattleData.removeBuff(this);
+			if(HPCheck()) {
+				BattleData.HPBuff(0);
+			}
 			target.remove(number);
 			effect.remove(number);
 		}
 	}
 	
-	private void addBuff(BattleData BattleData) {
+	private void targetUpdate(BattleData BattleData) {
 		if(target.stream().noneMatch(i -> i.hashCode() == BattleData.hashCode())) {
-			BattleData.receiveBuff(this);
-			target.add(BattleData);
-			effect.add(effect());
+			if(HPCheck()) {
+				int defaultHP = BattleData.getMaxHP();
+				addBuff(BattleData);
+				BattleData.HPBuff(BattleData.getMaxHP() - defaultHP);
+				return;
+			}
+			addBuff(BattleData);
 		}
+	}
+	
+	private void addBuff(BattleData BattleData) {
+		BattleData.receiveBuff(this);
+		target.add(BattleData);
+		effect.add(effect());
 	}
 	
 	private void intervalControl(ScheduledExecutorService scheduler) {
@@ -303,6 +317,9 @@ public class Buff {
 	
 	private void resetBuff() {
 		target.stream().forEach(i -> i.removeBuff(this));
+		if(HPCheck()) {
+			target.stream().forEach(i -> i.HPBuff(0));
+		}
 		target.clear();
 		effect.clear();
 	}
@@ -332,6 +349,10 @@ public class Buff {
 	
 	private boolean additionCheck() {
 		return calculationCode() == ADDITION;
+	}
+	
+	private boolean HPCheck() {
+		return buffInformation.get(STATUS_CODE) == HP;
 	}
 	
 	private double calculationCode() {

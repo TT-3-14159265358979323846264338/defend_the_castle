@@ -258,6 +258,13 @@ public class BattleData{
 		return getRange();
 	}
 	
+	protected void HPBuff(double buffValue) {
+		synchronized(HPLock) {
+			nowHP += buffValue;
+			overHP();
+		}
+	}
+	
 	//ブロック管理
 	protected List<BattleEnemy> getBlock(){
 		return block;
@@ -335,9 +342,13 @@ public class BattleData{
 				defeat();
 				return;
 			}
-			if(getMaxHP() < nowHP) {
-				nowHP = getMaxHP();
-			}
+			overHP();
+		}
+	}
+	
+	private void overHP() {
+		if(getMaxHP() < nowHP) {
+			nowHP = getMaxHP();
 		}
 	}
 	
