@@ -207,6 +207,7 @@ public class Buff {
 	}
 	
 	private void myselfBuff() {
+		myself.receiveBuff(this);
 		target = Arrays.asList(myself);
 		effect = Arrays.asList(effect());
 		if(intervalCheck() && durationCheck()) {
@@ -330,7 +331,11 @@ public class Buff {
 	}
 	
 	private boolean additionCheck() {
-		return buffInformation.get(CALCULATION_CODE) == ADDITION;
+		return calculationCode() == ADDITION;
+	}
+	
+	private double calculationCode() {
+		return buffInformation.get(CALCULATION_CODE);
 	}
 	
 	private boolean allyCheck() {
@@ -355,20 +360,20 @@ public class Buff {
 	}
 	
 	protected double additionalEffect(BattleData BattleData, double status){
-		if(buffInformation.get(CALCULATION_CODE) == ADDITION) {
+		if(calculationCode() == ADDITION) {
 			return status += buffValue(BattleData);
 		}
-		if(buffInformation.get(CALCULATION_CODE) == SUBTRACTION) {
+		if(calculationCode() == SUBTRACTION) {
 			return status -= buffValue(BattleData);
 		}
 		return status;
 	}
 	
 	protected double ratioEffect(BattleData BattleData, double status) {
-		if(buffInformation.get(CALCULATION_CODE) == MULTIPLICATION) {
+		if(calculationCode() == MULTIPLICATION) {
 			return status *= buffValue(BattleData);
 		}
-		if(buffInformation.get(CALCULATION_CODE) == DIVISION) {
+		if(calculationCode() == DIVISION) {
 			return status /= buffValue(BattleData);
 		}
 		return status;

@@ -170,18 +170,23 @@ public class BattleUnit extends BattleData{
 	
 	@Override
 	protected void defeat() {
+		defeatReset();
+		otherWeapon.defeatReset();
 		if(nowHP <= 0) {
 			defeatNumber++;
 			GameData.lowMorale(battle.GameData.UNIT, 60);
 		}else {
 			GameData.lowMorale(battle.GameData.UNIT, 5 + 30 * (getMaxHP() - nowHP) / getMaxHP());
 		}
+		clearBlock();
+		nowHP = defaultUnitStatus.get(0);
+	}
+	
+	private void defeatReset() {
 		canActivate = false;
 		positionX = initialPosition.x;
 		positionY = initialPosition.y;
 		existsRight = true;
-		clearBlock();
 		activateBuff(Buff.DEFEAT);
-		super.initialize();
 	}
 }

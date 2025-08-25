@@ -31,7 +31,7 @@ public class BattleData{
 	List<Bullet> bulletList = Arrays.asList();
 	
 	List<List<Double>> generatedBuffInformation;
-	List<Buff> generatedBuff;
+	List<Buff> generatedBuff = new ArrayList<>();
 	List<Buff> receivedBuff = new ArrayList<>();
 	
 	String name;
@@ -159,6 +159,7 @@ public class BattleData{
 	
 	private void result(BattleData target) {
 		activateBuff(Buff.ATACK);
+		target.activateBuff(Buff.HIT);
 		if(element.stream().anyMatch(i -> i == 11)) {
 			heal(target);
 			return;
@@ -322,7 +323,6 @@ public class BattleData{
 	private void HPDecrease(int decrease) {
 		synchronized(HPLock) {
 			nowHP -= decrease;
-			activateBuff(Buff.HIT);
 			if(nowHP <= 0 && canActivate) {
 				defeat();
 				return;

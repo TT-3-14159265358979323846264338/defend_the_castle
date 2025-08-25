@@ -270,14 +270,14 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	private void skill(Graphics g, BattleUnit BattleUnit) {
 		if(BattleUnit.getRecast()) {
-			Graphics2D g2 = (Graphics2D)g;
-			g2.setColor(Color.GRAY);
-			g2.fillOval(BattleUnit.initialPosition().x, BattleUnit.initialPosition().y, 90, 90);
-			g2.setColor(Color.LIGHT_GRAY);
-			g2.fill(new Arc2D.Double(BattleUnit.initialPosition().x, BattleUnit.initialPosition().y, 90, 90, 90, 360 * BattleUnit.recastRatio(), Arc2D.PIE));
+			g.drawImage(BattleUnit.getSkillImage(), BattleUnit.initialPosition().x, BattleUnit.initialPosition().y, this);
 			return;
 		}
-		g.drawImage(BattleUnit.getSkillImage(), BattleUnit.initialPosition().x, BattleUnit.initialPosition().y, this);
+		Graphics2D g2 = (Graphics2D)g;
+		g2.setColor(Color.GRAY);
+		g2.fillOval(BattleUnit.initialPosition().x, BattleUnit.initialPosition().y, 90, 90);
+		g2.setColor(Color.LIGHT_GRAY);
+		g2.fill(new Arc2D.Double(BattleUnit.initialPosition().x, BattleUnit.initialPosition().y, 90, 90, 90, 360 * BattleUnit.recastRatio(), Arc2D.PIE));
 	}
 	
 	private void drawUnit(Graphics g) {
@@ -451,11 +451,10 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			if(!UnitMainData[i].getActivate() || !UnitMainData[i].possessSkill()) {
 				continue;
 			}
-			//いずれ範囲は調整する
 			int x = UnitMainData[i].initialPosition().x;
 			int y = UnitMainData[i].initialPosition().y;
-			if(ValueRange.of(x, x + SIZE * 3).isValidIntValue(e.getX())
-					&& ValueRange.of(y, y + SIZE * 3).isValidIntValue(e.getY())) {
+			if(ValueRange.of(x, x + 90).isValidIntValue(e.getX())
+					&& ValueRange.of(y, y + 90).isValidIntValue(e.getY())) {
 				UnitMainData[i].activateBuff(Buff.SKILL);
 				return true;
 			}
