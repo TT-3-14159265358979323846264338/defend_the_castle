@@ -6,8 +6,8 @@ import battle.Battle;
 import battle.BattleData;
 
 public abstract class AtackPattern {
-	BattleData myself;
-	List<BattleData> candidate;
+	protected BattleData myself;
+	protected List<BattleData> candidate;
 	
 	public void install(BattleData myself, List<BattleData> candidate) {
 		this.myself = myself;
