@@ -11,25 +11,25 @@ import defaultdata.weapon.WeaponData;
 
 //ステータス計算
 public class StatusCalculation{
-	int rightType;
-	List<Integer> rightElement;
-	int rightAtackPattern;
-	List<Integer> rightWeaponStatus;
-	List<Integer> rightUnitStatus;
-	List<Integer> rightWeaponCutList;
-	List<List<Double>> rightBuffList = new ArrayList<>();
+	private int rightType;
+	private List<Integer> rightElement;
+	private int rightAtackPattern;
+	private List<Integer> rightWeaponStatus;
+	private List<Integer> rightUnitStatus;
+	private List<Integer> rightWeaponCutList;
+	private List<List<Double>> rightBuffList = new ArrayList<>();
 	
-	int leftType;
-	List<Integer> leftElement;
-	int leftAtackPattern;
-	List<Integer> leftWeaponStatus;
-	List<Integer> leftUnitStatus;
-	List<Integer> leftWeaponCutList;
-	List<List<Double>> leftBuffList = new ArrayList<>();
+	private int leftType;
+	private List<Integer> leftElement;
+	private int leftAtackPattern;
+	private List<Integer> leftWeaponStatus;
+	private List<Integer> leftUnitStatus;
+	private List<Integer> leftWeaponCutList;
+	private List<List<Double>> leftBuffList = new ArrayList<>();
 	
-	List<Double> coreWeaponStatus;
-	List<Double> coreUnitStatus;
-	List<Integer> coreCutList;
+	private List<Double> coreWeaponStatus;
+	private List<Double> coreUnitStatus;
+	private List<Integer> coreCutList;
 	
 	public StatusCalculation(List<Integer> unitData) {
 		rightWeaponInstall(unitData.get(0));

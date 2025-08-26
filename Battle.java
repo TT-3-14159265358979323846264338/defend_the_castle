@@ -1,17 +1,13 @@
 package battle;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.awt.geom.Arc2D;
 import java.awt.image.BufferedImage;
 import java.time.temporal.ValueRange;
@@ -26,10 +22,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 import defaultdata.DefaultStage;
 import defaultdata.stage.StageData;
@@ -39,31 +33,31 @@ import screendisplay.DisplayStatus;
 
 //バトル画面制御
 public class Battle extends JPanel implements MouseListener, MouseMotionListener{
-	JLabel costLabel = new JLabel();
-	JButton rangeDrawButton = new JButton();
-	JButton meritButton = new JButton();
-	JButton pauseButton = new JButton();
-	JButton stageReturnButton = new JButton();
-	JButton statusButton = new UnitButton();
-	JButton retreatButton = new UnitButton();
-	JButton awakeningButton = new UnitButton();
-	JButton unitReturnButton = new UnitButton();
-	BufferedImage stageImage;
-	List<BufferedImage> placementImage = new DefaultStage().getPlacementImage(4);
-	List<List<List<Double>>> placementList;
-	BattleUnit[] UnitMainData;//右武器/コア用　攻撃・被弾などの判定はこちらで行う
-	BattleUnit[] UnitLeftData;//左武器用
-	BattleFacility[] FacilityData;
-	BattleEnemy[] EnemyData;
-	GameData GameData;
-	Point mouse;
-	Point menuPoint;
-	int select;
-	boolean canSelect;
-	public final static int SIZE = 28;
-	int time;
-	boolean canStop;
-	boolean canRangeDraw;
+	public static final int SIZE = 28;
+	private JLabel costLabel = new JLabel();
+	private JButton rangeDrawButton = new JButton();
+	private JButton meritButton = new JButton();
+	private JButton pauseButton = new JButton();
+	private JButton stageReturnButton = new JButton();
+	private JButton statusButton = new UnitButton();
+	private JButton retreatButton = new UnitButton();
+	private JButton awakeningButton = new UnitButton();
+	private JButton unitReturnButton = new UnitButton();
+	private BufferedImage stageImage;
+	private List<BufferedImage> placementImage = new DefaultStage().getPlacementImage(4);
+	private List<List<List<Double>>> placementList;
+	private BattleUnit[] UnitMainData;//右武器/コア用　攻撃・被弾などの判定はこちらで行う
+	private BattleUnit[] UnitLeftData;//左武器用
+	private BattleFacility[] FacilityData;
+	private BattleEnemy[] EnemyData;
+	private GameData GameData;
+	private Point mouse;
+	private Point menuPoint;
+	private int select;
+	private boolean canSelect;
+	private int time;
+	private boolean canStop;
+	private boolean canRangeDraw;
 	
 	public Battle(MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, int difficultyCode) {
 		addMouseListener(this);
@@ -553,199 +547,5 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 				UnitLeftData[select].activate(correctPosition.apply(i.get(0)), correctPosition.apply(i.get(1)));
 			}
 		});
-	}
-}
-
-//ユニット用JButtonの編集
-class UnitButton extends JButton{
-	protected UnitButton() {
-		setPreferredSize(new Dimension(60, 30));
-		setContentAreaFilled(false);
-	}
-	
-	protected void paintComponent(Graphics g) {
-		Graphics2D g2 = (Graphics2D)g;
-		if(getModel().isArmed()) {
-			g2.setPaint(new GradientPaint(25.0f, 5.0f, Color.LIGHT_GRAY, 30.0f, 20.0f, Color.GRAY));
-		}else {
-			g2.setPaint(new GradientPaint(25.0f, 5.0f, Color.YELLOW, 30.0f, 20.0f, Color.ORANGE));
-		}
-		g2.fillOval(0, 0, getSize().width, getSize().height);
-		super.paintComponent(g2);
-	}
-	
-	protected void paintBorder(Graphics g) {
-		g.drawOval(0, 0, getSize().width, getSize().height);
-	}
-}
-
-//一時停止中の画面
-class PauseDialog extends JDialog implements WindowListener{
-	Battle Battle;
-	
-	protected PauseDialog(Battle Battle, StageData StageData, List<Boolean> clearMerit) {
-		setDialog(Battle);
-		setTitle("戦功");
-		setSize(435, 255);
-		setLocationRelativeTo(null);
-		add(new MeritPanel(this, StageData, clearMerit));
-		setVisible(true);
-	}
-	
-	protected PauseDialog(Battle Battle) {
-		setDialog(Battle);
-		setTitle("一時停止");
-		setSize(285, 140);
-		setLocationRelativeTo(null);
-		add(new PausePanel(this));
-		setVisible(true);
-	}
-	
-	protected PauseDialog(Battle Battle, MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, int difficultyCode) {
-		setDialog(Battle);
-		setTitle("降参/再戦");
-		setSize(415, 140);
-		setLocationRelativeTo(null);
-		add(new ReturnPanel(this, MainFrame, StageData, clearMerit, difficultyCode));
-		setVisible(true);
-	}
-	
-	private void setDialog(Battle Battle) {
-		this.Battle = Battle;
-		addWindowListener(this);
-		setModalityType(ModalityType.APPLICATION_MODAL);
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setResizable(false);
-	}
-	
-	protected void disposeDialog() {
-		dispose();
-	}
-
-	@Override
-	public void windowOpened(WindowEvent e) {
-	}
-	@Override
-	public void windowClosing(WindowEvent e) {
-	}
-	@Override
-	public void windowClosed(WindowEvent e) {
-		Battle.timerRestart();
-	}
-	@Override
-	public void windowIconified(WindowEvent e) {
-	}
-	@Override
-	public void windowDeiconified(WindowEvent e) {
-	}
-	@Override
-	public void windowActivated(WindowEvent e) {
-	}
-	@Override
-	public void windowDeactivated(WindowEvent e) {
-	}
-}
-
-//戦功表示
-class MeritPanel extends JPanel{
-	JButton restartButton = new JButton();
-	JScrollPane meritScroll = new JScrollPane();
-	
-	protected MeritPanel(PauseDialog PauseDialog, StageData StageData, List<Boolean> clearMerit) {
-		add(restartButton);
-		restartButton.addActionListener(e->{
-			PauseDialog.disposeDialog();
-		});
-		restartButton.setText("再開");
-		JPanel panel = new JPanel();
-		panel.setPreferredSize(new Dimension(390, 20 * clearMerit.size()));
-		IntStream.range(0, clearMerit.size()).forEach(i -> {
-			JLabel label = new JLabel();
-			label.setText(StageData.getMerit().get(i));
-			if(clearMerit.get(i)) {
-				label.setForeground(Color.LIGHT_GRAY);
-			}else {
-				label.setForeground(Color.BLACK);
-			}
-			panel.add(label);
-		});
-		meritScroll.getViewport().setView(panel);
-    	add(meritScroll);
-	}
-	
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		restartButton.setBounds(150, 170, 120, 40);
-		restartButton.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
-		meritScroll.setBounds(10, 10, 400, 150);
-		meritScroll.setPreferredSize(meritScroll.getSize());
-	}
-}
-
-//一時停止表示
-class PausePanel extends JPanel{
-	JLabel comment = new JLabel();
-	JButton restartButton = new JButton();
-	
-	protected PausePanel(PauseDialog PauseDialog) {
-		add(comment);
-		comment.setText("ゲームを一時停止しています");
-		comment.setHorizontalAlignment(JLabel.CENTER);
-		add(restartButton);
-		restartButton.addActionListener(e->{
-			PauseDialog.disposeDialog();
-		});
-		restartButton.setText("再開");
-	}
-	
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		comment.setBounds(10, 10, 250, 40);
-		comment.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 15));
-		restartButton.setBounds(75, 50, 120, 40);
-		restartButton.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
-	}
-}
-
-//戻る・再戦
-class ReturnPanel extends JPanel{
-	JLabel comment = new JLabel();
-	JButton restartButton = new JButton();
-	JButton returnButton = new JButton();
-	JButton retryButton = new JButton();
-	
-	protected ReturnPanel(PauseDialog PauseDialog, MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, int difficultyCode) {
-		add(comment);
-		comment.setText("ゲーム操作を選択してください");
-		comment.setHorizontalAlignment(JLabel.CENTER);
-		add(restartButton);
-		restartButton.addActionListener(e->{
-			PauseDialog.disposeDialog();
-		});
-		restartButton.setText("再開");
-		add(returnButton);
-		returnButton.addActionListener(e->{
-			PauseDialog.disposeDialog();
-			MainFrame.selectStageDraw();
-		});
-		returnButton.setText("降参");
-		add(retryButton);
-		retryButton.addActionListener(e->{
-			PauseDialog.disposeDialog();
-			MainFrame.battleDraw(StageData, clearMerit, difficultyCode);
-		});
-		retryButton.setText("再戦");
-	}
-	
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		comment.setBounds(10, 10, 380, 40);
-		comment.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 15));
-		restartButton.setBounds(10, 50, 120, 40);
-		restartButton.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
-		returnButton.setBounds(140, 50, 120, 40);
-		returnButton.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
-		retryButton.setBounds(270, 50, 120, 40);
-		retryButton.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
 	}
 }

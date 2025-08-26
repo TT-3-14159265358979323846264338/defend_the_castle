@@ -1,0 +1,85 @@
+package defendthecastle.selectstage;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import defaultdata.stage.StageData;
+
+//戦功情報
+class MeritPanel extends JPanel{
+	private JLabel[] meritLabel;
+	private JLabel[] clearLabel;
+	private SelectPanel SelectPanel;
+	private List<List<Boolean>> meritStatus;
+	private List<List<String>> meritInformation;
+	private Font meritFont = new Font("ＭＳ ゴシック", Font.BOLD, 15);
+	private Font clearFont = new Font("Arail", Font.BOLD, 30);
+	
+	protected MeritPanel(SelectPanel SelectPanel, List<List<Boolean>> meritStatus, StageData[] StageData) {
+		this.SelectPanel = SelectPanel;
+		this.meritStatus = meritStatus;
+		meritLabel = IntStream.range(0, Stream.of(StageData).mapToInt(i -> i.getMerit().size()).max().getAsInt()).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
+		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
+		meritInformation = Stream.of(StageData).map(i -> i.getMerit().stream().map(j -> wrap(j)).toList()).toList();
+		addLabel();
+	}
+	
+	private String wrap(String comment) {
+		int lastPosition = 0;
+		List<Integer> wrapPosition = new ArrayList<>();
+		for(int i = 0; i < comment.length(); i++) {
+			if(comment.substring(i, i + 1).equals("(") || 280 < getFontMetrics(meritFont).stringWidth(comment.substring(lastPosition, i))) {
+				wrapPosition.add(i);
+				lastPosition = i;
+			}
+		}
+		if(wrapPosition.isEmpty()) {
+			return comment;
+		}
+		StringBuilder wrapComment = new StringBuilder(comment);
+		wrapPosition.stream().sorted(Comparator.reverseOrder()).forEach(i -> wrapComment.insert(i, "<br>"));
+		return wrapComment.insert(0, "<html>").toString();
+	}
+	
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		setPreferredSize(new Dimension(200, 70 * meritInformation.get(SelectPanel.getSelelct()).size()));
+		IntStream.range(0, meritLabel.length).forEach(i -> setLabel(i));
+		IntStream.range(0, meritLabel.length).forEach(i -> g.drawLine(0, 70 * i, 400, 70 * i));
+	}
+	
+	private void addLabel() {
+		Stream.of(meritLabel).forEach(i -> {
+			add(i);
+			i.setFont(meritFont);
+		});
+		Stream.of(clearLabel).forEach(i -> {
+			add(i);
+			i.setHorizontalAlignment(JLabel.CENTER);
+			i.setForeground(Color.RED);
+			i.setFont(clearFont);
+		});
+	}
+	
+	private void setLabel(int number) {
+		try{
+			meritLabel[number].setText(meritInformation.get(SelectPanel.getSelelct()).get(number));
+			meritLabel[number].setBounds(5, number * 70, 400, 70);
+			clearLabel[number].setText(meritStatus.get(SelectPanel.getSelelct()).get(number)? "clear": "");
+			clearLabel[number].setBounds(290, number * 70, 100, 70);
+		}catch (Exception e) {
+			meritLabel[number].setText("");
+			clearLabel[number].setText("");
+		}
+	}
+}

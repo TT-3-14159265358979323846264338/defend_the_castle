@@ -4,13 +4,13 @@ import defaultdata.stage.StageData;
 
 //ゲームデータ管理
 public class GameData{
-	final static boolean UNIT = true;
-	final static boolean ENEMY = false;
-	int unitMorale;
-	int enemyMorale;
-	int cost;
-	Object moraleLock = new Object();
-	Object costLock = new Object();
+	public static final boolean UNIT = true;
+	public static final boolean ENEMY = false;
+	private int unitMorale;
+	private int enemyMorale;
+	private int cost;
+	private Object moraleLock = new Object();
+	private Object costLock = new Object();
 	
 	protected GameData(StageData StageData) {
 		unitMorale = StageData.getMorale().get(0);

@@ -1,9 +1,6 @@
-package defendthecastle;
-
-import static javax.swing.JOptionPane.*;
+package defendthecastle.composition;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
@@ -12,8 +9,6 @@ import java.awt.image.BufferedImage;
 import java.time.temporal.ValueRange;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.swing.DefaultListModel;
@@ -25,40 +20,38 @@ import javax.swing.JScrollPane;
 
 import defaultdata.DefaultUnit;
 import defaultdata.EditImage;
-import savedata.SaveComposition;
-import savedata.SaveHoldItem;
-import screendisplay.DisplaySort;
+import defendthecastle.MainFrame;
 import screendisplay.DisplayStatus;
 
 //編成
 public class MenuComposition extends JPanel implements MouseListener{
-	JLabel compositionNameLabel = new JLabel();
-	JLabel compositionLabel = new JLabel();
-	JLabel typeLabel = new JLabel();
-	JButton newButton = new JButton();
-	JButton removeButton = new JButton();
-	JButton swapButton = new JButton();
-	JButton nameChangeButton = new JButton();
-	JButton saveButton = new JButton();
-	JButton loadButton = new JButton();
-	JButton resetButton = new JButton();
-	JButton returnButton = new JButton();
-	JButton switchButton = new JButton();
-	JButton sortButton = new JButton();
-	DefaultListModel<String> compositionListModel = new DefaultListModel<>();
-	JList<String> compositionJList = new JList<>(compositionListModel);
-	JScrollPane compositionScroll = new JScrollPane();
-	JScrollPane itemScroll = new JScrollPane();
-	ImagePanel CoreImagePanel = new ImagePanel();
-	ImagePanel WeaponImagePanel = new ImagePanel();
-	SaveData SaveData = new SaveData();
-	DisplayListCreation DisplayListCreation = new DisplayListCreation(SaveData);
-	List<BufferedImage> rightWeaponList = IntStream.range(0, DefaultUnit.WEAPON_DATA_MAP.size()).mapToObj(i -> DefaultUnit.WEAPON_DATA_MAP.get(i).getRightActionImageName().isEmpty()? null: DefaultUnit.WEAPON_DATA_MAP.get(i).getRightActionImage(2).get(0)).toList();
-	List<BufferedImage> ceterCoreList = IntStream.range(0, DefaultUnit.CORE_DATA_MAP.size()).mapToObj(i -> DefaultUnit.CORE_DATA_MAP.get(i).getActionImage(2)).toList();
-	List<BufferedImage> leftWeaponList = IntStream.range(0, DefaultUnit.WEAPON_DATA_MAP.size()).mapToObj(i -> DefaultUnit.WEAPON_DATA_MAP.get(i).getLeftActionImage(2).get(0)).toList();
-	static int unitSize = 60;
+	public static final int SIZE = 60;
+	private JLabel compositionNameLabel = new JLabel();
+	private JLabel compositionLabel = new JLabel();
+	private JLabel typeLabel = new JLabel();
+	private JButton newButton = new JButton();
+	private JButton removeButton = new JButton();
+	private JButton swapButton = new JButton();
+	private JButton nameChangeButton = new JButton();
+	private JButton saveButton = new JButton();
+	private JButton loadButton = new JButton();
+	private JButton resetButton = new JButton();
+	private JButton returnButton = new JButton();
+	private JButton switchButton = new JButton();
+	private JButton sortButton = new JButton();
+	private DefaultListModel<String> compositionListModel = new DefaultListModel<>();
+	private JList<String> compositionJList = new JList<>(compositionListModel);
+	private JScrollPane compositionScroll = new JScrollPane();
+	private JScrollPane itemScroll = new JScrollPane();
+	private ImagePanel CoreImagePanel = new ImagePanel();
+	private ImagePanel WeaponImagePanel = new ImagePanel();
+	private SaveData SaveData = new SaveData();
+	private DisplayListCreation DisplayListCreation = new DisplayListCreation(SaveData);
+	private List<BufferedImage> rightWeaponList = IntStream.range(0, DefaultUnit.WEAPON_DATA_MAP.size()).mapToObj(i -> DefaultUnit.WEAPON_DATA_MAP.get(i).getRightActionImageName().isEmpty()? null: DefaultUnit.WEAPON_DATA_MAP.get(i).getRightActionImage(2).get(0)).toList();
+	private List<BufferedImage> ceterCoreList = IntStream.range(0, DefaultUnit.CORE_DATA_MAP.size()).mapToObj(i -> DefaultUnit.CORE_DATA_MAP.get(i).getActionImage(2)).toList();
+	private List<BufferedImage> leftWeaponList = IntStream.range(0, DefaultUnit.WEAPON_DATA_MAP.size()).mapToObj(i -> DefaultUnit.WEAPON_DATA_MAP.get(i).getLeftActionImage(2).get(0)).toList();
 	
-	protected MenuComposition(MainFrame MainFrame) {
+	public MenuComposition(MainFrame MainFrame) {
 		addMouseListener(this);
 		setBackground(new Color(240, 170, 80));
 		add(compositionNameLabel);
@@ -256,8 +249,8 @@ public class MenuComposition extends JPanel implements MouseListener{
 		IntStream.range(0, SaveData.getActiveCompositionList().size()).forEach(i -> {
 			int x = getPositionX(i) + 60;
 			int y = getPositionY(i) + 60;
-			if(ValueRange.of(x, x + unitSize).isValidIntValue(e.getX())
-					&& ValueRange.of(y, y + unitSize).isValidIntValue(e.getY())){
+			if(ValueRange.of(x, x + SIZE).isValidIntValue(e.getX())
+					&& ValueRange.of(y, y + SIZE).isValidIntValue(e.getY())){
 				try {
 					if(itemScroll.getViewport().getView() == CoreImagePanel) {
 						int selectCore = CoreImagePanel.getSelectNumber();
@@ -304,374 +297,5 @@ public class MenuComposition extends JPanel implements MouseListener{
 			originalImage.add(null);
 		}
 		return originalImage;
-	}
-}
-
-//セーブデータ処理
-class SaveData{
-	SaveHoldItem SaveHoldItem = new SaveHoldItem();
-	SaveComposition SaveComposition = new SaveComposition();
-	List<Integer> coreNumberList = new ArrayList<>();
-	List<Integer> weaponNumberList = new ArrayList<>();
-	List<List<List<Integer>>> allCompositionList = new ArrayList<>();
-	List<String> compositionNameList = new ArrayList<>();
-	int selectNumber;
-	List<Integer> nowCoreNumberList = new ArrayList<>();
-	List<Integer> nowWeaponNumberList = new ArrayList<>();
-	
-	protected SaveData() {
-		load();
-	}
-	
-	private void load() {
-		SaveHoldItem.load();
-		SaveComposition.load();
-		input();
-	}
-	
-	private void input() {
-		coreNumberList = SaveHoldItem.getCoreNumberList();
-		weaponNumberList = SaveHoldItem.getWeaponNumberList();
-		allCompositionList = SaveComposition.getAllCompositionList();
-		compositionNameList = SaveComposition.getCompositionNameList();
-		selectNumber = SaveComposition.getSelectNumber();
-	}
-	
-	private void save() {
-		SaveComposition.save(allCompositionList, compositionNameList, selectNumber);
-	}
-	
-	protected void countNumber() {
-		int[] core = new int[coreNumberList.size()];
-    	int[] weapon = new int[weaponNumberList.size()];
-    	getActiveCompositionList().stream().forEach(i -> {
-    		core[i.get(1)]++;
-    		try {
-    			weapon[i.get(0)]++;
-    		}catch(Exception ignore) {
-				//右武器を装備していないので、無視する
-			}
-    		try {
-    			weapon[i.get(2)]++;
-    		}catch(Exception ignore) {
-				//左武器を装備していないので、無視する
-			}
-    	});
-    	BiFunction<List<Integer>, int[], List<Integer>> getNowNumber = (list, count) -> {
-    		return IntStream.range(0, list.size()).mapToObj(i -> list.get(i) - count[i]).toList();
-    	};
-    	nowCoreNumberList.clear();
-    	nowCoreNumberList.addAll(getNowNumber.apply(coreNumberList, core));
-    	nowWeaponNumberList.clear();
-    	nowWeaponNumberList.addAll(getNowNumber.apply(weaponNumberList, weapon));
-	}
-	
-	protected void addNewComposition() {
-		SaveComposition.newComposition();
-		input();
-	}
-	
-	protected void removeComposition(int[] number) {
-		if(1 < allCompositionList.size()) {
-			int select = showConfirmDialog(null, "選択中の編成を全て削除しますか", "編成削除確認", YES_NO_OPTION, QUESTION_MESSAGE);
-			switch(select) {
-			case 0:
-				for(int i = number.length - 1; 0 <= i; i--) {
-					SaveComposition.removeComposition(number[i]);
-				}
-				input();
-			default:
-				break;
-			}
-		}else {
-			showMessageDialog(null, "全ての編成を削除できません");
-		}
-	}
-	
-	protected void swapComposition(int max, int min) {
-		if(max == min) {
-			showMessageDialog(null, "入れ替える2つの編成を選択してください");
-			return;
-		}
-		int select = showConfirmDialog(null, "選択中の編成を入れ替えますか", "入替確認", YES_NO_OPTION, QUESTION_MESSAGE);
-		switch(select) {
-		case 0:
-			List<List<Integer>> maxList = allCompositionList.get(max);
-			List<List<Integer>> minList = allCompositionList.get(min);
-			String maxName = compositionNameList.get(max);
-			String minName = compositionNameList.get(min);
-			allCompositionList.set(max, minList);
-			allCompositionList.set(min, maxList);
-			compositionNameList.set(max, minName);
-			compositionNameList.set(min, maxName);
-			break;
-		default:
-			break;
-		}
-	}
-	
-	protected String changeCompositionName() {
-		String newName = showInputDialog(null, "変更後の編成名を入力してください", "名称変更", INFORMATION_MESSAGE);
-		if(newName != null && !newName.isEmpty()) {
-			if(!newName.startsWith(" ") && !newName.startsWith("　")) {
-				compositionNameList.set(selectNumber, newName);
-				return newName;
-			}
-			showMessageDialog(null, "スペースで始まる名称は使用できません");
-		}
-		return null;
-	}
-	
-	protected void saveProcessing() {
-		int select = showConfirmDialog(null, "現在の編成を保存しますか?", "保存確認", YES_NO_OPTION, QUESTION_MESSAGE);
-		switch(select) {
-		case 0:
-			save();
-		default:
-			break;
-		}
-	}
-	
-	protected void loadProcessing() {
-		int select = showConfirmDialog(null, "保存せずに元のデータをロードしますか?", "ロード確認", YES_NO_OPTION, QUESTION_MESSAGE);
-		switch(select) {
-		case 0:
-			load();
-		default:
-			break;
-		}
-	}
-	
-	protected void resetComposition() {
-		int select = showConfirmDialog(null, "現在の編成をリセットしますか", "リセット確認", YES_NO_OPTION, QUESTION_MESSAGE);
-		switch(select) {
-		case 0:
-			allCompositionList.set(selectNumber, new ArrayList<>(IntStream.range(0, 8).mapToObj(i -> new ArrayList<>(savedata.SaveComposition.DEFAULT)).toList()));
-		default:
-			break;
-		}
-	}
-	
-	protected boolean returnProcessing() {
-		int select = showConfirmDialog(null, "保存して戻りますか?", "実行確認", YES_NO_CANCEL_OPTION, QUESTION_MESSAGE);
-		switch(select) {
-		case 0:
-			save();
-			return true;
-		case 1:
-			return true;
-		default:
-			break;
-		}
-		return false;
-	}
-	
-	protected void selectNumberUpdate(int indexNumber) {
-		selectNumber = indexNumber;
-	}
-	
-	protected void changeCore(int number, int selectCore) {
-		getActiveUnit(number).set(1, selectCore);
-	}
-	
-	protected void changeWeapon(int number, int selectWeapon) {
-		if(DefaultUnit.WEAPON_DATA_MAP.get(selectWeapon).getHandle() == 1) {
-			getActiveUnit(number).set(2, selectWeapon);
-			getActiveUnit(number).set(0, -1);
-		}else if(getActiveUnit(number).get(2) == -1) {
-			change(number, selectWeapon);
-		}else {
-			switch(DefaultUnit.WEAPON_DATA_MAP.get(getActiveUnit(number).get(2)).getHandle()) {
-			case 0:
-				change(number, selectWeapon);
-				break;
-			case 1:
-				if(change(number, selectWeapon) == 1) {
-					getActiveUnit(number).set(2, -1);
-				}
-				break;
-			default:
-				break;
-			}
-		}
-	}
-	
-	private int change(int number, int selectWeapon) {
-		String[] menu = {"左", "右", "戻る"};
-		int select = showOptionDialog(null, "左右どちらの武器を変更しますか", "武器変更", OK_CANCEL_OPTION, PLAIN_MESSAGE, null, menu, menu[0]);
-		switch(select) {
-		case 0:
-			getActiveUnit(number).set(2, selectWeapon);
-			break;
-		case 1:
-			getActiveUnit(number).set(0, selectWeapon);
-			break;
-		default:
-			break;
-		}
-		return select;
-	}
-	
-	protected List<Integer> getCoreNumberList(){
-		return coreNumberList;
-	}
-	
-	protected List<Integer> getWeaponNumberList(){
-		return weaponNumberList;
-	}
-	
-	protected List<String> getCompositionNameList(){
-		return compositionNameList;
-	}
-	
-	protected int getSelectNumber() {
-		return selectNumber;
-	}
-	
-	protected List<List<Integer>> getActiveCompositionList(){
-		return allCompositionList.get(selectNumber);
-	}
-	
-	protected List<Integer> getActiveUnit(int number){
-		return allCompositionList.get(selectNumber).get(number);
-	}
-	
-	protected List<Integer> getNowCoreNumberList(){
-		return nowCoreNumberList;
-	}
-	
-	protected List<Integer> getNowWeaponNumberList(){
-		return nowWeaponNumberList;
-	}
-}
-
-//表示リスト作成
-class DisplayListCreation{
-	DisplaySort coreDisplaySort = new DisplaySort();
-	DisplaySort weaponDisplaySort = new DisplaySort();
-	
-	protected DisplayListCreation(SaveData SaveData) {
-		coreDisplaySort.core(getDisplayList(SaveData.getCoreNumberList()));
-		weaponDisplaySort.weapon(getDisplayList(SaveData.getWeaponNumberList()));
-	}
-	
-	protected List<Integer> getDisplayList(List<Integer> list){
-		return IntStream.range(0, list.size()).mapToObj(i -> (list.get(i) == 0)? -1: i).filter(i -> i != -1).collect(Collectors.toList());
-	}
-	
-	protected List<Integer> getCoreDisplayList() {
-		return coreDisplaySort.getDisplayList();
-	}
-	
-	protected List<Integer> getWeaponDisplayList() {
-		return weaponDisplaySort.getDisplayList();
-	}
-}
-
-//ユニット表示
-class ImagePanel extends JPanel implements MouseListener{
-	List<BufferedImage> imageList;
-	List<Integer> displayList;
-	List<Integer> numberList;
-	boolean existsWhich;
-	int selectNumber;
-	int drawSize = 120;
-	int column = 3;
-	
-	protected ImagePanel() {
-		resetSelectNumber();
-		addMouseListener(this);
-	}
-	
-	protected void setImagePanel(List<BufferedImage> imageList, List<Integer> displayList, List<Integer> numberList, boolean existsWhich) {
-		this.imageList = imageList;
-		this.displayList = displayList;
-		this.numberList = numberList;
-		this.existsWhich = existsWhich;
-	}
-	
-	protected void updateList(List<Integer> displayList) {
-		this.displayList = displayList;
-	}
-	
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		setPreferredSize(new Dimension(100, (displayList.size() / column + 1) * drawSize));
-		IntStream.range(0, displayList.size()).forEach(i -> {
-			int x = i % column * drawSize;
-			int y = i / column * drawSize;
-			if(selectNumber == displayList.get(i)) {
-				g.setColor(Color.WHITE);
-				g.fillRect(x, y, 90, 90);
-			}
-			g.drawImage(imageList.get(displayList.get(i)), x, y, this);
-			g.setColor(Color.BLACK);
-			g.setFont(new Font("Arial", Font.BOLD, 30));
-			g.drawString("" + numberList.get(displayList.get(i)), 80 + x, 80 + y);
-		});
-	}
-	
-	protected int getSelectNumber() {
-		return selectNumber;
-	}
-	
-	protected void resetSelectNumber() {
-		selectNumber = -1;
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-	}
-	@Override
-	public void mousePressed(MouseEvent e) {
-		for(int i = 0; i < displayList.size(); i++) {
-			int x = i % column * drawSize + 10;
-			int y = i / column * drawSize + 10;
-			if(ValueRange.of(x, x + MenuComposition.unitSize).isValidIntValue(e.getX())
-					&& ValueRange.of(y, y + MenuComposition.unitSize).isValidIntValue(e.getY())){
-				if(selectNumber == displayList.get(i)) {
-					if(existsWhich) {
-						new DisplayStatus().core(imageList.get(selectNumber), selectNumber);
-					}else {
-						new DisplayStatus().weapon(imageList.get(selectNumber), selectNumber);
-					}
-				}else {
-					selectNumber = displayList.get(i);
-				}
-				break;
-	    	}
-			if(i == displayList.size() - 1) {
-				resetSelectNumber();
-			}
-		}
-	}
-	@Override
-	public void mouseReleased(MouseEvent e) {
-	}
-	@Override
-	public void mouseEntered(MouseEvent e) {
-	}
-	@Override
-	public void mouseExited(MouseEvent e) {
-	}
-}
-
-//JListの選択項目を可視化 (初回処理時ensureIndexIsVisibleが入らないため)
-class DelaySelect extends Thread{
-	JList<String> compositionJList;
-	int selectNumber;
-	
-	protected DelaySelect(JList<String> compositionJList, int selectNumber) {
-		this.compositionJList = compositionJList;
-		this.selectNumber = selectNumber;
-	}
-	
-	public void run() {
-		try {
-			Thread.sleep(20);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		compositionJList.ensureIndexIsVisible(selectNumber);
 	}
 }

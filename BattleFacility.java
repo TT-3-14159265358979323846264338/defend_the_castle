@@ -12,7 +12,7 @@ import defaultdata.stage.StageData;
 
 //設備のバトル情報
 public class BattleFacility extends BattleData{
-	BufferedImage breakImage;
+	private BufferedImage breakImage;
 	
 	protected BattleFacility(Battle Battle, StageData StageData, int number) {
 		this.Battle = Battle;

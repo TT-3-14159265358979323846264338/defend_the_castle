@@ -18,25 +18,26 @@ import javax.swing.JPanel;
 import defaultdata.DefaultOther;
 import defaultdata.DefaultUnit;
 import defaultdata.EditImage;
+import testdataedit.TestDataEdit;
 
 //トップメニュー画面
 public class MenuMain extends JPanel{
-	ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-	final static int NUMBER = 20;
-	MainFrame MainFrame;
-	FallMotion[] FallMotion = IntStream.range(0, NUMBER).mapToObj(i -> new FallMotion()).toArray(FallMotion[]::new);
-	FinalMotion[] FinalMotion = IntStream.range(0, NUMBER).mapToObj(i -> new FinalMotion(i)).toArray(FinalMotion[]::new);
-	JButton itemGetButton = new JButton();
-	JButton itemDisposeButton = new JButton();
-	JButton compositionButton = new JButton();
-	JButton selectStageButton = new JButton();
-	BufferedImage titleImage = new DefaultOther().getTitleImage(2);
-	List<BufferedImage> coreImage = IntStream.range(0, DefaultUnit.CORE_DATA_MAP.size()).mapToObj(i -> DefaultUnit.CORE_DATA_MAP.get(i).getImage(1)).toList();
-	List<Integer> randamList = IntStream.range(0, NUMBER).mapToObj(i -> new Random().nextInt(coreImage.size())).toList();
-	int count;
+	private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+	private final static int NUMBER = 20;
+	private MainFrame MainFrame;
+	private FallMotion[] FallMotion = IntStream.range(0, NUMBER).mapToObj(i -> new FallMotion()).toArray(FallMotion[]::new);
+	private FinalMotion[] FinalMotion = IntStream.range(0, NUMBER).mapToObj(i -> new FinalMotion(i)).toArray(FinalMotion[]::new);
+	private JButton itemGetButton = new JButton();
+	private JButton itemDisposeButton = new JButton();
+	private JButton compositionButton = new JButton();
+	private JButton selectStageButton = new JButton();
+	private BufferedImage titleImage = new DefaultOther().getTitleImage(2);
+	private List<BufferedImage> coreImage = IntStream.range(0, DefaultUnit.CORE_DATA_MAP.size()).mapToObj(i -> DefaultUnit.CORE_DATA_MAP.get(i).getImage(1)).toList();
+	private List<Integer> randamList = IntStream.range(0, NUMBER).mapToObj(i -> new Random().nextInt(coreImage.size())).toList();
+	private int count;
 	
 	//テスト用
-	JButton testButton = new JButton();
+	private JButton testButton = new JButton();
 	
 	protected MenuMain(MainFrame MainFrame) {
 		this.MainFrame = MainFrame;
@@ -123,75 +124,5 @@ public class MenuMain extends JPanel{
 		testButton.addActionListener(e->{
 			new TestDataEdit();
 		});
-	}
-}
-
-//落下コアの位置調整
-class FallMotion{
-	ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-	double angle = new Random().nextInt((int) (Math.PI * 2 * 100)) / 100;
-	int x = new Random().nextInt(400);
-	int y = -100;
-	boolean canStart;
-	
-	protected void fallTimerStart() {
-		canStart = true;
-		scheduler.scheduleWithFixedDelay(() -> {
-			angle += 0.1;
-			y += 10;
-			if(450 < y) {
-				canStart = false;
-				scheduler.shutdown();
-			}
-		}, 0, 20, TimeUnit.MILLISECONDS);
-	}
-	
-	protected boolean getTimerStatus() {
-		return canStart;
-	}
-	
-	protected double getAngle() {
-		return angle;
-	}
-	
-	protected int getX() {
-		return x;
-	}
-	
-	protected int getY() {
-		return y;
-	}
-}
-
-//最終画面の位置調整
-class FinalMotion{
-	int number;
-	int x;
-	int y;
-	int count;
-	
-	protected FinalMotion(int number) {
-		this.number = number;
-		x = 100 * (number % 5);
-		y = 300;
-	}
-	
-	protected void finalTimerStart() {
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		scheduler.scheduleWithFixedDelay(() -> {
-			y -= 10 * (number / 5);
-			count ++;
-			if(10 < count) {
-				scheduler.shutdown();
-			}
-		}, 0, 50, TimeUnit.MILLISECONDS);
-	}
-	
-	protected int getX() {
-		return x;
-	}
-	
-	protected int getY() {
-		return y;
 	}
 }

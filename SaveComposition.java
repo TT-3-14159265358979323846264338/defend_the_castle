@@ -14,9 +14,9 @@ import java.util.stream.IntStream;
 public class SaveComposition implements Serializable{
 	public transient final static String COMPOSITION_FILE = "composition data.dat";
 	public transient final static List<Integer> DEFAULT = Arrays.asList(-1, 0, -1);
-	List<List<List<Integer>>> allCompositionList = new ArrayList<>();
-	List<String> compositionNameList = new ArrayList<>();
-	int selectNumber;
+	private List<List<List<Integer>>> allCompositionList = new ArrayList<>();
+	private List<String> compositionNameList = new ArrayList<>();
+	private int selectNumber;
 	
 	/*
 	非セーブデータの構造

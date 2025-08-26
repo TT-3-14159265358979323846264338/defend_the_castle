@@ -10,10 +10,10 @@ import java.util.List;
 
 public class SaveGameProgress implements Serializable{
 	public transient final static String PROGRESS_FILE = "progress data.dat";
-	List<Boolean> clearStatus = new ArrayList<>();
-	List<List<Boolean>> meritStatus = new ArrayList<>();
-	int medal;
-	int selectStage;
+	private List<Boolean> clearStatus = new ArrayList<>();
+	private List<List<Boolean>> meritStatus = new ArrayList<>();
+	private int medal;
+	private int selectStage;
 	
 	/*
 	非セーブデータの構造

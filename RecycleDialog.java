@@ -1,17 +1,17 @@
-package testdataedit;
+package defendthecastle.itemdispose;
 
 import javax.swing.JDialog;
 
-//セーブデータ編集ダイアログ
-public class TestDataEdit extends JDialog{
-	public TestDataEdit() {
+//リサイクル画面表示用ダイアログ
+class RecycleDialog extends JDialog{
+	protected void setDialog(RecyclePanel RecyclePanel) {
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
-		setTitle("テスト用セーブデータ編集");
-		setSize(785, 640);
+		setTitle("ステータス");
+		setSize(600, 195);
 		setLocationRelativeTo(null);
-		add(new TestPanel(this));
+		add(RecyclePanel);
 		setVisible(true);
 	}
 	

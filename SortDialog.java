@@ -1,17 +1,17 @@
-package testdataedit;
+package screendisplay;
 
 import javax.swing.JDialog;
 
-//セーブデータ編集ダイアログ
-public class TestDataEdit extends JDialog{
-	public TestDataEdit() {
+//ソート画面表示用ダイアログ
+class SortDialog extends JDialog{
+	protected void setSortDialog(SortPanel SortPanel) {
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
-		setTitle("テスト用セーブデータ編集");
-		setSize(785, 640);
+		setTitle("ソート/絞り込み");
+		setSize(835, 565);
 		setLocationRelativeTo(null);
-		add(new TestPanel(this));
+		add(SortPanel);
 		setVisible(true);
 	}
 	

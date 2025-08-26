@@ -15,14 +15,14 @@ import defaultdata.stage.StageData;
 
 //敵のバトル情報
 public class BattleEnemy extends BattleData{
-	int move;
-	int type;
-	List<List<Integer>> route;
-	int routeNumber;
-	int actitateTime;
-	int pauseCount;
-	int deactivateCount;
-	Object blockWait = new Object();
+	private int move;
+	private int type;
+	private List<List<Integer>> route;
+	private int routeNumber;
+	private int actitateTime;
+	private int pauseCount;
+	private int deactivateCount;
+	private Object blockWait = new Object();
 	
 	protected BattleEnemy(Battle Battle, StageData StageData, int number) {
 		this.Battle = Battle;

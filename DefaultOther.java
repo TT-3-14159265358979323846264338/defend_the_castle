@@ -7,15 +7,15 @@ import java.util.List;
 //その他のデータ
 public class DefaultOther {
 	//タイトル画像ファイル
-	final static String TITLE = "image/gacha/title.png";
+	public static final String TITLE = "image/gacha/title.png";
 
 	//ガチャ画像ファイル
-	final static String BALL = "image/gacha/ball full.png";
-	final static List<String> HALF_BALL = Arrays.asList("image/gacha/ball bottom.png", "image/gacha/ball top.png");
-	final static String HANDLE = "image/gacha/machine handle.png";
-	final static List<String> MACHINE = Arrays.asList("image/gacha/machine bottom.png", "image/gacha/machine top.png");
-	final static String TURN = "image/gacha/turn.png";
-	final static String EFFECT = "image/gacha/effect.png";
+	public static final String BALL = "image/gacha/ball full.png";
+	public static final List<String> HALF_BALL = Arrays.asList("image/gacha/ball bottom.png", "image/gacha/ball top.png");
+	public static final String HANDLE = "image/gacha/machine handle.png";
+	public static final List<String> MACHINE = Arrays.asList("image/gacha/machine bottom.png", "image/gacha/machine top.png");
+	public static final String TURN = "image/gacha/turn.png";
+	public static final String EFFECT = "image/gacha/effect.png";
 	
 	
 	

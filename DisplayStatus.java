@@ -1,24 +1,10 @@
 package screendisplay;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import battle.BattleData;
 import battle.BattleEnemy;
@@ -280,132 +266,5 @@ public class DisplayStatus extends StatusPanel{
 	private void setCut(List<Integer> cutList) {
 		IntStream.range(0, cutList.size()).forEach(i -> cut[i].setText(DefaultUnit.ELEMENT_MAP.get(i) + ((i == 11)? "倍率": "耐性")));
 		IntStream.range(0, cutList.size()).forEach(i -> cut[i + 12].setText(cutList.get(i) + "%"));
-	}
-}
-
-//ステータス表示用ダイアログ
-class StstusDialog extends JDialog{
-	protected StstusDialog(StatusPanel StatusPanel) {
-		setModalityType(ModalityType.APPLICATION_MODAL);
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setResizable(false);
-		setTitle("ステータス");
-		setSize(720, 700);
-		setLocationRelativeTo(null);
-		add(StatusPanel);
-		setVisible(true);
-	}
-}
-
-//ステータス表示
-class StatusPanel extends JPanel{
-	JLabel imageLabel;
-	Function<Integer, JLabel[]> initialize = (size) -> {
-		return IntStream.range(0, size).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
-	};
-	JLabel[] name = initialize.apply(4);
-	JLabel[] weapon = initialize.apply(27);
-	JLabel[] unit = initialize.apply(12);
-	JLabel[] cut = initialize.apply(24);
-	int startX = 20;
-	int startY = 20;
-	int sizeX = 110;
-	int sizeY = 30;
-	
-	protected void setStatusPanel(BufferedImage image) {
-		setBackground(new Color(240, 170, 80));
-		this.imageLabel = new JLabel(new ImageIcon(image));
-		addLabel();
-		setLabelFont();
-		setLabelHorizontal();
-		new StstusDialog(this);
-	}
-	
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		setLabelPosition();
-		drawBackground(g);
-	}
-	
-	private void addLabel() {
-		Consumer<JLabel[]> addLabel = (label) -> {
-			Stream.of(label).forEach(i -> add(i));
-		};
-		add(imageLabel);
-		addLabel.accept(name);
-		addLabel.accept(weapon);
-		addLabel.accept(unit);
-		addLabel.accept(cut);
-	}
-	
-	private void setLabelFont() {
-		BiConsumer<JLabel[], Integer> setLabel = (label, size) -> {
-			String fontName = "ＭＳ ゴシック";
-			int bold = Font.BOLD;
-			Stream.of(label).forEach(i -> {
-				int fontSize = 15;
-				int width = getFontMetrics(new Font(fontName, bold, fontSize)).stringWidth(i.getText());
-				while(size < width) {
-					fontSize--;
-					width = getFontMetrics(new Font(fontName, bold, fontSize)).stringWidth(i.getText());
-				}
-				i.setFont(new Font(fontName, bold, fontSize));
-			});
-		};
-		setLabel.accept(name, sizeX * 5);
-		setLabel.accept(weapon, sizeX);
-		setLabel.accept(unit, sizeX);
-		setLabel.accept(cut, sizeX);
-	}
-	
-	private void setLabelHorizontal() {
-		Consumer<JLabel[]> setLabel = (label) -> {
-			Stream.of(label).forEach(i -> i.setHorizontalAlignment(JLabel.CENTER));
-		};
-		imageLabel.setHorizontalAlignment(JLabel.CENTER);
-		setLabel.accept(weapon);
-		setLabel.accept(unit);
-		setLabel.accept(cut);
-	}
-	
-	private void setLabelPosition() {
-		name[0].setBounds(startX, startY, sizeX, sizeY);
-		name[1].setBounds(startX + 20, startY + sizeY, sizeX * 5, sizeY);
-		name[2].setBounds(startX + sizeX * 3, startY + sizeY * 3, sizeX * 3, sizeY);
-		name[3].setBounds(startX, startY + sizeY * 14, sizeX * 3, sizeY);
-		imageLabel.setBounds(startX, startY + sizeY * 3, sizeX * 3, sizeY * 10);
-		IntStream.range(0, weapon.length).forEach(i -> weapon[i].setBounds(startX + (i / 9 + 3) * sizeX, startY + (i % 9 + 4) * sizeY, sizeX, sizeY));
-		IntStream.range(0, unit.length).forEach(i -> unit[i].setBounds(startX + (i / 6) * sizeX, startY + (i % 6 + 15) * sizeY, sizeX, sizeY));
-		IntStream.range(0, cut.length / 2).forEach(i -> {
-			cut[i].setBounds(startX + (i / 6 * 2 + 2) * sizeX, startY + (i % 6 + 15) * sizeY, sizeX, sizeY);
-			cut[i + cut.length / 2].setBounds(startX + (i / 6 * 2 + 3) * sizeX, startY + (i % 6 + 15) * sizeY, sizeX, sizeY);
-		});
-	}
-	
-	private void drawBackground(Graphics g) {
-		g.setColor(Color.WHITE);	
-		g.fillRect(startX, startY, sizeX * 6, sizeY * 2);
-		g.fillRect(startX, startY + sizeY * 3, sizeX * 6, sizeY * 10);
-		g.fillRect(startX, startY + sizeY * 14, sizeX * 6, sizeY * 7);
-		g.setColor(Color.LIGHT_GRAY);
-		g.fillRect(startX + sizeX * 3, startY + sizeY * 4, sizeX * 3, sizeY);
-		g.fillRect(startX + sizeX * 3, startY + sizeY * 5, sizeX, sizeY * 8);
-		IntStream.range(0, 3).forEach(i -> g.fillRect(startX + sizeX * i * 2, startY + sizeY * 15, sizeX, sizeY * 6));
-		g.setColor(Color.YELLOW);
-		g.fillRect(startX + sizeX * 4, startY + sizeY * 5, sizeX * 2, sizeY * 8);
-		IntStream.range(0, 3).forEach(i -> g.fillRect(startX + sizeX * (i * 2 + 1), startY + sizeY * 15, sizeX, sizeY * 6));
-		g.setColor(Color.BLACK);
-		Graphics2D g2 = (Graphics2D)g;
-		g2.setStroke(new BasicStroke(2));
-		g.drawRect(startX, startY, sizeX * 6, sizeY * 2);
-		g.drawRect(startX, startY + sizeY * 3, sizeX * 3, sizeY * 10);
-		g.drawRect(startX + sizeX * 3, startY + sizeY * 3, sizeX * 3, sizeY * 10);
-		g.drawRect(startX, startY + sizeY * 14, sizeX * 6, sizeY * 7);
-		g2.setStroke(new BasicStroke(1));
-		g.drawLine(startX + sizeX * 3, startY + sizeY * 4, startX + sizeX * 4, startY + sizeY * 5);
-		IntStream.range(0, 9).forEach(i -> g.drawLine(startX + sizeX * 3, startY + sizeY * (4 + i), startX + sizeX * 6, startY + sizeY * (4 + i)));
-		IntStream.range(0, 2).forEach(i -> g.drawLine(startX + sizeX * (4 + i), startY + sizeY * 4, startX + sizeX * (4 + i), startY + sizeY * 13));
-		IntStream.range(0, 6).forEach(i -> g.drawLine(startX, startY + sizeY * (15 + i), startX + sizeX * 6, startY + sizeY * (15 + i)));
-		IntStream.range(0, 5).forEach(i -> g.drawLine(startX + sizeX * (1 + i), startY + sizeY * 15, startX + sizeX * (1 + i), startY + sizeY * 21));
 	}
 }

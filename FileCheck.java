@@ -17,8 +17,8 @@ import defaultdata.stage.StageData;
 
 //データ保存用ファイルの確認
 public class FileCheck{
-	SaveHoldItem SaveHoldItem = new SaveHoldItem();
-	SaveGameProgress SaveGameProgress = new SaveGameProgress();
+	private SaveHoldItem SaveHoldItem = new SaveHoldItem();
+	private SaveGameProgress SaveGameProgress = new SaveGameProgress();
 	
 	public FileCheck() {
 		fileExistenceCheck();

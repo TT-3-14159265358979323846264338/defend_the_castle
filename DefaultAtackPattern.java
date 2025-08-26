@@ -1,14 +1,16 @@
 package defaultdata;
 
-import defaultdata.atackpattern.*;
+import defaultdata.atackpattern.AtackPattern;
+import defaultdata.atackpattern.No00Near;
+import defaultdata.atackpattern.No01Far;
 
 public class DefaultAtackPattern {
 	//パターンの種類
-	public final static int PATTERN_SPECIES = 2;
+	public static final int PATTERN_SPECIES = 2;
 	
 	//コード名
-	public final static int NEAR = 0;
-	public final static int FAR = 1;
+	public static final int NEAR = 0;
+	public static final int FAR = 1;
 	
 	//コードの振り分け(戦闘時、各キャラに独自のAtackPatternクラスを搭載するため、毎回新インスタンスを生成する必要がある)
 	public AtackPattern getAtackPattern(int code) {

@@ -15,6 +15,10 @@ import javax.swing.Timer;
 
 import battle.Battle;
 import defaultdata.stage.StageData;
+import defendthecastle.composition.MenuComposition;
+import defendthecastle.itemdispose.MenuItemDispose;
+import defendthecastle.itemget.MenuItemGet;
+import defendthecastle.selectstage.MenuSelectStage;
 
 //メイン画面切り替え
 public class MainFrame extends JFrame{
@@ -24,7 +28,7 @@ public class MainFrame extends JFrame{
 		mainMenuDraw();
 	}
 	
-	protected void mainMenuDraw() {
+	public void mainMenuDraw() {
 		getContentPane().removeAll();
 		add(new MenuMain(this));
 		setTitle("メインメニュー");
@@ -76,7 +80,7 @@ public class MainFrame extends JFrame{
 
 //ロード画面
 class LoadFrame extends JFrame{
-	Dimension size;
+	private Dimension size;
 	
 	protected LoadFrame(Dimension size) {
 		this.size = size;
@@ -91,11 +95,11 @@ class LoadFrame extends JFrame{
 }
 
 class LoadPanel extends JPanel implements ActionListener{
-	JLabel load = new JLabel();
-	Dimension size;
-	Timer timer = new Timer(100, this);
-	int alpha = 255;
-	boolean canDecrease;
+	private JLabel load = new JLabel();
+	private Dimension size;
+	private Timer timer = new Timer(100, this);
+	private int alpha = 255;
+	private boolean canDecrease;
 	
 	protected LoadPanel(Dimension size) {
 		setBackground(Color.BLACK);

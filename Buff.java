@@ -14,59 +14,59 @@ import java.util.stream.IntStream;
 //各バフの管理
 public class Buff {
 	//発生タイミングコード
-	public final static double BIGINNING = 0;
-	public final static double SKILL = 1;
-	public final static double HIT = 2;
-	public final static double DAMAGE = 3;
-	public final static double DEFEAT = 4;
+	public static final double BIGINNING = 0;
+	public static final double SKILL = 1;
+	public static final double HIT = 2;
+	public static final double DAMAGE = 3;
+	public static final double DEFEAT = 4;
 	
 	//発生対象コード
-	public final static double ALLY = 0;
-	public final static double ENEMY = 1;
-	public final static double GAME = 2;
+	public static final double ALLY = 0;
+	public static final double ENEMY = 1;
+	public static final double GAME = 2;
 	
 	//効果範囲コード
-	public final static double MYSELF = 0;
-	public final static double ALL = 1;
-	public final static double WITHIN_RANGE = 2;
-	public final static double OUT_RANGE = 3;
+	public static final double MYSELF = 0;
+	public static final double ALL = 1;
+	public static final double WITHIN_RANGE = 2;
+	public static final double OUT_RANGE = 3;
 	
 	//対象ステータスコード
-	public final static double ATACK = 0;
-	public final static double RANGE = 1;
-	public final static double ATACK_SPEED = 2;
-	public final static double ATACK_NUMBER = 3;
+	public static final double ATACK = 0;
+	public static final double RANGE = 1;
+	public static final double ATACK_SPEED = 2;
+	public static final double ATACK_NUMBER = 3;
 	
-	public final static double HP = 10;
-	public final static double DEFENCE = 12;
-	public final static double HEAL = 13;
-	public final static double MOVE_SPEED_OR_BLOCK = 14;
-	public final static double COST = 15;
+	public static final double HP = 10;
+	public static final double DEFENCE = 12;
+	public static final double HEAL = 13;
+	public static final double MOVE_SPEED_OR_BLOCK = 14;
+	public static final double COST = 15;
 	
-	public final static double SLASH = 100;
-	public final static double PIERCE = 101;
-	public final static double STRIKE = 102;
-	public final static double IMPACT = 103;
-	public final static double FLAME = 104;
-	public final static double WATER = 105;
-	public final static double WIND = 106;
-	public final static double SOIL = 107;
-	public final static double THUNDER = 108;
-	public final static double HOLY = 109;
-	public final static double DARK = 110;
-	public final static double SUPPORT = 111;
+	public static final double SLASH = 100;
+	public static final double PIERCE = 101;
+	public static final double STRIKE = 102;
+	public static final double IMPACT = 103;
+	public static final double FLAME = 104;
+	public static final double WATER = 105;
+	public static final double WIND = 106;
+	public static final double SOIL = 107;
+	public static final double THUNDER = 108;
+	public static final double HOLY = 109;
+	public static final double DARK = 110;
+	public static final double SUPPORT = 111;
 	
-	public final static double MORALE = 1000;
-	public final static double GAME_COST = 1001;
+	public static final double MORALE = 1000;
+	public static final double GAME_COST = 1001;
 	
 	//加減乗除コード
-	public final static double ADDITION = 0;
-	public final static double SUBTRACTION = 1;
-	public final static double MULTIPLICATION = 2;
-	public final static double DIVISION = 3;
+	public static final double ADDITION = 0;
+	public static final double SUBTRACTION = 1;
+	public static final double MULTIPLICATION = 2;
+	public static final double DIVISION = 3;
 	
 	//コードなし
-	public final static double NONE = 0;
+	public static final double NONE = 0;
 	
 	//バフ情報コード
 	public final static int TIMING_CODE = 0;
@@ -80,18 +80,20 @@ public class Buff {
 	public final static int DURATION = 8;
 	public final static int RECAST = 9;
 	
+	//その他定義
+	public final static int DELEY = 20;
+	
 	//バフの管理
-	List<Double> buffInformation;
-	BattleData myself;
-	List<BattleData> candidate;
-	Battle Battle;
-	GameData GameData;
-	List<BattleData> target = new ArrayList<>();
-	List<Double> effect = new ArrayList<>();
-	int durationCount = 0;
-	int recastCount = 0;
-	boolean canRecast;
-	final static int DELEY = 20;
+	private List<Double> buffInformation;
+	private BattleData myself;
+	private List<BattleData> candidate;
+	private Battle Battle;
+	private GameData GameData;
+	private List<BattleData> target = new ArrayList<>();
+	private List<Double> effect = new ArrayList<>();
+	private int durationCount = 0;
+	private int recastCount = 0;
+	private boolean canRecast;
 	
 	protected Buff(List<Double> buffInformation, BattleData myself, List<BattleData> ally, List<BattleData> enemy, Battle Battle, GameData GameData) {
 		//テスト用

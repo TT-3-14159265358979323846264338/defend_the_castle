@@ -17,16 +17,16 @@ import screendisplay.StatusCalculation;
 
 //ユニットのバトル情報
 public class BattleUnit extends BattleData{
-	BattleUnit otherWeapon;
-	BufferedImage rightCoreImage;
-	BufferedImage leftCoreImage;
-	BufferedImage skillImage;
-	Point initialPosition = new Point();
-	int type;
-	int awakeningNumber;
-	int defeatNumber;
-	boolean canPossessSkill;
-	boolean existsOtherBuffRange;
+	private BattleUnit otherWeapon;
+	private BufferedImage rightCoreImage;
+	private BufferedImage leftCoreImage;
+	private BufferedImage skillImage;
+	private Point initialPosition = new Point();
+	private int type;
+	private int awakeningNumber;
+	private int defeatNumber;
+	private boolean canPossessSkill;
+	private boolean existsOtherBuffRange;
 	
 	//右武器/コア用　攻撃・被弾などの判定はこちらで行う
 	protected BattleUnit(Battle Battle, List<Integer> composition, int positionX, int positionY) {

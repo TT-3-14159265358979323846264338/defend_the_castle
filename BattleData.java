@@ -15,39 +15,39 @@ import defaultdata.atackpattern.AtackPattern;
 
 //全キャラクターの共通システム
 public class BattleData{
-	Battle Battle;
-	GameData GameData;
-	List<BattleData> allyData;
-	List<BattleData> enemyData;
+	protected Battle Battle;
+	protected GameData GameData;
+	protected List<BattleData> allyData;
+	protected List<BattleData> enemyData;
 	
-	AtackPattern AtackPattern;
-	boolean canAtack;
-	boolean existsRight = true;
-	int motionNumber = 0;
-	List<BufferedImage> rightActionImage;
-	List<BufferedImage> leftActionImage;
-	BufferedImage bulletImage;
-	List<BufferedImage> hitImage;
-	List<Bullet> bulletList = Arrays.asList();
+	protected AtackPattern AtackPattern;
+	protected boolean existsRight = true;
+	private boolean canAtack;
+	private int motionNumber = 0;
+	protected List<BufferedImage> rightActionImage;
+	protected List<BufferedImage> leftActionImage;
+	protected BufferedImage bulletImage;
+	protected List<BufferedImage> hitImage;
+	private List<Bullet> bulletList = Arrays.asList();
 	
-	List<List<Double>> generatedBuffInformation;
-	List<Buff> generatedBuff = new ArrayList<>();
-	List<Buff> receivedBuff = new ArrayList<>();
+	protected List<List<Double>> generatedBuffInformation;
+	protected List<Buff> generatedBuff = new ArrayList<>();
+	protected List<Buff> receivedBuff = new ArrayList<>();
 	
-	String name;
-	boolean canActivate;
-	int nowHP;
-	double positionX;
-	double positionY;
-	List<Integer> element;
-	List<Integer> defaultWeaponStatus;
-	List<Integer> defaultUnitStatus;
-	List<Integer> defaultCutStatus;
-	List<BattleEnemy> block = new ArrayList<>();
+	protected String name;
+	protected boolean canActivate;
+	protected int nowHP;
+	protected double positionX;
+	protected double positionY;
+	protected List<Integer> element;
+	protected List<Integer> defaultWeaponStatus;
+	protected List<Integer> defaultUnitStatus;
+	protected List<Integer> defaultCutStatus;
+	protected List<BattleEnemy> block = new ArrayList<>();
 	
-	Object buffLock = new Object();
-	Object blockLock = new Object();
-	Object HPLock = new Object();
+	private Object buffLock = new Object();
+	private Object blockLock = new Object();
+	private Object HPLock = new Object();
 	
 	protected void initialize() {
 		leftActionImage = rightActionImage.stream().map(i -> EditImage.mirrorImage(i)).toList();

@@ -17,14 +17,14 @@ import defaultdata.weapon.WeaponData;
 //ユニットデータ
 public class DefaultUnit {
 	//データコード変換
-	public final static Map<Integer, String> CORE_WEAPON_MAP = new HashMap<>();
+	public static final Map<Integer, String> CORE_WEAPON_MAP = new HashMap<>();
 	static {
 		CORE_WEAPON_MAP.put(0, "攻撃倍率");
 		CORE_WEAPON_MAP.put(1, "射程倍率");
 		CORE_WEAPON_MAP.put(2, "攻撃速度倍率");
 		CORE_WEAPON_MAP.put(3, "攻撃対象倍率");
 	}
-	public final static Map<Integer, String> CORE_UNIT_MAP = new HashMap<>();
+	public static final Map<Integer, String> CORE_UNIT_MAP = new HashMap<>();
 	static {
 		CORE_UNIT_MAP.put(0, "最大HP倍率");
 		CORE_UNIT_MAP.put(1, "HP倍率");
@@ -33,14 +33,14 @@ public class DefaultUnit {
 		CORE_UNIT_MAP.put(4, "足止め数倍率");
 		CORE_UNIT_MAP.put(5, "配置コスト倍率");
 	}
-	public final static Map<Integer, String> WEAPON_WEAPON_MAP = new HashMap<>();
+	public static final Map<Integer, String> WEAPON_WEAPON_MAP = new HashMap<>();
 	static {
 		WEAPON_WEAPON_MAP.put(0, "攻撃");
 		WEAPON_WEAPON_MAP.put(1, "射程");
 		WEAPON_WEAPON_MAP.put(2, "攻撃速度");
 		WEAPON_WEAPON_MAP.put(3, "攻撃対象");
 	}
-	public final static Map<Integer, String> WEAPON_UNIT_MAP = new HashMap<>();
+	public static final Map<Integer, String> WEAPON_UNIT_MAP = new HashMap<>();
 	static {
 		WEAPON_UNIT_MAP.put(0, "最大HP");
 		WEAPON_UNIT_MAP.put(1, "HP");
@@ -50,40 +50,40 @@ public class DefaultUnit {
 		WEAPON_UNIT_MAP.put(5, "配置コスト");
 	}
 	
-	public final static int NEAR = 0;
-	public final static int FAR = 1;
-	public final static int ALL = 2;
+	public static final int NEAR = 0;
+	public static final int FAR = 1;
+	public static final int ALL = 2;
 	
-	public final static Map<Integer, String> DISTANCE_MAP = new HashMap<>();
+	public static final Map<Integer, String> DISTANCE_MAP = new HashMap<>();
 	static {
 		DISTANCE_MAP.put(NEAR,"近接");
 		DISTANCE_MAP.put(FAR,"遠隔");
 		DISTANCE_MAP.put(ALL,"遠近");
 	}
 	
-	public final static int ONE = 0;
-	public final static int BOTH = 1;
+	public static final int ONE = 0;
+	public static final int BOTH = 1;
 	
-	public final static Map<Integer, String> HANDLE_MAP = new HashMap<>();
+	public static final Map<Integer, String> HANDLE_MAP = new HashMap<>();
 	static {
 		HANDLE_MAP.put(ONE,"片手");
 		HANDLE_MAP.put(BOTH,"両手");
 	}
 	
-	public final static int SLASH = 0;
-	public final static int PIERCE = 1;
-	public final static int STRIKE = 2;
-	public final static int IMPACT = 3;
-	public final static int FLAME = 4;
-	public final static int WATER = 5;
-	public final static int WIND = 6;
-	public final static int SOIL = 7;
-	public final static int THUNDER = 8;
-	public final static int HOLY = 9;
-	public final static int DARK = 10;
-	public final static int SUPPORT = 11;
+	public static final int SLASH = 0;
+	public static final int PIERCE = 1;
+	public static final int STRIKE = 2;
+	public static final int IMPACT = 3;
+	public static final int FLAME = 4;
+	public static final int WATER = 5;
+	public static final int WIND = 6;
+	public static final int SOIL = 7;
+	public static final int THUNDER = 8;
+	public static final int HOLY = 9;
+	public static final int DARK = 10;
+	public static final int SUPPORT = 11;
 	
-	public final static Map<Integer, String> ELEMENT_MAP = new HashMap<>();
+	public static final Map<Integer, String> ELEMENT_MAP = new HashMap<>();
 	static {
 		ELEMENT_MAP.put(SLASH,"斬撃");
 		ELEMENT_MAP.put(PIERCE,"刺突");
@@ -100,14 +100,14 @@ public class DefaultUnit {
 	}
 	
 	//コアコード変換
-	public final static int NORMAL_CORE = 0;
-	public final static int ATACK_CORE = 1;
-	public final static int DEFENCE_CORE = 2;
-	public final static int RANGE_CORE = 3;
-	public final static int HEAL_CORE = 4;
-	public final static int SPEED_CORE = 5;
+	public static final int NORMAL_CORE = 0;
+	public static final int ATACK_CORE = 1;
+	public static final int DEFENCE_CORE = 2;
+	public static final int RANGE_CORE = 3;
+	public static final int HEAL_CORE = 4;
+	public static final int SPEED_CORE = 5;
 	
-	public final static Map<Integer, CoreData> CORE_DATA_MAP = new HashMap<>();
+	public static final Map<Integer, CoreData> CORE_DATA_MAP = new HashMap<>();
 	static {
 		CORE_DATA_MAP.put(NORMAL_CORE, new No0000NormalCore());
 		CORE_DATA_MAP.put(ATACK_CORE, new No0001NormalAtackCore());
@@ -118,10 +118,10 @@ public class DefaultUnit {
 	}
 	
 	//武器コード変換
-	public final static int SWORD = 0;
-	public final static int BOW = 1;
+	public static final int SWORD = 0;
+	public static final int BOW = 1;
 	
-	public final static Map<Integer, WeaponData> WEAPON_DATA_MAP = new HashMap<>();
+	public static final Map<Integer, WeaponData> WEAPON_DATA_MAP = new HashMap<>();
 	static {
 		WEAPON_DATA_MAP.put(SWORD, new No0000JapaneseSword());
 		WEAPON_DATA_MAP.put(BOW, new No0001Bow());

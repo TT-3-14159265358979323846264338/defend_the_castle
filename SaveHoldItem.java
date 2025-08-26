@@ -12,8 +12,8 @@ import java.util.List;
 //現在保有しているアイテムの保存用
 public class SaveHoldItem implements Serializable{
 	public transient final static String HOLD_FILE = "hold data.dat";
-	List<Integer> coreNumberList = new ArrayList<>();
-	List<Integer> weaponNumberList = new ArrayList<>();
+	private List<Integer> coreNumberList = new ArrayList<>();
+	private List<Integer> weaponNumberList = new ArrayList<>();
 	
 	/*
 	非セーブデータの構造

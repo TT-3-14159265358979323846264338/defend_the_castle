@@ -11,19 +11,19 @@ import java.util.function.BiFunction;
 import defaultdata.EditImage;
 
 public class Bullet {
-	ScheduledExecutorService bulletScheduler = Executors.newSingleThreadScheduledExecutor();
-	ScheduledExecutorService hitScheduler = Executors.newSingleThreadScheduledExecutor();
-	Battle Battle;
-	BattleData myself;
-	BattleData target;
-	BufferedImage bulletImage;
-	List<BufferedImage> hitImage;
-	double positionX;
-	double positionY;
-	int bulletNumber = 0;
-	int hitNumber = -1;
-	final static int CORRECTION = 25;
-	final static int COUNT = 5;
+	public static final int CORRECTION = 25;
+	public static final int COUNT = 5;
+	private ScheduledExecutorService bulletScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledExecutorService hitScheduler = Executors.newSingleThreadScheduledExecutor();
+	private Battle Battle;
+	private BattleData myself;
+	private BattleData target;
+	private BufferedImage bulletImage;
+	private List<BufferedImage> hitImage;
+	private double positionX;
+	private double positionY;
+	private int bulletNumber = 0;
+	private int hitNumber = -1;
 	
 	protected Bullet(Battle Battle, BattleData myself, BattleData target, BufferedImage bulletImage, List<BufferedImage> hitImage) {
 		this.Battle = Battle;
