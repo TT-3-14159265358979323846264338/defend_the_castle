@@ -46,7 +46,7 @@ class OpenBallMotion implements ActionListener{
 		}
 	}
 	
-	protected boolean getTimerStatus() {
+	protected boolean canRunTimer() {
 		return timer.isRunning();
 	}
 	

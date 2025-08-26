@@ -121,7 +121,7 @@ public class BattleEnemy extends BattleData{
 	}
 	
 	private BattleData blockTarget() {
-		List<BattleData> nearList = enemyData.stream().filter(i -> i.getActivate()).filter(this::distanceCheck).toList();
+		List<BattleData> nearList = enemyData.stream().filter(i -> i.canActivate()).filter(this::existsInside).toList();
 		if(nearList.isEmpty()) {
 			return null;
 		}
@@ -136,7 +136,7 @@ public class BattleEnemy extends BattleData{
 		return null;
 	}
 	
-	private boolean distanceCheck(BattleData BattleData) {
+	private boolean existsInside(BattleData BattleData) {
 		return Math.sqrt(Math.pow(positionX - BattleData.getPositionX(), 2) + Math.pow(positionY - BattleData.getPositionY(), 2)) <= battle.Battle.SIZE;
 	}
 	

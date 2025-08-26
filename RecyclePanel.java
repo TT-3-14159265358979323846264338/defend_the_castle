@@ -100,7 +100,7 @@ class RecyclePanel extends JPanel{
 		quantity = (int) countSpinner.getValue();
 	}
 	
-	protected boolean getCanDispose() {
+	protected boolean canDispose() {
 		return canDispose;
 	}
 	

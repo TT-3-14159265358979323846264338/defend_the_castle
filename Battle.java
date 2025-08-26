@@ -215,15 +215,15 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			if(canRangeDraw) {
 				rangeDraw(g, new Color(255, 0, 0, 20), FacilityData[i].getPositionX(), FacilityData[i].getPositionY(), FacilityData[i].getRange());
 			}
-			g.drawImage(FacilityData[i].getActivate()? FacilityData[i].getActionImage(): FacilityData[i].getBreakImage(), FacilityData[i].getPositionX(), FacilityData[i].getPositionY(), this);
-			if(FacilityData[i].getActivate()) {
+			g.drawImage(FacilityData[i].canActivate()? FacilityData[i].getActionImage(): FacilityData[i].getBreakImage(), FacilityData[i].getPositionX(), FacilityData[i].getPositionY(), this);
+			if(FacilityData[i].canActivate()) {
 				drawHP(g, FacilityData[i]);
 			}
 		});
 	}
 	
 	private void drawEnemy(Graphics g) {
-		IntStream.range(0, EnemyData.length).filter(i -> EnemyData[i].getActivate()).boxed().sorted(Comparator.reverseOrder()).forEach(i -> {
+		IntStream.range(0, EnemyData.length).filter(i -> EnemyData[i].canActivate()).boxed().sorted(Comparator.reverseOrder()).forEach(i -> {
 			if(canRangeDraw) {
 				rangeDraw(g, new Color(255, 0, 0, 20), EnemyData[i].getPositionX(), EnemyData[i].getPositionY(), EnemyData[i].getRange());
 			}
@@ -259,24 +259,24 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void drawSkill(Graphics g) {
-		Stream.of(UnitMainData).filter(i -> i.getActivate() && i.possessSkill()).forEach(i -> skill(g, i));
+		Stream.of(UnitMainData).filter(i -> i.canActivate() && i.canPossessSkill()).forEach(i -> skill(g, i));
 	}
 	
 	private void skill(Graphics g, BattleUnit BattleUnit) {
-		if(BattleUnit.getRecast()) {
-			g.drawImage(BattleUnit.getSkillImage(), BattleUnit.initialPosition().x, BattleUnit.initialPosition().y, this);
+		if(BattleUnit.canRecast()) {
+			g.drawImage(BattleUnit.getSkillImage(), BattleUnit.getInitialPosition().x, BattleUnit.getInitialPosition().y, this);
 			return;
 		}
 		Graphics2D g2 = (Graphics2D)g;
 		g2.setColor(Color.GRAY);
-		g2.fillOval(BattleUnit.initialPosition().x, BattleUnit.initialPosition().y, 90, 90);
+		g2.fillOval(BattleUnit.getInitialPosition().x, BattleUnit.getInitialPosition().y, 90, 90);
 		g2.setColor(Color.LIGHT_GRAY);
-		g2.fill(new Arc2D.Double(BattleUnit.initialPosition().x, BattleUnit.initialPosition().y, 90, 90, 90, 360 * BattleUnit.recastRatio(), Arc2D.PIE));
+		g2.fill(new Arc2D.Double(BattleUnit.getInitialPosition().x, BattleUnit.getInitialPosition().y, 90, 90, 90, 360 * BattleUnit.recastRatio(), Arc2D.PIE));
 	}
 	
 	private void drawUnit(Graphics g) {
 		IntStream.range(0, 8).forEach(i -> {
-			if(UnitMainData[i].getActivate() && canRangeDraw) {
+			if(UnitMainData[i].canActivate() && canRangeDraw) {
 				rangeDraw(g, new Color(255, 0, 0, 20), UnitMainData[i].getPositionX(), UnitMainData[i].getPositionY(), UnitMainData[i].getRange());
 				rangeDraw(g, new Color(0, 0, 255, 20), UnitLeftData[i].getPositionX(), UnitLeftData[i].getPositionY(), UnitLeftData[i].getRange());
 			}
@@ -285,7 +285,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			g.drawImage(UnitMainData[i].getActionImage(), x, y, this);
 			g.drawImage(UnitMainData[i].getCoreImage(), x, y, this);
 			g.drawImage(UnitLeftData[i].getActionImage(), x, y, this);
-			if(UnitMainData[i].getActivate()) {
+			if(UnitMainData[i].canActivate()) {
 				drawHP(g, UnitMainData[i]);
 			}
 		});
@@ -299,7 +299,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void drawBullet(Graphics g, BattleData[] BattleData) {
-		Stream.of(BattleData).filter(i -> i.getAtackMotion()).forEach(i -> i.getBulletList().stream().forEach(j -> g.drawImage(j.getImage(), j.getPsitionX(), j.getPsitionY(), this)));
+		Stream.of(BattleData).filter(i -> i.canAtack()).forEach(i -> i.getBulletList().stream().forEach(j -> g.drawImage(j.getImage(), j.getPsitionX(), j.getPsitionY(), this)));
 	}
 	
 	private void drawSelectUnit(Graphics g) {
@@ -361,23 +361,23 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		removeMenu();
 		int number = clickPointCheck(e, UnitMainData);
 		if(0 <= number) {
-			if(UnitMainData[number].getActivate()) {
+			if(UnitMainData[number].canActivate()) {
 				unitMenu(number);
 				return;
 			}
 			unitStatus(number);
 			return;
 		}
-		if(activateSkill(e)) {
+		if(canActivateSkill(e)) {
 			return;
 		}
 		number = clickPointCheck(e, FacilityData);
-		if(0 <= number && FacilityData[number].getActivate()) {
+		if(0 <= number && FacilityData[number].canActivate()) {
 			facilityStatus(number);
 			return;
 		}
 		number = clickPointCheck(e, EnemyData);
-		if(0 <= number && EnemyData[number].getActivate()) {
+		if(0 <= number && EnemyData[number].canActivate()) {
 			enemyStatus(number);
 		}
 	}
@@ -385,7 +385,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	public void mousePressed(MouseEvent e) {
 		removeMenu();
 		mouse = e.getPoint();
-		IntStream.range(0, UnitMainData.length).filter(i -> !UnitMainData[i].getActivate()).forEach(i -> {
+		IntStream.range(0, UnitMainData.length).filter(i -> !UnitMainData[i].canActivate()).forEach(i -> {
 			int x = initialX(i) + 30;
 			int y = initialY(i) + 30;
 			if(ValueRange.of(x, x + SIZE).isValidIntValue(e.getX())
@@ -440,13 +440,13 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		return -1;
 	}
 	
-	private boolean activateSkill(MouseEvent e) {
+	private boolean canActivateSkill(MouseEvent e) {
 		for(int i = 0; i < UnitMainData.length; i++) {
-			if(!UnitMainData[i].getActivate() || !UnitMainData[i].possessSkill() || !UnitMainData[i].getRecast()) {
+			if(!UnitMainData[i].canActivate() || !UnitMainData[i].canPossessSkill() || !UnitMainData[i].canRecast()) {
 				continue;
 			}
-			int x = UnitMainData[i].initialPosition().x;
-			int y = UnitMainData[i].initialPosition().y;
+			int x = UnitMainData[i].getInitialPosition().x;
+			int y = UnitMainData[i].getInitialPosition().y;
 			if(ValueRange.of(x, x + 90).isValidIntValue(e.getX())
 					&& ValueRange.of(y, y + 90).isValidIntValue(e.getY())) {
 				UnitMainData[i].activateBuff(Buff.SKILL);

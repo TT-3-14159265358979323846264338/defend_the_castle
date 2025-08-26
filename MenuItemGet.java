@@ -95,8 +95,8 @@ public class MenuItemGet extends JPanel implements ActionListener{
 	
 	private void addGachaScroll() {
 		selectGachaScroll.getViewport().setView(selectGachaJList);
-    	add(selectGachaScroll);
-    	selectGachaJList.setSelectedIndex(0);
+		add(selectGachaScroll);
+		selectGachaJList.setSelectedIndex(0);
 	}
 	
 	private void setLabel(JLabel label, String name, int x, int y, int width, int height) {
@@ -138,8 +138,8 @@ public class MenuItemGet extends JPanel implements ActionListener{
 		Point point = BallMotion.getBallPosition();
 		g.drawImage(EditImage.rotateImage(ballImage, BallMotion.getBallAngel()), point.x, point.y, null);
 		g.drawImage(machineImage.get(1), 55, 20, null);
-		g.drawImage(EditImage.rotateImage(handleImage, HandleMotion.getAngle()), 145, 220, null);
-		if(OpenBallMotion.getTimerStatus()) {
+		g.drawImage(EditImage.rotateImage(handleImage, HandleMotion.angle()), 145, 220, null);
+		if(OpenBallMotion.canRunTimer()) {
 			List<Double> angle = OpenBallMotion.getBallAngle();
 			List<Point> position = OpenBallMotion.getBallPosition();
 			Consumer<Integer> drawBallOpen = (i) -> {
@@ -151,7 +151,7 @@ public class MenuItemGet extends JPanel implements ActionListener{
 			int color = OpenBallMotion.getColor();
 			g.drawImage(EditImage.effectImage(effectImage, expansion, new Color(255, 255, color, color).getRGB()), 30 - expansion / 2, 210 - expansion / 2, null);
 		}
-		if(canPlay && HoldMedal.checkMedal()) {
+		if(canPlay && HoldMedal.canPossessMedal()) {
 			g.drawImage(EditImage.rotateImage(turnImage, angle), 105, 180, null);
 		}
 	}

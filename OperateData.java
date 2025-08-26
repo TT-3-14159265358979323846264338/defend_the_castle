@@ -100,7 +100,7 @@ class OperateData{
 			int max = numberList.get(select) - usedNumber[select];
 			if(numberCheck.test(max)) {
 				RecyclePanel RecyclePanel = new RecyclePanel(imageList.get(select), max, rarityList.get(select));
-				if(RecyclePanel.getCanDispose()) {
+				if(RecyclePanel.canDispose()) {
 					numberList.set(select, numberList.get(select) - RecyclePanel.getQuantity());
 					medal += RecyclePanel.getMedal();
 					save();

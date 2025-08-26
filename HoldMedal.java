@@ -27,7 +27,7 @@ class HoldMedal{
 		medal -= useMedal();
 	}
 	
-	protected boolean checkMedal() {
+	protected boolean canPossessMedal() {
 		return useMedal() <= medal;
 	}
 	

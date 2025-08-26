@@ -38,7 +38,7 @@ class HandleMotion implements MouseListener, MouseMotionListener, ActionListener
 		MenuItemGet.removeMouseMotionListener(this);
 	}
 	
-	protected double getAngle() {
+	protected double angle() {
 		if(timer.isRunning()) {
 			if(Math.PI * 2 < angle) {
 				autoTurnStop();
@@ -85,10 +85,10 @@ class HandleMotion implements MouseListener, MouseMotionListener, ActionListener
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		if(HoldMedal.checkMedal()) {
+		if(HoldMedal.canPossessMedal()) {
 			activePointX = e.getX();
 			activePointY = e.getY();
-			if(Math.PI / 2.0 < getAngle()) {
+			if(Math.PI / 2.0 < angle()) {
 				autoTurnStart();
 			}
 		}

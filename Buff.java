@@ -110,7 +110,7 @@ public class Buff {
 		}else {
 			this.GameData = GameData;
 		}
-		canRecast = (possessSkill())? true: false;
+		canRecast = (canPossessSkill())? true: false;
 	}
 	
 	protected void buffStart() {
@@ -143,7 +143,7 @@ public class Buff {
 	//ゲームバフ
 	private void gameBuff() {
 		effect.add(0.0);
-		if(intervalCheck()) {
+		if(existsInterval()) {
 			gameBuffSelect();
 			return;
 		}
@@ -154,7 +154,7 @@ public class Buff {
 				return;
 			}
 			gameBuffSelect();
-			if(maxCheck(0)) {
+			if(existsMax(0)) {
 				scheduler.shutdown();
 			}
 		}, 0, getInterval(), TimeUnit.SECONDS);
@@ -162,7 +162,7 @@ public class Buff {
 	}
 	
 	private void gameBuffSelect() {
-		if(buffStatusCode() == MORALE) {
+		if(getBuffStatusCode() == MORALE) {
 			moraleBuff();
 		}else {
 			costBuff();
@@ -170,21 +170,21 @@ public class Buff {
 	}
 	
 	private void moraleBuff() {
-		addEffect(0);
-		if(additionCheck()) {
-			GameData.moraleBoost(battle.GameData.UNIT, (int) effect());
+		setEffect(0);
+		if(existsAddition()) {
+			GameData.moraleBoost(battle.GameData.UNIT, (int) getEffect());
 			return;
 		}
-		GameData.lowMorale(battle.GameData.UNIT, (int) effect());
+		GameData.lowMorale(battle.GameData.UNIT, (int) getEffect());
 	}
 	
 	private void costBuff() {
-		addEffect(0);
-		if(additionCheck()) {
-			GameData.addCost((int) effect());
+		setEffect(0);
+		if(existsAddition()) {
+			GameData.addCost((int) getEffect());
 			return;
 		}
-		GameData.consumeCost((int) effect());
+		GameData.consumeCost((int) getEffect());
 	}
 	
 	//ユニットバフ
@@ -207,8 +207,8 @@ public class Buff {
 	private void myselfBuff() {
 		myself.receiveBuff(this);
 		target = Arrays.asList(myself);
-		effect = Arrays.asList(effect());
-		if(intervalCheck() && durationCheck()) {
+		effect = Arrays.asList(getEffect());
+		if(existsInterval() && existsDuration()) {
 			return;
 		}
 		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -239,7 +239,7 @@ public class Buff {
 			if(activateCheck(scheduler)) {
 				return;
 			}
-			List<BattleData> newTarget = candidate.stream().filter(i -> i.getActivate()).filter(rangeFilter).toList();
+			List<BattleData> newTarget = candidate.stream().filter(i -> i.canActivate()).filter(rangeFilter).toList();
 			IntStream.range(0, target.size()).boxed().sorted(Comparator.reverseOrder()).forEach(i -> targetUpdate(i, newTarget));
 			newTarget.forEach(this::targetUpdate);
 		}, 0, DELEY, TimeUnit.MILLISECONDS);
@@ -248,7 +248,7 @@ public class Buff {
 	private void targetUpdate(int number, List<BattleData> newTarget) {
 		if(newTarget.stream().noneMatch(i -> i.equals(target.get(number)))) {
 			target.get(number).removeBuff(this);
-			if(HPCheck()) {
+			if(existsHP()) {
 				target.get(number).HPBuff(0);
 			}
 			target.remove(number);
@@ -258,7 +258,7 @@ public class Buff {
 	
 	private void targetUpdate(BattleData BattleData) {
 		if(target.stream().noneMatch(i -> i.equals(BattleData))) {
-			if(HPCheck()) {
+			if(existsHP()) {
 				int defaultHP = BattleData.getMaxHP();
 				addBuff(BattleData);
 				BattleData.HPBuff(BattleData.getMaxHP() - defaultHP);
@@ -271,11 +271,11 @@ public class Buff {
 	private void addBuff(BattleData BattleData) {
 		BattleData.receiveBuff(this);
 		target.add(BattleData);
-		effect.add(effect());
+		effect.add(getEffect());
 	}
 	
 	private void intervalControl(ScheduledExecutorService scheduler) {
-		if(intervalCheck()) {
+		if(existsInterval()) {
 			return;
 		}
 		scheduler.scheduleWithFixedDelay(() -> {
@@ -283,13 +283,13 @@ public class Buff {
 			if(activateCheck(scheduler)) {
 				return;
 			}
-			IntStream.range(0, effect.size()).filter(i -> !maxCheck(i)).forEach(i -> addEffect(i));
+			IntStream.range(0, effect.size()).filter(i -> !existsMax(i)).forEach(i -> setEffect(i));
 		}, getInterval(), getInterval(), TimeUnit.SECONDS);
 	}
 	
 	//共通メソッド
 	private void durationControl(ScheduledExecutorService scheduler) {
-		if(durationCheck()) {
+		if(existsDuration()) {
 			return;
 		}
 		scheduler.scheduleWithFixedDelay(() -> {
@@ -304,7 +304,7 @@ public class Buff {
 	}
 	
 	private boolean activateCheck(ScheduledExecutorService scheduler) {
-		if(!myself.getActivate()) {
+		if(!myself.canActivate()) {
 			resetBuff();
 			scheduler.shutdown();
 			return true;
@@ -314,7 +314,7 @@ public class Buff {
 	
 	private void resetBuff() {
 		target.stream().forEach(i -> i.removeBuff(this));
-		if(HPCheck()) {
+		if(existsHP()) {
 			target.stream().forEach(i -> i.HPBuff(0));
 		}
 		target.clear();
@@ -329,79 +329,84 @@ public class Buff {
 		return buffInformation.get(INTERVAL).intValue();
 	}
 	
-	private boolean intervalCheck() {
+	private boolean existsInterval() {
 		return getInterval() == NONE;
 	}
 	
-	private boolean durationCheck() {
+	private boolean existsDuration() {
 		return buffInformation.get(DURATION) == NONE;
 	}
 	
-	private boolean maxCheck(int number) {
+	private boolean existsMax(int number) {
 		if(buffInformation.get(MAX) == NONE) {
 			return false;
 		}
 		return buffInformation.get(MAX) <= effect.get(number);
 	}
 	
-	private boolean additionCheck() {
-		return calculationCode() == ADDITION;
+	private boolean existsAddition() {
+		return getCalculationCode() == ADDITION;
 	}
 	
-	private boolean HPCheck() {
+	private boolean existsHP() {
 		return buffInformation.get(STATUS_CODE) == HP;
 	}
 	
-	private double calculationCode() {
+	private double getCalculationCode() {
 		return buffInformation.get(CALCULATION_CODE);
 	}
 	
-	private double effect() {
+	private double getEffect() {
 		return buffInformation.get(EFFECT);
 	}
 	
-	private void addEffect(int number) {
-		effect.set(number, effect.get(number) + effect());
+	private void setEffect(int number) {
+		effect.set(number, effect.get(number) + getEffect());
 	}
 	
 	//データ返却
 	protected double buffStatusCode() {
+		return getBuffStatusCode();
+	}
+
+	//データ返却
+	protected double getBuffStatusCode() {
 		return buffInformation.get(STATUS_CODE);
 	}
 	
-	protected double buffTiming() {
+	protected double getBuffTiming() {
 		return buffInformation.get(TIMING_CODE);
 	}
 	
 	protected double additionalEffect(BattleData BattleData, double status){
-		if(calculationCode() == ADDITION) {
-			return status += buffValue(BattleData);
+		if(getCalculationCode() == ADDITION) {
+			return status += getBuffValue(BattleData);
 		}
-		if(calculationCode() == SUBTRACTION) {
-			return status -= buffValue(BattleData);
+		if(getCalculationCode() == SUBTRACTION) {
+			return status -= getBuffValue(BattleData);
 		}
 		return status;
 	}
 	
 	protected double ratioEffect(BattleData BattleData, double status) {
-		if(calculationCode() == MULTIPLICATION) {
-			return status *= buffValue(BattleData);
+		if(getCalculationCode() == MULTIPLICATION) {
+			return status *= getBuffValue(BattleData);
 		}
-		if(calculationCode() == DIVISION) {
-			return status /= buffValue(BattleData);
+		if(getCalculationCode() == DIVISION) {
+			return status /= getBuffValue(BattleData);
 		}
 		return status;
 	}
 	
-	private double buffValue(BattleData BattleData) {
+	private double getBuffValue(BattleData BattleData) {
 		return effect.get(target.indexOf(BattleData));
 	}
 	
-	protected boolean possessSkill() {
-		return buffTiming() == SKILL;
+	protected boolean canPossessSkill() {
+		return getBuffTiming() == SKILL;
 	}
 	
-	protected boolean getRecast() {
+	protected boolean canRecast() {
 		return canRecast;
 	}
 	

@@ -44,7 +44,7 @@ public class Bullet {
 		positionY = (int) myself.getPositionY() + CORRECTION;
 		double oneTimeMoveX = (myself.getPositionX() - target.getPositionX()) / COUNT;
 		double oneTimeMoveY = (myself.getPositionY() - target.getPositionY()) / COUNT;
-		bulletImage = EditImage.rotateImage(bulletImage, getAngle());
+		bulletImage = EditImage.rotateImage(bulletImage, angle());
 		bulletScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			if(COUNT <= bulletNumber) {
@@ -56,7 +56,7 @@ public class Bullet {
 		}, 0, 30, TimeUnit.MILLISECONDS);
 	}
 	
-	private double getAngle() {
+	private double angle() {
 		//x, y は 角度を求めたい点, 起点, 目標点 の位置順
 		//角度は余弦定理から、回転方向は外積から算出
 		double[] x = {myself.getPositionX(), myself.getPositionX() - 10, target.getPositionX()};

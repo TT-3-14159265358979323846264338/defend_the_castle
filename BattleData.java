@@ -67,11 +67,11 @@ public class BattleData{
 		return bulletList;
 	}
 	
-	protected boolean getAtackMotion() {
+	protected boolean canAtack() {
 		return canAtack;
 	}
 	
-	public boolean getActivate() {
+	public boolean canActivate() {
 		return canActivate;
 	}
 	
@@ -210,7 +210,7 @@ public class BattleData{
 	
 	//バフ管理
 	protected void activateBuff(double timingCode){
-		generatedBuff.stream().filter(i -> i.buffTiming() == timingCode).forEach(i -> i.buffStart());
+		generatedBuff.stream().filter(i -> i.getBuffTiming() == timingCode).forEach(i -> i.buffStart());
 	}
 	
 	protected void receiveBuff(Buff Buff) {
@@ -225,28 +225,28 @@ public class BattleData{
 		}
 	}
 	
-	protected double additionalBuff(double statusCode) {
+	protected double getAdditionalBuff(double statusCode) {
 		//BattleUnitのみ@Overrideで記載
 		return totalAdditionalBuff(0, statusCode, this);
 	}
 	
 	protected double totalAdditionalBuff(double buff, double statusCode, BattleData BattleData) {
 		for(Buff i: BattleData.receivedBuff){
-			if(i.buffStatusCode() == statusCode) {
+			if(i.getBuffStatusCode() == statusCode) {
 				buff = i.additionalEffect(BattleData, buff);
 			}
 		}
 		return buff;
 	}
 	
-	protected double ratioBuff(double statusCode) {
+	protected double getRatioBuff(double statusCode) {
 		//BattleUnitのみ@Overrideで記載
 		return totalRatioBuff(1, statusCode, this);
 	}
 	
 	protected double totalRatioBuff(double buff, double statusCode, BattleData BattleData) {
 		for(Buff i: BattleData.receivedBuff){
-			if(i.buffStatusCode() == statusCode) {
+			if(i.getBuffStatusCode() == statusCode) {
 				buff = i.ratioEffect(BattleData, buff);
 			}
 		}
@@ -386,13 +386,13 @@ public class BattleData{
 	
 	private int statusControl(double number) {
 		if(number < 10) {
-			return calculate(defaultWeaponStatus.get((int) number), additionalBuff(number), ratioBuff(number));
+			return calculate(defaultWeaponStatus.get((int) number), getAdditionalBuff(number), getRatioBuff(number));
 		}
 		if(number < 100) {
-			return calculate(defaultUnitStatus.get((int) number - 10), additionalBuff(number), ratioBuff(number));
+			return calculate(defaultUnitStatus.get((int) number - 10), getAdditionalBuff(number), getRatioBuff(number));
 		}
 		if(number < 1000) {
-			return calculate(defaultCutStatus.get((int) number - 100), additionalBuff(number), ratioBuff(number));
+			return calculate(defaultCutStatus.get((int) number - 100), getAdditionalBuff(number), getRatioBuff(number));
 		}
 		return 0;
 	}

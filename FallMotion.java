@@ -25,7 +25,7 @@ class FallMotion{
 		}, 0, 20, TimeUnit.MILLISECONDS);
 	}
 	
-	protected boolean getTimerStatus() {
+	protected boolean canRunTimer() {
 		return canStart;
 	}
 	

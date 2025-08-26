@@ -84,7 +84,7 @@ public class BattleUnit extends BattleData{
 		this.enemyData = Stream.of(enemyData).toList();
 		existsOtherBuffRange = (defaultWeaponStatus.get((int) Buff.RANGE) <= otherWeapon.defaultWeaponStatus.get((int) Buff.RANGE))? true: false;
 		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData)).toList();
-		canPossessSkill = generatedBuff.stream().anyMatch(i -> i.possessSkill());
+		canPossessSkill = generatedBuff.stream().anyMatch(i -> i.canPossessSkill());
 		if(Objects.isNull(AtackPattern)) {
 			return;
 		}
@@ -121,7 +121,7 @@ public class BattleUnit extends BattleData{
 		return awakeningNumber;
 	}
 	
-	protected void awakening() {
+	protected void setAwakening() {
 		awakeningNumber++;
 	}
 	
@@ -129,21 +129,21 @@ public class BattleUnit extends BattleData{
 		return defeatNumber;
 	}
 	
-	protected boolean possessSkill() {
+	protected boolean canPossessSkill() {
 		return canPossessSkill;
 	}
 	
-	protected boolean getRecast() {
-		return generatedBuff.stream().anyMatch(i -> i.getRecast());
+	protected boolean canRecast() {
+		return generatedBuff.stream().anyMatch(i -> i.canRecast());
 	}
 	
-	protected Point initialPosition() {
+	protected Point getInitialPosition() {
 		return initialPosition;
 	}
 	
 	protected double recastRatio() {
 		for(Buff i: generatedBuff) {
-			if(i.possessSkill()) {
+			if(i.canPossessSkill()) {
 				return i.recastRatio();
 			}
 		}
@@ -166,13 +166,13 @@ public class BattleUnit extends BattleData{
 	}
 	
 	@Override
-	protected double additionalBuff(double statusCode){
+	protected double getAdditionalBuff(double statusCode){
 		double totalMyBuff = totalAdditionalBuff(0, statusCode, this);
 		return totalAdditionalBuff(totalMyBuff, statusCode, otherWeapon);
 	}
 	
 	@Override
-	protected double ratioBuff(double statusCode){
+	protected double getRatioBuff(double statusCode){
 		double totalMyBuff = totalRatioBuff(1, statusCode, this);
 		return totalRatioBuff(totalMyBuff, statusCode, otherWeapon);
 	}
