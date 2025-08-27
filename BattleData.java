@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
@@ -48,10 +49,23 @@ public class BattleData{
 	private Object buffLock = new Object();
 	private Object blockLock = new Object();
 	private Object HPLock = new Object();
+	private ScheduledExecutorService atackScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> atackFuture;
+	private ScheduledExecutorService motionScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> motionFuture;
+	private ScheduledExecutorService healScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> healFuture;
 	
 	protected void initialize() {
 		leftActionImage = rightActionImage.stream().map(i -> EditImage.mirrorImage(i)).toList();
 		nowHP = defaultUnitStatus.get(0);
+	}
+	
+	protected void schedulerEnd() {
+		atackScheduler.shutdown();
+		motionScheduler.shutdown();
+		healScheduler.shutdown();
+		generatedBuff.stream().forEach(i -> i.schedulerEnd());
 	}
 	
 	//画像管理
@@ -81,16 +95,14 @@ public class BattleData{
 		if(nowSpeed <= 0) {
 			return;
 		}
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		scheduler.scheduleWithFixedDelay(() -> {
+		atackFuture = atackScheduler.scheduleWithFixedDelay(() -> {
 			if(nowSpeed != getAtackSpeed()) {
-				atackTimer();
-				scheduler.shutdown();
+				CompletableFuture.runAsync(() -> atackFuture.cancel(true)).thenRun(this::atackTimer);
 				return;
 			}
 			List<BattleData> targetList = targetCheck();
 			if(targetList.isEmpty()) {
-				scheduler.shutdown();
+				atackFuture.cancel(true);
 				return;
 			}
 			modeChange(targetList);
@@ -122,15 +134,14 @@ public class BattleData{
 	}
 	
 	private void motionTimer(List<BattleData> targetList) {
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		scheduler.scheduleWithFixedDelay(() -> {
+		motionFuture = motionScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			if(rightActionImage.size() - 1 <= motionNumber) {
 				motionNumber = 0;
 				bulletList = targetList.stream().map(i -> new Bullet(Battle, this, i, bulletImage, hitImage)).toList();
 				CompletableFuture.allOf(atackProcess()).join();
 				timerRestart();
-				scheduler.shutdown();
+				motionFuture.cancel(true);
 				return;
 			}
 			motionNumber++;
@@ -197,11 +208,10 @@ public class BattleData{
 	}
 	
 	protected void healTimer() {
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		scheduler.scheduleWithFixedDelay(() -> {
+		healFuture = healScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			if(!canActivate) {
-				scheduler.shutdown();
+				healFuture.cancel(true);
 				return;
 			}
 			HPIncrease(getRecover());

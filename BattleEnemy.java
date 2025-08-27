@@ -2,8 +2,10 @@ package battle;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -23,6 +25,8 @@ public class BattleEnemy extends BattleData{
 	private int pauseCount;
 	private int deactivateCount;
 	private Object blockWait = new Object();
+	private ScheduledExecutorService moveScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> moveFuture;
 	
 	protected BattleEnemy(Battle Battle, StageData StageData, int number) {
 		this.Battle = Battle;
@@ -57,7 +61,7 @@ public class BattleEnemy extends BattleData{
 			AtackPattern.install(this, this.enemyData);
 		}
 		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData)).toList();
-		routeTimer();
+		moveTimer();
 	}
 	
 	public int getMove() {
@@ -68,30 +72,33 @@ public class BattleEnemy extends BattleData{
 		return type;
 	}
 	
-	private void routeTimer() {
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		int nowSpeed = getMoveSpeedOrBlock();
-		if(nowSpeed <= 0) {
-			eternalStop(scheduler);
-			return;
-		}
-		constantMove(scheduler, nowSpeed);
+	protected void moveSchedulerEnd() {
+		moveScheduler.shutdown();
 	}
 	
-	private void eternalStop(ScheduledExecutorService scheduler) {
-		scheduler.scheduleWithFixedDelay(() -> {
+	private void moveTimer() {
+		int nowSpeed = getMoveSpeedOrBlock();
+		if(nowSpeed <= 0) {
+			eternalStop();
+			return;
+		}
+		constantMove(nowSpeed);
+	}
+	
+	private void eternalStop() {
+		moveFuture = moveScheduler.scheduleWithFixedDelay(() -> {
 			if(actitateTime <= Battle.getMainTime()) {
 				canActivate = true;
 				GameData.moraleBoost(battle.GameData.ENEMY, 10);
 				atackTimer();
 				healTimer();
-				scheduler.shutdown();
+				moveFuture.cancel(true);
 			}
 		}, 0, 10, TimeUnit.MILLISECONDS);
 	}
 	
-	private void constantMove(ScheduledExecutorService scheduler, int nowSpeed) {
-		scheduler.scheduleWithFixedDelay(() -> {
+	private void constantMove(int nowSpeed) {
+		moveFuture = moveScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			timerWait();
 			BattleData blockTarget = blockTarget();
@@ -100,12 +107,11 @@ public class BattleEnemy extends BattleData{
 				blockWait();
 			}
 			if(nowHP <= 0) {
-				scheduler.shutdown();
+				moveFuture.cancel(true);
 				return;
 			}
 			if(nowSpeed != getMoveSpeedOrBlock()) {
-				routeTimer();
-				scheduler.shutdown();
+				CompletableFuture.runAsync(() -> moveFuture.cancel(true)).thenRun(this::moveTimer);
 				return;
 			}
 			if(canActivate || 0 < deactivateCount) {

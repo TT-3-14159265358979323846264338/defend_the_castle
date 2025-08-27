@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -95,6 +97,14 @@ public class Buff {
 	private int durationCount = 0;
 	private int recastCount = 0;
 	private boolean canRecast;
+	private ScheduledExecutorService recastScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> recastFuture;
+	private ScheduledExecutorService targetScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> targetFuture;
+	private ScheduledExecutorService intervalScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> intervalFuture;
+	private ScheduledExecutorService durationScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> durationFuture;
 	
 	protected Buff(List<Double> buffInformation, BattleData myself, List<BattleData> ally, List<BattleData> enemy, Battle Battle, GameData GameData) {
 		//テスト用
@@ -123,20 +133,26 @@ public class Buff {
 		unitBuff(BattleData);
 	}
 	
+	protected void schedulerEnd() {
+		recastScheduler.shutdown();
+		targetScheduler.shutdown();
+		intervalScheduler.shutdown();
+		durationScheduler.shutdown();
+	}
+	
 	//リキャスト
 	private void recastBuff() {
 		if(buffInformation.get(RECAST) == NONE) {
 			return;
 		}
 		canRecast = false;
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		scheduler.scheduleWithFixedDelay(() -> {
+		recastFuture = recastScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			recastCount++;
 			if(recastMax() <= recastCount) {
 				recastCount = 0;
 				canRecast = true;
-				scheduler.shutdown();
+				recastFuture.cancel(true);
 			}
 		}, 0, DELEY, TimeUnit.MILLISECONDS);
 	}
@@ -148,18 +164,17 @@ public class Buff {
 			gameBuffSelect();
 			return;
 		}
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		scheduler.scheduleWithFixedDelay(() -> {
+		intervalFuture = intervalScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
-			if(activateCheck(scheduler)) {
+			if(canNotActivate()) {
 				return;
 			}
 			gameBuffSelect();
 			if(existsMax(0)) {
-				scheduler.shutdown();
+				intervalFuture.cancel(true);
 			}
 		}, 0, getInterval(), TimeUnit.SECONDS);
-		durationControl(scheduler);
+		durationControl();
 	}
 	
 	private void gameBuffSelect() {
@@ -218,16 +233,14 @@ public class Buff {
 		if(existsInterval() && existsDuration()) {
 			return;
 		}
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		intervalControl(scheduler);
-		durationControl(scheduler);
+		intervalControl();
+		durationControl();
 	}
 	
 	private void multipleBuff(Predicate<? super BattleData> rangeFilter) {
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		targetControl(scheduler, rangeFilter);
-		intervalControl(scheduler);
-		durationControl(scheduler);
+		targetControl(rangeFilter);
+		intervalControl();
+		durationControl();
 	}
 	
 	private boolean withinCheck(BattleData BattleData) {
@@ -240,10 +253,10 @@ public class Buff {
 		return distanceCheck.test(BattleData);
 	}
 	
-	private void targetControl(ScheduledExecutorService scheduler, Predicate<? super BattleData> rangeFilter) {
-		scheduler.scheduleWithFixedDelay(() -> {
+	private void targetControl(Predicate<? super BattleData> rangeFilter) {
+		targetFuture = targetScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
-			if(activateCheck(scheduler)) {
+			if(canNotActivate()) {
 				return;
 			}
 			List<BattleData> newTarget = candidate.stream().filter(i -> i.canActivate()).filter(rangeFilter).toList();
@@ -281,13 +294,13 @@ public class Buff {
 		effect.add(getEffect());
 	}
 	
-	private void intervalControl(ScheduledExecutorService scheduler) {
+	private void intervalControl() {
 		if(existsInterval()) {
 			return;
 		}
-		scheduler.scheduleWithFixedDelay(() -> {
+		intervalFuture = intervalScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
-			if(activateCheck(scheduler)) {
+			if(canNotActivate()) {
 				return;
 			}
 			IntStream.range(0, effect.size()).filter(i -> !existsMax(i)).forEach(i -> setEffect(i));
@@ -295,28 +308,45 @@ public class Buff {
 	}
 	
 	//共通メソッド
-	private void durationControl(ScheduledExecutorService scheduler) {
+	private void durationControl() {
 		if(existsDuration()) {
 			return;
 		}
-		scheduler.scheduleWithFixedDelay(() -> {
+		durationFuture = durationScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			durationCount++;
+			if(canNotActivate()) {
+				return;
+			}
 			if(buffInformation.get(DURATION) * 1000 / DELEY <= durationCount) {
 				durationCount = 0;
-				resetBuff();
-				scheduler.shutdown();
+				buffEnd();
 			}
 		}, 0, DELEY, TimeUnit.MILLISECONDS);
 	}
 	
-	private boolean activateCheck(ScheduledExecutorService scheduler) {
+	private boolean canNotActivate() {
 		if(!myself.canActivate()) {
-			resetBuff();
-			scheduler.shutdown();
+			buffEnd();
 			return true;
 		}
 		return false;
+	}
+	
+	private void buffEnd() {
+		CompletableFuture.runAsync(this::futureCancel).thenRun(this::resetBuff);
+	}
+	
+	private void futureCancel() {
+		if(targetFuture != null) {
+			targetFuture.cancel(true);
+		}
+		if(intervalFuture != null) {
+			intervalFuture.cancel(true);
+		}
+		if(durationFuture != null) {
+			durationFuture.cancel(true);
+		}
 	}
 	
 	private void resetBuff() {
@@ -375,11 +405,6 @@ public class Buff {
 		effect.set(number, effect.get(number) + getEffect());
 	}
 	
-	//データ返却
-	protected double buffStatusCode() {
-		return getBuffStatusCode();
-	}
-
 	//データ返却
 	protected double getBuffStatusCode() {
 		return buffInformation.get(STATUS_CODE);

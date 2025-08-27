@@ -59,7 +59,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private int time;
 	private boolean canStop;
 	private boolean canRangeDraw;
-	private boolean canPlay = true;
+	private ScheduledExecutorService mainScheduler = Executors.newSingleThreadScheduledExecutor();
 	
 	public Battle(MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, int difficultyCode) {
 		addMouseListener(this);
@@ -117,13 +117,9 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void mainTimer() {
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		scheduler.scheduleWithFixedDelay(() -> {
+		mainScheduler.scheduleWithFixedDelay(() -> {
 			timerWait();
 			time += 10;
-			if(!canPlay) {
-				scheduler.shutdown();
-			}
 		}, 0, 10, TimeUnit.MILLISECONDS);
 	}
 	
@@ -138,7 +134,14 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	protected void gameEnd() {
-		canPlay = false;
+		mainScheduler.shutdown();
+		Stream.of(UnitMainData).forEach(i -> i.schedulerEnd());
+		Stream.of(UnitLeftData).forEach(i -> i.schedulerEnd());
+		Stream.of(FacilityData).forEach(i -> i.schedulerEnd());
+		Stream.of(EnemyData).forEach(i -> {
+			i.schedulerEnd();
+			i.moveSchedulerEnd();
+		});
 	}
 	
 	private void timerStop() {
