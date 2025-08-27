@@ -158,8 +158,8 @@ public class BattleData{
 	}
 	
 	private void result(BattleData target) {
-		activateBuff(Buff.HIT);
-		target.activateBuff(Buff.DAMAGE);
+		activateBuff(Buff.HIT, target);
+		target.activateBuff(Buff.DAMAGE, this);
 		if(element.stream().anyMatch(i -> i == 11)) {
 			heal(target);
 			return;
@@ -168,7 +168,7 @@ public class BattleData{
 	}
 	
 	private void heal(BattleData target) {
-		target.HPDecrease(- healValue());
+		target.HPIncrease(healValue());
 	}
 	
 	private int healValue() {
@@ -179,7 +179,7 @@ public class BattleData{
 		if(getAtack() == 0 && target.getDefense() == 0) {
 			return;
 		}
-		target.HPDecrease(damageValue(target));
+		target.HPDecrease(damageValue(target), this);
 	}
 	
 	private int damageValue(BattleData target) {
@@ -204,13 +204,13 @@ public class BattleData{
 				scheduler.shutdown();
 				return;
 			}
-			HPDecrease(- getRecover());
+			HPIncrease(getRecover());
 		}, 0, 5, TimeUnit.SECONDS);
 	}
 	
 	//バフ管理
-	protected void activateBuff(double timingCode){
-		generatedBuff.stream().filter(i -> i.getBuffTiming() == timingCode).forEach(i -> i.buffStart());
+	protected void activateBuff(double timingCode, BattleData target){
+		generatedBuff.stream().filter(i -> i.getBuffTiming() == timingCode).forEach(i -> i.buffStart(target));
 	}
 	
 	protected void receiveBuff(Buff Buff) {
@@ -259,10 +259,7 @@ public class BattleData{
 	}
 	
 	protected void HPBuff(double buffValue) {
-		synchronized(HPLock) {
-			nowHP += buffValue;
-			overHP();
-		}
+		HPIncrease((int) buffValue);
 	}
 	
 	//ブロック管理
@@ -335,24 +332,26 @@ public class BattleData{
 		return nowHP;
 	}
 	
-	private void HPDecrease(int decrease) {
+	protected void HPIncrease(int increase) {
+		synchronized(HPLock) {
+			nowHP += increase;
+			if(getMaxHP() < nowHP) {
+				nowHP = getMaxHP();
+			}
+		}
+	}
+	
+	private void HPDecrease(int decrease, BattleData target) {
 		synchronized(HPLock) {
 			nowHP -= decrease;
 			if(nowHP <= 0 && canActivate) {
-				defeat();
+				defeat(target);
 				return;
 			}
-			overHP();
 		}
 	}
 	
-	private void overHP() {
-		if(getMaxHP() < nowHP) {
-			nowHP = getMaxHP();
-		}
-	}
-	
-	protected void defeat() {
+	protected void defeat(BattleData target) {
 		//詳細は@Overrideで記載
 	}
 	

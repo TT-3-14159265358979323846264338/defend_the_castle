@@ -30,6 +30,7 @@ public class Buff {
 	public static final double ALL = 1;
 	public static final double WITHIN_RANGE = 2;
 	public static final double OUT_RANGE = 3;
+	public static final double TARGET = 4;
 	
 	//対象ステータスコード
 	public static final double ATACK = 0;
@@ -113,13 +114,13 @@ public class Buff {
 		canRecast = (canPossessSkill())? true: false;
 	}
 	
-	protected void buffStart() {
+	protected void buffStart(BattleData BattleData) {
 		recastBuff();
 		if(buffInformation.get(TARGET_CODE) == GAME) {
 			gameBuff();
 			return;
 		}
-		unitBuff();
+		unitBuff(BattleData);
 	}
 	
 	//リキャスト
@@ -188,25 +189,31 @@ public class Buff {
 	}
 	
 	//ユニットバフ
-	private void unitBuff() {
-		if(buffInformation.get(RANGE_CODE) == MYSELF) {
-			myselfBuff();
+	private void unitBuff(BattleData BattleData) {
+		if(existsRangeCode(MYSELF)) {
+			singleBuff(myself);
 			return;
 		}
-		if(buffInformation.get(RANGE_CODE) == ALL) {
+		if(existsRangeCode(ALL)) {
 			multipleBuff(i -> true);
 			return;
 		}
-		if(buffInformation.get(RANGE_CODE) == WITHIN_RANGE) {
+		if(existsRangeCode(WITHIN_RANGE)) {
 			multipleBuff(i -> withinCheck(i));
 			return;
 		}
-		multipleBuff(i -> !withinCheck(i));
+		if(existsRangeCode(OUT_RANGE)) {
+			multipleBuff(i -> !withinCheck(i));
+			return;
+		}
+		if(existsRangeCode(TARGET)) {
+			singleBuff(BattleData);
+		}
 	}
 	
-	private void myselfBuff() {
-		myself.receiveBuff(this);
-		target = Arrays.asList(myself);
+	private void singleBuff(BattleData BattleData) {
+		BattleData.receiveBuff(this);
+		target = Arrays.asList(BattleData);
 		effect = Arrays.asList(getEffect());
 		if(existsInterval() && existsDuration()) {
 			return;
@@ -249,7 +256,7 @@ public class Buff {
 		if(newTarget.stream().noneMatch(i -> i.equals(target.get(number)))) {
 			target.get(number).removeBuff(this);
 			if(existsHP()) {
-				target.get(number).HPBuff(0);
+				target.get(number).HPIncrease(0);
 			}
 			target.remove(number);
 			effect.remove(number);
@@ -261,7 +268,7 @@ public class Buff {
 			if(existsHP()) {
 				int defaultHP = BattleData.getMaxHP();
 				addBuff(BattleData);
-				BattleData.HPBuff(BattleData.getMaxHP() - defaultHP);
+				BattleData.HPIncrease(BattleData.getMaxHP() - defaultHP);
 				return;
 			}
 			addBuff(BattleData);
@@ -315,7 +322,7 @@ public class Buff {
 	private void resetBuff() {
 		target.stream().forEach(i -> i.removeBuff(this));
 		if(existsHP()) {
-			target.stream().forEach(i -> i.HPBuff(0));
+			target.stream().forEach(i -> i.HPIncrease(0));
 		}
 		target.clear();
 		effect.clear();
@@ -327,6 +334,10 @@ public class Buff {
 	
 	private int getInterval() {
 		return buffInformation.get(INTERVAL).intValue();
+	}
+	
+	private boolean existsRangeCode(double code) {
+		return buffInformation.get(RANGE_CODE) == code;
 	}
 	
 	private boolean existsInterval() {

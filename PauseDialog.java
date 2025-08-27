@@ -36,7 +36,7 @@ class PauseDialog extends JDialog implements WindowListener{
 		setTitle("降参/再戦");
 		setSize(415, 140);
 		setLocationRelativeTo(null);
-		add(new ReturnPanel(this, MainFrame, StageData, clearMerit, difficultyCode));
+		add(new ReturnPanel(this, Battle, MainFrame, StageData, clearMerit, difficultyCode));
 		setVisible(true);
 	}
 	

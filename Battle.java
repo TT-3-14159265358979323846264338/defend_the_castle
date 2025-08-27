@@ -14,6 +14,7 @@ import java.time.temporal.ValueRange;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -58,6 +59,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private int time;
 	private boolean canStop;
 	private boolean canRangeDraw;
+	private boolean canPlay = true;
 	
 	public Battle(MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, int difficultyCode) {
 		addMouseListener(this);
@@ -115,9 +117,13 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void mainTimer() {
-		Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(() -> {
+		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+		scheduler.scheduleWithFixedDelay(() -> {
 			timerWait();
 			time += 10;
+			if(!canPlay) {
+				scheduler.shutdown();
+			}
 		}, 0, 10, TimeUnit.MILLISECONDS);
 	}
 	
@@ -129,6 +135,10 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	protected void gameEnd() {
+		canPlay = false;
 	}
 	
 	private void timerStop() {
@@ -449,7 +459,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			int y = UnitMainData[i].getInitialPosition().y;
 			if(ValueRange.of(x, x + 90).isValidIntValue(e.getX())
 					&& ValueRange.of(y, y + 90).isValidIntValue(e.getY())) {
-				UnitMainData[i].activateBuff(Buff.SKILL);
+				UnitMainData[i].activateBuff(Buff.SKILL, null);
 				return true;
 			}
 		}
@@ -477,8 +487,8 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		add(retreatButton);
 		retreatButton.addActionListener(e->{
 			GameData.addCost((int) Math.ceil(UnitMainData[number].getCost() / 2));
-			UnitMainData[number].defeat();
-			UnitLeftData[number].defeat();
+			UnitMainData[number].defeat(null);
+			UnitLeftData[number].defeat(null);
 			removeMenu();
 		});
 	}

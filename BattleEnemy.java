@@ -205,7 +205,7 @@ public class BattleEnemy extends BattleData{
 			canActivate = true;
 			atackTimer();
 			healTimer();
-			activateBuff(Buff.BIGINNING);
+			activateBuff(Buff.BIGINNING, null);
 		}
 	}
 	
@@ -222,11 +222,11 @@ public class BattleEnemy extends BattleData{
 	}
 	
 	@Override
-	protected void defeat() {
+	protected void defeat(BattleData target) {
 		canActivate = false;
 		GameData.addCost(getCost());
 		removeBlock(this);
 		GameData.lowMorale(battle.GameData.ENEMY, 3);
-		activateBuff(Buff.DEFEAT);
+		activateBuff(Buff.DEFEAT, target);
 	}
 }

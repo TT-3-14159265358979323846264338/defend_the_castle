@@ -157,7 +157,7 @@ public class BattleUnit extends BattleData{
 		positionY = y;
 		atackTimer();
 		healTimer();
-		activateBuff(Buff.BIGINNING);
+		activateBuff(Buff.BIGINNING, null);
 	}
 	
 	@Override
@@ -183,9 +183,9 @@ public class BattleUnit extends BattleData{
 	}
 	
 	@Override
-	protected void defeat() {
-		defeatReset();
-		otherWeapon.defeatReset();
+	protected void defeat(BattleData target) {
+		defeatReset(target);
+		otherWeapon.defeatReset(target);
 		if(nowHP <= 0) {
 			defeatNumber++;
 			GameData.lowMorale(battle.GameData.UNIT, 60);
@@ -196,11 +196,11 @@ public class BattleUnit extends BattleData{
 		nowHP = defaultUnitStatus.get(0);
 	}
 	
-	private void defeatReset() {
+	private void defeatReset(BattleData target) {
 		canActivate = false;
 		positionX = initialPosition.x;
 		positionY = initialPosition.y;
 		existsRight = true;
-		activateBuff(Buff.DEFEAT);
+		activateBuff(Buff.DEFEAT, target);
 	}
 }
