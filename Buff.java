@@ -84,7 +84,7 @@ public class Buff {
 	public final static int RECAST = 9;
 	
 	//その他定義
-	public final static int DELEY = 20;
+	public final static int DELEY = 50;
 	
 	//バフの管理
 	private List<Double> buffInformation;
@@ -125,6 +125,7 @@ public class Buff {
 	}
 	
 	protected void buffStart(BattleData BattleData) {
+		buffEnd().join();
 		recastBuff();
 		if(buffInformation.get(TARGET_CODE) == GAME) {
 			gameBuff();
@@ -148,7 +149,7 @@ public class Buff {
 		canRecast = false;
 		recastFuture = recastScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
-			recastCount++;
+			recastCount += DELEY;
 			if(recastMax() <= recastCount) {
 				recastCount = 0;
 				canRecast = true;
@@ -260,12 +261,12 @@ public class Buff {
 				return;
 			}
 			List<BattleData> newTarget = candidate.stream().filter(i -> i.canActivate()).filter(rangeFilter).toList();
-			IntStream.range(0, target.size()).boxed().sorted(Comparator.reverseOrder()).forEach(i -> targetUpdate(i, newTarget));
-			newTarget.forEach(this::targetUpdate);
+			IntStream.range(0, target.size()).boxed().sorted(Comparator.reverseOrder()).forEach(i -> removeUpdate(i, newTarget));
+			newTarget.forEach(this::addUpdate);
 		}, 0, DELEY, TimeUnit.MILLISECONDS);
 	}
 	
-	private void targetUpdate(int number, List<BattleData> newTarget) {
+	private void removeUpdate(int number, List<BattleData> newTarget) {
 		if(newTarget.stream().noneMatch(i -> i.equals(target.get(number)))) {
 			target.get(number).removeBuff(this);
 			if(existsHP()) {
@@ -276,7 +277,7 @@ public class Buff {
 		}
 	}
 	
-	private void targetUpdate(BattleData BattleData) {
+	private void addUpdate(BattleData BattleData) {
 		if(target.stream().noneMatch(i -> i.equals(BattleData))) {
 			if(existsHP()) {
 				int defaultHP = BattleData.getMaxHP();
@@ -314,11 +315,11 @@ public class Buff {
 		}
 		durationFuture = durationScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
-			durationCount++;
+			durationCount += DELEY;
 			if(canNotActivate()) {
 				return;
 			}
-			if(buffInformation.get(DURATION) * 1000 / DELEY <= durationCount) {
+			if(buffInformation.get(DURATION) * 1000 <= durationCount) {
 				durationCount = 0;
 				buffEnd();
 			}
@@ -333,8 +334,8 @@ public class Buff {
 		return false;
 	}
 	
-	private void buffEnd() {
-		CompletableFuture.runAsync(this::futureCancel).thenRun(this::resetBuff);
+	private CompletableFuture<Void> buffEnd() {
+		return CompletableFuture.runAsync(this::futureCancel).thenRun(this::resetBuff);
 	}
 	
 	private void futureCancel() {
@@ -356,10 +357,11 @@ public class Buff {
 		}
 		target.clear();
 		effect.clear();
+		durationCount = 0;
 	}
 	
 	private double recastMax() {
-		return buffInformation.get(RECAST) * 1000 / DELEY;
+		return buffInformation.get(RECAST) * 1000;
 	}
 	
 	private int getInterval() {
