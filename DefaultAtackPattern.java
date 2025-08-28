@@ -13,6 +13,12 @@ public class DefaultAtackPattern {
 	public static final int FAR = 1;
 	
 	//コードの振り分け(戦闘時、各キャラに独自のAtackPatternクラスを搭載するため、毎回新インスタンスを生成する必要がある)
+	/**
+	 * アタックパターンの取得。<br>
+	 * 新たなデータを追加したらPATTERN_SPECIESにも加算すること。
+	 * @param code - アタックパターンコード。コードはDefaultAtackPatternのクラス変数を使用すること。
+	 * @return codeに該当するAtackPatternを返却する。戦闘時、各キャラに独自のAtackPatternクラスを搭載するため、このメソッドで毎回新インスタンスを生成する必要がある。
+	 */
 	public AtackPattern getAtackPattern(int code) {
 		switch(code) {
 		case 0:
@@ -23,8 +29,4 @@ public class DefaultAtackPattern {
 			return null;
 		}
 	}
-	
-	/*
-	新たなデータを追加したらPATTERN_SPECIESにも加算すること
-	 */
 }

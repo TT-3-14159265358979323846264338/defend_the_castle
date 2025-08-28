@@ -23,6 +23,13 @@ import defaultdata.stage.StageData;
 
 //画像処理
 public class EditImage{
+	/**
+	 * 画像の取り込み(単独ファイル)。
+	 * @param imageName - 画像のファイル名。nullを受け付ける。
+	 * @param ratio - 元の画像を何倍の縮尺で取り込むか指定。
+	 * @return 取り込んだ画像を返却する。imageNameがnullであればnullを返却する。ファイルが存在しなければエラーメッセージのみ表示して処理を継続する。<br>
+	 * 			画像中の白部分(new Color(255, 255, 255))は全て透過色として扱われる。
+	 */
 	public static BufferedImage input(String imageName, double ratio) {
 		if(imageName == null) {
 			return null;
@@ -36,6 +43,13 @@ public class EditImage{
 		return image;
 	}
 	
+	/**
+	 * 画像の取り込み(複数ファイル)。
+	 * @param imageNameList - 画像のファイル名List。nullを受け付ける。
+	 * @param ratio - 元の画像を何倍の縮尺で取り込むか指定。
+	 * @return 取り込んだ画像を返却する。imageNameList中にnullであればnullを返却する。空のListであれば空のListを返却する。ファイルが存在しなければエラーメッセージのみ表示して処理を継続する。<br>
+	 * 			画像中の白部分(new Color(255, 255, 255))は全て透過色として扱われる。
+	 */
 	public static List<BufferedImage> input(List<String> imageNameList, double ratio){
 		return imageNameList.stream().map(i -> (i == null)? null: input(i, ratio)).toList();
 	}
@@ -52,6 +66,12 @@ public class EditImage{
 		return scalingImage(image, ratio);
 	}
 	
+	/**
+	 * 画像の縮尺変更。
+	 * @param originalImage - 縮尺を変更する元の画像。
+	 * @param ratio - 元の画像を何倍の縮尺で取り込むか指定。
+	 * @return 倍率変更された画像を返却する。
+	 */
 	public static BufferedImage scalingImage(BufferedImage originalImage, double ratio) {
 		int resizeWidth = (int) (originalImage.getWidth() / ratio);
 		int resizeHeight = (int) (originalImage.getHeight() / ratio);
@@ -62,6 +82,11 @@ public class EditImage{
 		return resizeImage;
 	}
 	
+	/**
+	 * 画像の重ね掛け。
+	 * @param originalImage - 重ね掛けを行う画像List。
+	 * @return 重ね掛け画像を返却する。画像は左上を起点に重ね掛けされる。
+	 */
 	public static BufferedImage compositeImage(List<BufferedImage> originalImage) {
 		int width = originalImage.get(1).getWidth();
 		int height = originalImage.get(1).getHeight();
@@ -72,6 +97,12 @@ public class EditImage{
 		return image;
 	}
 	
+	/**
+	 * 画像の回転。
+	 * @param originalImage - 回転させる画像。
+	 * @param angle - 回転させる角度[rad]。
+	 * @return 回転させた画像を返却する。
+	 */
 	public static BufferedImage rotateImage(BufferedImage originalImage, double angle) {
 		int width = originalImage.getWidth();
 		int height = originalImage.getHeight();
@@ -85,12 +116,25 @@ public class EditImage{
 		return image;
 	}
 	
+	/**
+	 * 画像の反転。
+	 * @param originalImage - 反転させる画像。
+	 * @return 左右対称で反転させた画像を返却する。
+	 */
 	public static BufferedImage mirrorImage(BufferedImage originalImage) {
 		AffineTransform mirror = AffineTransform.getScaleInstance(-1.0, 1.0);
 		mirror.translate(- originalImage.getWidth(), 0);
 		return new AffineTransformOp(mirror, null).filter(originalImage, null);
 	}
 	
+	/**
+	 * ガチャ排出時のエフェクト作成。<br>
+	 * このメソッドはガチャ排出時専用である。
+	 * @param originalImage - エフェクト画像。
+	 * @param expansion - 拡大させる大きさ。
+	 * @param color - 変更後の色指定。
+	 * @return 大きさ, 色, ぼかしエフェクトを展開した画像を返却する。
+	 */
 	public static BufferedImage effectImage(BufferedImage originalImage, int expansion, int color) {
 		int width = originalImage.getWidth();
 		int height = originalImage.getHeight();
@@ -113,6 +157,12 @@ public class EditImage{
 		return blur.filter(resizeImage, null);
 	}
 	
+	/**
+	 * 完全なステージ画像を作成。
+	 * @param StageData - 対象のステージ情報。
+	 * @param ratio - 元の画像を何倍の縮尺で取り込むか指定。
+	 * @return ステージ画像に損傷のない設備を加えた完全なステージ画像を返却する。
+	 */
 	public static BufferedImage stageImage(StageData StageData, double ratio) {
 		BufferedImage image = StageData.getImage(2);
 		Graphics g = image.getGraphics();
