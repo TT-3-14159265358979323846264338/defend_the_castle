@@ -6,57 +6,97 @@ import java.util.List;
 import defaultdata.EditImage;
 
 public abstract class CoreData {
-	//名前
+	/**
+	 * コアの名称。
+	 * @return コアの名称を返却する。
+	 */
 	public abstract String getName();
 	
-	//通常時の画像ファイル名
+	/**
+	 * 通常時のコア画像ファイル名。
+	 * @return コアを単独で表示する際の画像ファイル名を返却する。
+	 */
 	public abstract String getImageName();
 	
-	//通常時の画像
+	/**
+	 * 通常時のコア画像。
+	 * @param ratio - 元の画像を何倍の縮尺で取り込むか指定。
+	 * @return コアを単独で表示する際の画像を返却する。
+	 */
 	public BufferedImage getImage(double ratio) {
 		return EditImage.input(getImageName(), ratio);
 	}
 	
-	//攻撃時の画像ファイル名
+	/**
+	 * 攻撃時のコア画像ファイル名。
+	 * @return 武器と共に表示する際のコア画像ファイル名を返却する。
+	 */
 	public abstract String getActionImageName();
 	
-	//攻撃時の画像
+	/**
+	 * 攻撃時のコア画像。
+	 * @param ratio - 元の画像を何倍の縮尺で取り込むか指定。
+	 * @return 武器と共に表示する際の画像を返却する。
+	 */
 	public BufferedImage getActionImage(double ratio) {
 		return EditImage.input(getActionImageName(), ratio);
 	}
 	
-	//レアリティ
+	/**
+	 * コアのレアリティ。
+	 * @return コアのレアリティを返却する。1以上の値をとり、一定の値まで到達したらDisplaySortの表示位置を再調整すること。
+	 */
 	public abstract int getRarity();
 	
-	//DefaultUnit.CORE_WEAPON_MAPの順にステータスをリスト化
+	/**
+	 * 装備した武器のステータス上昇率(倍率上昇)。
+	 * @return DefaultUnit.CORE_WEAPON_MAPの順にステータス上昇率をリスト化。
+	 */
 	public abstract List<Double> getWeaponStatus();
 	
-	//DefaultUnit.CORE_UNIT_MAPの順にステータスをリスト化
+	/**
+	 * ユニットのステータス上昇率(倍率上昇)。
+	 * @return DefaultUnit.CORE_UNIT_MAPの順にステータス上昇率をリスト化。
+	 */
 	public abstract List<Double> getUnitStatus();
 	
-	//DefaultUnit.ELEMENT_MAPの順にステータスをリスト化
+	/**
+	 * ダメージカット率上昇量(加算上昇)。
+	 * @return DefaultUnit.ELEMENT_MAPの順にステータス上昇量をリスト化。
+	 */
 	public abstract List<Integer> getCutStatus();
 	
-	/*
-	発生タイミングコード, 
-	発生対象コード, 
-	効果範囲コード, 
-	対象ステータスコード, 
-	加減乗除コード, 
-	効果量, 
-	効果発生間隔[s](Buff.NONE: なし), 
-	上限量(Buff.NONE: なし), 
-	効果時間[s](Buff.NONE: 無限), 
-	再使用時間[s](Buff.NONE: なし)
-	
-		の順にリスト化
-	*/
+	/**
+	 * 発生させるバフ情報。<br>
+	 * バフ情報を入力した複数のListを返却する。
+	 * @return List(timing, target, range, status, culculate, effect, interval, max, duration, recast)<br>
+	 * 			<br>
+	 * 			timing - 発生させるタイミングコード。Buff.発生タイミングコードで指定。CoreではHIT使用不可。<br>
+	 * 			target - 与える対象コード。Buff.発生対象コードで指定。<br>
+	 * 			range - 与える範囲コード。Buff.効果範囲コードで指定。<br>
+	 * 			status - 効果のあるステータスコード。Buff.対象ステータスコードで指定。MORALE, GAME_COST を指定した場合、targetをGAMEに指定する必要がある。<br>
+	 * 			culculate - 最終ステータスへの計算方法コード。Buff.加減乗除コードで指定。targetがGAMEであれば、MULTIPLICATION, DIVISION使用不可。<br>
+	 * 			effect - 1回あたりの効果量。intervalを指定した際でも最大値ではないので注意。<br>
+	 * 			interval - 効果の発生間隔[s]。未使用ならBuff.NONEを指定。<br>
+	 * 			max - intervalを指定した時の最大値。未使用ならBuff.NONEを指定。<br>
+	 * 			duration - 効果持続時間[s]。未使用ならBuff.NONEを指定。<br>
+	 * 			recast - スキルの再使用時間[s]。timingがSKILLの時のみ指定することがある。未使用ならBuff.NONEを指定。<br>
+	 * 			<br>
+	 * 			バフを保有していない場合、空のArrays.asList()を返却する。
+	 */
 	public abstract List<List<Double>> getBuff();
 	
-	//スキルのアイコン画像ファイル名
+	/**
+	 * スキルのアイコン画像ファイル名。
+	 * @return スキルを保有する場合、そのアイコン画像名を返却する。スキルを保有しないときはnullを指定する。
+	 */
 	public abstract String getSkillImageName();
 	
-	//スキルのアイコン画像
+	/**
+	 * スキルのアイコン画像。
+	 * @param ratio - 元の画像を何倍の縮尺で取り込むか指定。
+	 * @return スキルのアイコン画像を返却する。getBuffがnullの時はnullを返却する。
+	 */
 	public BufferedImage getSkillImage(double ratio) {
 		return EditImage.input(getSkillImageName(), ratio);
 	}
