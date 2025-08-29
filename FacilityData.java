@@ -93,31 +93,31 @@ public abstract class FacilityData {
 	
 	/**
 	 * 武器属性コード。
-	 * @return 武器に付与される全ての属性コードを返却する。コードはDefaultStage.ELEMENT_MAP参照。攻撃しない時は空のArrays.asList()を返却する。
+	 * @return 武器に付与される全ての属性コードを返却する。コードは{@link defaultdata.DefaultStage#ELEMENT_MAP ELEMENT_MAP}参照。攻撃しない時は空のArrays.asList()を返却する。
 	 */
 	public abstract List<Integer> getElement();
 	
 	/**
 	 * 使用するアタックパターンコード。
-	 * @return DefaultAtackPatternのコード番号を返却する。攻撃しない時は0を返却する。。
+	 * @return {@link defaultdata.DefaultAtackPattern#getAtackPattern DefaultAtackPattern}のコード番号を返却する。攻撃しない時は0を返却する。。
 	 */
 	public abstract int getAtackPattern();
 	
 	/**
 	 * 武器のステータス。
-	 * @return DefaultStage.WEAPON_MAPの順にステータスをリスト化。攻撃しない時は空のArrays.asList()を返却する。
+	 * @return {@link defaultdata.DefaultStage#WEAPON_MAP WEAPON_MAP}の順にステータスをリスト化。攻撃しない時は空のArrays.asList()を返却する。
 	 */
 	public abstract List<Integer> getWeaponStatus();
 	
 	/**
 	 * 設備のステータス。
-	 * @return DefaultStage.UNIT_MAPの順にステータスをリスト化。足止め数∞の時は-1を指定する。
+	 * @return {@link defaultdata.DefaultStage#UNIT_MAP UNIT_MAP}の順にステータスをリスト化。足止め数∞の時は-1を指定する。
 	 */
 	public abstract List<Integer> getUnitStatus();
 	
 	/**
 	 * ダメージカット率。
-	 * @return DefaultStage.ELEMENT_MAPの順にステータスをリスト化。
+	 * @return {@link defaultdata.DefaultStage#ELEMENT_MAP ELEMENT_MAP}の順にステータスをリスト化。
 	 */
 	public abstract List<Integer> getCutStatus();
 	
@@ -126,16 +126,16 @@ public abstract class FacilityData {
 	 * バフ情報を入力した複数のListを返却する。
 	 * @return List(timing, target, range, status, culculate, effect, interval, max, duration, recast)<br>
 	 * 			<br>
-	 * 			timing - 発生させるタイミングコード。Buff.発生タイミングコードで指定。FacilityではSKILL使用不可。<br>
-	 * 			target - 与える対象コード。Buff.発生対象コードで指定。<br>
-	 * 			range - 与える範囲コード。Buff.効果範囲コードで指定。<br>
-	 * 			status - 効果のあるステータスコード。Buff.対象ステータスコードで指定。MORALE, GAME_COST を指定した場合、targetをGAMEに指定する必要がある。<br>
-	 * 			culculate - 最終ステータスへの計算方法コード。Buff.加減乗除コードで指定。targetがGAMEであれば、MULTIPLICATION, DIVISION使用不可。<br>
+	 * 			timing - 発生させるタイミングコード。{@link battle.Buff Buff}の発生タイミングコードで指定。Facilityでは{@link battle.Buff#SKILL SKILL}使用不可。<br>
+	 * 			target - 与える対象コード。{@link battle.Buff Buff}の発生対象コードで指定。<br>
+	 * 			range - 与える範囲コード。{@link battle.Buff Buff}の効果範囲コードで指定。<br>
+	 * 			status - 効果のあるステータスコード。{@link battle.Buff Buff}の対象ステータスコードで指定。{@link battle.Buff#MORALE MORALE}, {@link battle.Buff#GAME_COST GAME_COST} を指定した場合、targetを{@link battle.Buff#GAME GAME}に指定する必要がある。<br>
+	 * 			culculate - 最終ステータスへの計算方法コード。{@link battle.Buff Buff}の加減乗除コードで指定。targetが{@link battle.Buff#GAME GAME}であれば、{@link battle.Buff#MULTIPLICATION MULTIPLICATION}, {@link battle.Buff#DIVISION DIVISION}使用不可。<br>
 	 * 			effect - 1回あたりの効果量。intervalを指定した際でも最大値ではないので注意。<br>
-	 * 			interval - 効果の発生間隔[s]。未使用ならBuff.NONEを指定。<br>
-	 * 			max - intervalを指定した時の最大値。未使用ならBuff.NONEを指定。<br>
-	 * 			duration - 効果持続時間[s]。未使用ならBuff.NONEを指定。<br>
-	 * 			recast - 必ずBuff.NONEを指定。<br>
+	 * 			interval - 効果の発生間隔[s]。未使用なら{@link battle.Buff#NONE Buff.NONE}を指定。<br>
+	 * 			max - intervalを指定した時の最大値。未使用なら{@link battle.Buff#NONE Buff.NONE}を指定。<br>
+	 * 			duration - 効果持続時間[s]。未使用なら{@link battle.Buff#NONE Buff.NONE}を指定。<br>
+	 * 			recast - 必ず{@link battle.Buff#NONE Buff.NONE}を指定。<br>
 	 * 			<br>
 	 * 			バフを保有していない場合、空のArrays.asList()を返却する。
 	 */
