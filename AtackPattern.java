@@ -7,8 +7,16 @@ import battle.BattleData;
 
 public abstract class AtackPattern {
 	protected BattleData myself;
+	/**
+	 * ターゲット候補となるBattleData。{@link #install}を呼び出すことで初期化される。
+	 */
 	protected List<BattleData> candidate;
 	
+	/**
+	 * インスタンス変数を初期化する。
+	 * @param myself - 自分自身のBattleData。
+	 * @param candidate - ターゲット候補となるBattleDataのList。
+	 */
 	public void install(BattleData myself, List<BattleData> candidate) {
 		this.myself = myself;
 		this.candidate = candidate;
@@ -22,7 +30,7 @@ public abstract class AtackPattern {
 	
 	/**
 	 * targetとなる相手のBattleDataを算出する。
-	 * @return candidateを元に、条件に合うターゲットを返却する。同クラス下部に、条件を探す際によく使うメソッドがある。
+	 * @return {@link #candidate}を元に、条件に合うターゲットを返却する。同クラス下部に、条件を探す際によく使うメソッドがある。
 	 */
 	public abstract List<BattleData> getTarget();
 	
