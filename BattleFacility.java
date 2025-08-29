@@ -61,7 +61,7 @@ public class BattleFacility extends BattleData{
 	}
 	
 	@Override
-	protected int moraleRatio() {
+	protected int moraleCorrection() {
 		return 0;
 	}
 	

@@ -21,6 +21,7 @@ public class Buff {
 	public static final double HIT = 2;
 	public static final double DAMAGE = 3;
 	public static final double DEFEAT = 4;
+	public static final double KILL = 5;
 	
 	//発生対象コード
 	public static final double ALLY = 0;
@@ -107,10 +108,6 @@ public class Buff {
 	private ScheduledFuture<?> durationFuture;
 	
 	protected Buff(List<Double> buffInformation, BattleData myself, List<BattleData> ally, List<BattleData> enemy, Battle Battle, GameData GameData) {
-		//テスト用
-		//発生タイミングコード, 発生対象コード, 効果範囲コード, 対象ステータスコード, 加減乗除コード, 効果量, 効果発生間隔[s](Buff.NONE: なし), 上限量(Buff.NONE: なし), 効果時間[s](Buff.NONE: 無限), 再使用時間[s](Buff.NONE: なし)
-		//this.buffInformation = Arrays.asList(Buff.BIGINNING, Buff.ALLY, Buff.ALL, Buff.ATACK, Buff.ADDITION, 10.0, Buff.NONE, Buff.NONE, Buff.NONE, Buff.NONE);
-		
 		this.buffInformation = buffInformation;
 		this.myself = myself;
 		this.Battle = Battle;

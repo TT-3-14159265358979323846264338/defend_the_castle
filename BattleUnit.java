@@ -23,6 +23,7 @@ public class BattleUnit extends BattleData{
 	private BufferedImage skillImage;
 	private Point initialPosition = new Point();
 	private int type;
+	private final int AWAKEING_CONDETION = 5;
 	private int awakeningNumber;
 	private int defeatNumber;
 	private boolean canPossessSkill;
@@ -117,11 +118,15 @@ public class BattleUnit extends BattleData{
 		return type;
 	}
 	
+	protected boolean canAwake() {
+		return AWAKEING_CONDETION * (awakeningNumber + 1) <= killNumber;
+	}
+	
 	protected int getAwakeningNumber() {
 		return awakeningNumber;
 	}
 	
-	protected void setAwakening() {
+	protected void awakening() {
 		awakeningNumber++;
 	}
 	
@@ -161,8 +166,36 @@ public class BattleUnit extends BattleData{
 	}
 	
 	@Override
-	protected int moraleRatio() {
+	protected int moraleCorrection() {
 		return (GameData.getMoraleDifference() <= 0)? Math.abs(GameData.getMoraleDifference()): 0;
+	}
+	
+	@Override
+	protected double awakeningCorrection() {
+		if(awakeningNumber == 0) {
+			return 1;
+		}
+		return Math.pow(1.1, awakeningNumber);
+	}
+	
+	@Override
+	protected void defeat(BattleData target) {
+		defeatReset(target);
+		otherWeapon.defeatReset(target);
+		if(nowHP <= 0) {
+			defeatNumber++;
+			GameData.lowMorale(battle.GameData.UNIT, 60);
+		}else {
+			GameData.lowMorale(battle.GameData.UNIT, 5 + 30 * (getMaxHP() - nowHP) / getMaxHP());
+		}
+		clearBlock();
+		nowHP = defaultUnitStatus.get(0);
+	}
+	
+	@Override
+	protected void kill() {
+		killNumber++;
+		otherWeapon.killNumber++;
 	}
 	
 	@Override
@@ -180,20 +213,6 @@ public class BattleUnit extends BattleData{
 	@Override
 	protected int buffRange() {
 		return existsOtherBuffRange? otherWeapon.getRange(): getRange();
-	}
-	
-	@Override
-	protected void defeat(BattleData target) {
-		defeatReset(target);
-		otherWeapon.defeatReset(target);
-		if(nowHP <= 0) {
-			defeatNumber++;
-			GameData.lowMorale(battle.GameData.UNIT, 60);
-		}else {
-			GameData.lowMorale(battle.GameData.UNIT, 5 + 30 * (getMaxHP() - nowHP) / getMaxHP());
-		}
-		clearBlock();
-		nowHP = defaultUnitStatus.get(0);
 	}
 	
 	private void defeatReset(BattleData target) {

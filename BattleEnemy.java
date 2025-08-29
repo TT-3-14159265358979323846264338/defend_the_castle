@@ -223,7 +223,7 @@ public class BattleEnemy extends BattleData{
 	}
 	
 	@Override
-	protected int moraleRatio() {
+	protected int moraleCorrection() {
 		return (0 <= GameData.getMoraleDifference())? GameData.getMoraleDifference(): 0;
 	}
 	

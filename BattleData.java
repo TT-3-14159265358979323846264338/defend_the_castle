@@ -30,6 +30,7 @@ public class BattleData{
 	protected BufferedImage bulletImage;
 	protected List<BufferedImage> hitImage;
 	private List<Bullet> bulletList = Arrays.asList();
+	protected int killNumber;
 	
 	protected List<List<Double>> generatedBuffInformation;
 	protected List<Buff> generatedBuff = new ArrayList<>();
@@ -48,7 +49,7 @@ public class BattleData{
 	
 	private Object buffLock = new Object();
 	private Object blockLock = new Object();
-	private Object HPLock = new Object();
+	protected Object HPLock = new Object();
 	private ScheduledExecutorService atackScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> atackFuture;
 	private ScheduledExecutorService motionScheduler = Executors.newSingleThreadScheduledExecutor();
@@ -183,7 +184,7 @@ public class BattleData{
 	}
 	
 	private int healValue() {
-		return (getAtack() * (100 + getCut(Buff.SUPPORT)) / 100) * (100 + moraleRatio()) / 100;
+		return (getAtack() * (100 + getCut(Buff.SUPPORT)) / 100) * (100 + moraleCorrection()) / 100;
 	}
 	
 	private void damage(BattleData target) {
@@ -194,17 +195,52 @@ public class BattleData{
 	}
 	
 	private int damageValue(BattleData target) {
-		double baseDamage = (Math.pow(getAtack(), 2) / (getAtack() + target.getDefense())) * (100 + moraleRatio()) / 100;
+		double baseDamage = (Math.pow(getAtack(), 2) / (getAtack() + target.getDefense())) * (100 + moraleCorrection()) / 100;
 		double cutRatio = element.stream().mapToInt(i -> target.getCut(i + 100)).sum() / element.size();
 		if(100 <= cutRatio) {
 			cutRatio = 100;
 		}
-		return (int) (baseDamage * (100 - cutRatio) / 100);
+		return (int) (awakeningCorrection() * baseDamage * (100 - cutRatio) / 100);
 	}
 	
-	protected int moraleRatio() {
+	protected int moraleCorrection() {
 		//詳細は@Overrideで記載
 		return 0;
+	}
+	
+	protected double awakeningCorrection() {
+		//BattleUnitのみ@Overrideで記載
+		return 1;
+	}
+	
+	protected void HPIncrease(int increase) {
+		synchronized(HPLock) {
+			nowHP += increase;
+			if(getMaxHP() < nowHP) {
+				nowHP = getMaxHP();
+			}
+		}
+	}
+	
+	protected void HPDecrease(int decrease, BattleData atackUnit) {
+		synchronized(HPLock) {
+			nowHP -= decrease;
+			if(nowHP <= 0 && canActivate) {
+				defeat(atackUnit);
+				atackUnit.activateBuff(Buff.KILL, this);
+				atackUnit.kill();
+				return;
+			}
+		}
+	}
+	
+	protected void defeat(BattleData target) {
+		//詳細は@Overrideで記載
+	}
+	
+	protected void kill() {
+		//BattleUnitのみ@Overrideで記載
+		killNumber++;
 	}
 	
 	protected void healTimer() {
@@ -340,29 +376,6 @@ public class BattleData{
 	
 	public int getNowHP() {
 		return nowHP;
-	}
-	
-	protected void HPIncrease(int increase) {
-		synchronized(HPLock) {
-			nowHP += increase;
-			if(getMaxHP() < nowHP) {
-				nowHP = getMaxHP();
-			}
-		}
-	}
-	
-	private void HPDecrease(int decrease, BattleData target) {
-		synchronized(HPLock) {
-			nowHP -= decrease;
-			if(nowHP <= 0 && canActivate) {
-				defeat(target);
-				return;
-			}
-		}
-	}
-	
-	protected void defeat(BattleData target) {
-		//詳細は@Overrideで記載
 	}
 	
 	private int getDefense() {

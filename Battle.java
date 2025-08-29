@@ -59,6 +59,8 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private int time;
 	private boolean canStop;
 	private boolean canRangeDraw;
+	private boolean canAwake;
+	private int awakeUnit;
 	private ScheduledExecutorService mainScheduler = Executors.newSingleThreadScheduledExecutor();
 	
 	public Battle(MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, int difficultyCode) {
@@ -93,6 +95,9 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		drawBackground(g);
 		drawSkill(g);
 		drawUnit(g);
+		if(canAwake) {
+			drawAwake(g);
+		}
 		drawBullet(g);
 		drawSelectUnit(g);
 		drawMorale(g);
@@ -304,6 +309,16 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		});
 	}
 	
+	private void drawAwake(Graphics g) {
+		int x = UnitMainData[awakeUnit].getPositionX();
+		int y = UnitMainData[awakeUnit].getPositionY();
+		g.setColor(Color.RED);
+		g.fillRect(x + 15, y + 30, 10, 30);
+		g.fillPolygon(new int[] {x + 10, x + 20, x + 30}, new int[] {y + 40, y + 20, y + 40}, 3);
+		g.fillRect(x + 60, y + 30, 10, 30);
+		g.fillPolygon(new int[] {x + 55, x + 65, x + 75}, new int[] {y + 40, y + 20, y + 40}, 3);
+	}
+	
 	private void drawBullet(Graphics g) {
 		drawBullet(g, UnitMainData);
 		drawBullet(g, UnitLeftData);
@@ -475,7 +490,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		addStatusButton(number);
 		addRetreatButton(number);
 		addAwakeningButton(number);
-		addUnitReturnButton(number);
+		addUnitReturnButton();
 	}
 	
 	private void addStatusButton(int number) {
@@ -497,17 +512,20 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void addAwakeningButton(int number) {
-		add(awakeningButton);
-		awakeningButton.addActionListener(e->{
-			
-			
-			
-			
-			removeMenu();
-		});
+		if(UnitMainData[number].canAwake()) {
+			add(awakeningButton);
+			awakeningButton.addActionListener(e->{
+				awakeUnit = number;
+				canAwake = true;
+				mainScheduler.schedule(() -> canAwake = false, 2, TimeUnit.SECONDS);
+				UnitMainData[number].awakening();
+				UnitLeftData[number].awakening();
+				removeMenu();
+			});
+		}
 	}
 	
-	private void addUnitReturnButton(int number) {
+	private void addUnitReturnButton() {
 		add(unitReturnButton);
 		unitReturnButton.addActionListener(e->{
 			removeMenu();
