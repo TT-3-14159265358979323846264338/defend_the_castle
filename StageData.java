@@ -30,7 +30,7 @@ public abstract class StageData {
 	
 	/**
 	 * 設備の種類コード
-	 * @return 全ての設備コードを返却する。コードはDefaultStage参照。
+	 * @return 全ての設備コードを返却する。コードは{@link defaultdata.DefaultStage#FACILITY_DATA_MAP FACILITY_DATA_MAP}参照。
 	 */
 	public abstract List<Integer> getFacility();
 	
@@ -79,21 +79,21 @@ public abstract class StageData {
 	 * 全ての敵情報を入力した複数のListを返却する。
 	 * @return List(enemyCode, moveCode, timing)<br>
 	 * 			<br>
-	 * 			enemyCode - DefaultEnemyの敵コード。<br>
-	 * 			moveCode - getRoute()の順番。<br>
+	 * 			enemyCode - {@link defaultdata.DefaultEnemy#DATA_MAP DATA_MAP}の敵コード。<br>
+	 * 			moveCode - {@link #getRoute}の順番。<br>
 	 * 			timing - 出撃タイミング(1000 = 1 seceond)。
 	 */
 	public abstract List<List<Integer>> getEnemy();
 	
 	/**
 	 * 敵表示順。
-	 * @return ステージ選択画面での敵表示順を返却する。DefaultEnemyの敵コードで記載。同じコードの敵を重複して記載しないこと。
+	 * @return ステージ選択画面での敵表示順を返却する。{@link defaultdata.DefaultEnemy#DATA_MAP DATA_MAP}の敵コードで記載。同じコードの敵を重複して記載しないこと。
 	 */
 	public abstract List<Integer> getDisplayOrder();
 	
 	/**
 	 * 移動情報。<br>
-	 * 全ての移動情報を入力した複数のListを返却する。Listの順番がgetEnemy()のmoveCodeに該当する。<br>
+	 * 全ての移動情報を入力した複数のListを返却する。Listの順番が{@link #getEnemy}のmoveCodeに該当する。<br>
 	 * 各moveCodeには移動方法の順番にListを入力する。
 	 * @return List(initialX, initialY, angle, stopTime, noDisplayTime)<br>
 	 * 			<br>
