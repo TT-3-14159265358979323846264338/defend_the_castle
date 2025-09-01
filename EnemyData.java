@@ -117,7 +117,7 @@ public abstract class EnemyData {
 	/**
 	 * 発生させるバフ情報。<br>
 	 * バフ情報を入力した複数のListを返却する。
-	 * @return List(timing, target, range, status, culculate, effect, interval, max, duration, recast)<br>
+	 * @return List(timing, target, range, status, culculate, effect, interval, max, duration, recast, cost)<br>
 	 * 			<br>
 	 * 			timing - 発生させるタイミングコード。{@link battle.Buff Buff}の発生タイミングコードで指定。Enemyでは{@link battle.Buff#SKILL SKILL}使用不可。<br>
 	 * 			target - 与える対象コード。{@link battle.Buff Buff}の発生対象コードで指定。指定は敵側から見た敵味方である。<br>
@@ -129,6 +129,7 @@ public abstract class EnemyData {
 	 * 			max - intervalを指定した時の最大値。未使用なら{@link battle.Buff#NONE Buff.NONE}を指定。<br>
 	 * 			duration - 効果持続時間[s]。未使用なら{@link battle.Buff#NONE Buff.NONE}を指定。<br>
 	 * 			recast - 必ず{@link battle.Buff#NONE Buff.NONE}を指定。<br>
+	 * 			cost - 必ず{@link battle.Buff#NONE Buff.NONE}を指定。<br>
 	 * 			<br>
 	 * 			バフを保有していない場合、空のArrays.asList()を返却する。
 	 */
