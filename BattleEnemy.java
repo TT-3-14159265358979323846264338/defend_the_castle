@@ -21,9 +21,11 @@ public class BattleEnemy extends BattleData{
 	private int type;
 	private List<List<Integer>> route;
 	private int routeNumber;
-	private int actitateTime;
+	private int activateTime;
+	
 	private int pauseCount;
 	private int deactivateCount;
+	
 	private Object blockWait = new Object();
 	private ScheduledExecutorService moveScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> moveFuture;
@@ -39,7 +41,7 @@ public class BattleEnemy extends BattleData{
 		move = EnemyData.getMove();
 		type = EnemyData.getType();
 		route = StageData.getRoute().get(StageData.getEnemy().get(number).get(1));
-		actitateTime = StageData.getEnemy().get(number).get(2);
+		activateTime = StageData.getEnemy().get(number).get(2);
 		positionX = route.get(0).get(0);
 		positionY = route.get(0).get(1);
 		element = EnemyData.getElement().stream().toList();
@@ -87,7 +89,7 @@ public class BattleEnemy extends BattleData{
 	
 	private void eternalStop() {
 		moveFuture = moveScheduler.scheduleWithFixedDelay(() -> {
-			if(actitateTime <= Battle.getMainTime()) {
+			if(activateTime <= Battle.getMainTime()) {
 				canActivate = true;
 				GameData.moraleBoost(battle.GameData.ENEMY, 10);
 				atackTimer();
@@ -119,7 +121,7 @@ public class BattleEnemy extends BattleData{
 				routeChange();
 				return;
 			}
-			if(actitateTime <= Battle.getMainTime()) {
+			if(activateTime <= Battle.getMainTime()) {
 				GameData.moraleBoost(battle.GameData.ENEMY, 5);
 				activate();
 			}

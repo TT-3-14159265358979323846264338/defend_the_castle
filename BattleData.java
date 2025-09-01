@@ -30,7 +30,6 @@ public class BattleData{
 	protected BufferedImage bulletImage;
 	protected List<BufferedImage> hitImage;
 	private List<Bullet> bulletList = Arrays.asList();
-	protected int killNumber;
 	
 	protected List<List<Double>> generatedBuffInformation;
 	protected List<Buff> generatedBuff = new ArrayList<>();
@@ -49,7 +48,7 @@ public class BattleData{
 	
 	private Object buffLock = new Object();
 	private Object blockLock = new Object();
-	protected Object HPLock = new Object();
+	private Object HPLock = new Object();
 	private ScheduledExecutorService atackScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> atackFuture;
 	private ScheduledExecutorService motionScheduler = Executors.newSingleThreadScheduledExecutor();
@@ -222,7 +221,7 @@ public class BattleData{
 		}
 	}
 	
-	protected void HPDecrease(int decrease, BattleData atackUnit) {
+	private void HPDecrease(int decrease, BattleData atackUnit) {
 		synchronized(HPLock) {
 			nowHP -= decrease;
 			if(nowHP <= 0 && canActivate) {
@@ -240,7 +239,6 @@ public class BattleData{
 	
 	protected void kill() {
 		//BattleUnitのみ@Overrideで記載
-		killNumber++;
 	}
 	
 	protected void healTimer() {
@@ -257,6 +255,23 @@ public class BattleData{
 	//バフ管理
 	protected void activateBuff(double timingCode, BattleData target){
 		generatedBuff.stream().filter(i -> i.getBuffTiming() == timingCode).forEach(i -> i.buffStart(target));
+	}
+	
+	protected void activateSkillBuff() {
+		List<Buff> buff = generatedBuff.stream().filter(i -> i.getBuffTiming() == Buff.SKILL).filter(this::canPossessCost).toList();
+		if(buff.	size() == 0) {
+			return;
+		}
+		buff.forEach(i -> i.buffStart(null));
+		GameData.consumeCost(buff.get(0).getCost());
+	}
+	
+	protected int skillCost() {
+		return generatedBuff.stream().mapToInt(i -> i.getCost()).max().getAsInt();
+	}
+	
+	private boolean canPossessCost(Buff Buff) {
+		return Buff.getCost() <= GameData.getCost();
 	}
 	
 	protected void receiveBuff(Buff Buff) {

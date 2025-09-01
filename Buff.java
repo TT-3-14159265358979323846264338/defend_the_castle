@@ -73,16 +73,17 @@ public class Buff {
 	public static final double NONE = 0;
 	
 	//バフ情報コード
-	public final static int TIMING_CODE = 0;
-	public final static int TARGET_CODE = 1;
-	public final static int RANGE_CODE = 2;
-	public final static int STATUS_CODE = 3;
-	public final static int CALCULATION_CODE = 4;
-	public final static int EFFECT = 5;
-	public final static int INTERVAL = 6;
-	public final static int MAX = 7;
-	public final static int DURATION = 8;
-	public final static int RECAST = 9;
+	public static final int TIMING_CODE = 0;
+	public static final int TARGET_CODE = 1;
+	public static final int RANGE_CODE = 2;
+	public static final int STATUS_CODE = 3;
+	public static final int CALCULATION_CODE = 4;
+	public static final int EFFECT = 5;
+	public static final int INTERVAL = 6;
+	public static final int MAX = 7;
+	public static final int DURATION = 8;
+	public static final int RECAST = 9;
+	public static final int CONSUME_COST = 10;
 	
 	//その他定義
 	public final static int DELEY = 50;
@@ -435,6 +436,10 @@ public class Buff {
 	
 	private double getBuffValue(BattleData BattleData) {
 		return effect.get(target.indexOf(BattleData));
+	}
+	
+	protected int getCost() {
+		return buffInformation.get(CONSUME_COST).intValue();
 	}
 	
 	protected boolean canPossessSkill() {

@@ -60,7 +60,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private boolean canStop;
 	private boolean canRangeDraw;
 	private boolean canAwake;
-	private int awakeUnit;
+	private BattleUnit awakeUnit;
 	private ScheduledExecutorService mainScheduler = Executors.newSingleThreadScheduledExecutor();
 	
 	public Battle(MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, int difficultyCode) {
@@ -140,9 +140,17 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	protected void gameEnd() {
 		mainScheduler.shutdown();
-		Stream.of(UnitMainData).forEach(i -> i.schedulerEnd());
-		Stream.of(UnitLeftData).forEach(i -> i.schedulerEnd());
-		Stream.of(FacilityData).forEach(i -> i.schedulerEnd());
+		Stream.of(UnitMainData).forEach(i -> {
+			i.schedulerEnd();
+			i.achievementSchedulerEnd();
+		});
+		Stream.of(UnitLeftData).forEach(i -> {
+			i.schedulerEnd();
+			i.achievementSchedulerEnd();
+		});
+		Stream.of(FacilityData).forEach(i -> {
+			i.schedulerEnd();
+		});
 		Stream.of(EnemyData).forEach(i -> {
 			i.schedulerEnd();
 			i.moveSchedulerEnd();
@@ -283,6 +291,9 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private void skill(Graphics g, BattleUnit BattleUnit) {
 		if(BattleUnit.canRecast()) {
 			g.drawImage(BattleUnit.getSkillImage(), BattleUnit.getInitialPosition().x, BattleUnit.getInitialPosition().y, this);
+			g.setColor(Color.RED);
+			g.setFont(new Font("Ravie", Font.BOLD, 30));
+			g.drawString("" + BattleUnit.skillCost(), BattleUnit.getInitialPosition().x + 50, BattleUnit.getInitialPosition().y + 80);
 			return;
 		}
 		Graphics2D g2 = (Graphics2D)g;
@@ -310,8 +321,8 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void drawAwake(Graphics g) {
-		int x = UnitMainData[awakeUnit].getPositionX();
-		int y = UnitMainData[awakeUnit].getPositionY();
+		int x = awakeUnit.getPositionX();
+		int y = awakeUnit.getPositionY();
 		g.setColor(Color.RED);
 		g.fillRect(x + 15, y + 30, 10, 30);
 		g.fillPolygon(new int[] {x + 10, x + 20, x + 30}, new int[] {y + 40, y + 20, y + 40}, 3);
@@ -477,7 +488,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			int y = UnitMainData[i].getInitialPosition().y;
 			if(ValueRange.of(x, x + 90).isValidIntValue(e.getX())
 					&& ValueRange.of(y, y + 90).isValidIntValue(e.getY())) {
-				UnitMainData[i].activateBuff(Buff.SKILL, null);
+				UnitMainData[i].activateSkillBuff();
 				return true;
 			}
 		}
@@ -512,14 +523,16 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void addAwakeningButton(int number) {
-		if(UnitMainData[number].canAwake()) {
+		int AWAKE_COST = 10;
+		if(UnitMainData[number].canAwake() && AWAKE_COST <= GameData.getCost()) {
 			add(awakeningButton);
 			awakeningButton.addActionListener(e->{
-				awakeUnit = number;
+				awakeUnit = UnitMainData[number];
 				canAwake = true;
 				mainScheduler.schedule(() -> canAwake = false, 2, TimeUnit.SECONDS);
 				UnitMainData[number].awakening();
 				UnitLeftData[number].awakening();
+				GameData.consumeCost(AWAKE_COST);
 				removeMenu();
 			});
 		}

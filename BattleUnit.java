@@ -5,6 +5,10 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -23,11 +27,19 @@ public class BattleUnit extends BattleData{
 	private BufferedImage skillImage;
 	private Point initialPosition = new Point();
 	private int type;
-	private final int AWAKEING_CONDETION = 5;
-	private int awakeningNumber;
-	private int defeatNumber;
 	private boolean canPossessSkill;
 	private boolean existsOtherBuffRange;
+	
+	private final int AWAKEING_CONDETION = 300;
+	private final int PLACEMENT_ACHIEVEMENT = 1;
+	private final int KILL_ACHIEVEMENT = 60;
+	private int achievement;
+	private int awakeningNumber;
+	private int defeatNumber;
+	
+	private Object achievementLock = new Object();
+	private ScheduledExecutorService achievementScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> achievementFuture;
 	
 	//右武器/コア用　攻撃・被弾などの判定はこちらで行う
 	protected BattleUnit(Battle Battle, List<Integer> composition, int positionX, int positionY) {
@@ -118,8 +130,32 @@ public class BattleUnit extends BattleData{
 		return type;
 	}
 	
+	private void achievementTimer() {
+		achievementFuture = achievementScheduler.scheduleWithFixedDelay(() -> {
+			Battle.timerWait();
+			if(!canActivate) {
+				achievementFuture.cancel(true);
+				return;
+			}
+			setAchievement(PLACEMENT_ACHIEVEMENT);
+		}, 0, 100, TimeUnit.MILLISECONDS);
+	}
+	
+	protected void achievementSchedulerEnd() {
+		achievementScheduler.shutdown();
+	}
+	
+	private void setAchievement(int value) {
+		synchronized(achievementLock) {
+			achievement += value;
+		}
+	}
+	
 	protected boolean canAwake() {
-		return AWAKEING_CONDETION * (awakeningNumber + 1) <= killNumber;
+		if(10 <= awakeningNumber) {
+			return false;
+		}
+		return AWAKEING_CONDETION * (awakeningNumber + 1) <= achievement;
 	}
 	
 	protected int getAwakeningNumber() {
@@ -127,6 +163,7 @@ public class BattleUnit extends BattleData{
 	}
 	
 	protected void awakening() {
+		GameData.moraleBoost(battle.GameData.UNIT, 5);
 		awakeningNumber++;
 	}
 	
@@ -163,6 +200,7 @@ public class BattleUnit extends BattleData{
 		atackTimer();
 		healTimer();
 		activateBuff(Buff.BIGINNING, null);
+		achievementTimer();
 	}
 	
 	@Override
@@ -194,8 +232,8 @@ public class BattleUnit extends BattleData{
 	
 	@Override
 	protected void kill() {
-		killNumber++;
-		otherWeapon.killNumber++;
+		setAchievement(KILL_ACHIEVEMENT);
+		otherWeapon.setAchievement(KILL_ACHIEVEMENT);
 	}
 	
 	@Override
