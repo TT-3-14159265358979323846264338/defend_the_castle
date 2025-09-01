@@ -44,7 +44,7 @@ public class No0000NormalCore extends CoreData{
 	@Override
 	public List<List<Double>> getBuff(){
 		return Arrays.asList(
-				Arrays.asList(Buff.SKILL, Buff.ALLY, Buff.ALL, Buff.ATACK, Buff.MULTIPLICATION, 1.2, Buff.NONE, Buff.NONE, 5.0, 5.0));
+				Arrays.asList(Buff.SKILL, Buff.ALLY, Buff.ALL, Buff.RANGE, Buff.MULTIPLICATION, 2.0, Buff.NONE, Buff.NONE, 5.0, 5.0, 10.0));
 	}
 
 	@Override

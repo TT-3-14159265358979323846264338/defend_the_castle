@@ -69,7 +69,7 @@ public abstract class CoreData {
 	/**
 	 * 発生させるバフ情報。<br>
 	 * バフ情報を入力した複数のListを返却する。
-	 * @return List(timing, target, range, status, culculate, effect, interval, max, duration, recast)<br>
+	 * @return List(timing, target, range, status, culculate, effect, interval, max, duration, recast, cost)<br>
 	 * 			<br>
 	 * 			timing - 発生させるタイミングコード。{@link battle.Buff Buff}の発生タイミングコードで指定。Coreでは{@link battle.Buff#HIT HIT}使用不可。<br>
 	 * 			target - 与える対象コード。{@link battle.Buff Buff}の発生対象コードで指定。<br>
@@ -81,6 +81,7 @@ public abstract class CoreData {
 	 * 			max - intervalを指定した時の最大値。未使用なら{@link battle.Buff#NONE Buff.NONE}を指定。<br>
 	 * 			duration - 効果持続時間[s]。未使用なら{@link battle.Buff#NONE Buff.NONE}を指定。<br>
 	 * 			recast - スキルの再使用時間[s]。timingが{@link battle.Buff#SKILL SKILL}の時のみ指定することがある。未使用なら{@link battle.Buff#NONE Buff.NONE}を指定。<br>
+	 * 			cost - スキルに使用するコスト。未使用なら{@link battle.Buff#NONE Buff.NONE}を指定。<br>
 	 * 			<br>
 	 * 			バフを保有していない場合、空のArrays.asList()を返却する。
 	 */
