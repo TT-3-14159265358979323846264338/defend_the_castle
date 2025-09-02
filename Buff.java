@@ -165,7 +165,7 @@ public class Buff {
 		}
 		intervalFuture = intervalScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
-			if(canNotActivate()) {
+			if(canNotActivateBuff()) {
 				return;
 			}
 			gameBuffSelect();
@@ -255,7 +255,7 @@ public class Buff {
 	private void targetControl(Predicate<? super BattleData> rangeFilter) {
 		targetFuture = targetScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
-			if(canNotActivate()) {
+			if(canNotActivateBuff()) {
 				return;
 			}
 			List<BattleData> newTarget = candidate.stream().filter(i -> i.canActivate()).filter(rangeFilter).toList();
@@ -299,7 +299,7 @@ public class Buff {
 		}
 		intervalFuture = intervalScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
-			if(canNotActivate()) {
+			if(canNotActivateBuff()) {
 				return;
 			}
 			IntStream.range(0, effect.size()).filter(i -> !existsMax(i)).forEach(i -> setEffect(i));
@@ -314,7 +314,7 @@ public class Buff {
 		durationFuture = durationScheduler.scheduleWithFixedDelay(() -> {
 			Battle.timerWait();
 			durationCount += DELEY;
-			if(canNotActivate()) {
+			if(canNotActivateBuff()) {
 				return;
 			}
 			if(buffInformation.get(DURATION) * 1000 <= durationCount) {
@@ -324,12 +324,15 @@ public class Buff {
 		}, 0, DELEY, TimeUnit.MILLISECONDS);
 	}
 	
-	private boolean canNotActivate() {
-		if(!myself.canActivate()) {
-			buffEnd();
-			return true;
+	private boolean canNotActivateBuff() {
+		if(myself.canActivate()) {
+			return false;
 		}
-		return false;
+		if(getBuffTiming() == DEFEAT) {
+			return false;
+		}
+		buffEnd();
+		return true;
 	}
 	
 	private CompletableFuture<Void> buffEnd() {

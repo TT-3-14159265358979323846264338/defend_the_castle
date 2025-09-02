@@ -74,10 +74,6 @@ public class BattleEnemy extends BattleData{
 		return type;
 	}
 	
-	protected void moveSchedulerEnd() {
-		moveScheduler.shutdown();
-	}
-	
 	private void moveTimer() {
 		int nowSpeed = getMoveSpeedOrBlock();
 		if(nowSpeed <= 0) {
@@ -222,6 +218,11 @@ public class BattleEnemy extends BattleData{
 			deactivateCount++;
 			canActivate = false;
 		}
+	}
+	
+	@Override
+	protected void individualSchedulerEnd() {
+		moveScheduler.shutdown();
 	}
 	
 	@Override

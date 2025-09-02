@@ -33,13 +33,19 @@ public class BattleUnit extends BattleData{
 	private final int AWAKEING_CONDETION = 300;
 	private final int PLACEMENT_ACHIEVEMENT = 1;
 	private final int KILL_ACHIEVEMENT = 60;
+	private final int TIMER_INTERVAL = 100;
 	private int achievement;
+	private boolean canLocate = true;
+	private int relocationCount;
+	private int relocationTime;
 	private int awakeningNumber;
 	private int defeatNumber;
 	
 	private Object achievementLock = new Object();
 	private ScheduledExecutorService achievementScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> achievementFuture;
+	private ScheduledExecutorService relocationScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> relocationFuture;
 	
 	//右武器/コア用　攻撃・被弾などの判定はこちらで行う
 	protected BattleUnit(Battle Battle, List<Integer> composition, int positionX, int positionY) {
@@ -101,7 +107,7 @@ public class BattleUnit extends BattleData{
 		if(Objects.isNull(AtackPattern)) {
 			return;
 		}
-		if(element.stream().anyMatch(i -> i == 11)){
+		if(element.stream().anyMatch(i -> i == DefaultUnit.SUPPORT)){
 			AtackPattern.install(this, allyData);
 		}else {
 			AtackPattern.install(this, this.enemyData);
@@ -138,11 +144,7 @@ public class BattleUnit extends BattleData{
 				return;
 			}
 			setAchievement(PLACEMENT_ACHIEVEMENT);
-		}, 0, 100, TimeUnit.MILLISECONDS);
-	}
-	
-	protected void achievementSchedulerEnd() {
-		achievementScheduler.shutdown();
+		}, 0, TIMER_INTERVAL, TimeUnit.MILLISECONDS);
 	}
 	
 	private void setAchievement(int value) {
@@ -165,6 +167,14 @@ public class BattleUnit extends BattleData{
 	protected void awakening() {
 		GameData.moraleBoost(battle.GameData.UNIT, 5);
 		awakeningNumber++;
+	}
+	
+	protected boolean canLocate() {
+		return canLocate;
+	}
+	
+	protected double locationRatio() {
+		return (double) relocationCount / relocationTime;
 	}
 	
 	protected int getDefeatNumber() {
@@ -194,6 +204,7 @@ public class BattleUnit extends BattleData{
 	
 	protected void activate(int x, int y) {
 		canActivate = true;
+		canLocate = false;
 		GameData.moraleBoost(battle.GameData.UNIT, 5);
 		positionX = x;
 		positionY = y;
@@ -201,6 +212,12 @@ public class BattleUnit extends BattleData{
 		healTimer();
 		activateBuff(Buff.BIGINNING, null);
 		achievementTimer();
+	}
+	
+	@Override
+	protected void individualSchedulerEnd() {
+		achievementScheduler.shutdown();
+		relocationScheduler.shutdown();
 	}
 	
 	@Override
@@ -218,16 +235,47 @@ public class BattleUnit extends BattleData{
 	
 	@Override
 	protected void defeat(BattleData target) {
-		defeatReset(target);
-		otherWeapon.defeatReset(target);
-		if(nowHP <= 0) {
-			defeatNumber++;
-			GameData.lowMorale(battle.GameData.UNIT, 60);
-		}else {
-			GameData.lowMorale(battle.GameData.UNIT, 5 + 30 * (getMaxHP() - nowHP) / getMaxHP());
-		}
-		clearBlock();
+		int price = 60;
+		defeatNumber++;
+		GameData.lowMorale(battle.GameData.UNIT, price);
+		relocationTime = price * 1000;
+		relocation();
+		reset(target);
+	}
+	
+	protected void retreat() {
+		int price = (5 + 20 * (getMaxHP() - nowHP) / getMaxHP());
+		GameData.lowMorale(battle.GameData.UNIT, price);
+		relocationTime = price * 1000;
+		relocation();
+		reset(null);
+	}
+	
+	private void relocation() {
+		relocationFuture = relocationScheduler.scheduleWithFixedDelay(() -> {
+			Battle.timerWait();
+			relocationCount += TIMER_INTERVAL;
+			if(relocationTime <= relocationCount) {
+				relocationCount = 0;
+				canLocate = true;
+				relocationFuture.cancel(true);
+			}
+		}, 0, TIMER_INTERVAL, TimeUnit.MILLISECONDS);
+	}
+	
+	private void reset(BattleData target) {
 		nowHP = defaultUnitStatus.get(0);
+		clearBlock();
+		individualReset(target);
+		otherWeapon.individualReset(target);
+	}
+	
+	private void individualReset(BattleData target) {
+		canActivate = false;
+		positionX = initialPosition.x;
+		positionY = initialPosition.y;
+		existsRight = true;
+		activateBuff(Buff.DEFEAT, target);
 	}
 	
 	@Override
@@ -251,13 +299,5 @@ public class BattleUnit extends BattleData{
 	@Override
 	protected int buffRange() {
 		return existsOtherBuffRange? otherWeapon.getRange(): getRange();
-	}
-	
-	private void defeatReset(BattleData target) {
-		canActivate = false;
-		positionX = initialPosition.x;
-		positionY = initialPosition.y;
-		existsRight = true;
-		activateBuff(Buff.DEFEAT, target);
 	}
 }

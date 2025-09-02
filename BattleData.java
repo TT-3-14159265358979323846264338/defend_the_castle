@@ -11,6 +11,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
+import defaultdata.DefaultUnit;
 import defaultdata.EditImage;
 import defaultdata.atackpattern.AtackPattern;
 
@@ -66,6 +67,11 @@ public class BattleData{
 		motionScheduler.shutdown();
 		healScheduler.shutdown();
 		generatedBuff.stream().forEach(i -> i.schedulerEnd());
+		individualSchedulerEnd();
+	}
+	
+	protected void individualSchedulerEnd() {
+		//詳細は@Overrideで記載
 	}
 	
 	//画像管理
@@ -171,7 +177,7 @@ public class BattleData{
 	private void result(BattleData target) {
 		activateBuff(Buff.HIT, target);
 		target.activateBuff(Buff.DAMAGE, this);
-		if(element.stream().anyMatch(i -> i == 11)) {
+		if(element.stream().anyMatch(i -> i == DefaultUnit.SUPPORT)) {
 			heal(target);
 			return;
 		}
@@ -183,7 +189,8 @@ public class BattleData{
 	}
 	
 	private int healValue() {
-		return (getAtack() * (100 + getCut(Buff.SUPPORT)) / 100) * (100 + moraleCorrection()) / 100;
+		double baseHeal = ((double) getAtack() * (100 + getCut(Buff.SUPPORT)) / 100) * (100 + moraleCorrection()) / 100;
+		return (int) baseHeal;
 	}
 	
 	private void damage(BattleData target) {
@@ -263,7 +270,7 @@ public class BattleData{
 			return;
 		}
 		buff.forEach(i -> i.buffStart(null));
-		GameData.consumeCost(buff.get(0).getCost());
+		GameData.consumeCost(skillCost());
 	}
 	
 	protected int skillCost() {

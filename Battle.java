@@ -140,21 +140,10 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	protected void gameEnd() {
 		mainScheduler.shutdown();
-		Stream.of(UnitMainData).forEach(i -> {
-			i.schedulerEnd();
-			i.achievementSchedulerEnd();
-		});
-		Stream.of(UnitLeftData).forEach(i -> {
-			i.schedulerEnd();
-			i.achievementSchedulerEnd();
-		});
-		Stream.of(FacilityData).forEach(i -> {
-			i.schedulerEnd();
-		});
-		Stream.of(EnemyData).forEach(i -> {
-			i.schedulerEnd();
-			i.moveSchedulerEnd();
-		});
+		Stream.of(UnitMainData).forEach(i -> i.schedulerEnd());
+		Stream.of(UnitLeftData).forEach(i -> i.schedulerEnd());
+		Stream.of(FacilityData).forEach(i -> i.schedulerEnd());
+		Stream.of(EnemyData).forEach(i -> i.schedulerEnd());
 	}
 	
 	private void timerStop() {
@@ -289,18 +278,20 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void skill(Graphics g, BattleUnit BattleUnit) {
+		int x = BattleUnit.getInitialPosition().x;
+		int y = BattleUnit.getInitialPosition().y;
 		if(BattleUnit.canRecast()) {
-			g.drawImage(BattleUnit.getSkillImage(), BattleUnit.getInitialPosition().x, BattleUnit.getInitialPosition().y, this);
+			g.drawImage(BattleUnit.getSkillImage(), x, y, this);
 			g.setColor(Color.RED);
 			g.setFont(new Font("Ravie", Font.BOLD, 30));
-			g.drawString("" + BattleUnit.skillCost(), BattleUnit.getInitialPosition().x + 50, BattleUnit.getInitialPosition().y + 80);
+			g.drawString("" + BattleUnit.skillCost(), x + 50, y + 80);
 			return;
 		}
 		Graphics2D g2 = (Graphics2D)g;
 		g2.setColor(Color.GRAY);
-		g2.fillOval(BattleUnit.getInitialPosition().x, BattleUnit.getInitialPosition().y, 90, 90);
+		g2.fillOval(x, y, 90, 90);
 		g2.setColor(Color.LIGHT_GRAY);
-		g2.fill(new Arc2D.Double(BattleUnit.getInitialPosition().x, BattleUnit.getInitialPosition().y, 90, 90, 90, 360 * BattleUnit.recastRatio(), Arc2D.PIE));
+		g2.fill(new Arc2D.Double(x, y, 90, 90, 90, 360 * BattleUnit.recastRatio(), Arc2D.PIE));
 	}
 	
 	private void drawUnit(Graphics g) {
@@ -316,8 +307,22 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			g.drawImage(UnitLeftData[i].getActionImage(), x, y, this);
 			if(UnitMainData[i].canActivate()) {
 				drawHP(g, UnitMainData[i]);
+			}else {
+				if(!UnitMainData[i].canLocate()) {
+					drawLocation(g, UnitMainData[i]);
+				}
 			}
 		});
+	}
+	
+	private void drawLocation(Graphics g, BattleUnit BattleUnit) {
+		int x = BattleUnit.getPositionX();
+		int y = BattleUnit.getPositionY();
+		Graphics2D g2 = (Graphics2D)g;
+		g2.setColor(new Color(128, 128, 128, 125));
+		g2.fillOval(x, y, 90, 90);
+		g2.setColor(new Color(255, 255, 255, 125));
+		g2.fill(new Arc2D.Double(x, y, 90, 90, 90, 360 * BattleUnit.locationRatio(), Arc2D.PIE));
 	}
 	
 	private void drawAwake(Graphics g) {
@@ -429,7 +434,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			int y = initialY(i) + 30;
 			if(ValueRange.of(x, x + SIZE).isValidIntValue(e.getX())
 					&& ValueRange.of(y, y + SIZE).isValidIntValue(e.getY())) {
-				if(UnitMainData[i].getCost() <= GameData.getCost()) {
+				if(UnitMainData[i].getCost() <= GameData.getCost() && UnitMainData[i].canLocate()) {
 					select = i;
 					canSelect = true;
 				}
@@ -516,8 +521,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		add(retreatButton);
 		retreatButton.addActionListener(e->{
 			GameData.addCost((int) Math.ceil(UnitMainData[number].getCost() / 2));
-			UnitMainData[number].defeat(null);
-			UnitLeftData[number].defeat(null);
+			UnitMainData[number].retreat();
 			removeMenu();
 		});
 	}

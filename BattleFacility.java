@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import defaultdata.DefaultAtackPattern;
 import defaultdata.DefaultStage;
+import defaultdata.DefaultUnit;
 import defaultdata.facility.FacilityData;
 import defaultdata.stage.StageData;
 
@@ -47,7 +48,7 @@ public class BattleFacility extends BattleData{
 		}
 		allyData = Stream.concat(Stream.of(unitMainData), Stream.of(facilityData)).toList();
 		this.enemyData = Stream.of(enemyData).toList();
-		if(element.stream().anyMatch(i -> i == 11)){
+		if(element.stream().anyMatch(i -> i == DefaultUnit.SUPPORT)){
 			AtackPattern.install(this, allyData);
 		}else {
 			AtackPattern.install(this, this.enemyData);
@@ -58,6 +59,11 @@ public class BattleFacility extends BattleData{
 	
 	protected BufferedImage getBreakImage() {
 		return breakImage;
+	}
+	
+	@Override
+	protected void individualSchedulerEnd() {
+		//特になし
 	}
 	
 	@Override
