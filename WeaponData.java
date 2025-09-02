@@ -142,7 +142,7 @@ public abstract class WeaponData {
 	 * 			<br>
 	 * 			timing - 発生させるタイミングコード。{@link battle.Buff Buff}の発生タイミングコードで指定。Weaponでは{@link battle.Buff#SKILL SKILL}, {@link battle.Buff#DAMAGE DAMAGE}使用不可。<br>
 	 * 			target - 与える対象コード。{@link battle.Buff Buff}の発生対象コードで指定。<br>
-	 * 			range - 与える範囲コード。{@link battle.Buff Buff}の効果範囲コードで指定。<br>
+	 * 			range - 与える範囲コード。{@link battle.Buff Buff}の効果範囲コードで指定。timingが{@link battle.Buff#DEFEAT DEFEAT}なら{@link battle.Buff#ALL ALL}, {@link battle.TARGET TARGET}のみ有効<br>
 	 * 			status - 効果のあるステータスコード。{@link battle.Buff Buff}の対象ステータスコードで指定。{@link battle.Buff#MORALE MORALE}, {@link battle.Buff#GAME_COST GAME_COST} を指定した場合、targetを{@link battle.Buff#GAME GAME}に指定する必要がある。<br>
 	 * 			culculate - 最終ステータスへの計算方法コード。{@link battle.Buff Buff}の加減乗除コードで指定。targetが{@link battle.Buff#GAME GAME}であれば、{@link battle.Buff#MULTIPLICATION MULTIPLICATION}, {@link battle.Buff#DIVISION DIVISION}使用不可。<br>
 	 * 			effect - 1回あたりの効果量。intervalを指定した際でも最大値ではないので注意。<br>
