@@ -140,7 +140,7 @@ public abstract class WeaponData {
 	 * バフ情報を入力した複数のListを返却する。
 	 * @return List(timing, target, range, status, culculate, effect, interval, max, duration, recast, cost)<br>
 	 * 			<br>
-	 * 			timing - 発生させるタイミングコード。{@link battle.Buff Buff}の発生タイミングコードで指定。Weaponでは{@link battle.Buff#SKILL SKILL}使用不可。<br>
+	 * 			timing - 発生させるタイミングコード。{@link battle.Buff Buff}の発生タイミングコードで指定。Weaponでは{@link battle.Buff#SKILL SKILL}, {@link battle.Buff#DAMAGE DAMAGE}使用不可。<br>
 	 * 			target - 与える対象コード。{@link battle.Buff Buff}の発生対象コードで指定。<br>
 	 * 			range - 与える範囲コード。{@link battle.Buff Buff}の効果範囲コードで指定。<br>
 	 * 			status - 効果のあるステータスコード。{@link battle.Buff Buff}の対象ステータスコードで指定。{@link battle.Buff#MORALE MORALE}, {@link battle.Buff#GAME_COST GAME_COST} を指定した場合、targetを{@link battle.Buff#GAME GAME}に指定する必要がある。<br>
