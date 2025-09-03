@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import battle.BattleEnemy;
 import defaultdata.DefaultStage;
 import defaultdata.EditImage;
 import defaultdata.stage.StageData;
@@ -72,8 +73,7 @@ public class MenuSelectStage extends JPanel{
 		add(normalModeButton);
 		normalModeButton.addActionListener(e->{
 			ProgressData.save(SelectPanel.getSelelct());
-			//難易度コードは後で追記
-			MainFrame.battleDraw(StageData[SelectPanel.getSelelct()], ProgressData.getMeritStatus().get(SelectPanel.getSelelct()), 0);
+			MainFrame.battleDraw(StageData[SelectPanel.getSelelct()], ProgressData.getMeritStatus().get(SelectPanel.getSelelct()), BattleEnemy.NORMAL_MODE);
 		});
 	}
 	
@@ -81,8 +81,7 @@ public class MenuSelectStage extends JPanel{
 		add(hardModeButton);
 		hardModeButton.addActionListener(e->{
 			ProgressData.save(SelectPanel.getSelelct());
-			//難易度コードは後で追記
-			MainFrame.battleDraw(StageData[SelectPanel.getSelelct()],ProgressData.getMeritStatus().get(SelectPanel.getSelelct()), 1);
+			MainFrame.battleDraw(StageData[SelectPanel.getSelelct()], ProgressData.getMeritStatus().get(SelectPanel.getSelelct()), BattleEnemy.HARD_MODE);
 		});
 	}
 	

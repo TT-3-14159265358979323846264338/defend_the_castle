@@ -17,6 +17,10 @@ import defaultdata.stage.StageData;
 
 //敵のバトル情報
 public class BattleEnemy extends BattleData{
+	//各難易度でのステータス補正倍率(difficultyCorrection)
+	public static final double NORMAL_MODE = 1;
+	public static final double HARD_MODE = 2;
+	
 	private int move;
 	private int type;
 	private List<List<Integer>> route;
@@ -30,7 +34,7 @@ public class BattleEnemy extends BattleData{
 	private ScheduledExecutorService moveScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> moveFuture;
 	
-	protected BattleEnemy(Battle Battle, StageData StageData, int number) {
+	protected BattleEnemy(Battle Battle, StageData StageData, int number, double difficultyCorrection) {
 		this.Battle = Battle;
 		EnemyData EnemyData = DefaultEnemy.DATA_MAP.get(StageData.getEnemy().get(number).get(0));
 		name = EnemyData.getName();
@@ -46,18 +50,42 @@ public class BattleEnemy extends BattleData{
 		positionY = route.get(0).get(1);
 		element = EnemyData.getElement().stream().toList();
 		AtackPattern = new DefaultAtackPattern().getAtackPattern(EnemyData.getAtackPattern());
-		defaultWeaponStatus = EnemyData.getWeaponStatus().stream().toList();
-		defaultUnitStatus = EnemyData.getUnitStatus().stream().toList();
+		defaultWeaponStatus = weaponStatus(EnemyData, difficultyCorrection);
+		defaultUnitStatus = unitStatus(EnemyData, difficultyCorrection);
 		defaultCutStatus = EnemyData.getCutStatus().stream().toList();
 		canActivate = false;
 		super.initialize();
+	}
+	
+	private List<Integer> weaponStatus(EnemyData EnemyData, double difficultyCorrection){
+		final int ATACK = (int) Buff.ATACK;
+		List<Integer> defaultStatus = EnemyData.getWeaponStatus();
+		defaultStatus.set(ATACK, defaultStatus(defaultStatus.get(ATACK), difficultyCorrection));
+		return defaultStatus.stream().toList();
+	}
+	
+	private List<Integer> unitStatus(EnemyData EnemyData, double difficultyCorrection){
+		final int MAX_HP = (int) Buff.HP - 10;
+		final int HP = MAX_HP + 1;
+		final int DEFENCE = (int) Buff.DEFENCE - 10;
+		final int HEAL = (int) Buff.HEAL - 10;
+		List<Integer> defaultStatus = EnemyData.getUnitStatus();
+		defaultStatus.set(MAX_HP, defaultStatus(defaultStatus.get(MAX_HP), difficultyCorrection));
+		defaultStatus.set(HP, defaultStatus(defaultStatus.get(HP), difficultyCorrection));
+		defaultStatus.set(DEFENCE, defaultStatus(defaultStatus.get(DEFENCE), difficultyCorrection));
+		defaultStatus.set(HEAL, defaultStatus(defaultStatus.get(HEAL), difficultyCorrection));
+		return defaultStatus.stream().toList();
+	}
+	
+	private int defaultStatus(int status, double difficultyCorrection) {
+		return (int) (status * difficultyCorrection);
 	}
 	
 	protected void install(GameData GameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
 		this.GameData = GameData;
 		allyData = Stream.of(enemyData).toList();
 		this.enemyData = Stream.concat(Stream.of(facilityData), Stream.of(unitMainData)).toList();
-		if(element.stream().anyMatch(i -> i == 11)){
+		if(element.stream().anyMatch(i -> i == DefaultEnemy.SUPPORT)){
 			AtackPattern.install(this, allyData);
 		}else {
 			AtackPattern.install(this, this.enemyData);

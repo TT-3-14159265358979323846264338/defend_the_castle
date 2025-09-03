@@ -59,7 +59,7 @@ public class BattleData{
 	
 	protected void initialize() {
 		leftActionImage = rightActionImage.stream().map(i -> EditImage.mirrorImage(i)).toList();
-		nowHP = defaultUnitStatus.get(0);
+		nowHP = defaultUnitStatus.get(1);
 	}
 	
 	protected void schedulerEnd() {

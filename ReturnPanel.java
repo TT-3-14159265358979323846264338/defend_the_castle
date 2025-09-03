@@ -18,7 +18,7 @@ class ReturnPanel extends JPanel{
 	private JButton returnButton = new JButton();
 	private JButton retryButton = new JButton();
 	
-	protected ReturnPanel(PauseDialog PauseDialog, Battle Battle, MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, int difficultyCode) {
+	protected ReturnPanel(PauseDialog PauseDialog, Battle Battle, MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, double difficultyCorrection) {
 		add(comment);
 		comment.setText("ゲーム操作を選択してください");
 		comment.setHorizontalAlignment(JLabel.CENTER);
@@ -38,7 +38,7 @@ class ReturnPanel extends JPanel{
 		retryButton.addActionListener(e->{
 			Battle.gameEnd();
 			PauseDialog.disposeDialog();
-			MainFrame.battleDraw(StageData, clearMerit, difficultyCode);
+			MainFrame.battleDraw(StageData, clearMerit, difficultyCorrection);
 		});
 		retryButton.setText("再戦");
 	}

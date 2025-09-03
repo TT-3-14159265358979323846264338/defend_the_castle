@@ -63,16 +63,16 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private BattleUnit awakeUnit;
 	private ScheduledExecutorService mainScheduler = Executors.newSingleThreadScheduledExecutor();
 	
-	public Battle(MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, int difficultyCode) {
+	public Battle(MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, double difficultyCorrection) {
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		setBackground(new Color(240, 170, 80));
-		install(StageData);
+		install(StageData, difficultyCorrection);
 		addCostLabel();
 		addRangeDrawButton();
 		addMeritButton(StageData, clearMerit);
 		addPauseButton(MainFrame);
-		addStageReturnButton(MainFrame, StageData, clearMerit, difficultyCode);
+		addStageReturnButton(MainFrame, StageData, clearMerit, difficultyCorrection);
 		mainTimer();
 	}
 	
@@ -104,7 +104,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		requestFocus();
 	}
 	
-	private void install(StageData StageData) {
+	private void install(StageData StageData, double difficultyCorrection) {
 		GameData = new GameData(StageData);
 		stageImage = StageData.getImage(2);
 		placementList = StageData.getPlacementPoint();
@@ -114,7 +114,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		UnitMainData = IntStream.range(0, composition.size()).mapToObj(i -> new BattleUnit(this, composition.get(i), initialX(i), initialY(i))).toArray(BattleUnit[]::new);
 		UnitLeftData = IntStream.range(0, composition.size()).mapToObj(i -> new BattleUnit(this, composition.get(i))).toArray(BattleUnit[]::new);;
 		FacilityData = IntStream.range(0, StageData.getFacility().size()).mapToObj(i -> new BattleFacility(this, StageData, i)).toArray(BattleFacility[]::new);
-		EnemyData = IntStream.range(0, StageData.getEnemy().size()).mapToObj(i -> new BattleEnemy(this, StageData, i)).toArray(BattleEnemy[]::new);
+		EnemyData = IntStream.range(0, StageData.getEnemy().size()).mapToObj(i -> new BattleEnemy(this, StageData, i, difficultyCorrection)).toArray(BattleEnemy[]::new);
 		IntStream.range(0, UnitMainData.length).forEach(i -> UnitMainData[i].install(GameData, UnitLeftData[i], UnitMainData, FacilityData, EnemyData));
 		IntStream.range(0, UnitLeftData.length).forEach(i -> UnitLeftData[i].install(GameData, UnitMainData[i], UnitMainData, FacilityData, EnemyData));
 		Stream.of(FacilityData).forEach(i -> i.install(GameData, UnitMainData, FacilityData, EnemyData));
@@ -189,11 +189,11 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		});
 	}
 	
-	private void addStageReturnButton(MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, int difficultyCode) {
+	private void addStageReturnButton(MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, double difficultyCorrection) {
 		add(stageReturnButton);
 		stageReturnButton.addActionListener(e->{
 			timerStop();
-			new PauseDialog(this, MainFrame, StageData, clearMerit, difficultyCode);
+			new PauseDialog(this, MainFrame, StageData, clearMerit, difficultyCorrection);
 		});
 	}
 	
