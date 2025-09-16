@@ -17,11 +17,13 @@ import defaultdata.atackpattern.AtackPattern;
 
 //全キャラクターの共通システム
 public class BattleData{
+	//基礎データ
 	protected Battle Battle;
 	protected GameData GameData;
 	protected List<BattleData> allyData;
 	protected List<BattleData> enemyData;
 	
+	//攻撃関連
 	protected AtackPattern AtackPattern;
 	protected boolean existsRight = true;
 	private boolean canAtack;
@@ -32,10 +34,12 @@ public class BattleData{
 	protected List<BufferedImage> hitImage;
 	private List<Bullet> bulletList = Arrays.asList();
 	
+	//バフ関連
 	protected List<List<Double>> generatedBuffInformation;
 	protected List<Buff> generatedBuff = new ArrayList<>();
 	protected List<Buff> receivedBuff = new ArrayList<>();
 	
+	//ステータス関連
 	protected String name;
 	protected boolean canActivate;
 	protected int nowHP;
@@ -47,6 +51,7 @@ public class BattleData{
 	protected List<Integer> defaultCutStatus;
 	protected List<BattleEnemy> block = new ArrayList<>();
 	
+	//システム関連
 	private Object buffLock = new Object();
 	private Object blockLock = new Object();
 	private Object HPLock = new Object();
@@ -221,6 +226,9 @@ public class BattleData{
 	
 	protected void HPIncrease(int increase) {
 		synchronized(HPLock) {
+			if(nowHP <= 0) {
+				return;
+			}
 			nowHP += increase;
 			if(getMaxHP() < nowHP) {
 				nowHP = getMaxHP();
