@@ -62,7 +62,9 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private boolean canAwake;
 	private BattleUnit awakeUnit;
 	private ScheduledExecutorService mainScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledExecutorService clearScheduler = Executors.newSingleThreadScheduledExecutor();
 	
+	//メイン画面制御
 	public Battle(MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, double difficultyCorrection) {
 		addMouseListener(this);
 		addMouseMotionListener(this);
@@ -74,6 +76,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		addPauseButton(MainFrame);
 		addStageReturnButton(MainFrame, StageData, clearMerit, difficultyCorrection);
 		mainTimer();
+		clearTimer(MainFrame);
 	}
 	
 	protected void paintComponent(Graphics g) {
@@ -119,44 +122,6 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		IntStream.range(0, UnitLeftData.length).forEach(i -> UnitLeftData[i].install(GameData, UnitMainData[i], UnitMainData, FacilityData, EnemyData));
 		Stream.of(FacilityData).forEach(i -> i.install(GameData, UnitMainData, FacilityData, EnemyData));
 		Stream.of(EnemyData).forEach(i -> i.install(GameData, UnitMainData, FacilityData, EnemyData));
-	}
-	
-	private void mainTimer() {
-		mainScheduler.scheduleWithFixedDelay(() -> {
-			timerWait();
-			time += 10;
-		}, 0, 10, TimeUnit.MILLISECONDS);
-	}
-	
-	protected synchronized void timerWait() {
-		if(canStop) {
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	protected void gameEnd() {
-		mainScheduler.shutdown();
-		Stream.of(UnitMainData).forEach(i -> i.schedulerEnd());
-		Stream.of(UnitLeftData).forEach(i -> i.schedulerEnd());
-		Stream.of(FacilityData).forEach(i -> i.schedulerEnd());
-		Stream.of(EnemyData).forEach(i -> i.schedulerEnd());
-	}
-	
-	private void timerStop() {
-		canStop = true;
-	}
-	
-	protected synchronized void timerRestart() {
-		notifyAll();
-		canStop = false;
-	}
-	
-	protected int getMainTime() {
-		return time;
 	}
 	
 	private void addCostLabel() {
@@ -391,6 +356,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		g.fillPolygon(new int[] {490, 500, 510}, new int[] {500, 525, 500}, 3);
 	}
 	
+	//操作制御
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		if(canSelect) {
@@ -595,5 +561,62 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 				UnitLeftData[select].activate(correctPosition.apply(i.get(0)), correctPosition.apply(i.get(1)));
 			}
 		});
+	}
+	
+	//メインタイマー制御
+	private void mainTimer() {
+		mainScheduler.scheduleWithFixedDelay(() -> {
+			timerWait();
+			time += 10;
+		}, 0, 10, TimeUnit.MILLISECONDS);
+	}
+	
+	protected synchronized void timerWait() {
+		if(canStop) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void timerStop() {
+		canStop = true;
+	}
+	
+	protected synchronized void timerRestart() {
+		notifyAll();
+		canStop = false;
+	}
+	
+	protected int getMainTime() {
+		return time;
+	}
+	
+	//ゲーム状態監視
+	private void clearTimer(MainFrame MainFrame) {
+		clearScheduler.scheduleWithFixedDelay(() -> {
+			if(Stream.of(EnemyData).noneMatch(i -> 0 < i.getNowHP())) {
+				gameEnd();
+				new PauseDialog(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData);
+				MainFrame.selectStageDraw();
+				return;
+			}
+			if(FacilityData[0].getNowHP() <= 0) {
+				gameEnd();
+				new PauseDialog();
+				MainFrame.selectStageDraw();
+			}
+		}, 0, 1, TimeUnit.SECONDS);
+	}
+	
+	protected void gameEnd() {
+		mainScheduler.shutdown();
+		clearScheduler.shutdown();
+		Stream.of(UnitMainData).forEach(i -> i.schedulerEnd());
+		Stream.of(UnitLeftData).forEach(i -> i.schedulerEnd());
+		Stream.of(FacilityData).forEach(i -> i.schedulerEnd());
+		Stream.of(EnemyData).forEach(i -> i.schedulerEnd());
 	}
 }

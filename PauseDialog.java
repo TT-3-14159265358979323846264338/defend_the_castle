@@ -3,6 +3,7 @@ package battle;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.JDialog;
 
@@ -40,6 +41,24 @@ class PauseDialog extends JDialog implements WindowListener{
 		setVisible(true);
 	}
 	
+	protected PauseDialog(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData) {
+		setDialog(null);
+		setTitle("戦績");
+		setSize(575, 425);
+		setLocationRelativeTo(null);
+		add(new ClearPanel(this, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData));
+		setVisible(true);
+	}
+	
+	protected PauseDialog() {
+		setDialog(null);
+		setTitle("敗北");
+		setSize(575, 425);
+		setLocationRelativeTo(null);
+		add(new GameOverPanel(this));
+		setVisible(true);
+	}
+	
 	private void setDialog(Battle Battle) {
 		this.Battle = Battle;
 		addWindowListener(this);
@@ -60,6 +79,9 @@ class PauseDialog extends JDialog implements WindowListener{
 	}
 	@Override
 	public void windowClosed(WindowEvent e) {
+		if(Objects.isNull(Battle)) {
+			return;
+		}
 		Battle.timerRestart();
 	}
 	@Override
