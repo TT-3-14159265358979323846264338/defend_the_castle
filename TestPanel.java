@@ -98,7 +98,7 @@ class TestPanel extends JPanel{
 	
 	private void addScroll() {
 		itemScroll.getViewport().setView(EditItem);
-  	add(itemScroll);
+		add(itemScroll);
 	}
 	
 	private void setScroll() {

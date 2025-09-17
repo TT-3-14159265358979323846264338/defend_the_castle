@@ -10,13 +10,12 @@ import java.time.temporal.ValueRange;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import javax.swing.JPanel;
 
 import defaultdata.DefaultEnemy;
+import defaultdata.DefaultStage;
 import defaultdata.enemy.EnemyData;
-import defaultdata.stage.StageData;
 import screendisplay.DisplayStatus;
 
 //敵兵情報
@@ -28,14 +27,14 @@ class EnemyPanel extends JPanel implements MouseListener{
 	private int drawSize = 100;
 	private int column = 3;
 	
-	protected EnemyPanel(SelectPanel SelectPanel, StageData[] StageData) {
+	protected EnemyPanel(SelectPanel SelectPanel) {
 		BiFunction<Integer, List<List<Integer>>, Integer> count = (enemy, enemyList) -> {
 			return (int) enemyList.stream().filter(i -> i.get(0) == enemy).count();
 		};
 		this.SelectPanel = SelectPanel;
-		enemyData = Stream.of(StageData).map(i -> i.getDisplayOrder().stream().map(j -> DefaultEnemy.DATA_MAP.get(j)).toList()).toList();
+		enemyData = DefaultStage.STAGE_DATA.stream().map(i -> i.getDisplayOrder().stream().map(j -> DefaultEnemy.DATA_MAP.get(j)).toList()).toList();
 		enemyImage = enemyData.stream().map(i -> i.stream().map(j -> j.getImage(2)).toList()).toList();
-		enemyCount = Stream.of(StageData).map(i -> i.getDisplayOrder().stream().map(j -> count.apply(j, i.getEnemy())).toList()).toList();
+		enemyCount = DefaultStage.STAGE_DATA.stream().map(i -> i.getDisplayOrder().stream().map(j -> count.apply(j, i.getEnemy())).toList()).toList();
 		addMouseListener(this);
 	}
 	

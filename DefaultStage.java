@@ -61,15 +61,10 @@ public class DefaultStage {
 		ELEMENT_MAP.put(SUPPORT,"支援");
 	}
 	
-	//ステージコード変換
-	public static final int STAGE1 = 0;
-	public static final int STAGE2 = 1;
-		
-	public static final Map<Integer, StageData> STAGE_DATA_MAP = new HashMap<>();
-	static {
-		STAGE_DATA_MAP.put(STAGE1, new No0000Stage1());
-		STAGE_DATA_MAP.put(STAGE2, new No0001Stage2());
-	}
+	//ステージリスト
+	public static final List<StageData> STAGE_DATA = Arrays.asList(
+			new No0000Stage1(), 
+			new No0001Stage2());
 	
 	//設備コード変換
 	public static final int CASTLE = 0;

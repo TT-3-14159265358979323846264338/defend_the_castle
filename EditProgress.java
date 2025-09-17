@@ -19,7 +19,6 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
 import defaultdata.DefaultStage;
-import defaultdata.stage.StageData;
 import savedata.SaveGameProgress;
 
 //クリア状況編集
@@ -29,8 +28,7 @@ class EditProgress extends JPanel{
 	private JLabel[] nameLabel;
 	private JRadioButton[] stage;
 	private List<JRadioButton[]> merit;
-	private StageData[] StageData = IntStream.range(0, DefaultStage.STAGE_DATA_MAP.size()).mapToObj(i -> DefaultStage.STAGE_DATA_MAP.get(i)).toArray(StageData[]::new);
-	private List<BufferedImage> stageImage = Stream.of(StageData).map(i -> i.getImage(20)).toList();
+	private List<BufferedImage> stageImage = DefaultStage.STAGE_DATA.stream().map(i -> i.getImage(20)).toList();
 	private SaveGameProgress SaveGameProgress = new SaveGameProgress();
 	private List<Boolean> clearStatus;
 	private List<List<Boolean>> meritStatus;
@@ -78,7 +76,7 @@ class EditProgress extends JPanel{
 			label.setText(name);
 		};
 		nameLabel = initialize.apply(stageImage.size());
-		IntStream.range(0, StageData.length).forEach(i -> set.accept(nameLabel[i], StageData[i].getName()));
+		IntStream.range(0, DefaultStage.STAGE_DATA.size()).forEach(i -> set.accept(nameLabel[i], DefaultStage.STAGE_DATA.get(i).getName()));
 		medalLabel = new JLabel();
 		set.accept(medalLabel, "保有メダル");
 	}
@@ -121,7 +119,7 @@ class EditProgress extends JPanel{
 		stage = initialize.apply(stageImage.size());
 		set.accept(stage, clearStatus);
 		Stream.of(stage).forEach(i -> i.setText("ステージクリア"));
-		merit = Stream.of(StageData).map(i -> initialize.apply(i.getMerit().size())).toList();
+		merit = DefaultStage.STAGE_DATA.stream().map(i -> initialize.apply(i.getMerit().size())).toList();
 		IntStream.range(0, merit.size()).forEach(i -> {
 			set.accept(merit.get(i), meritStatus.get(i));
 			IntStream.range(0, merit.get(i).length).forEach(j -> merit.get(i)[j].setText("戦功" + (j + 1) + "クリア"));

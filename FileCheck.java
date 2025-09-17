@@ -56,12 +56,12 @@ public class FileCheck{
 	private void progressDataCheck() {
 		SaveGameProgress.load();
 		List<Boolean> clearStatus = SaveGameProgress.getClearStatus();
-		if(checkSize(DefaultStage.STAGE_DATA_MAP.size(), clearStatus.size())) {
-			IntStream.range(0, DefaultStage.STAGE_DATA_MAP.size() - clearStatus.size()).forEach(i -> clearStatus.add(false));
+		if(checkSize(DefaultStage.STAGE_DATA.size(), clearStatus.size())) {
+			IntStream.range(0, DefaultStage.STAGE_DATA.size() - clearStatus.size()).forEach(i -> clearStatus.add(false));
 		}
 		List<List<Boolean>> meritStatus = SaveGameProgress.getMeritStatus();
-		IntStream.range(0, DefaultStage.STAGE_DATA_MAP.size()).forEach(i -> {
-			StageData StageData = DefaultStage.STAGE_DATA_MAP.get(i);
+		IntStream.range(0, DefaultStage.STAGE_DATA.size()).forEach(i -> {
+			StageData StageData = DefaultStage.STAGE_DATA.get(i);
 			try {
 				//meritStatusの内側のListのデータ数を確認し、足りなければ追加
 				if(checkSize(StageData.getMerit().size(), meritStatus.get(i).size())) {

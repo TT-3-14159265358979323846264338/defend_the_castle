@@ -17,19 +17,18 @@ import javax.swing.JPanel;
 
 import defaultdata.DefaultStage;
 import defaultdata.EditImage;
-import defaultdata.stage.StageData;
 
 //ステージ切り替え
 class SelectPanel extends JPanel implements MouseListener{
-	private JLabel[] nameLabel = IntStream.range(0, DefaultStage.STAGE_DATA_MAP.size()).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
+	private JLabel[] nameLabel = IntStream.range(0, DefaultStage.STAGE_DATA.size()).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
 	private List<BufferedImage> stageImage;
 	private List<String> stageNameList;
 	private int select = 0;
 	
-	protected SelectPanel(List<BufferedImage> stageImage, int select, StageData[] StageData) {
+	protected SelectPanel(List<BufferedImage> stageImage, int select) {
 		Stream.of(nameLabel).forEach(i -> addLabel(i));
 		this.stageImage = stageImage.stream().map(i -> EditImage.scalingImage(i, 3.5)).toList();
-		stageNameList = Stream.of(StageData).map(i -> i.getName()).toList();
+		stageNameList = DefaultStage.STAGE_DATA.stream().map(i -> i.getName()).toList();
 		this.select = select;
 		addMouseListener(this);
 		setPreferredSize(new Dimension(100, 85 * stageImage.size()));

@@ -5,8 +5,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.List;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -16,7 +14,6 @@ import javax.swing.JScrollPane;
 import battle.BattleEnemy;
 import defaultdata.DefaultStage;
 import defaultdata.EditImage;
-import defaultdata.stage.StageData;
 import defendthecastle.MainFrame;
 
 //ステージ選択画面
@@ -30,11 +27,10 @@ public class MenuSelectStage extends JPanel{
 	private JScrollPane enemyScroll = new JScrollPane();
 	private JScrollPane meritScroll = new JScrollPane();
 	private ProgressData ProgressData = new ProgressData();
-	private StageData[] StageData = IntStream.range(0, DefaultStage.STAGE_DATA_MAP.size()).mapToObj(i -> DefaultStage.STAGE_DATA_MAP.get(i)).toArray(StageData[]::new);
-	private List<BufferedImage> stageImage = Stream.of(StageData).map(i -> EditImage.stageImage(i, 5)).toList();
-	private SelectPanel SelectPanel = new SelectPanel(stageImage, ProgressData.getSelectStage(), StageData);
-	private MeritPanel MeritPanel = new MeritPanel(SelectPanel, ProgressData.getMeritStatus(), StageData);
-	private EnemyPanel EnemyPanel = new EnemyPanel(SelectPanel, StageData);
+	private List<BufferedImage> stageImage = DefaultStage.STAGE_DATA.stream().map(i -> EditImage.stageImage(i, 5)).toList();
+	private SelectPanel SelectPanel = new SelectPanel(stageImage, ProgressData.getSelectStage());
+	private MeritPanel MeritPanel = new MeritPanel(SelectPanel, ProgressData.getMeritStatus());
+	private EnemyPanel EnemyPanel = new EnemyPanel(SelectPanel);
 	
 	public MenuSelectStage(MainFrame MainFrame) {
 		setBackground(new Color(240, 170, 80));
@@ -73,7 +69,7 @@ public class MenuSelectStage extends JPanel{
 		add(normalModeButton);
 		normalModeButton.addActionListener(e->{
 			ProgressData.save(SelectPanel.getSelelct());
-			MainFrame.battleDraw(StageData[SelectPanel.getSelelct()], ProgressData.getMeritStatus().get(SelectPanel.getSelelct()), BattleEnemy.NORMAL_MODE);
+			MainFrame.battleDraw(DefaultStage.STAGE_DATA.get(SelectPanel.getSelelct()), ProgressData.getMeritStatus().get(SelectPanel.getSelelct()), BattleEnemy.NORMAL_MODE);
 		});
 	}
 	
@@ -81,7 +77,7 @@ public class MenuSelectStage extends JPanel{
 		add(hardModeButton);
 		hardModeButton.addActionListener(e->{
 			ProgressData.save(SelectPanel.getSelelct());
-			MainFrame.battleDraw(StageData[SelectPanel.getSelelct()], ProgressData.getMeritStatus().get(SelectPanel.getSelelct()), BattleEnemy.HARD_MODE);
+			MainFrame.battleDraw(DefaultStage.STAGE_DATA.get(SelectPanel.getSelelct()), ProgressData.getMeritStatus().get(SelectPanel.getSelelct()), BattleEnemy.HARD_MODE);
 		});
 	}
 	

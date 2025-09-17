@@ -12,6 +12,7 @@ import java.util.stream.IntStream;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import defaultdata.DefaultStage;
 import defaultdata.stage.StageData;
 import savedata.SaveGameProgress;
 
@@ -40,7 +41,7 @@ class ClearMerit extends JPanel{
 		this.EnemyData = EnemyData;
 		this.GameData = GameData;
 		meritLabel = IntStream.range(0, StageData.getMerit().size()).mapToObj(i -> new JLabel(meritComment(i))).toArray(JLabel[]::new);
-		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
+		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel(clearComment(i))).toArray(JLabel[]::new);
 		IntStream.range(0, meritLabel.length).forEach(i -> addLabel(i));
 		setPreferredSize(new Dimension(200, 70 * meritLabel.length));
 		
@@ -78,8 +79,7 @@ class ClearMerit extends JPanel{
 	}
 	
 	private String clearComment(int number) {
-		//ステージ番号が分からない　どうしようなな
-		if(SaveGameProgress.getMeritStatus().get(number).get(number)) {
+		if(SaveGameProgress.getMeritStatus().get(DefaultStage.STAGE_DATA.indexOf(StageData)).get(number)) {
 			return "clear";
 		}
 		return "";
