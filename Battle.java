@@ -44,6 +44,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private JButton retreatButton = new UnitButton();
 	private JButton awakeningButton = new UnitButton();
 	private JButton unitReturnButton = new UnitButton();
+	private StageData StageData;
 	private BufferedImage stageImage;
 	private List<BufferedImage> placementImage = new DefaultStage().getPlacementImage(4);
 	private List<List<List<Double>>> placementList;
@@ -66,15 +67,16 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	//メイン画面制御
 	public Battle(MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, double difficultyCorrection) {
+		this.StageData = StageData;
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		setBackground(new Color(240, 170, 80));
-		install(StageData, difficultyCorrection);
+		install(difficultyCorrection);
 		addCostLabel();
 		addRangeDrawButton();
-		addMeritButton(StageData, clearMerit);
+		addMeritButton(clearMerit);
 		addPauseButton(MainFrame);
-		addStageReturnButton(MainFrame, StageData, clearMerit, difficultyCorrection);
+		addStageReturnButton(MainFrame, clearMerit, difficultyCorrection);
 		mainTimer();
 		clearTimer(MainFrame);
 	}
@@ -107,7 +109,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		requestFocus();
 	}
 	
-	private void install(StageData StageData, double difficultyCorrection) {
+	private void install(double difficultyCorrection) {
 		GameData = new GameData(StageData);
 		stageImage = StageData.getImage(2);
 		placementList = StageData.getPlacementPoint();
@@ -138,7 +140,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		});
 	}
 	
-	private void addMeritButton(StageData StageData, List<Boolean> clearMerit) {
+	private void addMeritButton(List<Boolean> clearMerit) {
 		add(meritButton);
 		meritButton.addActionListener(e->{
 			timerStop();
@@ -154,7 +156,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		});
 	}
 	
-	private void addStageReturnButton(MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, double difficultyCorrection) {
+	private void addStageReturnButton(MainFrame MainFrame, List<Boolean> clearMerit, double difficultyCorrection) {
 		add(stageReturnButton);
 		stageReturnButton.addActionListener(e->{
 			timerStop();
@@ -599,7 +601,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		clearScheduler.scheduleWithFixedDelay(() -> {
 			if(Stream.of(EnemyData).noneMatch(i -> 0 < i.getNowHP())) {
 				gameEnd();
-				new PauseDialog(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData);
+				new PauseDialog(StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData);
 				MainFrame.selectStageDraw();
 				return;
 			}

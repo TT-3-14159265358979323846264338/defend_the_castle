@@ -11,16 +11,16 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import defaultdata.stage.StageData;
+
 //ゲームクリア時の処理
 class ClearPanel extends JPanel{
 	private JButton OKButton = new JButton();
 	private JScrollPane meritScroll = new JScrollPane();
-	private ClearMerit ClearMerit;
 	
-	protected ClearPanel(PauseDialog PauseDialog, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData) {
-		ClearMerit = new ClearMerit();
+	protected ClearPanel(PauseDialog PauseDialog, StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData) {
 		addOKButton(PauseDialog);
-		addMeritScroll();
+		addMeritScroll(StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData);
 	}
 	
 	protected void paintComponent(Graphics g) {
@@ -44,8 +44,8 @@ class ClearPanel extends JPanel{
 		OKButton.setBounds(240, 320, 150, 60);
 	}
 	
-	private void addMeritScroll() {
-		meritScroll.getViewport().setView(ClearMerit);
+	private void addMeritScroll(StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData) {
+		meritScroll.getViewport().setView(new ClearMerit(StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData));
 		add(meritScroll);
 	}
 	
