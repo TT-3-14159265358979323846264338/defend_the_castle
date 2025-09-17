@@ -9,31 +9,25 @@ import java.awt.RenderingHints;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 //ゲームクリア時の処理
 class ClearPanel extends JPanel{
 	private JButton OKButton = new JButton();
-	
-	
-	
+	private JScrollPane meritScroll = new JScrollPane();
+	private ClearMerit ClearMerit;
 	
 	protected ClearPanel(PauseDialog PauseDialog, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData) {
+		ClearMerit = new ClearMerit();
 		addOKButton(PauseDialog);
-		
-		
-		
+		addMeritScroll();
 	}
 	
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		setOKButton();
+		setMeritScroll();
 		clearComment(g);
-		
-		
-		
-		
-		
-		
 		requestFocus();
 	}
 	
@@ -47,7 +41,17 @@ class ClearPanel extends JPanel{
 	
 	private void setOKButton() {
 		OKButton.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
-		OKButton.setBounds(200, 320, 150, 60);
+		OKButton.setBounds(240, 320, 150, 60);
+	}
+	
+	private void addMeritScroll() {
+		meritScroll.getViewport().setView(ClearMerit);
+		add(meritScroll);
+	}
+	
+	private void setMeritScroll() {
+		meritScroll.setBounds(50, 170, 530, 140);
+		meritScroll.setPreferredSize(meritScroll.getSize());
 	}
 	
 	private void clearComment(Graphics g) {
@@ -61,14 +65,4 @@ class ClearPanel extends JPanel{
 		g2d.setColor(Color.YELLOW);
 		g2d.drawString("CLEAR", 50, 150);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 }

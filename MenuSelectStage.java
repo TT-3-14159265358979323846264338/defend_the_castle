@@ -87,17 +87,17 @@ public class MenuSelectStage extends JPanel{
 	
 	private void addStageScroll() {
 		stageScroll.getViewport().setView(SelectPanel);
-    	add(stageScroll);
+		add(stageScroll);
 	}
 	
 	private void addMeritScroll() {
 		meritScroll.getViewport().setView(MeritPanel);
-    	add(meritScroll);
+		add(meritScroll);
 	}
 	
 	private void addEnemyScroll() {
 		enemyScroll.getViewport().setView(EnemyPanel);
-    	add(enemyScroll);
+		add(enemyScroll);
 	}
 	
 	private void setLabel(JLabel label, String name, int x, int y, int width, int height) {
