@@ -1,9 +1,11 @@
 package battle;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -26,11 +28,10 @@ class ClearMerit extends JPanel{
 	private GameData GameData;
 	private JLabel[] meritLabel;
 	private Font meritFont = new Font("ＭＳ ゴシック", Font.BOLD, 15);
+	private JLabel[] completeLabel;
+	private Font completeFont = new Font("ＭＳ ゴシック", Font.BOLD, 30);
 	private JLabel[] clearLabel;
 	private Font clearFont = new Font("Arail", Font.BOLD, 30);
-	
-	
-	
 	
 	protected ClearMerit(StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData) {
 		SaveGameProgress.load();
@@ -41,6 +42,7 @@ class ClearMerit extends JPanel{
 		this.EnemyData = EnemyData;
 		this.GameData = GameData;
 		meritLabel = IntStream.range(0, StageData.getMerit().size()).mapToObj(i -> new JLabel(meritComment(i))).toArray(JLabel[]::new);
+		completeLabel =  IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel(completeComment(i))).toArray(JLabel[]::new);
 		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel(clearComment(i))).toArray(JLabel[]::new);
 		IntStream.range(0, meritLabel.length).forEach(i -> addLabel(i));
 		setPreferredSize(new Dimension(200, 70 * meritLabel.length));
@@ -53,11 +55,9 @@ class ClearMerit extends JPanel{
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		IntStream.range(0, meritLabel.length).forEach(i -> setLabel(i));
-		
-		
-		
-		
-		
+		Graphics2D g2 = (Graphics2D)g;
+		g2.setStroke(new BasicStroke(1));
+		IntStream.range(0, meritLabel.length).forEach(i -> g.drawLine(0, 70 * i, 500, 70 * i));
 	}
 	
 	private String meritComment(int number) {
@@ -78,6 +78,13 @@ class ClearMerit extends JPanel{
 		return wrapComment.insert(0, "<html>").toString();
 	}
 	
+	private String completeComment(int number) {
+		if(SaveGameProgress.getMeritStatus().get(DefaultStage.STAGE_DATA.indexOf(StageData)).get(number)) {
+			return "済";
+		}
+		return "";
+	}
+	
 	private String clearComment(int number) {
 		if(SaveGameProgress.getMeritStatus().get(DefaultStage.STAGE_DATA.indexOf(StageData)).get(number)) {
 			return "clear";
@@ -87,16 +94,20 @@ class ClearMerit extends JPanel{
 	
 	private void addLabel(int number) {
 		addMeritLabel(number);
+		addCompleteLabel(number);
 		addClearLabel(number);
-		
-		
-		
-		
 	}
 	
 	private void addMeritLabel(int number) {
 		add(meritLabel[number]);
 		meritLabel[number].setFont(meritFont);
+	}
+	
+	private void addCompleteLabel(int number) {
+		add(completeLabel[number]);
+		completeLabel[number].setHorizontalAlignment(JLabel.CENTER);
+		completeLabel[number].setForeground(Color.GRAY);
+		completeLabel[number].setFont(completeFont);
 	}
 	
 	private void addClearLabel(int number) {
@@ -108,11 +119,8 @@ class ClearMerit extends JPanel{
 	
 	private void setLabel(int number) {
 		meritLabel[number].setBounds(5, number * 70, 400, 70);
-		clearLabel[number].setBounds(290, number * 70, 100, 70);
-		
-		
-		
-		
+		completeLabel[number].setBounds(290, number * 70, 100, 70);
+		clearLabel[number].setBounds(400, number * 70, 100, 70);
 	}
 	
 	
