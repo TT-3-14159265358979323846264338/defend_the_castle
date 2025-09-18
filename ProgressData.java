@@ -16,6 +16,10 @@ class ProgressData{
 		SaveGameProgress.save(SaveGameProgress.getClearStatus(), SaveGameProgress.getMeritStatus(), SaveGameProgress.getMedal(), select);
 	}
 	
+	protected List<Boolean> getClearStatus(){
+		return SaveGameProgress.getClearStatus();
+	}
+	
 	protected List<List<Boolean>> getMeritStatus(){
 		return SaveGameProgress.getMeritStatus();
 	}
