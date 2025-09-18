@@ -21,6 +21,7 @@ import screendisplay.StatusCalculation;
 
 //ユニットのバトル情報
 public class BattleUnit extends BattleData{
+	//基礎データ
 	private BattleUnit otherWeapon;
 	private BufferedImage rightCoreImage;
 	private BufferedImage leftCoreImage;
@@ -30,6 +31,7 @@ public class BattleUnit extends BattleData{
 	private boolean canPossessSkill;
 	private boolean existsOtherBuffRange;
 	
+	//ユニット制御
 	private final int AWAKEING_CONDETION = 300;
 	private final int PLACEMENT_ACHIEVEMENT = 1;
 	private final int KILL_ACHIEVEMENT = 60;
@@ -41,6 +43,7 @@ public class BattleUnit extends BattleData{
 	private int awakeningNumber;
 	private int defeatNumber;
 	
+	//システム関連
 	private Object achievementLock = new Object();
 	private ScheduledExecutorService achievementScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> achievementFuture;
@@ -177,7 +180,7 @@ public class BattleUnit extends BattleData{
 		return (double) relocationCount / relocationTime;
 	}
 	
-	protected int getDefeatNumber() {
+	public int getDefeatNumber() {
 		return defeatNumber;
 	}
 	
