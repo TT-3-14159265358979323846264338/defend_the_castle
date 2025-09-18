@@ -18,9 +18,9 @@ class ClearPanel extends JPanel{
 	private JButton OKButton = new JButton();
 	private JScrollPane meritScroll = new JScrollPane();
 	
-	protected ClearPanel(PauseDialog PauseDialog, StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData) {
+	protected ClearPanel(PauseDialog PauseDialog, StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
 		addOKButton(PauseDialog);
-		addMeritScroll(StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData);
+		addMeritScroll(StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
 	}
 	
 	protected void paintComponent(Graphics g) {
@@ -44,8 +44,8 @@ class ClearPanel extends JPanel{
 		OKButton.setBounds(240, 320, 150, 60);
 	}
 	
-	private void addMeritScroll(StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData) {
-		meritScroll.getViewport().setView(new ClearMerit(StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData));
+	private void addMeritScroll(StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
+		meritScroll.getViewport().setView(new ClearMerit(StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection));
 		add(meritScroll);
 	}
 	

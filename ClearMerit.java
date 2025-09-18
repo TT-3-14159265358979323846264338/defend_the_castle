@@ -19,37 +19,23 @@ import defaultdata.stage.StageData;
 import savedata.SaveGameProgress;
 
 class ClearMerit extends JPanel{
-	private SaveGameProgress SaveGameProgress = new SaveGameProgress();
 	private StageData StageData;
-	private BattleUnit[] UnitMainData;
-	private BattleUnit[] UnitLeftData;
-	private BattleFacility[] FacilityData;
-	private BattleEnemy[] EnemyData;
-	private GameData GameData;
+	private int stageNumber;
+	private SaveGameProgress SaveGameProgress = new SaveGameProgress();
 	private JLabel[] meritLabel;
+	//private List<Boolean> clearList;
 	private Font meritFont = new Font("ＭＳ ゴシック", Font.BOLD, 15);
 	private JLabel[] completeLabel;
 	private Font completeFont = new Font("ＭＳ ゴシック", Font.BOLD, 30);
 	private JLabel[] clearLabel;
 	private Font clearFont = new Font("Arail", Font.BOLD, 30);
 	
-	protected ClearMerit(StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData) {
-		SaveGameProgress.load();
+	protected ClearMerit(StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
 		this.StageData = StageData;
-		this.UnitMainData = UnitMainData;
-		this.UnitLeftData = UnitLeftData;
-		this.FacilityData = FacilityData;
-		this.EnemyData = EnemyData;
-		this.GameData = GameData;
-		meritLabel = IntStream.range(0, StageData.getMerit().size()).mapToObj(i -> new JLabel(meritComment(i))).toArray(JLabel[]::new);
-		completeLabel =  IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel(completeComment(i))).toArray(JLabel[]::new);
-		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel(clearComment(i))).toArray(JLabel[]::new);
-		IntStream.range(0, meritLabel.length).forEach(i -> addLabel(i));
+		stageNumber = DefaultStage.STAGE_DATA.indexOf(StageData);
+		updateSaveData(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
+		defineLabel();
 		setPreferredSize(new Dimension(200, 70 * meritLabel.length));
-		
-		
-		
-		
 	}
 	
 	protected void paintComponent(Graphics g) {
@@ -58,6 +44,30 @@ class ClearMerit extends JPanel{
 		Graphics2D g2 = (Graphics2D)g;
 		g2.setStroke(new BasicStroke(1));
 		IntStream.range(0, meritLabel.length).forEach(i -> g.drawLine(0, 70 * i, 500, 70 * i));
+	}
+	
+	private void updateSaveData(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
+		SaveGameProgress.load();
+		/*
+		int medal = SaveGameProgress.getMedal() + 100;//いずれ報酬について記載
+		clearList = StageData.canClearMerit(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
+		List<Boolean> clearStatus = SaveGameProgress.getClearStatus();
+		clearStatus.set(stageNumber, true);
+		List<List<Boolean>> meritStatus = SaveGameProgress.getMeritStatus();
+		for(int i = 0; i < clearList.size(); i++){
+			if(clearList.get(i)){
+				meritStatus.get(stageNumber).set(i, true);
+			}
+		}
+		SaveGameProgress.save(clearStatus, meritStatus, medal, SaveGameProgress.getSelectStage());
+		*/
+	}
+	
+	private void defineLabel() {
+		meritLabel = IntStream.range(0, StageData.getMerit().size()).mapToObj(i -> new JLabel(meritComment(i))).toArray(JLabel[]::new);
+		completeLabel =  IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel(completeComment(i))).toArray(JLabel[]::new);
+		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel(clearComment(i))).toArray(JLabel[]::new);
+		IntStream.range(0, meritLabel.length).forEach(i -> addLabel(i));
 	}
 	
 	private String meritComment(int number) {
@@ -79,16 +89,15 @@ class ClearMerit extends JPanel{
 	}
 	
 	private String completeComment(int number) {
-		if(SaveGameProgress.getMeritStatus().get(DefaultStage.STAGE_DATA.indexOf(StageData)).get(number)) {
-			return "済";
-		}
-		return "";
+		return hasCleared(number)? "済": "";
+	}
+	
+	private boolean hasCleared(int number) {
+		return SaveGameProgress.getMeritStatus().get(stageNumber).get(number);
 	}
 	
 	private String clearComment(int number) {
-		if(SaveGameProgress.getMeritStatus().get(DefaultStage.STAGE_DATA.indexOf(StageData)).get(number)) {
-			return "clear";
-		}
+		//return clearList.get(number)? "clear": "";
 		return "";
 	}
 	
@@ -122,12 +131,4 @@ class ClearMerit extends JPanel{
 		completeLabel[number].setBounds(290, number * 70, 100, 70);
 		clearLabel[number].setBounds(400, number * 70, 100, 70);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
 }

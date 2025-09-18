@@ -41,12 +41,12 @@ class PauseDialog extends JDialog implements WindowListener{
 		setVisible(true);
 	}
 	
-	protected PauseDialog(StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData) {
+	protected PauseDialog(StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
 		setDialog(null);
 		setTitle("戦績");
 		setSize(645, 425);
 		setLocationRelativeTo(null);
-		add(new ClearPanel(this, StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData));
+		add(new ClearPanel(this, StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection));
 		setVisible(true);
 	}
 	

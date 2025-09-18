@@ -78,7 +78,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		addPauseButton(MainFrame);
 		addStageReturnButton(MainFrame, clearMerit, difficultyCorrection);
 		mainTimer();
-		clearTimer(MainFrame);
+		clearTimer(MainFrame, difficultyCorrection);
 	}
 	
 	protected void paintComponent(Graphics g) {
@@ -597,11 +597,11 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	//ゲーム状態監視
-	private void clearTimer(MainFrame MainFrame) {
+	private void clearTimer(MainFrame MainFrame, double difficultyCorrection) {
 		clearScheduler.scheduleWithFixedDelay(() -> {
 			if(Stream.of(EnemyData).noneMatch(i -> 0 < i.getNowHP())) {
 				gameEnd();
-				new PauseDialog(StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData);
+				new PauseDialog(StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
 				MainFrame.selectStageDraw();
 				return;
 			}
