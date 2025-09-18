@@ -4,6 +4,10 @@ import java.awt.Point;
 import java.util.Arrays;
 import java.util.List;
 
+import battle.BattleEnemy;
+import battle.BattleFacility;
+import battle.BattleUnit;
+import battle.GameData;
 import defaultdata.DefaultEnemy;
 import defaultdata.DefaultStage;
 
@@ -93,7 +97,15 @@ public class No0001Stage2 extends StageData {
 		return Arrays.asList("ステージをクリアする(normal)",
 				"ユニットが一度も倒されずクリアする(normal)",
 				"ステージをクリアする(hard)",
-				"ユニットも城門も破壊されずクリアする(hard)");
+				"ユニットも設備も破壊されずクリアする(hard)");
+	}
+
+	@Override
+	public List<Boolean> canClearMerit(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
+		return Arrays.asList(canClearStage(BattleEnemy.NORMAL_MODE, difficultyCorrection),
+				canNotDefeat(BattleEnemy.NORMAL_MODE, difficultyCorrection, UnitMainData, UnitLeftData),
+				canClearStage(BattleEnemy.HARD_MODE, difficultyCorrection),
+				canNotDefeat(BattleEnemy.HARD_MODE, difficultyCorrection, UnitMainData, UnitLeftData, FacilityData));
 	}
 
 	@Override

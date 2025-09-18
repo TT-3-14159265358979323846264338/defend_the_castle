@@ -3,7 +3,13 @@ package defaultdata.stage;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
+import battle.BattleEnemy;
+import battle.BattleFacility;
+import battle.BattleUnit;
+import battle.GameData;
 import defaultdata.EditImage;
 
 public abstract class StageData {
@@ -75,6 +81,18 @@ public abstract class StageData {
 	public abstract List<String> getMerit();
 	
 	/**
+	 * 各戦功のクリア状況の判定。
+	 * @param UnitMainData - ゲーム終了後のユニットデータ。{@link battle.BattleUnit BattleUnit}
+	 * @param UnitLeftData - ゲーム終了後のユニットデータ。{@link battle.BattleUnit BattleUnit}
+	 * @param FacilityData - ゲーム終了後の設備データ。{@link battle.BattleFacility BattleFacility}
+	 * @param EnemyData - ゲーム終了後の敵データ。{@link battle.BattleEnemy BattleEnemy}
+	 * @param GameData - ゲーム終了後のゲームデータ。{@link battle.GameData GameData}
+	 * @param difficultyCorrection - ゲームの難易度。{@link battle.BattleEnemy#NORMAL_MODE ステータス補正倍率}
+	 * @return 各戦功の達成状況のListを返却する。
+	 */
+	public abstract List<Boolean> canClearMerit(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection);
+	
+	/**
 	 * 敵情報。<br>
 	 * 全ての敵情報を入力した複数のListを返却する。
 	 * @return List(enemyCode, moveCode, timing)<br>
@@ -104,4 +122,106 @@ public abstract class StageData {
 	 * 			noDisplayTime - 描写中止時間 (停止中の描写回数)。
 	 */
 	public abstract List<List<List<Integer>>> getRoute();
+	
+	/*
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 以下はよく使用するメソッド
+	 * 
+	 * 
+	 * 
+	 * 
+	 */
+	
+	/**
+	 * 難易度に関わらずゲームをクリアしたかどうか判定。
+	 * @return 常にtrueを返却する。
+	 */
+	protected boolean canClearStage() {
+		return true;
+	}
+	
+	/**
+	 * 指定の難易度でクリアしたかどうか判定。
+	 * @param base - 基準となる指定の難易度。
+	 * @param difficultyCorrection - 今回のゲームの難易度。
+	 * @return 引数が一致すればtrueを返却する。
+	 * @see {@link battle.BattleEnemy#NORMAL_MODE ステータス補正倍率}
+	 */
+	protected boolean canClearStage(double base, double difficultyCorrection) {
+		return base == difficultyCorrection;
+	}
+	
+	/**
+	 * 難易度に関わらずユニットが一度も倒されずクリアしたかどうか判定。
+	 * @param UnitMainData - ゲーム終了後のユニットデータ。
+	 * @param UnitLeftData - ゲーム終了後のユニットデータ。
+	 * @return {@link battle.BattleUnit#defeatNumber 被撃破数}が全て0であるならばtrueを返却する。
+	 * @see {@link battle.BattleUnit BattleUnit}
+	 */
+	protected boolean canNotDefeat(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData) {
+		Predicate<BattleUnit[]> canNotDefeatCheack = (data) -> {
+			return Stream.of(data).noneMatch(i -> 0 < i.getDefeatNumber());
+		};
+		if(canNotDefeatCheack.test(UnitMainData)) {
+			if(canNotDefeatCheack.test(UnitLeftData)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * 指定の難易度でユニットが一度も倒されずクリアしたかどうか判定。
+	 * @param base - 基準となる指定の難易度。
+	 * @param difficultyCorrection - 今回のゲームの難易度。
+	 * @param UnitMainData - ゲーム終了後のユニットデータ。
+	 * @param UnitLeftData - ゲーム終了後のユニットデータ。
+	 * @return 指定の難易度で{@link battle.BattleUnit#defeatNumber 被撃破数}が全て0であるならばtrueを返却する。
+	 * @see {@link battle.BattleEnemy#NORMAL_MODE ステータス補正倍率}<br>
+	 * 		{@link battle.BattleUnit BattleUnit}
+	 */
+	protected boolean canNotDefeat(double base, double difficultyCorrection, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData) {
+		if(canClearStage(base, difficultyCorrection)) {
+			return canNotDefeat(UnitMainData, UnitLeftData);
+		}
+		return false;
+	}
+	
+	/**
+	 * 難易度に関わらず味方全てが一度も倒されずクリアしたかどうか判定。
+	 * @param UnitMainData - ゲーム終了後のユニットデータ。
+	 * @param UnitLeftData - ゲーム終了後のユニットデータ。
+	 * @param FacilityData - ゲーム終了後の設備データ。
+	 * @return {@link battle.BattleData#canActivate 設備が生存}し、{@link battle.BattleUnit#defeatNumber ユニットの被撃破数}が全て0であるならばtrueを返却する。
+	 * @see {@link battle.BattleUnit BattleUnit}<br>
+	 * 		{@link battle.BattleFacility BattleFacility}
+	 */
+	protected boolean canNotDefeat(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData) {
+		if(Stream.of(FacilityData).noneMatch(i -> !i.canActivate())) {
+			return canNotDefeat(UnitMainData, UnitLeftData);
+		}
+		return false;
+	}
+	
+	/**
+	 * 指定の難易度で味方全てが一度も倒されずクリアしたかどうか判定。
+	 * @param base - 基準となる指定の難易度。
+	 * @param difficultyCorrection - 今回のゲームの難易度。
+	 * @param UnitMainData - ゲーム終了後のユニットデータ。
+	 * @param UnitLeftData - ゲーム終了後のユニットデータ。
+	 * @param FacilityData - ゲーム終了後の設備データ。
+	 * @return 指定の難易度で{@link battle.BattleData#canActivate 設備が生存}し、{@link battle.BattleUnit#defeatNumber ユニットの被撃破数}が全て0であるならばtrueを返却する。
+	 * @see {@link battle.BattleEnemy#NORMAL_MODE ステータス補正倍率}<br>
+	 * 		{@link battle.BattleUnit BattleUnit}<br>
+	 * 		{@link battle.BattleFacility BattleFacility}
+	 */
+	protected boolean canNotDefeat(double base, double difficultyCorrection, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData) {
+		if(canClearStage(base, difficultyCorrection)) {
+			return canNotDefeat(UnitMainData, UnitLeftData, FacilityData);
+		}
+		return false;
+	}
 }
