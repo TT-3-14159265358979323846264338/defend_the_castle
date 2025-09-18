@@ -9,23 +9,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SaveGameProgress implements Serializable{
-	public transient final static String PROGRESS_FILE = "progress data.dat";
+	/**
+	 * セーブデータ保存ファイルの名称。<br>
+	 * (非セーブデータ)
+	 */
+	public transient static final String PROGRESS_FILE = "progress data.dat";
+	
+	/**
+	 * 各ステージのクリア状況。<br>
+	 * {@link defaultdata.DefaultStage#STAGE_DATA ステージ順}にクリア状況を保存。<br>
+	 * このListのsizeは、{@link defaultdata.DefaultStage#STAGE_DATA STAGE_DATA}に新規追加されると、{@link savedata.FileCheck FileCheck}で自動的に追加される。
+	 */
 	private List<Boolean> clearStatus = new ArrayList<>();
+	
+	/**
+	 * 各ステージの戦功取得状況。<br>
+	 * {@link defaultdata.DefaultStage#STAGE_DATA ステージ順}で{@link defaultdata.stage.StageData#getMerit 戦功}クリア状況を保存。<br>
+	 * このListのsizeは、{@link defaultdata.DefaultStage#STAGE_DATA STAGE_DATA}に新規追加されると、{@link savedata.FileCheck FileCheck}で自動的に追加される。
+	 */
 	private List<List<Boolean>> meritStatus = new ArrayList<>();
+	
+	/**
+	 * 現在保有しているガチャメダル数。
+	 */
 	private int medal;
+	
+	/**
+	 * 最後に出撃したステージ番号。
+	 */
 	private int selectStage;
-	
-	/*
-	非セーブデータの構造
-	PROGRESS_FILE: セーブデータ保存ファイルの名称
-	
-	セーブデータの構造
-	clearStatus: 各ステージのクリア状況
-	meritStatus: 各ステージの戦功取得状況
-	これらのListのsize()は、DefaultStageに新規追加されると、FileCheckで自動的に追加される
-	medal: 現在保有しているガチャメダル数
-	selectStage: 最後に出撃したステージ番号
-	*/
 	
 	public SaveGameProgress() {
 		medal = 1000;

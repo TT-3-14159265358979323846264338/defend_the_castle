@@ -118,6 +118,7 @@ public class DefaultUnit {
 	}
 	
 	//武器コード変換
+	public static final int NO_WEAPON = -1;
 	public static final int SWORD = 0;
 	public static final int BOW = 1;
 	

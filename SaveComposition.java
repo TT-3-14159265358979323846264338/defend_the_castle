@@ -10,24 +10,40 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import defaultdata.DefaultUnit;
+
 //現在の編成状況の保存用
 public class SaveComposition implements Serializable{
-	public transient final static String COMPOSITION_FILE = "composition data.dat";
-	public transient final static List<Integer> DEFAULT = Arrays.asList(-1, 0, -1);
+	/**
+	 * セーブデータ保存ファイルの名称。<br>
+	 * (非セーブデータ)
+	 */
+	public transient static final String COMPOSITION_FILE = "composition data.dat";
+	
+	/**
+	 * 新規に作成された編成のデフォルト設定。<br>
+	 * (非セーブデータ)
+	 */
+	public transient static final List<Integer> DEFAULT = Arrays.asList(DefaultUnit.NO_WEAPON, DefaultUnit.NORMAL_CORE, DefaultUnit.NO_WEAPON);
+	
+	/**
+	 * 編成情報を保存。<br>
+	 * ①List: 1つの編成情報。Listの順番が編成番号。<br>
+	 * ②List: パーティ8体のデータ。<br>
+	 * ③List: {@link defaultdata.DefaultUnit#WEAPON_DATA_MAP 右武器番号}, {@link defaultdata.DefaultUnit#CORE_DATA_MAP コア番号}, {@link defaultdata.DefaultUnit#WEAPON_DATA_MAP 左武器番号} の順でリスト化。
+	 */
 	private List<List<List<Integer>>> allCompositionList = new ArrayList<>();
+	
+	/**
+	 * 各編成番号の名称。<br>
+	 * 編成順に登録。
+	 */
 	private List<String> compositionNameList = new ArrayList<>();
+	
+	/**
+	 * 現在使用可能な編成番号。
+	 */
 	private int selectNumber;
-	
-	/*
-	非セーブデータの構造
-	COMPOSITION_FILE: セーブデータ保存ファイルの名称
-	DEFAULT: 新規に作成された編成のデフォルト設定 (-1: 装備無し, 0: 初期コア の番号)
-	
-	セーブデータの構造
-	allCompositionList: ①List 編成番号 ②List パーティ8体のデータ ③List 右武器番号, コア番号, 左武器番号 の順でリスト化
-	compositionNameList: 各編成番号の名称
-	selectNumber: 現在使用可能な編成番号
-	*/
 	
 	public SaveComposition() {
 		newComposition();

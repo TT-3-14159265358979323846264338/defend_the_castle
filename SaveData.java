@@ -181,8 +181,8 @@ class SaveData{
 	protected void changeWeapon(int number, int selectWeapon) {
 		if(DefaultUnit.WEAPON_DATA_MAP.get(selectWeapon).getHandle() == 1) {
 			getActiveUnit(number).set(2, selectWeapon);
-			getActiveUnit(number).set(0, -1);
-		}else if(getActiveUnit(number).get(2) == -1) {
+			getActiveUnit(number).set(0, DefaultUnit.NORMAL_CORE);
+		}else if(getActiveUnit(number).get(2) == DefaultUnit.NORMAL_CORE) {
 			change(number, selectWeapon);
 		}else {
 			switch(DefaultUnit.WEAPON_DATA_MAP.get(getActiveUnit(number).get(2)).getHandle()) {
@@ -191,7 +191,7 @@ class SaveData{
 				break;
 			case 1:
 				if(change(number, selectWeapon) == 1) {
-					getActiveUnit(number).set(2, -1);
+					getActiveUnit(number).set(2, DefaultUnit.NORMAL_CORE);
 				}
 				break;
 			default:

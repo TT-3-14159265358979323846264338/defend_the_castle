@@ -11,19 +11,25 @@ import java.util.List;
 
 //現在保有しているアイテムの保存用
 public class SaveHoldItem implements Serializable{
-	public transient final static String HOLD_FILE = "hold data.dat";
+	/**
+	 * セーブデータ保存ファイルの名称。<br>
+	 * (非セーブデータ)
+	 */
+	public transient static final String HOLD_FILE = "hold data.dat";
+	
+	/**
+	 * 各コアの所持数。<br>
+	 * {@link defaultdata.DefaultUnit#NORMAL_CORE コアコード変換}の順にリスト化。<br>
+	 * このListのsizeは、{@link defaultdata.DefaultUnit#CORE_DATA_MAP CORE_DATA_MAP}に新規追加されると、{@link savedata.FileCheck FileCheck}で自動的に追加される。
+	 */
 	private List<Integer> coreNumberList = new ArrayList<>();
+	
+	/**
+	 * 各武器の所持数。<br>
+	 * {@link defaultdata.DefaultUnit#NO_WEAPON 武器コード変換}の順にリスト化。<br>
+	 * このListのsizeは、{@link defaultdata.DefaultUnit#WEAPON_DATA_MAP WEAPON_DATA_MAP}に新規追加されると、{@link savedata.FileCheck FileCheck}で自動的に追加される。
+	 */
 	private List<Integer> weaponNumberList = new ArrayList<>();
-	
-	/*
-	非セーブデータの構造
-	HOLD_FILE: セーブデータ保存ファイルの名称
-	
-	セーブデータの構造
-	coreNumberList: 各コアの所持数
-	weaponNumberList: 各武器の所持数
-	これらのListのsize()は、DefaultUnitに新規追加されると、FileCheckで自動的に追加される
-	*/
 	
 	public SaveHoldItem() {
 		coreNumberList = new ArrayList<>(Arrays.asList(8));
