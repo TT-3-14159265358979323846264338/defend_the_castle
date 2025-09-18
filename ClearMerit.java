@@ -51,15 +51,18 @@ class ClearMerit extends JPanel{
 	}
 	
 	private void updateSaveData(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
-		int medal = SaveGameProgress.getMedal() + 100;//いずれ報酬について記載
-		clearList = StageData.canClearMerit(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
 		List<Boolean> clearStatus = SaveGameProgress.getClearStatus();
-		clearStatus.set(stageNumber, true);
 		List<List<Boolean>> meritStatus = SaveGameProgress.getMeritStatus();
+		//いずれ報酬について記載
+		int medal = SaveGameProgress.getMedal() + 100;
+		clearList = StageData.canClearMerit(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
 		for(int i = 0; i < clearList.size(); i++){
 			if(clearList.get(i)){
 				meritStatus.get(stageNumber).set(i, true);
 			}
+		}
+		if(meritStatus.get(stageNumber).stream().allMatch(i -> i)) {
+			clearStatus.set(stageNumber, true);
 		}
 		SaveGameProgress.save(clearStatus, meritStatus, medal, SaveGameProgress.getSelectStage());
 	}

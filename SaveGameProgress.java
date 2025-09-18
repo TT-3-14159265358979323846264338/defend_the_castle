@@ -18,6 +18,7 @@ public class SaveGameProgress implements Serializable{
 	/**
 	 * 各ステージのクリア状況。<br>
 	 * {@link defaultdata.DefaultStage#STAGE_DATA ステージ順}にクリア状況を保存。<br>
+	 * 各ステージの戦功を全てクリアするとtrueになる。<br>
 	 * このListのsizeは、{@link defaultdata.DefaultStage#STAGE_DATA STAGE_DATA}に新規追加されると、{@link savedata.FileCheck FileCheck}で自動的に追加される。
 	 */
 	private List<Boolean> clearStatus = new ArrayList<>();
