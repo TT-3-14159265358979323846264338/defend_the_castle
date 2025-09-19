@@ -19,10 +19,9 @@ import defaultdata.stage.StageData;
 import savedata.SaveGameProgress;
 
 class ClearMerit extends JPanel{
-	private StageData StageData;
 	private int stageNumber;
+	private List<Boolean> thisClearList;
 	private SaveGameProgress SaveGameProgress = new SaveGameProgress();
-	private List<Boolean> clearList;
 	private JLabel[] meritLabel;
 	private Font meritFont = new Font("ＭＳ ゴシック", Font.BOLD, 15);
 	private JLabel[] completeLabel;
@@ -31,12 +30,12 @@ class ClearMerit extends JPanel{
 	private Font clearFont = new Font("Arail", Font.BOLD, 30);
 	
 	protected ClearMerit(StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
-		this.StageData = StageData;
 		stageNumber = DefaultStage.STAGE_DATA.indexOf(StageData);
+		thisClearList = StageData.canClearMerit(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
 		SaveGameProgress.load();
-		meritLabel = IntStream.range(0, StageData.getMerit().size()).mapToObj(i -> new JLabel(meritComment(i))).toArray(JLabel[]::new);
+		meritLabel = IntStream.range(0, StageData.getMerit().size()).mapToObj(i -> new JLabel(meritComment(i, StageData))).toArray(JLabel[]::new);
 		completeLabel =  IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel(completeComment(i))).toArray(JLabel[]::new);
-		updateSaveData(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
+		updateClearData(StageData);
 		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel(clearComment(i))).toArray(JLabel[]::new);
 		IntStream.range(0, meritLabel.length).forEach(i -> addLabel(i));
 		setPreferredSize(new Dimension(200, 70 * meritLabel.length));
@@ -50,24 +49,26 @@ class ClearMerit extends JPanel{
 		IntStream.range(0, meritLabel.length).forEach(i -> g.drawLine(0, 70 * i, 500, 70 * i));
 	}
 	
-	private void updateSaveData(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
+	private void updateClearData(StageData StageData) {
 		List<Boolean> clearStatus = SaveGameProgress.getClearStatus();
 		List<List<Boolean>> meritStatus = SaveGameProgress.getMeritStatus();
-		//いずれ報酬について記載
-		int medal = SaveGameProgress.getMedal() + 100;
-		clearList = StageData.canClearMerit(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
-		for(int i = 0; i < clearList.size(); i++){
-			if(clearList.get(i)){
+		List<Boolean> newClearList = new ArrayList<>();
+		for(int i = 0; i < thisClearList.size(); i++){
+			if(thisClearList.get(i) && !meritStatus.get(stageNumber).get(i)){
 				meritStatus.get(stageNumber).set(i, true);
+				newClearList.add(true);
+				continue;
 			}
+			newClearList.add(false);
 		}
 		if(meritStatus.get(stageNumber).stream().allMatch(i -> i)) {
 			clearStatus.set(stageNumber, true);
 		}
-		SaveGameProgress.save(clearStatus, meritStatus, medal, SaveGameProgress.getSelectStage());
+		SaveGameProgress.save(clearStatus, meritStatus, SaveGameProgress.getMedal(), SaveGameProgress.getSelectStage());
+		StageData.giveClearReward(newClearList);
 	}
 	
-	private String meritComment(int number) {
+	private String meritComment(int number, StageData StageData) {
 		String comment = StageData.getMerit().get(number);
 		int lastPosition = 0;
 		List<Integer> wrapPosition = new ArrayList<>();
@@ -94,7 +95,7 @@ class ClearMerit extends JPanel{
 	}
 	
 	private String clearComment(int number) {
-		return clearList.get(number)? "clear": "";
+		return thisClearList.get(number)? "clear": "";
 	}
 	
 	private void addLabel(int number) {
