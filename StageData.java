@@ -2,6 +2,7 @@ package defaultdata.stage;
 
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -93,6 +94,36 @@ public abstract class StageData {
 	public abstract List<Boolean> canClearMerit(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection);
 	
 	/**
+	 * 各戦功で獲得可能な報酬。
+	 * @return 全ての報酬内容を返却する。
+	 */
+	public abstract List<String> getReward();
+	
+	/**
+	 * 戦功報酬を獲得する。
+	 * @param newClearList - 新規で獲得できた戦功をtrueとするList。trueとなっている戦功のみ{@link #giveReward}を呼び出して報酬を受け取る。
+	 */
+	public void giveClearReward(List<Boolean> newClearList) {
+		List<Method> methodList = giveReward();
+		for(int i = 0; i < newClearList.size(); i++) {
+			if(newClearList.get(i)) {
+				try {
+					methodList.get(i).invoke(this);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	/**
+	 * 報酬を獲得するメソッド。<br>
+	 * 呼び出しは{@link #giveClearReward}からのみ行われる。
+	 * @return 各戦功での報酬を獲得するメソッドを返却する。<br>
+	 * 			メソッドの引数設定及びスロー宣言してはならない。
+	 */
+	protected abstract List<Method> giveReward();
+	
+	/**
 	 * 敵情報。<br>
 	 * 全ての敵情報を入力した複数のListを返却する。
 	 * @return List(enemyCode, moveCode, timing)<br>
@@ -128,7 +159,7 @@ public abstract class StageData {
 	 * 
 	 * 
 	 * 
-	 * 以下はよく使用するメソッド
+	 * 戦功クリア判定で使用するメソッド
 	 * 
 	 * 
 	 * 
@@ -224,4 +255,25 @@ public abstract class StageData {
 		}
 		return false;
 	}
+	
+	/*
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 報酬獲得で使用するメソッド
+	 * 
+	 * 
+	 * 
+	 * 
+	 */
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

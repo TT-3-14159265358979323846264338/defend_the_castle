@@ -1,6 +1,7 @@
 package defaultdata.stage;
 
 import java.awt.Point;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
@@ -106,6 +107,31 @@ public class No0001Stage2 extends StageData {
 				canNotDefeat(BattleEnemy.NORMAL_MODE, difficultyCorrection, UnitMainData, UnitLeftData),
 				canClearStage(BattleEnemy.HARD_MODE, difficultyCorrection),
 				canNotDefeat(BattleEnemy.HARD_MODE, difficultyCorrection, UnitMainData, UnitLeftData, FacilityData));
+	}
+
+	@Override
+	public List<String> getReward() {
+		return Arrays.asList("メダル500",
+				"メダル500",
+				"メダル500",
+				"メダル500");
+	}
+
+	@Override
+	protected List<Method> giveReward() {
+		try {
+			return Arrays.asList(getClass().getMethod("test"),
+					getClass().getMethod("test"),
+					getClass().getMethod("test"),
+					getClass().getMethod("test"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Arrays.asList();
+		}
+	}
+	
+	public void test() {
+		System.out.println(true);
 	}
 
 	@Override
