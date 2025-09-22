@@ -24,8 +24,10 @@ class ClearMerit extends JPanel{
 	private SaveGameProgress SaveGameProgress = new SaveGameProgress();
 	private JLabel[] meritLabel;
 	private Font meritFont = new Font("ＭＳ ゴシック", Font.BOLD, 15);
+	private JLabel[] rewardLabel;
+	private Font rewardFont = new Font("ＭＳ ゴシック", Font.BOLD, 20);
 	private JLabel[] completeLabel;
-	private Font completeFont = new Font("ＭＳ ゴシック", Font.BOLD, 30);
+	private Font completeFont = new Font("ＭＳ ゴシック", Font.BOLD, 40);
 	private JLabel[] clearLabel;
 	private Font clearFont = new Font("Arail", Font.BOLD, 30);
 	
@@ -34,6 +36,7 @@ class ClearMerit extends JPanel{
 		thisClearList = StageData.canClearMerit(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
 		SaveGameProgress.load();
 		meritLabel = IntStream.range(0, StageData.getMerit().size()).mapToObj(i -> new JLabel(meritComment(i, StageData))).toArray(JLabel[]::new);
+		rewardLabel = StageData.getReward().stream().map(i -> new JLabel(i)).toArray(JLabel[]::new);
 		completeLabel =  IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel(completeComment(i))).toArray(JLabel[]::new);
 		updateClearData(StageData);
 		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel(clearComment(i))).toArray(JLabel[]::new);
@@ -100,6 +103,7 @@ class ClearMerit extends JPanel{
 	
 	private void addLabel(int number) {
 		addMeritLabel(number);
+		addRewardLabel(number);
 		addCompleteLabel(number);
 		addClearLabel(number);
 	}
@@ -107,6 +111,12 @@ class ClearMerit extends JPanel{
 	private void addMeritLabel(int number) {
 		add(meritLabel[number]);
 		meritLabel[number].setFont(meritFont);
+	}
+	
+	private void addRewardLabel(int number) {
+		add(rewardLabel[number]);
+		rewardLabel[number].setFont(rewardFont);
+		rewardLabel[number].setHorizontalAlignment(JLabel.CENTER);
 	}
 	
 	private void addCompleteLabel(int number) {
@@ -125,6 +135,7 @@ class ClearMerit extends JPanel{
 	
 	private void setLabel(int number) {
 		meritLabel[number].setBounds(5, number * 70, 400, 70);
+		rewardLabel[number].setBounds(290, number * 70, 100, 70);
 		completeLabel[number].setBounds(290, number * 70, 100, 70);
 		clearLabel[number].setBounds(400, number * 70, 100, 70);
 	}
