@@ -11,6 +11,8 @@ import defaultdata.weapon.WeaponData;
 
 //ステータス計算
 public class StatusCalculation{
+	private final int NO_DATA = -1;
+	
 	private int rightType;
 	private List<Integer> rightElement;
 	private int rightAtackPattern;
@@ -32,9 +34,9 @@ public class StatusCalculation{
 	private List<Integer> coreCutList;
 	
 	public StatusCalculation(List<Integer> unitData) {
-		rightWeaponInstall(unitData.get(0));
-		coreInstall(unitData.get(1));
-		leftWeaponInstall(unitData.get(2));
+		rightWeaponInstall(unitData.get(DefaultUnit.RIGHT_WEAPON));
+		coreInstall(unitData.get(DefaultUnit.CORE));
+		leftWeaponInstall(unitData.get(DefaultUnit.LEFT_WEAPON));
 	}
 	
 	private void rightWeaponInstall(int number) {
@@ -92,11 +94,11 @@ public class StatusCalculation{
 	}
 	
 	private int defaultType() {
-		return -1;
+		return NO_DATA;
 	}
 	
 	private List<Integer> defaultElement(){
-		return Arrays.asList(-1);
+		return Arrays.asList(NO_DATA);
 	}
 	
 	private List<Integer> defaultWeaponStatus(){
@@ -112,12 +114,12 @@ public class StatusCalculation{
 	}
 	
 	public int getType() {
-		if(rightType == -1 && leftType == -1) {
-			return 2;
+		if(rightType == NO_DATA && leftType == NO_DATA) {
+			return DefaultUnit.ALL;
 		}else if(rightType == leftType) {
 			return leftType;
-		}else if(0 <= rightType && 0 <= leftType){
-			return 2;
+		}else if(NO_DATA < rightType && NO_DATA < leftType){
+			return DefaultUnit.ALL;
 		}else {
 			return (rightType <= leftType)? leftType: rightType;
 		}

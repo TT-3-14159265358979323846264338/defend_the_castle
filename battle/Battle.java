@@ -27,6 +27,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import defaultdata.DefaultStage;
+import defaultdata.DefaultUnit;
 import defaultdata.stage.StageData;
 import defendthecastle.MainFrame;
 import savedata.SaveComposition;
@@ -414,18 +415,18 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		if(canSelect) {
 			mouse = e.getPoint();
 			switch(UnitMainData[select].getType()) {
-			case 0:
-				placeUnit(0);
-				placeUnit(2);
+			case DefaultUnit.NEAR:
+				placeUnit(DefaultUnit.NEAR);
+				placeUnit(DefaultUnit.ALL);
 				break;
-			case 1:
-				placeUnit(1);
-				placeUnit(2);
+			case DefaultUnit.FAR:
+				placeUnit(DefaultUnit.FAR);
+				placeUnit(DefaultUnit.ALL);
 				break;
-			case 2:
-				placeUnit(0);
-				placeUnit(1);
-				placeUnit(2);
+			case DefaultUnit.ALL:
+				placeUnit(DefaultUnit.NEAR);
+				placeUnit(DefaultUnit.FAR);
+				placeUnit(DefaultUnit.ALL);
 				break;
 			default:
 				break;

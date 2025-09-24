@@ -220,13 +220,13 @@ public class MenuComposition extends JPanel implements MouseListener{
 		g.fillRect(230, 40, 330, 480);
 		IntStream.range(0, SaveData.getActiveCompositionList().size()).forEach(i -> {
 			try {
-				g.drawImage(rightWeaponList.get(SaveData.getActiveUnit(i).get(0)), getPositionX(i), getPositionY(i), this);
+				g.drawImage(rightWeaponList.get(SaveData.getActiveUnit(i).get(DefaultUnit.RIGHT_WEAPON)), getPositionX(i), getPositionY(i), this);
 			}catch(Exception ignore) {
 				//右武器を装備していないので、無視する
 			}
-			g.drawImage(ceterCoreList.get(SaveData.getActiveUnit(i).get(1)), getPositionX(i), getPositionY(i), this);
+			g.drawImage(ceterCoreList.get(SaveData.getActiveUnit(i).get(DefaultUnit.CORE)), getPositionX(i), getPositionY(i), this);
 			try {
-				g.drawImage(leftWeaponList.get(SaveData.getActiveUnit(i).get(2)), getPositionX(i), getPositionY(i), this);
+				g.drawImage(leftWeaponList.get(SaveData.getActiveUnit(i).get(DefaultUnit.LEFT_WEAPON)), getPositionX(i), getPositionY(i), this);
 			}catch(Exception ignore) {
 				//左武器を装備していないので、無視する
 			}
@@ -286,13 +286,13 @@ public class MenuComposition extends JPanel implements MouseListener{
 	private List<BufferedImage> getImageList(List<Integer> unitData){
 		List<BufferedImage> originalImage = new ArrayList<>();
 		try {
-			originalImage.add(rightWeaponList.get(unitData.get(0)));
+			originalImage.add(rightWeaponList.get(unitData.get(DefaultUnit.RIGHT_WEAPON)));
 		}catch(Exception e) {
 			originalImage.add(null);
 		}
-		originalImage.add(ceterCoreList.get(unitData.get(1)));
+		originalImage.add(ceterCoreList.get(unitData.get(DefaultUnit.CORE)));
 		try {
-			originalImage.add(leftWeaponList.get(unitData.get(2)));
+			originalImage.add(leftWeaponList.get(unitData.get(DefaultUnit.LEFT_WEAPON)));
 		}catch(Exception e) {
 			originalImage.add(null);
 		}

@@ -127,4 +127,9 @@ public class DefaultUnit {
 		WEAPON_DATA_MAP.put(SWORD, new No0000JapaneseSword());
 		WEAPON_DATA_MAP.put(BOW, new No0001Bow());
 	}
+	
+	//編成の順番コード
+	public static final int RIGHT_WEAPON = 0;
+	public static final int CORE = 1;
+	public static final int LEFT_WEAPON = 2;
 }

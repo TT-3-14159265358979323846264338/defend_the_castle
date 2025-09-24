@@ -56,15 +56,15 @@ public class BattleUnit extends BattleData{
 		StatusCalculation StatusCalculation = new StatusCalculation(composition);
 		name = new DisplayStatus().getUnitName(composition);
 		try {
-			rightActionImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(0)).getRightActionImage(4);
-			bulletImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(0)).getBulletImage(4);
-			hitImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(0)).getHitImage(4);
+			rightActionImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.RIGHT_WEAPON)).getRightActionImage(4);
+			bulletImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.RIGHT_WEAPON)).getBulletImage(4);
+			hitImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.RIGHT_WEAPON)).getHitImage(4);
 		}catch(Exception e) {
 			rightActionImage = Arrays.asList(getBlankImage());
 		}
-		rightCoreImage = DefaultUnit.CORE_DATA_MAP.get(composition.get(1)).getActionImage(4);
+		rightCoreImage = DefaultUnit.CORE_DATA_MAP.get(composition.get(DefaultUnit.CORE)).getActionImage(4);
 		leftCoreImage = EditImage.mirrorImage(rightCoreImage);
-		skillImage = DefaultUnit.CORE_DATA_MAP.get(composition.get(1)).getSkillImage(4);
+		skillImage = DefaultUnit.CORE_DATA_MAP.get(composition.get(DefaultUnit.CORE)).getSkillImage(4);
 		generatedBuffInformation = StatusCalculation.getRightBuffList();
 		this.positionX = positionX;
 		this.positionY = positionY;
@@ -84,9 +84,9 @@ public class BattleUnit extends BattleData{
 		this.Battle = Battle;
 		StatusCalculation StatusCalculation = new StatusCalculation(composition);
 		try {
-			rightActionImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(2)).getLeftActionImage(4);
-			bulletImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(2)).getBulletImage(4);
-			hitImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(2)).getHitImage(4);
+			rightActionImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.LEFT_WEAPON)).getLeftActionImage(4);
+			bulletImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.LEFT_WEAPON)).getBulletImage(4);
+			hitImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.LEFT_WEAPON)).getHitImage(4);
 		}catch(Exception e) {
 			rightActionImage = Arrays.asList(getBlankImage());
 		}

@@ -93,15 +93,15 @@ public class DisplayStatus extends StatusPanel{
 	public String getUnitName(List<Integer> compositionList) {
 		String name = "";
 		try {
-			WeaponData WeaponData = DefaultUnit.WEAPON_DATA_MAP.get(compositionList.get(2));
+			WeaponData WeaponData = DefaultUnit.WEAPON_DATA_MAP.get(compositionList.get(DefaultUnit.LEFT_WEAPON));
 			name += getRarity(WeaponData.getRarity()) + WeaponData.getName() + " - ";
 		}catch(Exception ignore) {
 			//左武器を装備していないので、無視する
 		}
-		CoreData CoreData = DefaultUnit.CORE_DATA_MAP.get(compositionList.get(1));
+		CoreData CoreData = DefaultUnit.CORE_DATA_MAP.get(compositionList.get(DefaultUnit.CORE));
 		name += getRarity(CoreData.getRarity()) + CoreData.getName() + " - ";
 		try {
-			WeaponData WeaponData = DefaultUnit.WEAPON_DATA_MAP.get(compositionList.get(0));
+			WeaponData WeaponData = DefaultUnit.WEAPON_DATA_MAP.get(compositionList.get(DefaultUnit.RIGHT_WEAPON));
 			name += getRarity(WeaponData.getRarity()) + WeaponData.getName() + " - ";
 		}catch(Exception ignore) {
 			//右武器を装備していないので、無視する
@@ -140,8 +140,8 @@ public class DisplayStatus extends StatusPanel{
 		weapon[7].setText("属性");
 		weapon[8].setText("ターゲット");
 		weapon[9].setText("左武器");
-		if(0 <= compositionList.get(2)) {
-			WeaponData WeaponData = DefaultUnit.WEAPON_DATA_MAP.get(compositionList.get(2));
+		if(0 <= compositionList.get(DefaultUnit.LEFT_WEAPON)) {
+			WeaponData WeaponData = DefaultUnit.WEAPON_DATA_MAP.get(compositionList.get(DefaultUnit.LEFT_WEAPON));
 			IntStream.range(0, DefaultUnit.WEAPON_WEAPON_MAP.size()).forEach(i -> weapon[i + 10].setText("" + StatusCalculation.getLeftWeaponStatus().get(i)));
 			weapon[14].setText("" + DefaultUnit.DISTANCE_MAP.get(WeaponData.getDistance()));
 			weapon[15].setText("" + DefaultUnit.HANDLE_MAP.get(WeaponData.getHandle()));
@@ -149,8 +149,8 @@ public class DisplayStatus extends StatusPanel{
 			weapon[17].setText("" + new DefaultAtackPattern().getAtackPattern(WeaponData.getAtackPattern()).getExplanation());
 		}
 		weapon[18].setText("右武器");
-		if(0 <= compositionList.get(0)) {
-			WeaponData WeaponData = DefaultUnit.WEAPON_DATA_MAP.get(compositionList.get(0));
+		if(0 <= compositionList.get(DefaultUnit.RIGHT_WEAPON)) {
+			WeaponData WeaponData = DefaultUnit.WEAPON_DATA_MAP.get(compositionList.get(DefaultUnit.RIGHT_WEAPON));
 			IntStream.range(0, DefaultUnit.WEAPON_WEAPON_MAP.size()).forEach(i -> weapon[i + 19].setText("" + StatusCalculation.getRightWeaponStatus().get(i)));
 			weapon[23].setText("" + DefaultUnit.DISTANCE_MAP.get(WeaponData.getDistance()));
 			weapon[24].setText("" + DefaultUnit.HANDLE_MAP.get(WeaponData.getHandle()));
