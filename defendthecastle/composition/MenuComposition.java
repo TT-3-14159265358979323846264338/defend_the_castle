@@ -181,15 +181,15 @@ public class MenuComposition extends JPanel implements MouseListener{
 	private void addCompositionScroll() {
 		modelUpdate();
 		compositionScroll.getViewport().setView(compositionJList);
-    	add(compositionScroll);
-    	new DelaySelect(compositionJList, SaveData.getSelectNumber()).start();
+		add(compositionScroll);
+		new DelaySelect(compositionJList, SaveData.getSelectNumber()).start();
 	}
 	
 	private void addItemScroll() {
 		CoreImagePanel.setImagePanel(IntStream.range(0, DefaultUnit.CORE_DATA_MAP.size()).mapToObj(i -> DefaultUnit.CORE_DATA_MAP.get(i).getImage(2)).toList(), DisplayListCreation.getDisplayList(SaveData.getCoreNumberList()), SaveData.getNowCoreNumberList(), true);
 		WeaponImagePanel.setImagePanel(IntStream.range(0, DefaultUnit.WEAPON_DATA_MAP.size()).mapToObj(i -> DefaultUnit.WEAPON_DATA_MAP.get(i).getImage(2)).toList(), DisplayListCreation.getDisplayList(SaveData.getWeaponNumberList()), SaveData.getNowWeaponNumberList(), false);
 		itemScroll.getViewport().setView(CoreImagePanel);
-    	add(itemScroll);
+		add(itemScroll);
 	}
 	
 	private void setLabel(JLabel label, String name, int x, int y, int width, int height) {

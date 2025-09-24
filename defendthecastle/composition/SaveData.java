@@ -47,27 +47,27 @@ class SaveData{
 	
 	protected void countNumber() {
 		int[] core = new int[coreNumberList.size()];
-  	int[] weapon = new int[weaponNumberList.size()];
-  	getActiveCompositionList().stream().forEach(i -> {
-  		core[i.get(1)]++;
-  		try {
-  			weapon[i.get(0)]++;
-  		}catch(Exception ignore) {
+		int[] weapon = new int[weaponNumberList.size()];
+		getActiveCompositionList().stream().forEach(i -> {
+			core[i.get(1)]++;
+			try {
+				weapon[i.get(0)]++;
+			}catch(Exception ignore) {
 				//右武器を装備していないので、無視する
 			}
-  		try {
-  			weapon[i.get(2)]++;
-  		}catch(Exception ignore) {
+			try {
+				weapon[i.get(2)]++;
+			}catch(Exception ignore) {
 				//左武器を装備していないので、無視する
 			}
-  	});
-  	BiFunction<List<Integer>, int[], List<Integer>> getNowNumber = (list, count) -> {
-  		return IntStream.range(0, list.size()).mapToObj(i -> list.get(i) - count[i]).toList();
-  	};
-  	nowCoreNumberList.clear();
-  	nowCoreNumberList.addAll(getNowNumber.apply(coreNumberList, core));
-  	nowWeaponNumberList.clear();
-  	nowWeaponNumberList.addAll(getNowNumber.apply(weaponNumberList, weapon));
+		});
+		BiFunction<List<Integer>, int[], List<Integer>> getNowNumber = (list, count) -> {
+			return IntStream.range(0, list.size()).mapToObj(i -> list.get(i) - count[i]).toList();
+		};
+		nowCoreNumberList.clear();
+		nowCoreNumberList.addAll(getNowNumber.apply(coreNumberList, core));
+		nowWeaponNumberList.clear();
+		nowWeaponNumberList.addAll(getNowNumber.apply(weaponNumberList, weapon));
 	}
 	
 	protected void addNewComposition() {
