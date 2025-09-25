@@ -41,6 +41,7 @@ public class BattleEnemy extends BattleData{
 		this.Battle = Battle;
 		EnemyData EnemyData = DefaultEnemy.DATA_MAP.get(StageData.getEnemy().get(number).get(0));
 		name = EnemyData.getName();
+		explanation = EnemyData.getExplanation();
 		rightActionImage = EnemyData.getActionImage(4);
 		bulletImage = EnemyData.getBulletImage(4);
 		generatedBuffInformation = EnemyData.getBuff();

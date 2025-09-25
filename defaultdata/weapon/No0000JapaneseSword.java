@@ -13,6 +13,11 @@ public class No0000JapaneseSword extends WeaponData{
 	}
 
 	@Override
+	public String getExplanation() {
+		return "一般的な近接武器。";
+	}
+	
+	@Override
 	public String getImageName() {
 		return "image/soldier/Japanese sword.png";
 	}
@@ -76,7 +81,7 @@ public class No0000JapaneseSword extends WeaponData{
 
 	@Override
 	public List<Integer> getWeaponStatus() {
-		return Arrays.asList(100, 30, 1000, 3);
+		return Arrays.asList(100, 30, 1000, 1);
 	}
 
 	@Override

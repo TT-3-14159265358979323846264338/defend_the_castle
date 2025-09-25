@@ -10,6 +10,11 @@ public class No0004NormalHealCore extends CoreData{
 	}
 	
 	@Override
+	public String getExplanation() {
+		return "回復力が少し高い通常コア。";
+	}
+	
+	@Override
 	public String getImageName() {
 		return "image/soldier/normal heal core.png";
 	}

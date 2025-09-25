@@ -10,6 +10,11 @@ public class No0005NormalSpeedCore extends CoreData{
 	}
 	
 	@Override
+	public String getExplanation() {
+		return "攻撃速度が少し速い通常コア。";
+	}
+	
+	@Override
 	public String getImageName() {
 		return "image/soldier/normal speed core.png";
 	}

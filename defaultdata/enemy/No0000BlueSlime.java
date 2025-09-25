@@ -13,6 +13,11 @@ public class No0000BlueSlime extends EnemyData{
 	}
 
 	@Override
+	public String getExplanation() {
+		return "最も弱い敵。";
+	}
+	
+	@Override
 	public String getImageName() {
 		return "image/enemy/blue slime.png";
 	}

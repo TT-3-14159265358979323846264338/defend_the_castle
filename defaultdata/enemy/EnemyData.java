@@ -13,6 +13,14 @@ public abstract class EnemyData {
 	public abstract String getName();
 	
 	/**
+	 * 敵の説明。<br>
+	 * 所有するバフ・デバフを記載する。
+	 * @return 敵の説明を返却する。<br>
+	 * 			最大字数は全角で39字。
+	 */
+	public abstract String getExplanation();
+	
+	/**
 	 * 通常時の敵画像ファイル名。
 	 * @return 敵を単独で表示する際の画像ファイル名を返却する。
 	 */

@@ -9,7 +9,7 @@ class StstusDialog extends JDialog{
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
 		setTitle("ステータス");
-		setSize(720, 700);
+		setSize(720, 760);
 		setLocationRelativeTo(null);
 		add(StatusPanel);
 		setVisible(true);

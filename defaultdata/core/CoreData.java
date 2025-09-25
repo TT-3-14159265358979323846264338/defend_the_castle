@@ -13,6 +13,14 @@ public abstract class CoreData {
 	public abstract String getName();
 	
 	/**
+	 * コアの説明。<br>
+	 * 所有するバフ・デバフを記載する。
+	 * @return コアの説明を返却する。<br>
+	 * 			最大字数は全角で39字。
+	 */
+	public abstract String getExplanation();
+	
+	/**
 	 * 通常時のコア画像ファイル名。
 	 * @return コアを単独で表示する際の画像ファイル名を返却する。
 	 */

@@ -23,12 +23,14 @@ class StatusPanel extends JPanel{
 		return IntStream.range(0, size).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
 	};
 	protected JLabel[] name = initialize.apply(4);
+	protected JLabel[] explanation = initialize.apply(3);
 	protected JLabel[] weapon = initialize.apply(27);
 	protected JLabel[] unit = initialize.apply(12);
 	protected JLabel[] cut = initialize.apply(24);
+	protected Font defaultFont = new Font("ＭＳ ゴシック", Font.BOLD, 15);
 	private final int START_X = 20;
 	private final int START_Y = 20;
-	private final int SIZE_X = 110;
+	protected final int SIZE_X = 110;
 	private final int SIZE_Y = 30;
 	
 	protected void setStatusPanel(BufferedImage image) {
@@ -52,6 +54,7 @@ class StatusPanel extends JPanel{
 		};
 		add(imageLabel);
 		addLabel.accept(name);
+		addLabel.accept(explanation);
 		addLabel.accept(weapon);
 		addLabel.accept(unit);
 		addLabel.accept(cut);
@@ -71,7 +74,8 @@ class StatusPanel extends JPanel{
 				i.setFont(new Font(fontName, bold, fontSize));
 			});
 		};
-		setLabel.accept(name, SIZE_X * 5);
+		Stream.of(name).forEach(i -> i.setFont(defaultFont));
+		Stream.of(explanation).forEach(i -> i.setFont(defaultFont));
 		setLabel.accept(weapon, SIZE_X);
 		setLabel.accept(unit, SIZE_X);
 		setLabel.accept(cut, SIZE_X);
@@ -90,41 +94,45 @@ class StatusPanel extends JPanel{
 	private void setLabelPosition() {
 		name[0].setBounds(START_X, START_Y, SIZE_X, SIZE_Y);
 		name[1].setBounds(START_X + 20, START_Y + SIZE_Y, SIZE_X * 5, SIZE_Y);
-		name[2].setBounds(START_X + SIZE_X * 3, START_Y + SIZE_Y * 3, SIZE_X * 3, SIZE_Y);
-		name[3].setBounds(START_X, START_Y + SIZE_Y * 14, SIZE_X * 3, SIZE_Y);
-		imageLabel.setBounds(START_X, START_Y + SIZE_Y * 3, SIZE_X * 3, SIZE_Y * 10);
-		IntStream.range(0, weapon.length).forEach(i -> weapon[i].setBounds(START_X + (i / 9 + 3) * SIZE_X, START_Y + (i % 9 + 4) * SIZE_Y, SIZE_X, SIZE_Y));
-		IntStream.range(0, unit.length).forEach(i -> unit[i].setBounds(START_X + (i / 6) * SIZE_X, START_Y + (i % 6 + 15) * SIZE_Y, SIZE_X, SIZE_Y));
+		name[2].setBounds(START_X + SIZE_X * 3, START_Y + SIZE_Y * 5, SIZE_X * 3, SIZE_Y);
+		name[3].setBounds(START_X, START_Y + SIZE_Y * 16, SIZE_X * 3, SIZE_Y);
+		IntStream.range(0, explanation.length).forEach(i -> explanation[i].setBounds(START_X + SIZE_X * (4 - i * 2) + 5, START_Y + SIZE_Y * 2, SIZE_X * 2, SIZE_Y * 2));
+		imageLabel.setBounds(START_X, START_Y + SIZE_Y * 5, SIZE_X * 3, SIZE_Y * 10);
+		IntStream.range(0, weapon.length).forEach(i -> weapon[i].setBounds(START_X + (i / 9 + 3) * SIZE_X, START_Y + (i % 9 + 6) * SIZE_Y, SIZE_X, SIZE_Y));
+		IntStream.range(0, unit.length).forEach(i -> unit[i].setBounds(START_X + (i / 6) * SIZE_X, START_Y + (i % 6 + 17) * SIZE_Y, SIZE_X, SIZE_Y));
 		IntStream.range(0, cut.length / 2).forEach(i -> {
-			cut[i].setBounds(START_X + (i / 6 * 2 + 2) * SIZE_X, START_Y + (i % 6 + 15) * SIZE_Y, SIZE_X, SIZE_Y);
-			cut[i + cut.length / 2].setBounds(START_X + (i / 6 * 2 + 3) * SIZE_X, START_Y + (i % 6 + 15) * SIZE_Y, SIZE_X, SIZE_Y);
+			cut[i].setBounds(START_X + (i / 6 * 2 + 2) * SIZE_X, START_Y + (i % 6 + 17) * SIZE_Y, SIZE_X, SIZE_Y);
+			cut[i + cut.length / 2].setBounds(START_X + (i / 6 * 2 + 3) * SIZE_X, START_Y + (i % 6 + 17) * SIZE_Y, SIZE_X, SIZE_Y);
 		});
 	}
 	
 	private void drawBackground(Graphics g) {
 		g.setColor(Color.WHITE);	
-		g.fillRect(START_X, START_Y, SIZE_X * 6, SIZE_Y * 2);
-		g.fillRect(START_X, START_Y + SIZE_Y * 3, SIZE_X * 6, SIZE_Y * 10);
-		g.fillRect(START_X, START_Y + SIZE_Y * 14, SIZE_X * 6, SIZE_Y * 7);
+		g.fillRect(START_X, START_Y, SIZE_X * 6, SIZE_Y * 4);
+		g.fillRect(START_X, START_Y + SIZE_Y * 5, SIZE_X * 6, SIZE_Y * 10);
+		g.fillRect(START_X, START_Y + SIZE_Y * 16, SIZE_X * 6, SIZE_Y * 7);
 		g.setColor(Color.LIGHT_GRAY);
-		g.fillRect(START_X + SIZE_X * 3, START_Y + SIZE_Y * 4, SIZE_X * 3, SIZE_Y);
-		g.fillRect(START_X + SIZE_X * 3, START_Y + SIZE_Y * 5, SIZE_X, SIZE_Y * 8);
-		IntStream.range(0, 3).forEach(i -> g.fillRect(START_X + SIZE_X * i * 2, START_Y + SIZE_Y * 15, SIZE_X, SIZE_Y * 6));
+		g.fillRect(START_X + SIZE_X * 3, START_Y + SIZE_Y * 6, SIZE_X * 3, SIZE_Y);
+		g.fillRect(START_X + SIZE_X * 3, START_Y + SIZE_Y * 7, SIZE_X, SIZE_Y * 8);
+		IntStream.range(0, 3).forEach(i -> g.fillRect(START_X + SIZE_X * i * 2, START_Y + SIZE_Y * 17, SIZE_X, SIZE_Y * 6));
 		g.setColor(Color.YELLOW);
-		g.fillRect(START_X + SIZE_X * 4, START_Y + SIZE_Y * 5, SIZE_X * 2, SIZE_Y * 8);
-		IntStream.range(0, 3).forEach(i -> g.fillRect(START_X + SIZE_X * (i * 2 + 1), START_Y + SIZE_Y * 15, SIZE_X, SIZE_Y * 6));
+		g.fillRect(START_X + SIZE_X * 4, START_Y + SIZE_Y * 7, SIZE_X * 2, SIZE_Y * 8);
+		IntStream.range(0, 3).forEach(i -> g.fillRect(START_X + SIZE_X * (i * 2 + 1), START_Y + SIZE_Y * 17, SIZE_X, SIZE_Y * 6));
 		g.setColor(Color.BLACK);
 		Graphics2D g2 = (Graphics2D)g;
 		g2.setStroke(new BasicStroke(2));
-		g.drawRect(START_X, START_Y, SIZE_X * 6, SIZE_Y * 2);
-		g.drawRect(START_X, START_Y + SIZE_Y * 3, SIZE_X * 3, SIZE_Y * 10);
-		g.drawRect(START_X + SIZE_X * 3, START_Y + SIZE_Y * 3, SIZE_X * 3, SIZE_Y * 10);
-		g.drawRect(START_X, START_Y + SIZE_Y * 14, SIZE_X * 6, SIZE_Y * 7);
+		g.drawRect(START_X, START_Y, SIZE_X * 6, SIZE_Y * 4);
+		g.drawRect(START_X, START_Y + SIZE_Y * 5, SIZE_X * 3, SIZE_Y * 10);
+		g.drawRect(START_X + SIZE_X * 3, START_Y + SIZE_Y * 5, SIZE_X * 3, SIZE_Y * 10);
+		g.drawRect(START_X, START_Y + SIZE_Y * 16, SIZE_X * 6, SIZE_Y * 7);
 		g2.setStroke(new BasicStroke(1));
-		g.drawLine(START_X + SIZE_X * 3, START_Y + SIZE_Y * 4, START_X + SIZE_X * 4, START_Y + SIZE_Y * 5);
-		IntStream.range(0, 9).forEach(i -> g.drawLine(START_X + SIZE_X * 3, START_Y + SIZE_Y * (4 + i), START_X + SIZE_X * 6, START_Y + SIZE_Y * (4 + i)));
-		IntStream.range(0, 2).forEach(i -> g.drawLine(START_X + SIZE_X * (4 + i), START_Y + SIZE_Y * 4, START_X + SIZE_X * (4 + i), START_Y + SIZE_Y * 13));
-		IntStream.range(0, 6).forEach(i -> g.drawLine(START_X, START_Y + SIZE_Y * (15 + i), START_X + SIZE_X * 6, START_Y + SIZE_Y * (15 + i)));
-		IntStream.range(0, 5).forEach(i -> g.drawLine(START_X + SIZE_X * (1 + i), START_Y + SIZE_Y * 15, START_X + SIZE_X * (1 + i), START_Y + SIZE_Y * 21));
+		if(!explanation[1].getText().equals("")) {
+			IntStream.range(1, explanation.length).forEach(i -> g.drawLine(START_X + SIZE_X * 2 * i, START_Y + SIZE_Y * 2, START_X + SIZE_X * 2 * i, START_Y + SIZE_Y * 4));
+		}
+		g.drawLine(START_X + SIZE_X * 3, START_Y + SIZE_Y * 7, START_X + SIZE_X * 4, START_Y + SIZE_Y * 6);
+		IntStream.range(0, 9).forEach(i -> g.drawLine(START_X + SIZE_X * 3, START_Y + SIZE_Y * (6 + i), START_X + SIZE_X * 6, START_Y + SIZE_Y * (6 + i)));
+		IntStream.range(0, 2).forEach(i -> g.drawLine(START_X + SIZE_X * (4 + i), START_Y + SIZE_Y * 6, START_X + SIZE_X * (4 + i), START_Y + SIZE_Y * 15));
+		IntStream.range(0, 6).forEach(i -> g.drawLine(START_X, START_Y + SIZE_Y * (17 + i), START_X + SIZE_X * 6, START_Y + SIZE_Y * (17 + i)));
+		IntStream.range(0, 5).forEach(i -> g.drawLine(START_X + SIZE_X * (1 + i), START_Y + SIZE_Y * 17, START_X + SIZE_X * (1 + i), START_Y + SIZE_Y * 23));
 	}
 }

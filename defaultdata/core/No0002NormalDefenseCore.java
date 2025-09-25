@@ -10,6 +10,11 @@ public class No0002NormalDefenseCore extends CoreData{
 	}
 	
 	@Override
+	public String getExplanation() {
+		return "防御力が少し高い通常コア。";
+	}
+	
+	@Override
 	public String getImageName() {
 		return "image/soldier/normal defense core.png";
 	}

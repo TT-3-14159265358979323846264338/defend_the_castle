@@ -12,6 +12,11 @@ public class No0000Castle extends FacilityData{
 	}
 
 	@Override
+	public String getExplanation() {
+		return "味方の防衛拠点。基本的に本丸を取られると敗北となる。";
+	}
+	
+	@Override
 	public List<String> getActionFrontImageName() {
 		return Arrays.asList("image/field/castle.png");
 	}

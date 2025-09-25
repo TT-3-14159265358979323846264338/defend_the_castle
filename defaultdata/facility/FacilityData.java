@@ -13,6 +13,14 @@ public abstract class FacilityData {
 	public abstract String getName();
 	
 	/**
+	 * 設備の説明。<br>
+	 * 所有するバフ・デバフを記載する。
+	 * @return 設備の説明を返却する。<br>
+	 * 			最大字数は全角で39字。
+	 */
+	public abstract String getExplanation();
+	
+	/**
 	 * 攻撃時の設備画像ファイル名(正面ver)。
 	 * @return 正面からの設備画像ファイル名を返却する。Listの1つ目は待機時の画像ファイル名。それ以外は攻撃時のモーション画像ファイル名を登録する。
 	 * 			攻撃しない設備の場合、Listには1つ目のみ登録する。

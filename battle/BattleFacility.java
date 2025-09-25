@@ -19,6 +19,7 @@ public class BattleFacility extends BattleData{
 		this.Battle = Battle;
 		FacilityData FacilityData = DefaultStage.FACILITY_DATA_MAP.get(StageData.getFacility().get(number));
 		name = FacilityData.getName();
+		explanation = FacilityData.getExplanation();
 		rightActionImage = StageData.getFacilityDirection().get(number)? FacilityData.getActionFrontImage(4): FacilityData.getActionSideImage(4);
 		bulletImage = FacilityData.getBulletImage(4);
 		hitImage = FacilityData.getHitImage(4);

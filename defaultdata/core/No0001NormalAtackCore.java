@@ -10,6 +10,11 @@ public class No0001NormalAtackCore extends CoreData{
 	}
 	
 	@Override
+	public String getExplanation() {
+		return "攻撃力が少し高い通常コア。";
+	}
+	
+	@Override
 	public String getImageName() {
 		return "image/soldier/normal atack core.png";
 	}

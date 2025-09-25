@@ -1,7 +1,9 @@
 package screendisplay;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -23,6 +25,7 @@ public class DisplayStatus extends StatusPanel{
 	public void core(BufferedImage image, int number) {
 		CoreData CoreData = DefaultUnit.CORE_DATA_MAP.get(number);
 		setLabelName(getRarity(CoreData.getRarity()) + CoreData.getName());
+		setExplanation(explanationComment(CoreData.getExplanation()));
 		setWeapon(CoreData.getWeaponStatus());
 		setUnit(CoreData.getUnitStatus(), "倍");
 		setCut(CoreData.getCutStatus());
@@ -32,6 +35,7 @@ public class DisplayStatus extends StatusPanel{
 	public void weapon(BufferedImage image, int number) {
 		WeaponData WeaponData = DefaultUnit.WEAPON_DATA_MAP.get(number);
 		setLabelName(getRarity(WeaponData.getRarity()) + WeaponData.getName());
+		setExplanation(explanationComment(WeaponData.getExplanation()));
 		setWeapon(WeaponData);
 		setUnit(WeaponData.getUnitStatus(), DefaultUnit.WEAPON_UNIT_MAP);
 		setCut(WeaponData.getCutStatus());
@@ -41,6 +45,7 @@ public class DisplayStatus extends StatusPanel{
 	public void unit(BufferedImage image, List<Integer> compositionList) {
 		StatusCalculation StatusCalculation = new StatusCalculation(compositionList);
 		setLabelName(getUnitName(compositionList));
+		setExplanation(compositionList);
 		setWeapon(StatusCalculation, compositionList);
 		setUnit(StatusCalculation.getUnitStatus(), DefaultUnit.WEAPON_UNIT_MAP);
 		setCut(StatusCalculation.getCutStatus());
@@ -49,6 +54,7 @@ public class DisplayStatus extends StatusPanel{
 	
 	public void enemy(EnemyData EnemyData) {
 		setLabelName(EnemyData.getName());
+		setExplanation(explanationComment(EnemyData.getExplanation()));
 		setWeapon(EnemyData);
 		setUnit(EnemyData.getUnitStatus(), DefaultEnemy.UNIT_MAP);
 		setCut(EnemyData.getCutStatus());
@@ -56,7 +62,8 @@ public class DisplayStatus extends StatusPanel{
 	}
 	
 	public void unit(BattleUnit unitMainData, BattleUnit unitLeftData) {
-		setLabelName(unitMainData.getName());
+		setLabelName(getUnitName(unitMainData.getComposition()));
+		setExplanation(unitMainData.getComposition());
 		setWeapon(unitMainData, unitLeftData);
 		setUnit(unitMainData, DefaultUnit.WEAPON_UNIT_MAP);
 		setCut(unitMainData.getCut());
@@ -65,6 +72,7 @@ public class DisplayStatus extends StatusPanel{
 	
 	public void facility(BattleFacility facilityData) {
 		setLabelName(facilityData.getName());
+		setExplanation(explanationComment(facilityData.getExplanation()));
 		setWeapon(facilityData);
 		setUnit(facilityData, DefaultUnit.WEAPON_UNIT_MAP);
 		setCut(facilityData.getCut());
@@ -73,6 +81,7 @@ public class DisplayStatus extends StatusPanel{
 	
 	public void enemy(BattleEnemy enemyData) {
 		setLabelName(enemyData.getName());
+		setExplanation(explanationComment(enemyData.getExplanation()));
 		setWeapon(enemyData);
 		setUnit(enemyData, DefaultEnemy.UNIT_MAP);
 		setCut(enemyData.getCut());
@@ -80,7 +89,7 @@ public class DisplayStatus extends StatusPanel{
 	}
 	
 	private void setLabelName(String unitName) {
-		name[0].setText("【名称】");
+		name[0].setText("【名称/説明】");
 		name[1].setText(unitName);
 		name[2].setText("【武器ステータス】");
 		name[3].setText("【ユニットステータス】");
@@ -90,7 +99,7 @@ public class DisplayStatus extends StatusPanel{
 		return "★" + rarity + " ";
 	}
 	
-	public String getUnitName(List<Integer> compositionList) {
+	private String getUnitName(List<Integer> compositionList) {
 		String name = "";
 		try {
 			WeaponData WeaponData = DefaultUnit.WEAPON_DATA_MAP.get(compositionList.get(DefaultUnit.LEFT_WEAPON));
@@ -107,6 +116,43 @@ public class DisplayStatus extends StatusPanel{
 			//右武器を装備していないので、無視する
 		}
 		return name.substring(0, name.length() - 3);
+	}
+	
+	private void setExplanation(String comment) {
+		explanation[2].setText(comment);
+		explanation[1].setText("");
+		explanation[0].setText("");
+	}
+	
+	private void setExplanation(List<Integer> composition) {
+		try {
+			explanation[2].setText(explanationComment(DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.LEFT_WEAPON)).getExplanation()));
+		}catch(Exception ignore) {
+			//左武器を装備していないので、無視する
+		}
+		explanation[1].setText(explanationComment(DefaultUnit.CORE_DATA_MAP.get(composition.get(DefaultUnit.CORE)).getExplanation()));
+		try {
+			explanation[0].setText(explanationComment(DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.RIGHT_WEAPON)).getExplanation()));
+		}catch(Exception ignore) {
+			//右武器を装備していないので、無視する
+		}
+	}
+	
+	private String explanationComment(String comment) {
+		int lastPosition = 0;
+		List<Integer> wrapPosition = new ArrayList<>();
+		for(int i = 0; i < comment.length(); i++) {
+			if(SIZE_X * 2- 10 < getFontMetrics(defaultFont).stringWidth(comment.substring(lastPosition, i))) {
+				wrapPosition.add(i - 1);
+				lastPosition = i - 1;
+			}
+		}
+		if(wrapPosition.isEmpty()) {
+			return comment;
+		}
+		StringBuilder wrapComment = new StringBuilder(comment);
+		wrapPosition.stream().sorted(Comparator.reverseOrder()).forEach(i -> wrapComment.insert(i, "<br>"));
+		return wrapComment.insert(0, "<html>").toString();
 	}
 	
 	private void setWeapon(List<Double> statusList) {

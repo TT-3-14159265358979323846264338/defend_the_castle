@@ -10,6 +10,11 @@ public class No0000NormalCore extends CoreData{
 	public String getName() {
 		return "ノーマルコア";
 	}
+
+	@Override
+	public String getExplanation() {
+		return "初期コア。ゲーム開始時に8体獲得可能。リサイクル不可。";
+	}
 	
 	@Override
 	public String getImageName() {

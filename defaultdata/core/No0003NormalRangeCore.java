@@ -10,6 +10,11 @@ public class No0003NormalRangeCore extends CoreData{
 	}
 	
 	@Override
+	public String getExplanation() {
+		return "射程が少し長い通常コア。";
+	}
+	
+	@Override
 	public String getImageName() {
 		return "image/soldier/normal range core.png";
 	}

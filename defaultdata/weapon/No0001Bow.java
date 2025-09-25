@@ -13,6 +13,11 @@ public class No0001Bow extends WeaponData{
 	}
 
 	@Override
+	public String getExplanation() {
+		return "一般的な遠距離武器。";
+	}
+	
+	@Override
 	public String getImageName() {
 		return "image/soldier/bow.png";
 	}

@@ -16,12 +16,12 @@ import java.util.stream.Stream;
 import defaultdata.DefaultAtackPattern;
 import defaultdata.DefaultUnit;
 import defaultdata.EditImage;
-import screendisplay.DisplayStatus;
 import screendisplay.StatusCalculation;
 
 //ユニットのバトル情報
 public class BattleUnit extends BattleData{
 	//基礎データ
+	private List<Integer> composition;
 	private BattleUnit otherWeapon;
 	private BufferedImage rightCoreImage;
 	private BufferedImage leftCoreImage;
@@ -54,7 +54,6 @@ public class BattleUnit extends BattleData{
 	protected BattleUnit(Battle Battle, List<Integer> composition, int positionX, int positionY) {
 		this.Battle = Battle;
 		StatusCalculation StatusCalculation = new StatusCalculation(composition);
-		name = new DisplayStatus().getUnitName(composition);
 		try {
 			rightActionImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.RIGHT_WEAPON)).getRightActionImage(4);
 			bulletImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.RIGHT_WEAPON)).getBulletImage(4);
@@ -62,6 +61,7 @@ public class BattleUnit extends BattleData{
 		}catch(Exception e) {
 			rightActionImage = Arrays.asList(getBlankImage());
 		}
+		this.composition = composition;
 		rightCoreImage = DefaultUnit.CORE_DATA_MAP.get(composition.get(DefaultUnit.CORE)).getActionImage(4);
 		leftCoreImage = EditImage.mirrorImage(rightCoreImage);
 		skillImage = DefaultUnit.CORE_DATA_MAP.get(composition.get(DefaultUnit.CORE)).getSkillImage(4);
@@ -115,6 +115,10 @@ public class BattleUnit extends BattleData{
 		}else {
 			AtackPattern.install(this, this.enemyData);
 		}
+	}
+	
+	public List<Integer> getComposition(){
+		return composition;
 	}
 	
 	private BufferedImage getBlankImage() {

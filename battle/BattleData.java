@@ -41,6 +41,7 @@ public class BattleData{
 	
 	//ステータス関連
 	protected String name;
+	protected String explanation;
 	protected boolean canActivate;
 	protected int nowHP;
 	protected double positionX;
@@ -362,6 +363,10 @@ public class BattleData{
 	//ステータス計算
 	public String getName() {
 		return name;
+	}
+	
+	public String getExplanation() {
+		return explanation;
 	}
 	
 	public int getPositionX() {

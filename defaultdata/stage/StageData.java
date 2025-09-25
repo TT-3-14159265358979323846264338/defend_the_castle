@@ -17,7 +17,8 @@ import savedata.SaveGameProgress;
 public abstract class StageData {
 	/**
 	 * ステージの名称。
-	 * @return ステージの名称を返却する。
+	 * @return ステージの名称を返却する。<br>
+	 * 			最大字数は半角12字。
 	 */
 	public abstract String getName();
 	
@@ -78,7 +79,10 @@ public abstract class StageData {
 	
 	/**
 	 * 戦功内容。
-	 * @return 全ての戦功内容を返却する。内容の記載は、内容+難易度で入力。実際の表示では"("で改行が入るため"("の前のスペース禁止。
+	 * @return 全ての戦功内容を返却する。<br>
+	 * 			内容の記載は、内容+難易度で入力。
+	 * 			実際の表示では"("で改行が入るため"("の前のスペース禁止。
+	 * 			最大字数は全角で76字とし、最大で4行に改行して表示可能。
 	 */
 	public abstract List<String> getMerit();
 	
@@ -98,7 +102,8 @@ public abstract class StageData {
 	
 	/**
 	 * 各戦功で獲得可能な報酬。
-	 * @return 全ての報酬内容を返却する。
+	 * @return 全ての報酬内容を返却する。<br>
+	 * 			最大字数は全角6字。
 	 */
 	public abstract List<String> getReward();
 	
