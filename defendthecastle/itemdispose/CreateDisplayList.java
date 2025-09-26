@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import defaultdata.DefaultUnit;
 import screendisplay.DisplaySort;
 
 //表示リスト作成
@@ -21,7 +22,7 @@ class CreateDisplayList{
 	protected List<Integer> getInitialCoreDisplayList(){
 		List<Integer> displayList = getDisplayList(OperateData.getCoreNumberList());
 		//初期コアはリサイクル禁止
-		displayList.remove(0);
+		displayList.remove(DefaultUnit.NORMAL_CORE);
 		return displayList;
 	}
 	

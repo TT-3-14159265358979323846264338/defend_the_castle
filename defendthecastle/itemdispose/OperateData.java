@@ -5,6 +5,7 @@ import static javax.swing.JOptionPane.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
@@ -53,6 +54,9 @@ class OperateData{
 				}
 			});
 		};
+		Function<Integer, Integer> initialWeaponProtection = (number) -> {
+			return (2 <= number)? number: 2;
+		};
 		int[] coreMax = new int[coreNumberList.size()];
 		int[] weaponMax = new int[weaponNumberList.size()];
 		IntStream.range(0, allCompositionList.size()).forEach(i -> {
@@ -76,9 +80,9 @@ class OperateData{
 		});
 		usedCoreNumber = coreMax;
 		usedWeaponNumber = weaponMax;
-		//初期武器は2本以外リサイクル禁止
-		usedWeaponNumber[0] += 2;
-		usedWeaponNumber[1] += 2;
+		//初期武器は最低2本残さなければならない
+		usedWeaponNumber[DefaultUnit.SWORD] = initialWeaponProtection.apply(usedWeaponNumber[DefaultUnit.SWORD]);
+		usedWeaponNumber[DefaultUnit.BOW] = initialWeaponProtection.apply(usedWeaponNumber[DefaultUnit.BOW]);
 	}
 	
 	protected void recycle(ItemImagePanel ImagePanel, List<Integer> numberList, int[] usedNumber, List<BufferedImage> imageList, List<Integer> rarityList) {
