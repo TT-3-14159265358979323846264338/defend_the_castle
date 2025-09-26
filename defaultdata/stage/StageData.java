@@ -18,7 +18,7 @@ public abstract class StageData {
 	/**
 	 * ステージの名称。
 	 * @return ステージの名称を返却する。<br>
-	 * 			最大字数は半角12字。
+	 * 			半角英数字のみ使用可能。最大字数は半角12字。
 	 */
 	public abstract String getName();
 	

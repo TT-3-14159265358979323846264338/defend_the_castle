@@ -14,7 +14,7 @@ public class No0000BlueSlime extends EnemyData{
 
 	@Override
 	public String getExplanation() {
-		return "最も弱い敵。";
+		return "最も弱い敵。特出すべき能力はない。";
 	}
 	
 	@Override

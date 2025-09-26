@@ -8,7 +8,8 @@ import defaultdata.EditImage;
 public abstract class EnemyData {
 	/**
 	 * 敵の名称。
-	 * @return 敵の名称を返却する。
+	 * @return 敵の名称を返却する。<br>
+	 * 			最大字数は全角で14字。
 	 */
 	public abstract String getName();
 	

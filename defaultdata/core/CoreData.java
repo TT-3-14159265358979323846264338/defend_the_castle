@@ -8,7 +8,8 @@ import defaultdata.EditImage;
 public abstract class CoreData {
 	/**
 	 * コアの名称。
-	 * @return コアの名称を返却する。
+	 * @return コアの名称を返却する。<br>
+	 * 			最大字数は全角で11字。
 	 */
 	public abstract String getName();
 	

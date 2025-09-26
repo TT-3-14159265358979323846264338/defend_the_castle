@@ -8,7 +8,8 @@ import defaultdata.EditImage;
 public abstract class WeaponData {
 	/**
 	 * 武器の名称。
-	 * @return 武器の名称を返却する。
+	 * @return 武器の名称を返却する。<br>
+	 * 			最大字数は全角で11字。
 	 */
 	public abstract String getName();
 	

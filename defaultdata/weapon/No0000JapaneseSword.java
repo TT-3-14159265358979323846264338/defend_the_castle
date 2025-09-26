@@ -14,7 +14,7 @@ public class No0000JapaneseSword extends WeaponData{
 
 	@Override
 	public String getExplanation() {
-		return "一般的な近接武器。";
+		return "一般的な近接武器。1体をブロックし、攻撃できる。";
 	}
 	
 	@Override
