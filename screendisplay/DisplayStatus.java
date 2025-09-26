@@ -6,7 +6,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
+
+import javax.swing.JLabel;
 
 import battle.BattleData;
 import battle.BattleEnemy;
@@ -24,7 +27,8 @@ import defaultdata.weapon.WeaponData;
 public class DisplayStatus extends StatusPanel{
 	public void core(BufferedImage image, int number) {
 		CoreData CoreData = DefaultUnit.CORE_DATA_MAP.get(number);
-		setLabelName(getRarity(CoreData.getRarity()) + CoreData.getName());
+		setItem();
+		setUnitName(getRarity(CoreData.getRarity()) + CoreData.getName());
 		setExplanation(explanationComment(CoreData.getExplanation()));
 		setWeapon(CoreData.getWeaponStatus());
 		setUnit(CoreData.getUnitStatus(), "倍");
@@ -34,7 +38,8 @@ public class DisplayStatus extends StatusPanel{
 	
 	public void weapon(BufferedImage image, int number) {
 		WeaponData WeaponData = DefaultUnit.WEAPON_DATA_MAP.get(number);
-		setLabelName(getRarity(WeaponData.getRarity()) + WeaponData.getName());
+		setItem();
+		setUnitName(getRarity(WeaponData.getRarity()) + WeaponData.getName());
 		setExplanation(explanationComment(WeaponData.getExplanation()));
 		setWeapon(WeaponData);
 		setUnit(WeaponData.getUnitStatus(), DefaultUnit.WEAPON_UNIT_MAP);
@@ -44,7 +49,8 @@ public class DisplayStatus extends StatusPanel{
 	
 	public void unit(BufferedImage image, List<Integer> compositionList) {
 		StatusCalculation StatusCalculation = new StatusCalculation(compositionList);
-		setLabelName(getUnitName(compositionList));
+		setItem();
+		setUnitName(compositionList);
 		setExplanation(compositionList);
 		setWeapon(StatusCalculation, compositionList);
 		setUnit(StatusCalculation.getUnitStatus(), DefaultUnit.WEAPON_UNIT_MAP);
@@ -53,7 +59,8 @@ public class DisplayStatus extends StatusPanel{
 	}
 	
 	public void enemy(EnemyData EnemyData) {
-		setLabelName(EnemyData.getName());
+		setItem();
+		setUnitName(EnemyData.getName());
 		setExplanation(explanationComment(EnemyData.getExplanation()));
 		setWeapon(EnemyData);
 		setUnit(EnemyData.getUnitStatus(), DefaultEnemy.UNIT_MAP);
@@ -62,7 +69,8 @@ public class DisplayStatus extends StatusPanel{
 	}
 	
 	public void unit(BattleUnit unitMainData, BattleUnit unitLeftData) {
-		setLabelName(getUnitName(unitMainData.getComposition()));
+		setItem();
+		setUnitName(unitMainData.getComposition());
 		setExplanation(unitMainData.getComposition());
 		setWeapon(unitMainData, unitLeftData);
 		setUnit(unitMainData, DefaultUnit.WEAPON_UNIT_MAP);
@@ -71,7 +79,8 @@ public class DisplayStatus extends StatusPanel{
 	}
 	
 	public void facility(BattleFacility facilityData) {
-		setLabelName(facilityData.getName());
+		setItem();
+		setUnitName(facilityData.getName());
 		setExplanation(explanationComment(facilityData.getExplanation()));
 		setWeapon(facilityData);
 		setUnit(facilityData, DefaultUnit.WEAPON_UNIT_MAP);
@@ -80,7 +89,8 @@ public class DisplayStatus extends StatusPanel{
 	}
 	
 	public void enemy(BattleEnemy enemyData) {
-		setLabelName(enemyData.getName());
+		setItem();
+		setUnitName(enemyData.getName());
 		setExplanation(explanationComment(enemyData.getExplanation()));
 		setWeapon(enemyData);
 		setUnit(enemyData, DefaultEnemy.UNIT_MAP);
@@ -88,53 +98,57 @@ public class DisplayStatus extends StatusPanel{
 		super.setStatusPanel(enemyData.getDefaultImage());
 	}
 	
-	private void setLabelName(String unitName) {
-		name[0].setText("【名称/説明】");
-		name[1].setText(unitName);
-		name[2].setText("【武器ステータス】");
-		name[3].setText("【ユニットステータス】");
+	private void setItem() {
+		item[0].setText("【名称/説明】");
+		item[1].setText("【武器ステータス】");
+		item[2].setText("【ユニットステータス】");
+	}
+	
+	private void setUnitName(String name) {
+		unitName[2].setText(name);
+	}
+	
+	private void setUnitName(List<Integer> composition) {
+		Consumer<JLabel> noWeapon = (label) -> {
+			label.setText("no weapon");
+		};
+		try {
+			WeaponData rightWeapon = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.RIGHT_WEAPON));
+			unitName[0].setText(getRarity(rightWeapon.getRarity()) + explanationComment(rightWeapon.getName()));
+		}catch(Exception e) {
+			noWeapon.accept(unitName[0]);
+		}
+		CoreData CoreData = DefaultUnit.CORE_DATA_MAP.get(composition.get(DefaultUnit.CORE));
+		unitName[1].setText(getRarity(CoreData.getRarity()) + explanationComment(CoreData.getName()));
+		try {
+			WeaponData leftWeapon = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.LEFT_WEAPON));
+			unitName[2].setText(getRarity(leftWeapon.getRarity()) + explanationComment(leftWeapon.getName()));
+		}catch(Exception e) {
+			noWeapon.accept(unitName[2]);
+		}
 	}
 	
 	private String getRarity(int rarity) {
 		return "★" + rarity + " ";
 	}
 	
-	private String getUnitName(List<Integer> compositionList) {
-		String name = "";
-		try {
-			WeaponData WeaponData = DefaultUnit.WEAPON_DATA_MAP.get(compositionList.get(DefaultUnit.LEFT_WEAPON));
-			name += getRarity(WeaponData.getRarity()) + WeaponData.getName() + " - ";
-		}catch(Exception ignore) {
-			//左武器を装備していないので、無視する
-		}
-		CoreData CoreData = DefaultUnit.CORE_DATA_MAP.get(compositionList.get(DefaultUnit.CORE));
-		name += getRarity(CoreData.getRarity()) + CoreData.getName() + " - ";
-		try {
-			WeaponData WeaponData = DefaultUnit.WEAPON_DATA_MAP.get(compositionList.get(DefaultUnit.RIGHT_WEAPON));
-			name += getRarity(WeaponData.getRarity()) + WeaponData.getName() + " - ";
-		}catch(Exception ignore) {
-			//右武器を装備していないので、無視する
-		}
-		return name.substring(0, name.length() - 3);
-	}
-	
 	private void setExplanation(String comment) {
-		explanation[2].setText(comment);
-		explanation[1].setText("");
 		explanation[0].setText("");
+		explanation[1].setText("");
+		explanation[2].setText(comment);
 	}
 	
 	private void setExplanation(List<Integer> composition) {
 		try {
-			explanation[2].setText(explanationComment(DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.LEFT_WEAPON)).getExplanation()));
-		}catch(Exception ignore) {
-			//左武器を装備していないので、無視する
-		}
-		explanation[1].setText(explanationComment(DefaultUnit.CORE_DATA_MAP.get(composition.get(DefaultUnit.CORE)).getExplanation()));
-		try {
 			explanation[0].setText(explanationComment(DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.RIGHT_WEAPON)).getExplanation()));
 		}catch(Exception ignore) {
 			//右武器を装備していないので、無視する
+		}
+		explanation[1].setText(explanationComment(DefaultUnit.CORE_DATA_MAP.get(composition.get(DefaultUnit.CORE)).getExplanation()));
+		try {
+			explanation[2].setText(explanationComment(DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.LEFT_WEAPON)).getExplanation()));
+		}catch(Exception ignore) {
+			//左武器を装備していないので、無視する
 		}
 	}
 	

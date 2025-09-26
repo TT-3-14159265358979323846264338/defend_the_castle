@@ -22,7 +22,8 @@ class StatusPanel extends JPanel{
 	private Function<Integer, JLabel[]> initialize = (size) -> {
 		return IntStream.range(0, size).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
 	};
-	protected JLabel[] name = initialize.apply(4);
+	protected JLabel[] item = initialize.apply(3);
+	protected JLabel[] unitName = initialize.apply(3);
 	protected JLabel[] explanation = initialize.apply(3);
 	protected JLabel[] weapon = initialize.apply(27);
 	protected JLabel[] unit = initialize.apply(12);
@@ -53,7 +54,8 @@ class StatusPanel extends JPanel{
 			Stream.of(label).forEach(i -> add(i));
 		};
 		add(imageLabel);
-		addLabel.accept(name);
+		addLabel.accept(item);
+		addLabel.accept(unitName);
 		addLabel.accept(explanation);
 		addLabel.accept(weapon);
 		addLabel.accept(unit);
@@ -74,7 +76,8 @@ class StatusPanel extends JPanel{
 				i.setFont(new Font(fontName, bold, fontSize));
 			});
 		};
-		Stream.of(name).forEach(i -> i.setFont(defaultFont));
+		Stream.of(item).forEach(i -> i.setFont(defaultFont));
+		Stream.of(unitName).forEach(i -> i.setFont(defaultFont));
 		Stream.of(explanation).forEach(i -> i.setFont(defaultFont));
 		setLabel.accept(weapon, SIZE_X);
 		setLabel.accept(unit, SIZE_X);
@@ -86,16 +89,17 @@ class StatusPanel extends JPanel{
 			Stream.of(label).forEach(i -> i.setHorizontalAlignment(JLabel.CENTER));
 		};
 		imageLabel.setHorizontalAlignment(JLabel.CENTER);
+		setLabel.accept(unitName);
 		setLabel.accept(weapon);
 		setLabel.accept(unit);
 		setLabel.accept(cut);
 	}
 	
 	private void setLabelPosition() {
-		name[0].setBounds(START_X, START_Y, SIZE_X, SIZE_Y);
-		name[1].setBounds(START_X + 20, START_Y + SIZE_Y, SIZE_X * 5, SIZE_Y);
-		name[2].setBounds(START_X + SIZE_X * 3, START_Y + SIZE_Y * 5, SIZE_X * 3, SIZE_Y);
-		name[3].setBounds(START_X, START_Y + SIZE_Y * 16, SIZE_X * 3, SIZE_Y);
+		item[0].setBounds(START_X, START_Y, SIZE_X, SIZE_Y);
+		item[1].setBounds(START_X + SIZE_X * 3, START_Y + SIZE_Y * 5, SIZE_X * 3, SIZE_Y);
+		item[2].setBounds(START_X, START_Y + SIZE_Y * 16, SIZE_X * 3, SIZE_Y);
+		IntStream.range(0, unitName.length).forEach(i -> unitName[i].setBounds(START_X + SIZE_X * (4 - i * 2), START_Y + SIZE_Y, SIZE_X * 2, SIZE_Y));
 		IntStream.range(0, explanation.length).forEach(i -> explanation[i].setBounds(START_X + SIZE_X * (4 - i * 2) + 5, START_Y + SIZE_Y * 2, SIZE_X * 2, SIZE_Y * 2));
 		imageLabel.setBounds(START_X, START_Y + SIZE_Y * 5, SIZE_X * 3, SIZE_Y * 10);
 		IntStream.range(0, weapon.length).forEach(i -> weapon[i].setBounds(START_X + (i / 9 + 3) * SIZE_X, START_Y + (i % 9 + 6) * SIZE_Y, SIZE_X, SIZE_Y));
