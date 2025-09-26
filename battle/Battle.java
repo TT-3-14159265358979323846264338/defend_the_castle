@@ -600,13 +600,13 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	//ゲーム状態監視
 	private void clearTimer(MainFrame MainFrame, double difficultyCorrection) {
 		clearScheduler.scheduleWithFixedDelay(() -> {
-			if(Stream.of(EnemyData).noneMatch(i -> 0 < i.getNowHP())) {
+			if(StageData.canClear(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData)) {
 				gameEnd();
 				new PauseDialog(StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
 				MainFrame.selectStageDraw();
 				return;
 			}
-			if(FacilityData[0].getNowHP() <= 0) {
+			if(StageData.existsGameOver(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData)) {
 				gameEnd();
 				new PauseDialog();
 				MainFrame.selectStageDraw();
