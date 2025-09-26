@@ -80,7 +80,7 @@ public abstract class StageData {
 	/**
 	 * ゲームクリア条件。
 	 * @return ゲームクリア条件を返却する。<br>
-	 * 			最大字数は全角25字。
+	 * 			最大字数は全角30字。
 	 */
 	public abstract String getClearCondition();
 	
@@ -99,7 +99,7 @@ public abstract class StageData {
 	/**
 	 * ゲームオーバー条件。
 	 * @return ゲームオーバー条件を返却する。<br>
-	 * 			最大字数は全角25字。
+	 * 			最大字数は全角30字。
 	 */
 	public abstract String getGameOverCondition();
 	
