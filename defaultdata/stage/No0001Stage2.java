@@ -94,6 +94,26 @@ public class No0001Stage2 extends StageData {
 	}
 
 	@Override
+	public String getClearCondition() {
+		return "全ての敵を撃破する";
+	}
+
+	@Override
+	public boolean canClear(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData) {
+		return canAllDefeat(EnemyData);
+	}
+
+	@Override
+	public String getGameOverCondition() {
+		return "本丸を制圧される";
+	}
+
+	@Override
+	public boolean existsGameOver(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData) {
+		return canAllBreak(FacilityData[0]);
+	}
+
+	@Override
 	public List<String> getMerit() {
 		return Arrays.asList("ステージをクリアする(normal)",
 				"ユニットが一度も倒されずクリアする(normal)",

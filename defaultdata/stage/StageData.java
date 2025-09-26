@@ -78,6 +78,44 @@ public abstract class StageData {
 	public abstract List<Integer> getMorale();
 	
 	/**
+	 * ゲームクリア条件。
+	 * @return ゲームクリア条件を返却する。<br>
+	 * 			最大字数は全角25字。
+	 */
+	public abstract String getClearCondition();
+	
+	/**
+	 * ゲームクリア判定を行う。
+	 * @param UnitMainData - 現在のユニットデータ。{@link battle.BattleUnit BattleUnit}
+	 * @param UnitLeftData - 現在のユニットデータ。{@link battle.BattleUnit BattleUnit}
+	 * @param FacilityData - 現在の設備データ。{@link battle.BattleFacility BattleFacility}
+	 * @param EnemyData - 現在の敵データ。{@link battle.BattleEnemy BattleEnemy}
+	 * @param GameData - 現在のゲームデータ。{@link battle.GameData GameData}
+	 * @return ゲームクリアであるならばtrueを返却する。<br>
+	 * 			達成判定は{@link StageData}の下部で定義したメソッドを使用する。
+	 */
+	public abstract boolean canClear(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData);
+	
+	/**
+	 * ゲームオーバー条件。
+	 * @return ゲームオーバー条件を返却する。<br>
+	 * 			最大字数は全角25字。
+	 */
+	public abstract String getGameOverCondition();
+	
+	/**
+	 * ゲームオーバー判定を行う。
+	 * @param UnitMainData - 現在のユニットデータ。{@link battle.BattleUnit BattleUnit}
+	 * @param UnitLeftData - 現在のユニットデータ。{@link battle.BattleUnit BattleUnit}
+	 * @param FacilityData - 現在の設備データ。{@link battle.BattleFacility BattleFacility}
+	 * @param EnemyData - 現在の敵データ。{@link battle.BattleEnemy BattleEnemy}
+	 * @param GameData - 現在のゲームデータ。{@link battle.GameData GameData}
+	 * @return ゲームオーバーであるならばtrueを返却する。<br>
+	 * 			達成判定は{@link StageData}の下部で定義したメソッドを使用する。
+	 */
+	public abstract boolean existsGameOver(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData);
+	
+	/**
 	 * 戦功内容。
 	 * @return 全ての戦功内容を返却する。<br>
 	 * 			内容の記載は、内容+難易度で入力。
@@ -166,6 +204,45 @@ public abstract class StageData {
 	 * 			noDisplayTime - 描写中止時間 (停止中の描写回数)。
 	 */
 	public abstract List<List<List<Integer>>> getRoute();
+	
+	/*
+	 * 
+	 * 
+	 * 
+	 * 
+	 * ゲームクリア・オーバー判定で使用するメソッド
+	 * 
+	 * 
+	 * 
+	 * 
+	 */
+	
+	/**
+	 * 指定した全ての敵を倒したか判定する。
+	 * @param BattleEnemy - 指定した敵を全て記載。
+	 * @return 全ての敵を倒していればtrueを返却する。
+	 */
+	protected boolean canAllDefeat(BattleEnemy... BattleEnemy) {
+		return Stream.of(BattleEnemy).allMatch(i -> i.getNowHP() <= 0);
+	}
+	
+	/**
+	 * 指定した設備の全てが破壊されたか判定。
+	 * @param BattleFacility - 指定した設備を全て記載。
+	 * @return 全ての設備が破壊されていればtrueを返却する。
+	 */
+	protected boolean canAllBreak(BattleFacility... BattleFacility) {
+		return Stream.of(BattleFacility).allMatch(i -> i.getNowHP() <= 0);
+	}
+	
+	/**
+	 * 指定した設備のいずれかが破壊されたか判定。
+	 * @param BattleFacility - 指定した設備を全て記載。
+	 * @return いずれかの設備が破壊されていればtrueを返却する。
+	 */
+	protected boolean canAnyBreak(BattleFacility... BattleFacility) {
+		return Stream.of(BattleFacility).anyMatch(i -> i.getNowHP() <= 0);
+	}
 	
 	/*
 	 * 
