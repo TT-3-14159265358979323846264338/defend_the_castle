@@ -1,4 +1,4 @@
-package battle;
+package battle.battledialog;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -14,6 +14,10 @@ import java.util.stream.IntStream;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import battle.BattleEnemy;
+import battle.BattleFacility;
+import battle.BattleUnit;
+import battle.GameData;
 import defaultdata.DefaultStage;
 import defaultdata.stage.StageData;
 import savedata.SaveGameProgress;
@@ -32,16 +36,17 @@ class ClearMerit extends JPanel{
 	private Font clearFont = new Font("Arail", Font.BOLD, 30);
 	
 	protected ClearMerit(StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
-		stageNumber = DefaultStage.STAGE_DATA.indexOf(StageData);
 		thisClearList = StageData.canClearMerit(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
-		SaveGameProgress.load();
-		meritLabel = IntStream.range(0, StageData.getMerit().size()).mapToObj(i -> new JLabel(meritComment(i, StageData))).toArray(JLabel[]::new);
-		rewardLabel = StageData.getReward().stream().map(i -> new JLabel(i)).toArray(JLabel[]::new);
-		completeLabel =  IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel(completeComment(i))).toArray(JLabel[]::new);
+		beforeSet(StageData);
 		updateClearData(StageData);
 		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel(clearComment(i))).toArray(JLabel[]::new);
-		IntStream.range(0, meritLabel.length).forEach(i -> addLabel(i));
-		setPreferredSize(new Dimension(200, 70 * meritLabel.length));
+		afterSet();
+	}
+	
+	protected ClearMerit(StageData StageData) {
+		beforeSet(StageData);
+		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
+		afterSet();
 	}
 	
 	protected void paintComponent(Graphics g) {
@@ -50,6 +55,19 @@ class ClearMerit extends JPanel{
 		Graphics2D g2 = (Graphics2D)g;
 		g2.setStroke(new BasicStroke(1));
 		IntStream.range(0, meritLabel.length).forEach(i -> g.drawLine(0, 70 * i, 500, 70 * i));
+	}
+	
+	private void beforeSet(StageData StageData) {
+		stageNumber = DefaultStage.STAGE_DATA.indexOf(StageData);
+		SaveGameProgress.load();
+		meritLabel = IntStream.range(0, StageData.getMerit().size()).mapToObj(i -> new JLabel(meritComment(i, StageData))).toArray(JLabel[]::new);
+		rewardLabel = StageData.getReward().stream().map(i -> new JLabel(i)).toArray(JLabel[]::new);
+		completeLabel =  IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel(completeComment(i))).toArray(JLabel[]::new);
+	}
+	
+	private void afterSet() {
+		IntStream.range(0, meritLabel.length).forEach(i -> addLabel(i));
+		setPreferredSize(new Dimension(200, 70 * meritLabel.length));
 	}
 	
 	private void updateClearData(StageData StageData) {

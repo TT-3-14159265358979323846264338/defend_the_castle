@@ -1,14 +1,9 @@
-package battle;
+package battle.battledialog;
 
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.util.List;
-import java.util.stream.IntStream;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -19,9 +14,9 @@ class MeritPanel extends JPanel{
 	private JButton restartButton = new JButton();
 	private JScrollPane meritScroll = new JScrollPane();
 	
-	protected MeritPanel(PauseDialog PauseDialog, StageData StageData, List<Boolean> clearMerit) {
+	protected MeritPanel(PauseDialog PauseDialog, StageData StageData) {
 		addRestartButton(PauseDialog);
-		addMeritScroll(StageData, clearMerit);
+		//addMeritScroll(StageData);
 	}
 	
 	protected void paintComponent(Graphics g) {
@@ -39,11 +34,11 @@ class MeritPanel extends JPanel{
 		});
 		restartButton.setText("再開");
 	}
-	
-	private void addMeritScroll(StageData StageData, List<Boolean> clearMerit) {
+	/*
+	private void addMeritScroll(StageData StageData) {
 		JPanel panel = new JPanel();
-		panel.setPreferredSize(new Dimension(390, 20 * clearMerit.size()));
-		IntStream.range(0, clearMerit.size()).forEach(i -> {
+		panel.setPreferredSize(new Dimension(390, 20 * StageData.getMerit().size()));
+		IntStream.range(0, StageData.getMerit().size()).forEach(i -> {
 			JLabel label = new JLabel();
 			label.setText(StageData.getMerit().get(i));
 			if(clearMerit.get(i)) {
@@ -55,5 +50,5 @@ class MeritPanel extends JPanel{
 		});
 		meritScroll.getViewport().setView(panel);
 		add(meritScroll);
-	}
+	}*/
 }

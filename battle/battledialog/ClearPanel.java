@@ -1,4 +1,4 @@
-package battle;
+package battle.battledialog;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -11,6 +11,10 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import battle.BattleEnemy;
+import battle.BattleFacility;
+import battle.BattleUnit;
+import battle.GameData;
 import defaultdata.stage.StageData;
 
 //ゲームクリア時の処理
@@ -19,6 +23,7 @@ class ClearPanel extends JPanel{
 	private JScrollPane meritScroll = new JScrollPane();
 	
 	protected ClearPanel(PauseDialog PauseDialog, StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
+		setBackground(new Color(240, 170, 80));
 		addOKButton(PauseDialog);
 		addMeritScroll(StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
 	}

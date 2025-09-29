@@ -26,6 +26,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import battle.battledialog.PauseDialog;
 import defaultdata.DefaultStage;
 import defaultdata.DefaultUnit;
 import defaultdata.stage.StageData;
@@ -39,7 +40,6 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private JLabel costLabel = new JLabel();
 	private JButton rangeDrawButton = new JButton();
 	private JButton meritButton = new JButton();
-	private JButton pauseButton = new JButton();
 	private JButton stageReturnButton = new JButton();
 	private JButton statusButton = new UnitButton();
 	private JButton retreatButton = new UnitButton();
@@ -67,7 +67,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private ScheduledExecutorService clearScheduler = Executors.newSingleThreadScheduledExecutor();
 	
 	//メイン画面制御
-	public Battle(MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, double difficultyCorrection) {
+	public Battle(MainFrame MainFrame, StageData StageData, double difficultyCorrection) {
 		this.StageData = StageData;
 		addMouseListener(this);
 		addMouseMotionListener(this);
@@ -75,9 +75,8 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		install(difficultyCorrection);
 		addCostLabel();
 		addRangeDrawButton();
-		addMeritButton(clearMerit);
-		addPauseButton(MainFrame);
-		addStageReturnButton(MainFrame, clearMerit, difficultyCorrection);
+		addMeritButton();
+		addStageReturnButton(MainFrame, difficultyCorrection);
 		mainTimer();
 		clearTimer(MainFrame, difficultyCorrection);
 	}
@@ -86,10 +85,9 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		super.paintComponent(g);
 		rangeDrawButton.setBounds(0, 0, 95, 40);
 		setCostLabel();
-		setMenuButton(rangeDrawButton, "射程表示", 1010, 465);
-		setMenuButton(meritButton, "戦功表示", 1110, 465);
-		setMenuButton(pauseButton, "一時停止", 1010, 515);
-		setMenuButton(stageReturnButton, "降参/再戦", 1110, 515);
+		setMenuButton(rangeDrawButton, "射程表示", 1010, 465, 95, 40);
+		setMenuButton(meritButton, "戦功表示", 1110, 465, 95, 40);
+		setMenuButton(stageReturnButton, "一時停止", 1010, 515, 200, 40);
 		if(statusButton.isValid()) {
 			setUnitButton(statusButton, "能力", menuPoint.x + 15, menuPoint.y - 10);
 			setUnitButton(retreatButton, "撤退", menuPoint.x - 45, menuPoint.y + 30);
@@ -141,27 +139,19 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		});
 	}
 	
-	private void addMeritButton(List<Boolean> clearMerit) {
+	private void addMeritButton() {
 		add(meritButton);
 		meritButton.addActionListener(e->{
 			timerStop();
-			new PauseDialog(this, StageData, clearMerit);
+			new PauseDialog(this, StageData);
 		});
 	}
 	
-	private void addPauseButton(MainFrame MainFrame) {
-		add(pauseButton);
-		pauseButton.addActionListener(e->{
-			timerStop();
-			new PauseDialog(this);
-		});
-	}
-	
-	private void addStageReturnButton(MainFrame MainFrame, List<Boolean> clearMerit, double difficultyCorrection) {
+	private void addStageReturnButton(MainFrame MainFrame, double difficultyCorrection) {
 		add(stageReturnButton);
 		stageReturnButton.addActionListener(e->{
 			timerStop();
-			new PauseDialog(this, MainFrame, StageData, clearMerit, difficultyCorrection);
+			new PauseDialog(this, MainFrame, StageData, difficultyCorrection);
 		});
 	}
 	
@@ -171,10 +161,10 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		costLabel.setBounds(1010, 15, 200, 30);
 	}
 	
-	private void setMenuButton(JButton button, String name, int x, int y) {
+	private void setMenuButton(JButton button, String name, int x, int y, int width, int height) {
 		button.setText(name);
 		button.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 12));
-		button.setBounds(x, y, 95, 40);
+		button.setBounds(x, y, width, height);
 	}
 	
 	private void setUnitButton(JButton button, String name, int x, int y) {
@@ -588,7 +578,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		canStop = true;
 	}
 	
-	protected synchronized void timerRestart() {
+	public synchronized void timerRestart() {
 		notifyAll();
 		canStop = false;
 	}
@@ -614,7 +604,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		}, 0, 1, TimeUnit.SECONDS);
 	}
 	
-	protected void gameEnd() {
+	public void gameEnd() {
 		mainScheduler.shutdown();
 		clearScheduler.shutdown();
 		Stream.of(UnitMainData).forEach(i -> i.schedulerEnd());

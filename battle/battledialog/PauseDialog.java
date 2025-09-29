@@ -1,47 +1,42 @@
-package battle;
+package battle.battledialog;
 
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.util.List;
 import java.util.Objects;
 
 import javax.swing.JDialog;
 
+import battle.Battle;
+import battle.BattleEnemy;
+import battle.BattleFacility;
+import battle.BattleUnit;
+import battle.GameData;
 import defaultdata.stage.StageData;
 import defendthecastle.MainFrame;
 
 //一時停止中の画面
-class PauseDialog extends JDialog implements WindowListener{
+public class PauseDialog extends JDialog implements WindowListener{
 	private Battle Battle;
 	
-	protected PauseDialog(Battle Battle, StageData StageData, List<Boolean> clearMerit) {
+	public PauseDialog(Battle Battle, StageData StageData) {
 		setDialog(Battle);
 		setTitle("戦功");
 		setSize(435, 255);
 		setLocationRelativeTo(null);
-		add(new MeritPanel(this, StageData, clearMerit));
+		add(new MeritPanel(this, StageData));
 		setVisible(true);
 	}
 	
-	protected PauseDialog(Battle Battle) {
+	public PauseDialog(Battle Battle, MainFrame MainFrame, StageData StageData, double difficultyCorrection) {
 		setDialog(Battle);
 		setTitle("一時停止");
-		setSize(285, 140);
+		setSize(545, 615);
 		setLocationRelativeTo(null);
-		add(new PausePanel(this));
+		add(new ReturnPanel(this, Battle, MainFrame, StageData, difficultyCorrection));
 		setVisible(true);
 	}
 	
-	protected PauseDialog(Battle Battle, MainFrame MainFrame, StageData StageData, List<Boolean> clearMerit, double difficultyCorrection) {
-		setDialog(Battle);
-		setTitle("降参/再戦");
-		setSize(415, 140);
-		setLocationRelativeTo(null);
-		add(new ReturnPanel(this, Battle, MainFrame, StageData, clearMerit, difficultyCorrection));
-		setVisible(true);
-	}
-	
-	protected PauseDialog(StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
+	public PauseDialog(StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
 		setDialog(null);
 		setTitle("戦績");
 		setSize(645, 425);
@@ -50,7 +45,7 @@ class PauseDialog extends JDialog implements WindowListener{
 		setVisible(true);
 	}
 	
-	protected PauseDialog() {
+	public PauseDialog() {
 		setDialog(null);
 		setTitle("敗北");
 		setSize(575, 425);

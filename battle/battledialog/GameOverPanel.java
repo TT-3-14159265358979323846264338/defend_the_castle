@@ -1,4 +1,4 @@
-package battle;
+package battle.battledialog;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -15,6 +15,7 @@ class GameOverPanel extends JPanel{
 	private JButton OKButton = new JButton();
 	
 	protected GameOverPanel(PauseDialog PauseDialog) {
+		setBackground(new Color(240, 170, 80));
 		addOKButton(PauseDialog);
 	}
 	

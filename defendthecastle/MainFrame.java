@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -69,9 +68,9 @@ public class MainFrame extends JFrame{
 		setLocationRelativeTo(null);
 	}
 	
-	public void battleDraw(StageData StageData, List<Boolean> clearMerit, double difficultyCorrection) {
+	public void battleDraw(StageData StageData, double difficultyCorrection) {
 		getContentPane().removeAll();
-		add(new Battle(this, StageData, clearMerit, difficultyCorrection));
+		add(new Battle(this, StageData, difficultyCorrection));
 		setTitle(StageData.getName());
 		setSize(1235, 600);
 		setLocationRelativeTo(null);
