@@ -39,12 +39,19 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	public static final int SIZE = 28;
 	private JLabel costLabel = new JLabel();
 	private JButton rangeDrawButton = new JButton();
-	private JButton meritButton = new JButton();
+	private JButton autoAwakeningButton = new JButton();
 	private JButton stageReturnButton = new JButton();
 	private JButton statusButton = new UnitButton();
 	private JButton retreatButton = new UnitButton();
 	private JButton awakeningButton = new UnitButton();
 	private JButton unitReturnButton = new UnitButton();
+	private Color rangeRed = new Color(255, 0, 0, 20);
+	private Color rangeBlue = new Color(0, 0, 255, 20);
+	private Color placeRed = new Color(255, 220, 220);
+	private Color placeBlue = new Color(220, 220, 255);
+	private Color recastGray = new Color(128, 128, 128, 125);
+	private Color recastWhite = new Color(255, 255, 255, 125);
+	private Color HPGreen = new Color(150, 200, 100);
 	private StageData StageData;
 	private BufferedImage stageImage;
 	private List<BufferedImage> placementImage = new DefaultStage().getPlacementImage(4);
@@ -61,6 +68,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private int time;
 	private boolean canStop;
 	private boolean canRangeDraw;
+	private boolean canAutoAwake;
 	private boolean canAwake;
 	private BattleUnit awakeUnit;
 	private ScheduledExecutorService mainScheduler = Executors.newSingleThreadScheduledExecutor();
@@ -75,7 +83,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		install(difficultyCorrection);
 		addCostLabel();
 		addRangeDrawButton();
-		addMeritButton();
+		addAutoAwakeningButton();
 		addStageReturnButton(MainFrame, difficultyCorrection);
 		mainTimer();
 		clearTimer(MainFrame, difficultyCorrection);
@@ -85,8 +93,8 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		super.paintComponent(g);
 		rangeDrawButton.setBounds(0, 0, 95, 40);
 		setCostLabel();
-		setMenuButton(rangeDrawButton, "射程表示", 1010, 465, 95, 40);
-		setMenuButton(meritButton, "戦功表示", 1110, 465, 95, 40);
+		setMenuButton(rangeDrawButton, canRangeDraw? "射程表示": "射程なし", 1010, 465, 95, 40);
+		setMenuButton(autoAwakeningButton, canAutoAwake? "自動覚醒": "手動覚醒", 1115, 465, 95, 40);
 		setMenuButton(stageReturnButton, "一時停止", 1010, 515, 200, 40);
 		if(statusButton.isValid()) {
 			setUnitButton(statusButton, "能力", menuPoint.x + 15, menuPoint.y - 10);
@@ -135,15 +143,14 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private void addRangeDrawButton() {
 		add(rangeDrawButton);
 		rangeDrawButton.addActionListener(e->{
-			canRangeDraw = (canRangeDraw)? false: true;
+			canRangeDraw = canRangeDraw? false: true;
 		});
 	}
 	
-	private void addMeritButton() {
-		add(meritButton);
-		meritButton.addActionListener(e->{
-			timerStop();
-			new PauseDialog(this, StageData);
+	private void addAutoAwakeningButton() {
+		add(autoAwakeningButton);
+		autoAwakeningButton.addActionListener(e->{
+			canAutoAwake = canAutoAwake? false: true;
 		});
 	}
 	
@@ -186,7 +193,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		IntStream.range(0, placementList.size()).forEach(i -> placementList.get(i).stream().forEach(j -> g.drawImage(placementImage.get(i), j.get(0).intValue(), j.get(1).intValue(), this)));
 		IntStream.range(0, FacilityData.length).forEach(i -> {
 			if(canRangeDraw) {
-				rangeDraw(g, new Color(255, 0, 0, 20), FacilityData[i].getPositionX(), FacilityData[i].getPositionY(), FacilityData[i].getRange());
+				rangeDraw(g, rangeRed, FacilityData[i].getPositionX(), FacilityData[i].getPositionY(), FacilityData[i].getRange());
 			}
 			g.drawImage(FacilityData[i].canActivate()? FacilityData[i].getActionImage(): FacilityData[i].getBreakImage(), FacilityData[i].getPositionX(), FacilityData[i].getPositionY(), this);
 			if(FacilityData[i].canActivate()) {
@@ -198,7 +205,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private void drawEnemy(Graphics g) {
 		IntStream.range(0, EnemyData.length).filter(i -> EnemyData[i].canActivate()).boxed().sorted(Comparator.reverseOrder()).forEach(i -> {
 			if(canRangeDraw) {
-				rangeDraw(g, new Color(255, 0, 0, 20), EnemyData[i].getPositionX(), EnemyData[i].getPositionY(), EnemyData[i].getRange());
+				rangeDraw(g, rangeRed, EnemyData[i].getPositionX(), EnemyData[i].getPositionY(), EnemyData[i].getRange());
 			}
 			g.drawImage(EnemyData[i].getActionImage(), EnemyData[i].getPositionX(), EnemyData[i].getPositionY(), this);
 			drawHP(g, EnemyData[i]);
@@ -208,18 +215,18 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private void drawBackground(Graphics g) {
 		IntStream.range(0, 8).forEach(i -> {
 			switch(UnitMainData[i].getType()) {
-			case 0:
-				g.setColor(new Color(255, 220, 220));
+			case DefaultUnit.NEAR:
+				g.setColor(placeRed);
 				g.fillRect(initialX(i) - 5, initialY(i) - 5, 100, 100);
 				break;
-			case 1:
-				g.setColor(new Color(220, 220, 255));
+			case DefaultUnit.FAR:
+				g.setColor(placeBlue);
 				g.fillRect(initialX(i) - 5, initialY(i) - 5, 100, 100);
 				break;
-			case 2:
-				g.setColor(new Color(255, 220, 220));
+			case DefaultUnit.ALL:
+				g.setColor(placeRed);
 				g.fillRect(initialX(i) - 5, initialY(i) - 5, 50, 100);
-				g.setColor(new Color(220, 220, 255));
+				g.setColor(placeBlue);
 				g.fillRect(initialX(i) + 45, initialY(i) - 5, 50, 100);
 				break;
 			default:
@@ -255,8 +262,8 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private void drawUnit(Graphics g) {
 		IntStream.range(0, 8).forEach(i -> {
 			if(UnitMainData[i].canActivate() && canRangeDraw) {
-				rangeDraw(g, new Color(255, 0, 0, 20), UnitMainData[i].getPositionX(), UnitMainData[i].getPositionY(), UnitMainData[i].getRange());
-				rangeDraw(g, new Color(0, 0, 255, 20), UnitLeftData[i].getPositionX(), UnitLeftData[i].getPositionY(), UnitLeftData[i].getRange());
+				rangeDraw(g, rangeRed, UnitMainData[i].getPositionX(), UnitMainData[i].getPositionY(), UnitMainData[i].getRange());
+				rangeDraw(g, rangeBlue, UnitLeftData[i].getPositionX(), UnitLeftData[i].getPositionY(), UnitLeftData[i].getRange());
 			}
 			int x = UnitMainData[i].getPositionX();
 			int y = UnitMainData[i].getPositionY();
@@ -277,9 +284,9 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		int x = BattleUnit.getPositionX();
 		int y = BattleUnit.getPositionY();
 		Graphics2D g2 = (Graphics2D)g;
-		g2.setColor(new Color(128, 128, 128, 125));
+		g2.setColor(recastGray);
 		g2.fillOval(x, y, 90, 90);
-		g2.setColor(new Color(255, 255, 255, 125));
+		g2.setColor(recastWhite);
 		g2.fill(new Arc2D.Double(x, y, 90, 90, 90, 360 * BattleUnit.locationRatio(), Arc2D.PIE));
 	}
 	
@@ -308,8 +315,8 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		if(canSelect) {
 			int x = mouse.x - 45;
 			int y = mouse.y - 45;
-			rangeDraw(g, new Color(255, 0, 0, 20), x, y, UnitMainData[select].getRange());
-			rangeDraw(g, new Color(0, 0, 255, 20), x, y, UnitLeftData[select].getRange());
+			rangeDraw(g, rangeRed, x, y, UnitMainData[select].getRange());
+			rangeDraw(g, rangeBlue, x, y, UnitLeftData[select].getRange());
 			g.drawImage(UnitMainData[select].getDefaultImage(), x, y, this);
 			g.drawImage(UnitMainData[select].getDefaultCoreImage(), x, y, this);
 			g.drawImage(UnitLeftData[select].getDefaultImage(), x, y, this);
@@ -328,7 +335,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		int height = 5;
 		g.setColor(Color.BLACK);
 		g.fillRect(x, y, SIZE, height);
-		g.setColor(new Color(150, 200, 100));
+		g.setColor(HPGreen);
 		g.fillRect(x, y, SIZE * BattleData.getNowHP() / BattleData.getMaxHP(), height);
 		g.setColor(Color.WHITE);
 		g.drawRect(x, y, SIZE, height);
