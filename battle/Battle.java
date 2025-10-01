@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -62,7 +63,6 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private BattleEnemy[] EnemyData;
 	private GameData GameData;
 	private Point mouse;
-	private Point menuPoint;
 	private int select;
 	private boolean canSelect;
 	private int time;
@@ -70,9 +70,13 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private boolean canRangeDraw;
 	private boolean canAutoAwake;
 	private boolean canAwake;
-	private BattleUnit awakeUnit;
+	private BattleUnit selectUnit;
+	private final int AWAKE_COST = 10;
 	private ScheduledExecutorService mainScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledExecutorService clearScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledExecutorService autoScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> autoFuture;
+	private Object autoLock = new Object();
 	
 	//メイン画面制御
 	public Battle(MainFrame MainFrame, StageData StageData, double difficultyCorrection) {
@@ -97,10 +101,12 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		setMenuButton(autoAwakeningButton, canAutoAwake? "自動覚醒": "手動覚醒", 1115, 465, 95, 40);
 		setMenuButton(stageReturnButton, "一時停止", 1010, 515, 200, 40);
 		if(statusButton.isValid()) {
-			setUnitButton(statusButton, "能力", menuPoint.x + 15, menuPoint.y - 10);
-			setUnitButton(retreatButton, "撤退", menuPoint.x - 45, menuPoint.y + 30);
-			setUnitButton(awakeningButton, "覚醒", menuPoint.x + 75, menuPoint.y + 30);
-			setUnitButton(unitReturnButton, "戻る", menuPoint.x + 15, menuPoint.y + 70);
+			int x = selectUnit.getPositionX();
+			int y = selectUnit.getPositionY();
+			setUnitButton(statusButton, "能力", x + 15, y - 10);
+			setUnitButton(retreatButton, "撤退", x - 45, y + 30);
+			setUnitButton(awakeningButton, "覚醒", x + 75, y + 30);
+			setUnitButton(unitReturnButton, "戻る", x + 15, y + 70);
 		}
 		drawField(g);
 		drawEnemy(g);
@@ -151,6 +157,14 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		add(autoAwakeningButton);
 		autoAwakeningButton.addActionListener(e->{
 			canAutoAwake = canAutoAwake? false: true;
+			if(canAutoAwake) {
+				autoFuture = autoScheduler.scheduleWithFixedDelay(() -> {
+					timerWait();
+					IntStream.range(0, UnitMainData.length).filter(i -> canAwake(i)).boxed().sorted(Comparator.comparing(i -> UnitMainData[i].getAwakeningNumber())).forEach(i -> awake(i));
+				}, 0, 200, TimeUnit.MILLISECONDS);
+				return;
+			}
+			autoFuture.cancel(true);
 		});
 	}
 	
@@ -291,8 +305,8 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void drawAwake(Graphics g) {
-		int x = awakeUnit.getPositionX();
-		int y = awakeUnit.getPositionY();
+		int x = selectUnit.getPositionX();
+		int y = selectUnit.getPositionY();
 		g.setColor(Color.RED);
 		g.fillRect(x + 15, y + 30, 10, 30);
 		g.fillPolygon(new int[] {x + 10, x + 20, x + 30}, new int[] {y + 40, y + 20, y + 40}, 3);
@@ -468,7 +482,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	private void unitMenu(int number) {
 		timerStop();
-		menuPoint = new Point(UnitMainData[number].getPositionX(), UnitMainData[number].getPositionY());
+		selectUnit = UnitMainData[number];
 		addStatusButton(number);
 		addRetreatButton(number);
 		addAwakeningButton(number);
@@ -493,18 +507,29 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void addAwakeningButton(int number) {
-		int AWAKE_COST = 10;
-		if(UnitMainData[number].canAwake() && AWAKE_COST <= GameData.getCost()) {
+		if(canAwake(number)) {
 			add(awakeningButton);
 			awakeningButton.addActionListener(e->{
-				awakeUnit = UnitMainData[number];
+				awake(number);
+			});
+		}
+	}
+	
+	private boolean canAwake(int number) {
+		return UnitMainData[number].canAwake() && AWAKE_COST <= GameData.getCost();
+	}
+	
+	private void awake(int number) {
+		synchronized(autoLock) {
+			if(canAwake(number)) {
+				selectUnit = UnitMainData[number];
 				canAwake = true;
 				mainScheduler.schedule(() -> canAwake = false, 2, TimeUnit.SECONDS);
 				UnitMainData[number].awakening();
 				UnitLeftData[number].awakening();
 				GameData.consumeCost(AWAKE_COST);
 				removeMenu();
-			});
+			}
 		}
 	}
 	
@@ -614,6 +639,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	public void gameEnd() {
 		mainScheduler.shutdown();
 		clearScheduler.shutdown();
+		autoScheduler.shutdown();
 		Stream.of(UnitMainData).forEach(i -> i.schedulerEnd());
 		Stream.of(UnitLeftData).forEach(i -> i.schedulerEnd());
 		Stream.of(FacilityData).forEach(i -> i.schedulerEnd());
