@@ -16,12 +16,12 @@ public class No0001NormalAtackCore extends CoreData{
 	
 	@Override
 	public String getImageName() {
-		return "image/soldier/normal atack core.png";
+		return "image/core/No0001 normal atack core/normal atack core.png";
 	}
 	
 	@Override
 	public String getActionImageName() {
-		return "image/soldier/normal atack core center.png";
+		return "image/core/No0001 normal atack core/normal atack core center.png";
 	}
 	
 	@Override

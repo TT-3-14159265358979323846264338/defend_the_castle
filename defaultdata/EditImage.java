@@ -38,6 +38,7 @@ public class EditImage{
 		try{
 			image = getImage(ImageIO.read(new File(imageName)), ratio);
 		}catch(Exception e) {
+			System.out.println("取り込み不可ファイル: " + imageName);
 			e.printStackTrace();
 		}
 		return image;

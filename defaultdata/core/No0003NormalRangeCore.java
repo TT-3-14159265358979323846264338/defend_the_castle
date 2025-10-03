@@ -16,12 +16,12 @@ public class No0003NormalRangeCore extends CoreData{
 	
 	@Override
 	public String getImageName() {
-		return "image/soldier/normal range core.png";
+		return "image/core/No0003 normal range core/normal range core.png";
 	}
 	
 	@Override
 	public String getActionImageName() {
-		return "image/soldier/normal range core center.png";
+		return "image/core/No0003 normal range core/normal range core center.png";
 	}
 	
 	@Override

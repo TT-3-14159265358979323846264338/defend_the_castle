@@ -18,12 +18,12 @@ public class No0001Gate extends FacilityData{
 	
 	@Override
 	public List<String> getActionFrontImageName() {
-		return Arrays.asList("image/field/front gate.png");
+		return Arrays.asList("image/facility/front gate.png");
 	}
 
 	@Override
 	public List<String> getActionSideImageName() {
-		return Arrays.asList("image/field/side gate.png");
+		return Arrays.asList("image/facility/side gate.png");
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public class No0001Gate extends FacilityData{
 	
 	@Override
 	public String getBreakImageName() {
-		return "image/field/break gate.png";
+		return "image/facility/break gate.png";
 	}
 
 	@Override

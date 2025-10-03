@@ -16,12 +16,12 @@ public class No0004NormalHealCore extends CoreData{
 	
 	@Override
 	public String getImageName() {
-		return "image/soldier/normal heal core.png";
+		return "image/core/No0004 normal heal core/normal heal core.png";
 	}
 	
 	@Override
 	public String getActionImageName() {
-		return "image/soldier/normal heal core center.png";
+		return "image/core/No0004 normal heal core/normal heal core center.png";
 	}
 	
 	@Override

@@ -19,27 +19,27 @@ public class No0000JapaneseSword extends WeaponData{
 	
 	@Override
 	public String getImageName() {
-		return "image/soldier/Japanese sword.png";
+		return "image/weapon/No0000 Japanese sword/Japanese sword.png";
 	}
 
 	@Override
 	public List<String> getRightActionImageName() {
-		return Arrays.asList("image/soldier/Japanese sword right 0.png",
-				"image/soldier/Japanese sword right 1.png",
-				"image/soldier/Japanese sword right 2.png",
-				"image/soldier/Japanese sword right 3.png",
-				"image/soldier/Japanese sword right 4.png",
-				"image/soldier/Japanese sword right 5.png");
+		return Arrays.asList("image/weapon/No0000 Japanese sword/Japanese sword right 0.png",
+				"image/weapon/No0000 Japanese sword/Japanese sword right 1.png",
+				"image/weapon/No0000 Japanese sword/Japanese sword right 2.png",
+				"image/weapon/No0000 Japanese sword/Japanese sword right 3.png",
+				"image/weapon/No0000 Japanese sword/Japanese sword right 4.png",
+				"image/weapon/No0000 Japanese sword/Japanese sword right 5.png");
 	}
 
 	@Override
 	public List<String> getLeftActionImageName() {
-		return Arrays.asList("image/soldier/Japanese sword left 0.png",
-				"image/soldier/Japanese sword left 1.png",
-				"image/soldier/Japanese sword left 2.png",
-				"image/soldier/Japanese sword left 3.png",
-				"image/soldier/Japanese sword left 4.png",
-				"image/soldier/Japanese sword left 5.png");
+		return Arrays.asList("image/weapon/No0000 Japanese sword/Japanese sword left 0.png",
+				"image/weapon/No0000 Japanese sword/Japanese sword left 1.png",
+				"image/weapon/No0000 Japanese sword/Japanese sword left 2.png",
+				"image/weapon/No0000 Japanese sword/Japanese sword left 3.png",
+				"image/weapon/No0000 Japanese sword/Japanese sword left 4.png",
+				"image/weapon/No0000 Japanese sword/Japanese sword left 5.png");
 	}
 
 	@Override
@@ -49,9 +49,9 @@ public class No0000JapaneseSword extends WeaponData{
 
 	@Override
 	public List<String> getHitImageName() {
-		return Arrays.asList("image/soldier/Japanese sword hit 1.png",
-				"image/soldier/Japanese sword hit 2.png",
-				"image/soldier/Japanese sword hit 3.png");
+		return Arrays.asList("image/weapon/No0000 Japanese sword/Japanese sword hit 1.png",
+				"image/weapon/No0000 Japanese sword/Japanese sword hit 2.png",
+				"image/weapon/No0000 Japanese sword/Japanese sword hit 3.png");
 	}
 
 	@Override

@@ -16,12 +16,12 @@ public class No0005NormalSpeedCore extends CoreData{
 	
 	@Override
 	public String getImageName() {
-		return "image/soldier/normal speed core.png";
+		return "image/core/No0005 normal speed core/normal speed core.png";
 	}
 	
 	@Override
 	public String getActionImageName() {
-		return "image/soldier/normal speed core center.png";
+		return "image/core/No0005 normal speed core/normal speed core center.png";
 	}
 	
 	@Override

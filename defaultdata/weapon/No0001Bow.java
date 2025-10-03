@@ -19,7 +19,7 @@ public class No0001Bow extends WeaponData{
 	
 	@Override
 	public String getImageName() {
-		return "image/soldier/bow.png";
+		return "image/weapon/No0001 bow/bow.png";
 	}
 
 	@Override
@@ -29,24 +29,24 @@ public class No0001Bow extends WeaponData{
 
 	@Override
 	public List<String> getLeftActionImageName() {
-		return Arrays.asList("image/soldier/bow left 0.png",
-				"image/soldier/bow left 1.png",
-				"image/soldier/bow left 2.png",
-				"image/soldier/bow left 3.png",
-				"image/soldier/bow left 4.png",
-				"image/soldier/bow left 5.png");
+		return Arrays.asList("image/weapon/No0001 bow/bow left 0.png",
+				"image/weapon/No0001 bow/bow left 1.png",
+				"image/weapon/No0001 bow/bow left 2.png",
+				"image/weapon/No0001 bow/bow left 3.png",
+				"image/weapon/No0001 bow/bow left 4.png",
+				"image/weapon/No0001 bow/bow left 5.png");
 	}
 
 	@Override
 	public String getBulletImageName() {
-		return "image/soldier/bow bullet.png";
+		return "image/weapon/No0001 bow/bow bullet.png";
 	}
 
 	@Override
 	public List<String> getHitImageName() {
-		return Arrays.asList("image/soldier/bow hit 1.png",
-				"image/soldier/bow hit 2.png",
-				"image/soldier/bow hit 3.png");
+		return Arrays.asList("image/weapon/No0001 bow/bow hit 1.png",
+				"image/weapon/No0001 bow/bow hit 2.png",
+				"image/weapon/No0001 bow/bow hit 3.png");
 	}
 	
 	@Override
