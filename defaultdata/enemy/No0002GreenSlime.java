@@ -24,12 +24,12 @@ public class No0002GreenSlime extends EnemyData{
 
 	@Override
 	public List<String> getActionImageName() {
-		return Arrays.asList("image/enemy/No0000 green slime/green slime 0.png",
-				"image/enemy/No0000 green slime/green slime 1.png",
-				"image/enemy/No0000 green slime/green slime 2.png",
-				"image/enemy/No0000 green slime/green slime 3.png",
-				"image/enemy/No0000 green slime/green slime 4.png",
-				"image/enemy/No0000 green slime/green slime 5.png");
+		return Arrays.asList("image/enemy/No0002 green slime/green slime 0.png",
+				"image/enemy/No0002 green slime/green slime 1.png",
+				"image/enemy/No0002 green slime/green slime 2.png",
+				"image/enemy/No0002 green slime/green slime 3.png",
+				"image/enemy/No0002 green slime/green slime 4.png",
+				"image/enemy/No0002 green slime/green slime 5.png");
 	}
 
 	@Override
