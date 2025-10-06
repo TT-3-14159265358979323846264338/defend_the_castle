@@ -6,30 +6,30 @@ import java.util.List;
 import defaultdata.DefaultAtackPattern;
 import defaultdata.DefaultEnemy;
 
-public class No0003YellowSlime extends EnemyData{
+public class No0004HighSlime extends EnemyData{
 	@Override
 	public String getName() {
-		return "イエロースライム";
+		return "ハイスライム";
 	}
 
 	@Override
 	public String getExplanation() {
-		return "ブルースライムよりも少し速度の速い敵。";
+		return "通常よりも能力の高いスライム。物理武器が有効。";
 	}
 	
 	@Override
 	public String getImageName() {
-		return "image/enemy/No0003 yellow slime/yellow slime.png";
+		return "image/enemy/No0004 high slime/high slime.png";
 	}
 
 	@Override
 	public List<String> getActionImageName() {
-		return Arrays.asList("image/enemy/No0003 yellow slime/yellow slime 0.png",
-				"image/enemy/No0003 yellow slime/yellow slime 1.png",
-				"image/enemy/No0003 yellow slime/yellow slime 2.png",
-				"image/enemy/No0003 yellow slime/yellow slime 3.png",
-				"image/enemy/No0003 yellow slime/yellow slime 4.png",
-				"image/enemy/No0003 yellow slime/yellow slime 5.png");
+		return Arrays.asList("image/enemy/No0004 high slime/high slime 0.png",
+				"image/enemy/No0004 high slime/high slime 1.png",
+				"image/enemy/No0004 high slime/high slime 2.png",
+				"image/enemy/No0004 high slime/high slime 3.png",
+				"image/enemy/No0004 high slime/high slime 4.png",
+				"image/enemy/No0004 high slime/high slime 5.png");
 	}
 
 	@Override
@@ -64,17 +64,17 @@ public class No0003YellowSlime extends EnemyData{
 
 	@Override
 	public List<Integer> getWeaponStatus() {
-		return Arrays.asList(20, 30, 800, 1);
+		return Arrays.asList(30, 40, 1000, 1);
 	}
 
 	@Override
 	public List<Integer> getUnitStatus() {
-		return Arrays.asList(1000, 1000, 10, 0, 120, 1);
+		return Arrays.asList(1250, 1250, 12, 10, 100, 1);
 	}
 
 	@Override
 	public List<Integer> getCutStatus() {
-		return Arrays.asList(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+		return Arrays.asList(0, 0, 0, 0, 20, 20, 20, 20, 20, 20, 20, 0);
 	}
 	
 	@Override
