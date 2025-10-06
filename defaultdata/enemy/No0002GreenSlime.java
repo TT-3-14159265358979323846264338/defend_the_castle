@@ -6,30 +6,30 @@ import java.util.List;
 import defaultdata.DefaultAtackPattern;
 import defaultdata.DefaultEnemy;
 
-public class No0000BlueSlime extends EnemyData{
+public class No0002GreenSlime extends EnemyData{
 	@Override
 	public String getName() {
-		return "ブルースライム";
+		return "グリーンスライム";
 	}
 
 	@Override
 	public String getExplanation() {
-		return "最も弱い敵。特出すべき能力はない。";
+		return "ブルースライムよりも少し耐久力の高い敵。";
 	}
 	
 	@Override
 	public String getImageName() {
-		return "image/enemy/No0000 blue slime/blue slime.png";
+		return "image/enemy/No0002 green slime/green slime.png";
 	}
 
 	@Override
 	public List<String> getActionImageName() {
-		return Arrays.asList("image/enemy/No0000 blue slime/blue slime 0.png",
-				"image/enemy/No0000 blue slime/blue slime 1.png",
-				"image/enemy/No0000 blue slime/blue slime 2.png",
-				"image/enemy/No0000 blue slime/blue slime 3.png",
-				"image/enemy/No0000 blue slime/blue slime 4.png",
-				"image/enemy/No0000 blue slime/blue slime 5.png");
+		return Arrays.asList("image/enemy/No0000 green slime/green slime 0.png",
+				"image/enemy/No0000 green slime/green slime 1.png",
+				"image/enemy/No0000 green slime/green slime 2.png",
+				"image/enemy/No0000 green slime/green slime 3.png",
+				"image/enemy/No0000 green slime/green slime 4.png",
+				"image/enemy/No0000 green slime/green slime 5.png");
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public class No0000BlueSlime extends EnemyData{
 
 	@Override
 	public List<Integer> getUnitStatus() {
-		return Arrays.asList(1000, 1000, 10, 0, 100, 1);
+		return Arrays.asList(1250, 1250, 12, 0, 100, 1);
 	}
 
 	@Override

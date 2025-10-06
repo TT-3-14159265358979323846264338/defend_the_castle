@@ -6,6 +6,8 @@ import java.util.Map;
 import defaultdata.enemy.EnemyData;
 import defaultdata.enemy.No0000BlueSlime;
 import defaultdata.enemy.No0001RedSlime;
+import defaultdata.enemy.No0002GreenSlime;
+import defaultdata.enemy.No0003YellowSlime;
 
 //敵兵データ
 public class DefaultEnemy {
@@ -79,10 +81,14 @@ public class DefaultEnemy {
 	//敵コード変換
 	public static final int BLUE_SLIME = 0;
 	public static final int RED_SLIME = 1;
+	public static final int GREEN_SLIME = 2;
+	public static final int YELLOW_SLIME = 3;
 	
 	public static final Map<Integer, EnemyData> DATA_MAP = new HashMap<>();
 	static {
 		DATA_MAP.put(BLUE_SLIME, new No0000BlueSlime());
 		DATA_MAP.put(RED_SLIME, new No0001RedSlime());
+		DATA_MAP.put(GREEN_SLIME, new No0002GreenSlime());
+		DATA_MAP.put(YELLOW_SLIME, new No0003YellowSlime());
 	}
 }
