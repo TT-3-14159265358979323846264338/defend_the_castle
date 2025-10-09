@@ -3,16 +3,8 @@ package defaultdata;
 import java.util.HashMap;
 import java.util.Map;
 
-import defaultdata.core.CoreData;
-import defaultdata.core.No0000NormalCore;
-import defaultdata.core.No0001NormalAtackCore;
-import defaultdata.core.No0002NormalDefenseCore;
-import defaultdata.core.No0003NormalRangeCore;
-import defaultdata.core.No0004NormalHealCore;
-import defaultdata.core.No0005NormalSpeedCore;
-import defaultdata.weapon.No0000JapaneseSword;
-import defaultdata.weapon.No0001Bow;
-import defaultdata.weapon.WeaponData;
+import defaultdata.core.*;
+import defaultdata.weapon.*;
 
 //ユニットデータ
 public class DefaultUnit {

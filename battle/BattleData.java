@@ -26,7 +26,7 @@ public class BattleData{
 	//攻撃関連
 	protected AtackPattern AtackPattern;
 	protected boolean existsRight = true;
-	private boolean canAtack;
+	protected boolean canAtack;
 	private int motionNumber = 0;
 	protected List<BufferedImage> rightActionImage;
 	protected List<BufferedImage> leftActionImage;
@@ -108,6 +108,9 @@ public class BattleData{
 			return;
 		}
 		atackFuture = atackScheduler.scheduleWithFixedDelay(() -> {
+			if(Battle.canStop()) {
+				Battle.timerWait();
+			}
 			if(nowSpeed != getAtackSpeed()) {
 				CompletableFuture.runAsync(() -> atackFuture.cancel(true)).thenRun(this::atackTimer);
 				return;
@@ -126,7 +129,9 @@ public class BattleData{
 	private List<BattleData> targetCheck() {
 		List<BattleData> targetList = AtackPattern.getTarget();
 		do {
-			Battle.timerWait();
+			if(Battle.canStop()) {
+				Battle.timerWait();
+			}
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
@@ -146,13 +151,16 @@ public class BattleData{
 	}
 	
 	private void motionTimer(List<BattleData> targetList) {
-		motionFuture = motionScheduler.scheduleWithFixedDelay(() -> {
-			Battle.timerWait();
+		motionFuture = motionScheduler.scheduleAtFixedRate(() -> {
+			if(Battle.canStop()) {
+				CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> motionTimer(targetList));
+				motionFuture.cancel(true);
+				return;
+			}
 			if(rightActionImage.size() - 1 <= motionNumber) {
 				motionNumber = 0;
 				bulletList = targetList.stream().map(i -> new Bullet(Battle, this, i, bulletImage, hitImage)).toList();
-				CompletableFuture.allOf(atackProcess()).join();
-				timerRestart();
+				CompletableFuture.allOf(atackProcess()).thenRun(this::timerRestart);
 				motionFuture.cancel(true);
 				return;
 			}
@@ -165,19 +173,17 @@ public class BattleData{
 	}
 	
 	protected synchronized void timerWait() {
-		if(canAtack) {
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		try {
+			wait();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 	
 	private synchronized void timerRestart() {
-		notifyAll();
 		bulletList = Arrays.asList();
 		canAtack = false;
+		notifyAll();
 	}
 	
 	private void result(BattleData target) {
@@ -258,8 +264,12 @@ public class BattleData{
 	}
 	
 	protected void healTimer() {
-		healFuture = healScheduler.scheduleWithFixedDelay(() -> {
-			Battle.timerWait();
+		healFuture = healScheduler.scheduleAtFixedRate(() -> {
+			if(Battle.canStop()) {
+				CompletableFuture.runAsync(Battle::timerWait).thenRun(this::healTimer);
+				healFuture.cancel(true);
+				return;
+			}
 			if(!canActivate) {
 				healFuture.cancel(true);
 				return;

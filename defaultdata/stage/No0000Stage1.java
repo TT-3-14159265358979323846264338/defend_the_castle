@@ -150,8 +150,8 @@ public class No0000Stage1 extends StageData{
 	@Override
 	public List<List<Integer>> getEnemy() {
 		return Arrays.asList(
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 1000),
-				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 1000),
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 0, 1000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 1, 1000),
 				Arrays.asList(DefaultEnemy.BLUE_SLIME, 2, 2000),
 				Arrays.asList(DefaultEnemy.RED_SLIME, 3, 2000)
 				);
@@ -159,7 +159,7 @@ public class No0000Stage1 extends StageData{
 
 	@Override
 	public List<Integer> getDisplayOrder() {
-		return Arrays.asList(DefaultEnemy.BLUE_SLIME, DefaultEnemy.RED_SLIME);
+		return Arrays.asList(DefaultEnemy.BLUE_SLIME, DefaultEnemy.RED_SLIME, DefaultEnemy.GREEN_SLIME, DefaultEnemy.YELLOW_SLIME, DefaultEnemy.HIGH_SLIME);
 	}
 	
 	@Override

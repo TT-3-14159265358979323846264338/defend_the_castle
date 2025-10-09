@@ -69,7 +69,7 @@ public class No0003YellowSlime extends EnemyData{
 
 	@Override
 	public List<Integer> getUnitStatus() {
-		return Arrays.asList(1000, 1000, 10, 0, 120, 1);
+		return Arrays.asList(1000, 1000, 10, 0, 125, 1);
 	}
 
 	@Override

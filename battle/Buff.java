@@ -145,8 +145,12 @@ public class Buff {
 			return;
 		}
 		canRecast = false;
-		recastFuture = recastScheduler.scheduleWithFixedDelay(() -> {
-			Battle.timerWait();
+		recastFuture = recastScheduler.scheduleAtFixedRate(() -> {
+			if(Battle.canStop()) {
+				CompletableFuture.runAsync(Battle::timerWait).thenRun(this::recastBuff);
+				recastFuture.cancel(true);
+				return;
+			}
 			recastCount += DELEY;
 			if(recastMax() <= recastCount) {
 				recastCount = 0;
@@ -163,8 +167,12 @@ public class Buff {
 			gameBuffSelect();
 			return;
 		}
-		intervalFuture = intervalScheduler.scheduleWithFixedDelay(() -> {
-			Battle.timerWait();
+		intervalFuture = intervalScheduler.scheduleAtFixedRate(() -> {
+			if(Battle.canStop()) {
+				CompletableFuture.runAsync(Battle::timerWait).thenRun(this::gameBuff);
+				intervalFuture.cancel(true);
+				return;
+			}
 			if(canNotActivateBuff()) {
 				return;
 			}
@@ -253,8 +261,12 @@ public class Buff {
 	}
 	
 	private void targetControl(Predicate<? super BattleData> rangeFilter) {
-		targetFuture = targetScheduler.scheduleWithFixedDelay(() -> {
-			Battle.timerWait();
+		targetFuture = targetScheduler.scheduleAtFixedRate(() -> {
+			if(Battle.canStop()) {
+				CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> targetControl(rangeFilter));
+				targetFuture.cancel(true);
+				return;
+			}
 			if(canNotActivateBuff()) {
 				return;
 			}
@@ -297,8 +309,12 @@ public class Buff {
 		if(existsInterval()) {
 			return;
 		}
-		intervalFuture = intervalScheduler.scheduleWithFixedDelay(() -> {
-			Battle.timerWait();
+		intervalFuture = intervalScheduler.scheduleAtFixedRate(() -> {
+			if(Battle.canStop()) {
+				CompletableFuture.runAsync(Battle::timerWait).thenRun(this::intervalControl);
+				intervalFuture.cancel(true);
+				return;
+			}
 			if(canNotActivateBuff()) {
 				return;
 			}
@@ -311,8 +327,12 @@ public class Buff {
 		if(existsDuration()) {
 			return;
 		}
-		durationFuture = durationScheduler.scheduleWithFixedDelay(() -> {
-			Battle.timerWait();
+		durationFuture = durationScheduler.scheduleAtFixedRate(() -> {
+			if(Battle.canStop()) {
+				CompletableFuture.runAsync(Battle::timerWait).thenRun(this::durationControl);
+				durationFuture.cancel(true);
+				return;
+			}
 			durationCount += DELEY;
 			if(canNotActivateBuff()) {
 				return;

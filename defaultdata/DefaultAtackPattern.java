@@ -1,8 +1,6 @@
 package defaultdata;
 
-import defaultdata.atackpattern.AtackPattern;
-import defaultdata.atackpattern.No00Near;
-import defaultdata.atackpattern.No01Far;
+import defaultdata.atackpattern.*;
 
 public class DefaultAtackPattern {
 	//パターンの種類

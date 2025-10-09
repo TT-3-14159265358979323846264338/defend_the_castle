@@ -6,12 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import defaultdata.facility.FacilityData;
-import defaultdata.facility.No0000Castle;
-import defaultdata.facility.No0001Gate;
-import defaultdata.stage.No0000Stage1;
-import defaultdata.stage.No0001Stage2;
-import defaultdata.stage.StageData;
+import defaultdata.facility.*;
+import defaultdata.stage.*;
 
 //ステージデータ
 public class DefaultStage {

@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -144,8 +145,12 @@ public class BattleUnit extends BattleData{
 	}
 	
 	private void achievementTimer() {
-		achievementFuture = achievementScheduler.scheduleWithFixedDelay(() -> {
-			Battle.timerWait();
+		achievementFuture = achievementScheduler.scheduleAtFixedRate(() -> {
+			if(Battle.canStop()) {
+				CompletableFuture.runAsync(Battle::timerWait).thenRun(this::achievementTimer);
+				achievementFuture.cancel(true);
+				return;
+			}
 			if(!canActivate) {
 				achievementFuture.cancel(true);
 				return;
@@ -259,8 +264,12 @@ public class BattleUnit extends BattleData{
 	}
 	
 	private void relocation() {
-		relocationFuture = relocationScheduler.scheduleWithFixedDelay(() -> {
-			Battle.timerWait();
+		relocationFuture = relocationScheduler.scheduleAtFixedRate(() -> {
+			if(Battle.canStop()) {
+				CompletableFuture.runAsync(Battle::timerWait).thenRun(this::relocation);
+				relocationFuture.cancel(true);
+				return;
+			}
 			relocationCount += TIMER_INTERVAL;
 			if(relocationTime <= relocationCount) {
 				relocationCount = 0;

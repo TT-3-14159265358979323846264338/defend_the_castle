@@ -76,7 +76,7 @@ public class No0001Bow extends WeaponData{
 
 	@Override
 	public List<Integer> getWeaponStatus() {
-		return Arrays.asList(2000, 150, 1000, 1);
+		return Arrays.asList(100, 150, 1000, 1);
 	}
 
 	@Override

@@ -3,8 +3,10 @@ package battle;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
@@ -14,7 +16,9 @@ public class Bullet {
 	public static final int CORRECTION = 25;
 	public static final int COUNT = 5;
 	private ScheduledExecutorService bulletScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> bulletFuture;
 	private ScheduledExecutorService hitScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> hitFuture;
 	private Battle Battle;
 	private BattleData myself;
 	private BattleData target;
@@ -36,7 +40,7 @@ public class Bullet {
 	
 	private void bulletTimer() {
 		if(Objects.isNull(bulletImage)) {
-			hitTimer();
+			hit();
 			bulletScheduler.shutdown();
 			return;
 		}
@@ -45,15 +49,7 @@ public class Bullet {
 		double oneTimeMoveX = (myself.getPositionX() - target.getPositionX()) / COUNT;
 		double oneTimeMoveY = (myself.getPositionY() - target.getPositionY()) / COUNT;
 		bulletImage = EditImage.rotateImage(bulletImage, angle());
-		bulletScheduler.scheduleWithFixedDelay(() -> {
-			Battle.timerWait();
-			if(COUNT <= bulletNumber) {
-				hitTimer();
-				bulletScheduler.shutdown();
-				return;
-			}
-			moveBullet(oneTimeMoveX, oneTimeMoveY);
-		}, 0, 30, TimeUnit.MILLISECONDS);
+		bullet(oneTimeMoveX, oneTimeMoveY);
 	}
 	
 	private double angle() {
@@ -76,13 +72,29 @@ public class Bullet {
 		return (0 < outerProductDirection)? Math.PI * 2 - cosineTheoremAngle: cosineTheoremAngle;
 	}
 	
+	private void bullet(double oneTimeMoveX, double oneTimeMoveY) {
+		bulletFuture = bulletScheduler.scheduleAtFixedRate(() -> {
+			if(Battle.canStop()) {
+				CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> bullet(oneTimeMoveX, oneTimeMoveY));
+				bulletFuture.cancel(true);
+				return;
+			}
+			if(COUNT <= bulletNumber) {
+				hit();
+				bulletScheduler.shutdown();
+				return;
+			}
+			moveBullet(oneTimeMoveX, oneTimeMoveY);
+		}, 0, 30, TimeUnit.MILLISECONDS);
+	}
+	
 	private void moveBullet(double oneTimeMoveX, double oneTimeMoveY) {
 		bulletNumber++;
 		positionX -= oneTimeMoveX;
 		positionY -= oneTimeMoveY;
 	}
 	
-	private void hitTimer() {
+	private void hit() {
 		if(Objects.isNull(hitImage)) {
 			hitScheduler.shutdown();
 			completion();
@@ -90,8 +102,16 @@ public class Bullet {
 		}
 		positionX = (int) target.getPositionX() + CORRECTION;
 		positionY = (int) target.getPositionY() + CORRECTION;
-		hitScheduler.scheduleWithFixedDelay(() -> {
-			Battle.timerWait();
+		hitTimer();
+	}
+	
+	private void hitTimer() {
+		hitFuture = hitScheduler.scheduleAtFixedRate(() -> {
+			if(Battle.canStop()) {
+				CompletableFuture.runAsync(Battle::timerWait).thenRun(this::hitTimer);
+				hitFuture.cancel(true);
+				return;
+			}
 			if(hitImage.size() - 1 <= hitNumber) {
 				hitScheduler.shutdown();
 				completion();

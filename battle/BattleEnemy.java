@@ -116,7 +116,7 @@ public class BattleEnemy extends BattleData{
 	}
 	
 	private void eternalStop() {
-		moveFuture = moveScheduler.scheduleWithFixedDelay(() -> {
+		moveFuture = moveScheduler.scheduleAtFixedRate(() -> {
 			if(activateTime <= Battle.getMainTime()) {
 				canActivate = true;
 				GameData.moraleBoost(battle.GameData.ENEMY, 10);
@@ -128,13 +128,23 @@ public class BattleEnemy extends BattleData{
 	}
 	
 	private void constantMove(int nowSpeed) {
-		moveFuture = moveScheduler.scheduleWithFixedDelay(() -> {
-			Battle.timerWait();
-			timerWait();
+		moveFuture = moveScheduler.scheduleAtFixedRate(() -> {
+			if(Battle.canStop()) {
+				CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> constantMove(nowSpeed));
+				moveFuture.cancel(true);
+				return;
+			}
+			if(canAtack) {
+				CompletableFuture.runAsync(this::timerWait).thenRun(() -> constantMove(nowSpeed));
+				moveFuture.cancel(true);
+				return;
+			}
 			BattleData blockTarget = blockTarget();
 			if(Objects.nonNull(blockTarget)) {
 				blockTarget.addBlock(this);
-				blockWait();
+				CompletableFuture.runAsync(this::blockWait).thenRun(() -> constantMove(nowSpeed));
+				moveFuture.cancel(true);
+				return;
 			}
 			if(nowHP <= 0) {
 				moveFuture.cancel(true);

@@ -13,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.time.temporal.ValueRange;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -73,10 +74,11 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private BattleUnit selectUnit;
 	private final int AWAKE_COST = 10;
 	private ScheduledExecutorService mainScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> mainFuture;
 	private ScheduledExecutorService clearScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledExecutorService autoScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> autoFuture;
-	private Object autoLock = new Object();
+	private Object awakeLock = new Object();
 	
 	//メイン画面制御
 	public Battle(MainFrame MainFrame, StageData StageData, double difficultyCorrection) {
@@ -158,14 +160,22 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		autoAwakeningButton.addActionListener(e->{
 			canAutoAwake = canAutoAwake? false: true;
 			if(canAutoAwake) {
-				autoFuture = autoScheduler.scheduleWithFixedDelay(() -> {
-					timerWait();
-					IntStream.range(0, UnitMainData.length).filter(i -> canAwake(i)).boxed().sorted(Comparator.comparing(i -> UnitMainData[i].getAwakeningNumber())).forEach(i -> awake(i));
-				}, 0, 200, TimeUnit.MILLISECONDS);
+				autoAwake();
 				return;
 			}
 			autoFuture.cancel(true);
 		});
+	}
+	
+	private void autoAwake() {
+		autoFuture = autoScheduler.scheduleAtFixedRate(() -> {
+			if(canStop) {
+				CompletableFuture.runAsync(this::timerWait).thenRun(this::autoAwake);
+				autoFuture.cancel(true);
+				return;
+			}
+			IntStream.range(0, UnitMainData.length).filter(i -> canAwake(i)).boxed().sorted(Comparator.comparing(i -> UnitMainData[i].getAwakeningNumber())).forEach(i -> awake(i));
+		}, 0, 200, TimeUnit.MILLISECONDS);
 	}
 	
 	private void addStageReturnButton(MainFrame MainFrame, double difficultyCorrection) {
@@ -492,17 +502,17 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private void addStatusButton(int number) {
 		add(statusButton);
 		statusButton.addActionListener(e->{
-			unitStatus(number);
 			removeMenu();
+			unitStatus(number);
 		});
 	}
 	
 	private void addRetreatButton(int number) {
 		add(retreatButton);
 		retreatButton.addActionListener(e->{
+			removeMenu();
 			GameData.addCost((int) Math.ceil(UnitMainData[number].getCost() / 2));
 			UnitMainData[number].retreat();
-			removeMenu();
 		});
 	}
 	
@@ -520,15 +530,15 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void awake(int number) {
-		synchronized(autoLock) {
+		synchronized(awakeLock) {
 			if(canAwake(number)) {
+				removeMenu();
 				selectUnit = UnitMainData[number];
 				canAwake = true;
 				mainScheduler.schedule(() -> canAwake = false, 2, TimeUnit.SECONDS);
 				UnitMainData[number].awakening();
 				UnitLeftData[number].awakening();
 				GameData.consumeCost(AWAKE_COST);
-				removeMenu();
 			}
 		}
 	}
@@ -590,29 +600,38 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	//メインタイマー制御
 	private void mainTimer() {
-		mainScheduler.scheduleWithFixedDelay(() -> {
-			timerWait();
+		mainFuture = mainScheduler.scheduleAtFixedRate(() -> {
+			if(canStop) {
+				CompletableFuture.runAsync(this::timerWait).thenRun(this::mainTimer);
+				mainFuture.cancel(true);
+				return;
+			}
 			time += 10;
 		}, 0, 10, TimeUnit.MILLISECONDS);
 	}
 	
 	protected synchronized void timerWait() {
-		if(canStop) {
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		if(!canStop) {
+			return;
+		}
+		try {
+			wait();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
-	private void timerStop() {
+	private synchronized void timerStop() {
 		canStop = true;
 	}
 	
 	public synchronized void timerRestart() {
-		notifyAll();
 		canStop = false;
+		notifyAll();
+	}
+	
+	public boolean canStop() {
+		return canStop;
 	}
 	
 	protected int getMainTime() {
@@ -621,7 +640,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	//ゲーム状態監視
 	private void clearTimer(MainFrame MainFrame, double difficultyCorrection) {
-		clearScheduler.scheduleWithFixedDelay(() -> {
+		clearScheduler.scheduleAtFixedRate(() -> {
 			if(StageData.canClear(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData)) {
 				gameEnd();
 				new PauseDialog(StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);

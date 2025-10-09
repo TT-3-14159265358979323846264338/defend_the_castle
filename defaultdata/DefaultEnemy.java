@@ -3,12 +3,7 @@ package defaultdata;
 import java.util.HashMap;
 import java.util.Map;
 
-import defaultdata.enemy.EnemyData;
-import defaultdata.enemy.No0000BlueSlime;
-import defaultdata.enemy.No0001RedSlime;
-import defaultdata.enemy.No0002GreenSlime;
-import defaultdata.enemy.No0003YellowSlime;
-import defaultdata.enemy.No0004HighSlime;
+import defaultdata.enemy.*;
 
 //敵兵データ
 public class DefaultEnemy {

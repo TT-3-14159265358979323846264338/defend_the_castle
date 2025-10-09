@@ -18,15 +18,6 @@ import defendthecastle.MainFrame;
 public class PauseDialog extends JDialog implements WindowListener{
 	private Battle Battle;
 	
-	public PauseDialog(Battle Battle, StageData StageData) {
-		setDialog(Battle);
-		setTitle("戦功");
-		setSize(435, 255);
-		setLocationRelativeTo(null);
-		add(new MeritPanel(this, StageData));
-		setVisible(true);
-	}
-	
 	public PauseDialog(Battle Battle, MainFrame MainFrame, StageData StageData, double difficultyCorrection) {
 		setDialog(Battle);
 		setTitle("一時停止");
