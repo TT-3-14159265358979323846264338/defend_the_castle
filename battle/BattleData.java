@@ -33,6 +33,7 @@ public class BattleData{
 	protected BufferedImage bulletImage;
 	protected List<BufferedImage> hitImage;
 	private List<Bullet> bulletList = Arrays.asList();
+	private List<BattleData> targetList = new ArrayList<>();
 	
 	//バフ関連
 	protected List<List<Double>> generatedBuffInformation;
@@ -60,8 +61,10 @@ public class BattleData{
 	private ScheduledFuture<?> atackFuture;
 	private ScheduledExecutorService motionScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> motionFuture;
+	private long beforeMotionTime;
 	private ScheduledExecutorService healScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> healFuture;
+	private long beforeHealTime;
 	
 	protected void initialize() {
 		leftActionImage = rightActionImage.stream().map(i -> EditImage.mirrorImage(i)).toList();
@@ -77,6 +80,30 @@ public class BattleData{
 	}
 	
 	protected void individualSchedulerEnd() {
+		//詳細は@Overrideで記載
+	}
+	
+	protected void futureStop() {
+		if(atackFuture != null && !atackFuture.isCancelled() && !canAtack) {
+			atackFuture.cancel(true);
+			CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> atackTimer());
+		}
+		if(motionFuture != null && !motionFuture.isCancelled()) {
+			motionFuture.cancel(true);
+			long motionTime = System.currentTimeMillis();
+			CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> motionTimer(motionTime));
+		}
+		if(healFuture != null && !healFuture.isCancelled()) {
+			healFuture.cancel(true);
+			long healTime = System.currentTimeMillis();
+			CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> healTimer(healTime));
+		}
+		bulletList.stream().forEach(i -> i.futureStop());
+		generatedBuff.stream().forEach(i -> i.futureStop());
+		individualFutureStop();
+	}
+	
+	protected void individualFutureStop() {
 		//詳細は@Overrideで記載
 	}
 	
@@ -103,41 +130,37 @@ public class BattleData{
 	
 	//攻撃・回復処理
 	protected void atackTimer() {
-		int nowSpeed = getAtackSpeed();
-		if(nowSpeed <= 0) {
+		int delay = getAtackSpeed();
+		if(delay <= 0) {
 			return;
 		}
 		atackFuture = atackScheduler.scheduleWithFixedDelay(() -> {
-			if(Battle.canStop()) {
-				Battle.timerWait();
-			}
-			if(nowSpeed != getAtackSpeed()) {
-				CompletableFuture.runAsync(() -> atackFuture.cancel(true)).thenRun(this::atackTimer);
+			if(delay != getAtackSpeed()) {
+				CompletableFuture.runAsync(() -> atackFuture.cancel(true)).thenRun(() -> atackTimer());
 				return;
 			}
-			List<BattleData> targetList = targetCheck();
+			targetList = targetCheck();
 			if(targetList.isEmpty()) {
-				atackFuture.cancel(true);
 				return;
 			}
-			modeChange(targetList);
-			motionTimer(targetList);
+			modeChange();
+			motionTimer(0);
 			timerWait();
-		}, 0, getAtackSpeed(), TimeUnit.MILLISECONDS);
+		}, 0, delay, TimeUnit.MILLISECONDS);
 	}
 	
 	private List<BattleData> targetCheck() {
 		List<BattleData> targetList = AtackPattern.getTarget();
 		do {
-			if(Battle.canStop()) {
-				Battle.timerWait();
-			}
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				//タイマーを停止させる時に割り込みが発生する。
+				//タスクを終了させるために空のListを返却する。
+				return Arrays.asList();
 			}
 			if(!canActivate) {
+				atackFuture.cancel(true);
 				return Arrays.asList();
 			}
 			targetList = AtackPattern.getTarget();
@@ -145,18 +168,22 @@ public class BattleData{
 		return targetList;
 	}
 	
-	private void modeChange(List<BattleData> targetList) {
+	private void modeChange() {
 		canAtack = true;
 		existsRight = (targetList.get(0).getPositionX() <= positionX)? true: false;
 	}
 	
-	private void motionTimer(List<BattleData> targetList) {
+	private void motionTimer(long stopTime) {
+		int delay = 1000 * getAtackSpeed() / 50;
+		long initialDelay;
+		if(stopTime == 0) {
+			initialDelay = 0;
+		}else {
+			initialDelay = (stopTime - beforeMotionTime < delay)? delay - (stopTime - beforeMotionTime): 0;
+			beforeMotionTime += System.currentTimeMillis() - stopTime;
+		}
 		motionFuture = motionScheduler.scheduleAtFixedRate(() -> {
-			if(Battle.canStop()) {
-				CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> motionTimer(targetList));
-				motionFuture.cancel(true);
-				return;
-			}
+			beforeMotionTime = System.currentTimeMillis();
 			if(rightActionImage.size() - 1 <= motionNumber) {
 				motionNumber = 0;
 				bulletList = targetList.stream().map(i -> new Bullet(Battle, this, i, bulletImage, hitImage)).toList();
@@ -165,7 +192,7 @@ public class BattleData{
 				return;
 			}
 			motionNumber++;
-		}, 0, 1000 * getAtackSpeed() / 50, TimeUnit.MICROSECONDS);
+		}, initialDelay, delay, TimeUnit.MICROSECONDS);
 	}
 	
 	private CompletableFuture<?>[] atackProcess(){
@@ -263,19 +290,23 @@ public class BattleData{
 		//BattleUnitのみ@Overrideで記載
 	}
 	
-	protected void healTimer() {
+	protected void healTimer(long stopTime) {
+		int delay = 5000;
+		long initialDelay;
+		if(stopTime == 0) {
+			initialDelay = 0;
+		}else {
+			initialDelay = (stopTime - beforeHealTime < delay)? delay - (stopTime - beforeHealTime): 0;
+			beforeHealTime += System.currentTimeMillis() - stopTime;
+		}
 		healFuture = healScheduler.scheduleAtFixedRate(() -> {
-			if(Battle.canStop()) {
-				CompletableFuture.runAsync(Battle::timerWait).thenRun(this::healTimer);
-				healFuture.cancel(true);
-				return;
-			}
+			beforeHealTime = System.currentTimeMillis();
 			if(!canActivate) {
 				healFuture.cancel(true);
 				return;
 			}
 			HPIncrease(getRecover());
-		}, 0, 5, TimeUnit.SECONDS);
+		}, initialDelay, delay, TimeUnit.MILLISECONDS);
 	}
 	
 	//バフ管理

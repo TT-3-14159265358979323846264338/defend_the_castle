@@ -48,8 +48,10 @@ public class BattleUnit extends BattleData{
 	private Object achievementLock = new Object();
 	private ScheduledExecutorService achievementScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> achievementFuture;
+	private long beforeAchievementTime;
 	private ScheduledExecutorService relocationScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> relocationFuture;
+	private long beforeRelocationTime;
 	
 	//右武器/コア用　攻撃・被弾などの判定はこちらで行う
 	protected BattleUnit(Battle Battle, List<Integer> composition, int positionX, int positionY) {
@@ -144,19 +146,22 @@ public class BattleUnit extends BattleData{
 		return type;
 	}
 	
-	private void achievementTimer() {
+	private void achievementTimer(long stopTime) {
+		long initialDelay;
+		if(stopTime == 0) {
+			initialDelay = 0;
+		}else {
+			initialDelay = (stopTime - beforeAchievementTime < TIMER_INTERVAL)? TIMER_INTERVAL - (stopTime - beforeAchievementTime): 0;
+			beforeAchievementTime += System.currentTimeMillis() - stopTime;
+		}
 		achievementFuture = achievementScheduler.scheduleAtFixedRate(() -> {
-			if(Battle.canStop()) {
-				CompletableFuture.runAsync(Battle::timerWait).thenRun(this::achievementTimer);
-				achievementFuture.cancel(true);
-				return;
-			}
+			beforeAchievementTime = System.currentTimeMillis();
 			if(!canActivate) {
 				achievementFuture.cancel(true);
 				return;
 			}
 			setAchievement(PLACEMENT_ACHIEVEMENT);
-		}, 0, TIMER_INTERVAL, TimeUnit.MILLISECONDS);
+		}, initialDelay, TIMER_INTERVAL, TimeUnit.MILLISECONDS);
 	}
 	
 	private void setAchievement(int value) {
@@ -221,15 +226,29 @@ public class BattleUnit extends BattleData{
 		positionX = x;
 		positionY = y;
 		atackTimer();
-		healTimer();
+		healTimer(0);
 		activateBuff(Buff.BIGINNING, null);
-		achievementTimer();
+		achievementTimer(0);
 	}
 	
 	@Override
 	protected void individualSchedulerEnd() {
 		achievementScheduler.shutdown();
 		relocationScheduler.shutdown();
+	}
+	
+	@Override
+	protected void individualFutureStop() {
+		if(achievementFuture != null && !achievementFuture.isCancelled()) {
+			achievementFuture.cancel(true);
+			long achievementTime = System.currentTimeMillis();
+			CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> achievementTimer(achievementTime));
+		}
+		if(relocationFuture != null && !relocationFuture.isCancelled()) {
+			relocationFuture.cancel(true);
+			long relocationTime = System.currentTimeMillis();
+			CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> relocation(relocationTime));
+		}
 	}
 	
 	@Override
@@ -251,7 +270,7 @@ public class BattleUnit extends BattleData{
 		defeatNumber++;
 		GameData.lowMorale(battle.GameData.UNIT, price);
 		relocationTime = price * 1000;
-		relocation();
+		relocation(0);
 		reset(target);
 	}
 	
@@ -259,24 +278,27 @@ public class BattleUnit extends BattleData{
 		int price = (5 + 20 * (getMaxHP() - nowHP) / getMaxHP());
 		GameData.lowMorale(battle.GameData.UNIT, price);
 		relocationTime = price * 1000;
-		relocation();
+		relocation(0);
 		reset(null);
 	}
 	
-	private void relocation() {
+	private void relocation(long stopTime) {
+		long initialDelay;
+		if(stopTime == 0) {
+			initialDelay = 0;
+		}else {
+			initialDelay = (stopTime - beforeRelocationTime < TIMER_INTERVAL)? TIMER_INTERVAL - (stopTime - beforeRelocationTime): 0;
+			beforeRelocationTime += System.currentTimeMillis() - stopTime;
+		}
 		relocationFuture = relocationScheduler.scheduleAtFixedRate(() -> {
-			if(Battle.canStop()) {
-				CompletableFuture.runAsync(Battle::timerWait).thenRun(this::relocation);
-				relocationFuture.cancel(true);
-				return;
-			}
+			beforeRelocationTime = System.currentTimeMillis();
 			relocationCount += TIMER_INTERVAL;
 			if(relocationTime <= relocationCount) {
 				relocationCount = 0;
 				canLocate = true;
 				relocationFuture.cancel(true);
 			}
-		}, 0, TIMER_INTERVAL, TimeUnit.MILLISECONDS);
+		}, initialDelay, TIMER_INTERVAL, TimeUnit.MILLISECONDS);
 	}
 	
 	private void reset(BattleData target) {

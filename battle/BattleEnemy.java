@@ -31,11 +31,13 @@ public class BattleEnemy extends BattleData{
 	//移動制御
 	private int pauseCount;
 	private int deactivateCount;
+	private BattleData blockTarget;
 	
 	//システム関連
 	private Object blockWait = new Object();
 	private ScheduledExecutorService moveScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> moveFuture;
+	private long beforeMoveTime;
 	
 	protected BattleEnemy(Battle Battle, StageData StageData, int number, double difficultyCorrection) {
 		this.Battle = Battle;
@@ -107,12 +109,11 @@ public class BattleEnemy extends BattleData{
 	}
 	
 	private void moveTimer() {
-		int nowSpeed = getMoveSpeedOrBlock();
-		if(nowSpeed <= 0) {
+		if(getMoveSpeedOrBlock() <= 0) {
 			eternalStop();
 			return;
 		}
-		constantMove(nowSpeed);
+		constantMove(0);
 	}
 	
 	private void eternalStop() {
@@ -121,28 +122,33 @@ public class BattleEnemy extends BattleData{
 				canActivate = true;
 				GameData.moraleBoost(battle.GameData.ENEMY, 10);
 				atackTimer();
-				healTimer();
+				healTimer(0);
 				moveFuture.cancel(true);
 			}
 		}, 0, 10, TimeUnit.MILLISECONDS);
 	}
 	
-	private void constantMove(int nowSpeed) {
+	private void constantMove(long stopTime) {
+		int nowSpeed = getMoveSpeedOrBlock();
+		double delay = 2000000.0 / nowSpeed;
+		double initialDelay;
+		if(stopTime == 0) {
+			initialDelay = 0;
+		}else {
+			initialDelay = ((stopTime - beforeMoveTime) * 1000 < delay)? delay - (stopTime - beforeMoveTime) * 1000: 0;
+			beforeMoveTime += System.currentTimeMillis() - stopTime;
+		}
 		moveFuture = moveScheduler.scheduleAtFixedRate(() -> {
-			if(Battle.canStop()) {
-				CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> constantMove(nowSpeed));
-				moveFuture.cancel(true);
-				return;
-			}
+			beforeMoveTime = System.currentTimeMillis();
 			if(canAtack) {
-				CompletableFuture.runAsync(this::timerWait).thenRun(() -> constantMove(nowSpeed));
+				CompletableFuture.runAsync(this::timerWait).thenRun(() -> constantMove(0));
 				moveFuture.cancel(true);
 				return;
 			}
-			BattleData blockTarget = blockTarget();
+			blockTarget = blockTarget();
 			if(Objects.nonNull(blockTarget)) {
 				blockTarget.addBlock(this);
-				CompletableFuture.runAsync(this::blockWait).thenRun(() -> constantMove(nowSpeed));
+				CompletableFuture.runAsync(this::blockWait).thenRun(() -> constantMove(0));
 				moveFuture.cancel(true);
 				return;
 			}
@@ -151,7 +157,7 @@ public class BattleEnemy extends BattleData{
 				return;
 			}
 			if(nowSpeed != getMoveSpeedOrBlock()) {
-				CompletableFuture.runAsync(() -> moveFuture.cancel(true)).thenRun(this::moveTimer);
+				CompletableFuture.runAsync(() -> moveFuture.cancel(true)).thenRun(() -> constantMove(0));
 				return;
 			}
 			if(canActivate || 0 < deactivateCount) {
@@ -163,7 +169,7 @@ public class BattleEnemy extends BattleData{
 				GameData.moraleBoost(battle.GameData.ENEMY, 5);
 				activate();
 			}
-		}, 0, 2000000 / nowSpeed, TimeUnit.MICROSECONDS);
+		}, (int) initialDelay, (int) delay, TimeUnit.MICROSECONDS);
 	}
 	
 	private BattleData blockTarget() {
@@ -250,7 +256,7 @@ public class BattleEnemy extends BattleData{
 			deactivateCount = 0;
 			canActivate = true;
 			atackTimer();
-			healTimer();
+			healTimer(0);
 			activateBuff(Buff.BIGINNING, null);
 		}
 	}
@@ -265,6 +271,25 @@ public class BattleEnemy extends BattleData{
 	@Override
 	protected void individualSchedulerEnd() {
 		moveScheduler.shutdown();
+	}
+	
+	@Override
+	protected void individualFutureStop() {
+		if(moveFuture == null && moveFuture.isCancelled()) {
+			return;
+		}
+		if(canAtack) {
+			return;
+		}
+		if(blockTarget != null) {
+			return;
+		}
+		if(getMoveSpeedOrBlock() <= 0) {
+			return;
+		}
+		moveFuture.cancel(true);
+		long moveTime = System.currentTimeMillis();
+		CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> constantMove(moveTime));
 	}
 	
 	@Override

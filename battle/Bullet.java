@@ -17,13 +17,17 @@ public class Bullet {
 	public static final int COUNT = 5;
 	private ScheduledExecutorService bulletScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> bulletFuture;
+	private long beforeBulletTime;
 	private ScheduledExecutorService hitScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> hitFuture;
+	private long beforeHitTime;
 	private Battle Battle;
 	private BattleData myself;
 	private BattleData target;
 	private BufferedImage bulletImage;
 	private List<BufferedImage> hitImage;
+	private double oneTimeMoveX;
+	private double oneTimeMoveY;
 	private double positionX;
 	private double positionY;
 	private int bulletNumber = 0;
@@ -46,10 +50,10 @@ public class Bullet {
 		}
 		positionX = (int) myself.getPositionX() + CORRECTION;
 		positionY = (int) myself.getPositionY() + CORRECTION;
-		double oneTimeMoveX = (myself.getPositionX() - target.getPositionX()) / COUNT;
-		double oneTimeMoveY = (myself.getPositionY() - target.getPositionY()) / COUNT;
+		oneTimeMoveX = (myself.getPositionX() - target.getPositionX()) / COUNT;
+		oneTimeMoveY = (myself.getPositionY() - target.getPositionY()) / COUNT;
 		bulletImage = EditImage.rotateImage(bulletImage, angle());
-		bullet(oneTimeMoveX, oneTimeMoveY);
+		bullet(0);
 	}
 	
 	private double angle() {
@@ -72,23 +76,27 @@ public class Bullet {
 		return (0 < outerProductDirection)? Math.PI * 2 - cosineTheoremAngle: cosineTheoremAngle;
 	}
 	
-	private void bullet(double oneTimeMoveX, double oneTimeMoveY) {
+	private void bullet(long stopTime) {
+		int delay = 30;
+		long initialDelay;
+		if(stopTime == 0) {
+			initialDelay = 0;
+		}else {
+			initialDelay = (stopTime - beforeBulletTime < delay)? delay - (stopTime - beforeBulletTime): 0;
+			beforeBulletTime += System.currentTimeMillis() - stopTime;
+		}
 		bulletFuture = bulletScheduler.scheduleAtFixedRate(() -> {
-			if(Battle.canStop()) {
-				CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> bullet(oneTimeMoveX, oneTimeMoveY));
-				bulletFuture.cancel(true);
-				return;
-			}
+			beforeBulletTime = System.currentTimeMillis();
 			if(COUNT <= bulletNumber) {
 				hit();
 				bulletScheduler.shutdown();
 				return;
 			}
-			moveBullet(oneTimeMoveX, oneTimeMoveY);
-		}, 0, 30, TimeUnit.MILLISECONDS);
+			moveBullet();
+		}, initialDelay, delay, TimeUnit.MILLISECONDS);
 	}
 	
-	private void moveBullet(double oneTimeMoveX, double oneTimeMoveY) {
+	private void moveBullet() {
 		bulletNumber++;
 		positionX -= oneTimeMoveX;
 		positionY -= oneTimeMoveY;
@@ -102,23 +110,27 @@ public class Bullet {
 		}
 		positionX = (int) target.getPositionX() + CORRECTION;
 		positionY = (int) target.getPositionY() + CORRECTION;
-		hitTimer();
+		hitTimer(0);
 	}
 	
-	private void hitTimer() {
+	private void hitTimer(long stopTime) {
+		int delay = 50;
+		long initialDelay;
+		if(stopTime == 0) {
+			initialDelay = 0;
+		}else {
+			initialDelay = (stopTime - beforeHitTime < delay)? delay - (stopTime - beforeHitTime): 0;
+			beforeHitTime += System.currentTimeMillis() - stopTime;
+		}
 		hitFuture = hitScheduler.scheduleAtFixedRate(() -> {
-			if(Battle.canStop()) {
-				CompletableFuture.runAsync(Battle::timerWait).thenRun(this::hitTimer);
-				hitFuture.cancel(true);
-				return;
-			}
+			beforeHitTime = System.currentTimeMillis();
 			if(hitImage.size() - 1 <= hitNumber) {
 				hitScheduler.shutdown();
 				completion();
 				return;
 			}
 			hitNumber++;
-		}, 0, 50, TimeUnit.MILLISECONDS);
+		}, initialDelay, delay, TimeUnit.MILLISECONDS);
 	}
 	
 	protected synchronized BattleData waitCompletion() {
@@ -135,6 +147,19 @@ public class Bullet {
 	
 	private synchronized void completion() {
 		notifyAll();
+	}
+	
+	protected void futureStop() {
+		if(bulletFuture != null && !bulletFuture.isCancelled()) {
+			bulletFuture.cancel(true);
+			long bulletTime = System.currentTimeMillis();
+			CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> bullet(bulletTime));
+		}
+		if(hitFuture != null && !hitFuture.isCancelled()) {
+			hitFuture.cancel(true);
+			long hitTime = System.currentTimeMillis();
+			CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> hitTimer(hitTime));
+		}
 	}
 	
 	protected BufferedImage getImage() {

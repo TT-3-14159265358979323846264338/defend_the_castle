@@ -39,7 +39,7 @@ public class BattleFacility extends BattleData{
 		canActivate = true;
 		super.initialize();
 		atackTimer();
-		healTimer();
+		healTimer(0);
 	}
 	
 	protected void install(GameData GameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
@@ -64,6 +64,11 @@ public class BattleFacility extends BattleData{
 	
 	@Override
 	protected void individualSchedulerEnd() {
+		//特になし
+	}
+	
+	@Override
+	protected void individualFutureStop() {
 		//特になし
 	}
 	
