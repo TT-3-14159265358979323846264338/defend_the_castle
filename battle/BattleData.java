@@ -140,7 +140,7 @@ public class BattleData{
 		if(stopTime == 0) {
 			initialDelay = delay;
 		}else {
-			initialDelay = (stopTime - beforeAtackTime < delay)? delay - (stopTime - beforeAtackTime): delay;
+			initialDelay = (stopTime - beforeAtackTime < delay)? delay - (stopTime - beforeAtackTime): 0;
 			beforeAtackTime += System.currentTimeMillis() - stopTime;
 		}
 		atackFuture = atackScheduler.schedule(() -> {
@@ -188,7 +188,7 @@ public class BattleData{
 		if(stopTime == 0) {
 			initialDelay = 0;
 		}else {
-			initialDelay = (stopTime - beforeMotionTime < delay)? delay - (stopTime - beforeMotionTime): 0;
+			initialDelay = (stopTime - beforeMotionTime < delay)? delay - (stopTime - beforeMotionTime): delay;
 			beforeMotionTime += System.currentTimeMillis() - stopTime;
 		}
 		motionFuture = motionScheduler.scheduleAtFixedRate(() -> {
@@ -305,7 +305,7 @@ public class BattleData{
 		if(stopTime == 0) {
 			initialDelay = 0;
 		}else {
-			initialDelay = (stopTime - beforeHealTime < delay)? delay - (stopTime - beforeHealTime): 0;
+			initialDelay = (stopTime - beforeHealTime < delay)? delay - (stopTime - beforeHealTime): delay;
 			beforeHealTime += System.currentTimeMillis() - stopTime;
 		}
 		healFuture = healScheduler.scheduleAtFixedRate(() -> {

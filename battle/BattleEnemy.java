@@ -135,7 +135,7 @@ public class BattleEnemy extends BattleData{
 		if(stopTime == 0) {
 			initialDelay = 0;
 		}else {
-			initialDelay = ((stopTime - beforeMoveTime) * 1000 < delay)? delay - (stopTime - beforeMoveTime) * 1000: 0;
+			initialDelay = ((stopTime - beforeMoveTime) * 1000 < delay)? delay - (stopTime - beforeMoveTime) * 1000: delay;
 			beforeMoveTime += System.currentTimeMillis() - stopTime;
 		}
 		moveFuture = moveScheduler.scheduleAtFixedRate(() -> {
