@@ -174,7 +174,7 @@ public class Buff {
 		if(stopTime == 0) {
 			initialDelay = 0;
 		}else {
-			initialDelay = (stopTime - beforeRecastTime < DELEY)? DELEY - (stopTime - beforeRecastTime): DELEY;
+			initialDelay = (stopTime - beforeRecastTime < DELEY)? DELEY - (stopTime - beforeRecastTime): 0;
 			beforeRecastTime += System.currentTimeMillis() - stopTime;
 		}
 		recastFuture = recastScheduler.scheduleAtFixedRate(() -> {
@@ -205,7 +205,7 @@ public class Buff {
 		if(stopTime == 0) {
 			initialDelay = 0;
 		}else {
-			initialDelay = (stopTime - beforeIntervalTime < delay)? delay - (stopTime - beforeIntervalTime): delay;
+			initialDelay = (stopTime - beforeIntervalTime < delay)? delay - (stopTime - beforeIntervalTime): 0;
 			beforeIntervalTime += System.currentTimeMillis() - stopTime;
 		}
 		intervalFuture = intervalScheduler.scheduleAtFixedRate(() -> {
@@ -345,7 +345,7 @@ public class Buff {
 		if(stopTime == 0) {
 			initialDelay = 0;
 		}else {
-			initialDelay = (stopTime - beforeIntervalTime < delay)? delay - (stopTime - beforeIntervalTime): delay;
+			initialDelay = (stopTime - beforeIntervalTime < delay)? delay - (stopTime - beforeIntervalTime): 0;
 			beforeIntervalTime += System.currentTimeMillis() - stopTime;
 		}
 		intervalFuture = intervalScheduler.scheduleAtFixedRate(() -> {
@@ -366,7 +366,7 @@ public class Buff {
 		if(stopTime == 0) {
 			initialDelay = 0;
 		}else {
-			initialDelay = (stopTime - beforeDurationTime < DELEY)? DELEY - (stopTime - beforeDurationTime): DELEY;
+			initialDelay = (stopTime - beforeDurationTime < DELEY)? DELEY - (stopTime - beforeDurationTime): 0;
 			beforeDurationTime += System.currentTimeMillis() - stopTime;
 		}
 		durationFuture = durationScheduler.scheduleAtFixedRate(() -> {

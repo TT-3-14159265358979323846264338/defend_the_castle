@@ -175,7 +175,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		if(stopTime == 0) {
 			initialDelay = 0;
 		}else {
-			initialDelay = (stopTime - beforeAutoTime < delay)? delay - (stopTime - beforeAutoTime): delay;
+			initialDelay = (stopTime - beforeAutoTime < delay)? delay - (stopTime - beforeAutoTime): 0;
 			beforeAutoTime += System.currentTimeMillis() - stopTime;
 		}
 		autoFuture = autoScheduler.scheduleAtFixedRate(() -> {
@@ -614,7 +614,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		if(stopTime == 0) {
 			initialDelay = 0;
 		}else {
-			initialDelay = (stopTime - beforeMainTime < delay)? delay - (stopTime - beforeMainTime): delay;
+			initialDelay = (stopTime - beforeMainTime < delay)? delay - (stopTime - beforeMainTime): 0;
 			beforeMainTime += System.currentTimeMillis() - stopTime;
 		}
 		mainFuture = mainScheduler.scheduleAtFixedRate(() -> {

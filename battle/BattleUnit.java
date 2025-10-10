@@ -151,7 +151,7 @@ public class BattleUnit extends BattleData{
 		if(stopTime == 0) {
 			initialDelay = 0;
 		}else {
-			initialDelay = (stopTime - beforeAchievementTime < TIMER_INTERVAL)? TIMER_INTERVAL - (stopTime - beforeAchievementTime): TIMER_INTERVAL;
+			initialDelay = (stopTime - beforeAchievementTime < TIMER_INTERVAL)? TIMER_INTERVAL - (stopTime - beforeAchievementTime): 0;
 			beforeAchievementTime += System.currentTimeMillis() - stopTime;
 		}
 		achievementFuture = achievementScheduler.scheduleAtFixedRate(() -> {
@@ -287,7 +287,7 @@ public class BattleUnit extends BattleData{
 		if(stopTime == 0) {
 			initialDelay = 0;
 		}else {
-			initialDelay = (stopTime - beforeRelocationTime < TIMER_INTERVAL)? TIMER_INTERVAL - (stopTime - beforeRelocationTime): TIMER_INTERVAL;
+			initialDelay = (stopTime - beforeRelocationTime < TIMER_INTERVAL)? TIMER_INTERVAL - (stopTime - beforeRelocationTime): 0;
 			beforeRelocationTime += System.currentTimeMillis() - stopTime;
 		}
 		relocationFuture = relocationScheduler.scheduleAtFixedRate(() -> {

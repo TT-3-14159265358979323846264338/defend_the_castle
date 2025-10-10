@@ -82,7 +82,7 @@ public class Bullet {
 		if(stopTime == 0) {
 			initialDelay = 0;
 		}else {
-			initialDelay = (stopTime - beforeBulletTime < delay)? delay - (stopTime - beforeBulletTime): delay;
+			initialDelay = (stopTime - beforeBulletTime < delay)? delay - (stopTime - beforeBulletTime): 0;
 			beforeBulletTime += System.currentTimeMillis() - stopTime;
 		}
 		bulletFuture = bulletScheduler.scheduleAtFixedRate(() -> {
@@ -119,7 +119,7 @@ public class Bullet {
 		if(stopTime == 0) {
 			initialDelay = 0;
 		}else {
-			initialDelay = (stopTime - beforeHitTime < delay)? delay - (stopTime - beforeHitTime): delay;
+			initialDelay = (stopTime - beforeHitTime < delay)? delay - (stopTime - beforeHitTime): 0;
 			beforeHitTime += System.currentTimeMillis() - stopTime;
 		}
 		hitFuture = hitScheduler.scheduleAtFixedRate(() -> {
