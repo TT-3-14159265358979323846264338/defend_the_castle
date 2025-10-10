@@ -121,7 +121,7 @@ public class BattleEnemy extends BattleData{
 			if(activateTime <= Battle.getMainTime()) {
 				canActivate = true;
 				GameData.moraleBoost(battle.GameData.ENEMY, 10);
-				atackTimer();
+				atackTimer(0);
 				healTimer(0);
 				moveFuture.cancel(true);
 			}
@@ -255,7 +255,7 @@ public class BattleEnemy extends BattleData{
 		if(!canActivate) {
 			deactivateCount = 0;
 			canActivate = true;
-			atackTimer();
+			atackTimer(0);
 			healTimer(0);
 			activateBuff(Buff.BIGINNING, null);
 		}

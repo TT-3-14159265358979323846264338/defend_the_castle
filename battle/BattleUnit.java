@@ -225,7 +225,7 @@ public class BattleUnit extends BattleData{
 		GameData.moraleBoost(battle.GameData.UNIT, 5);
 		positionX = x;
 		positionY = y;
-		atackTimer();
+		atackTimer(0);
 		healTimer(0);
 		activateBuff(Buff.BIGINNING, null);
 		achievementTimer(0);
