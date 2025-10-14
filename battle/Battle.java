@@ -40,6 +40,7 @@ import screendisplay.DisplayStatus;
 public class Battle extends JPanel implements MouseListener, MouseMotionListener{
 	public static final int SIZE = 28;
 	private JLabel costLabel = new JLabel();
+	private JLabel[] awakeLabel;
 	private JButton rangeDrawButton = new JButton();
 	private JButton autoAwakeningButton = new JButton();
 	private JButton stageReturnButton = new JButton();
@@ -117,9 +118,8 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		drawBackground(g);
 		drawSkill(g);
 		drawUnit(g);
-		if(canAwake) {
-			drawAwake(g);
-		}
+		drawAwakenable();
+		drawAwake(g);
 		drawBullet(g);
 		drawSelectUnit(g);
 		drawMorale(g);
@@ -141,6 +141,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		IntStream.range(0, UnitLeftData.length).forEach(i -> UnitLeftData[i].install(GameData, UnitMainData[i], UnitMainData, FacilityData, EnemyData));
 		Stream.of(FacilityData).forEach(i -> i.install(GameData, UnitMainData, FacilityData, EnemyData));
 		Stream.of(EnemyData).forEach(i -> i.install(GameData, UnitMainData, FacilityData, EnemyData));
+		awakeLabel = IntStream.range(0, UnitMainData.length).mapToObj(i -> new AwakeLabel()).toArray(JLabel[]::new);
 	}
 	
 	private void addCostLabel() {
@@ -304,13 +305,13 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 				drawHP(g, UnitMainData[i]);
 			}else {
 				if(!UnitMainData[i].canLocate()) {
-					drawLocation(g, UnitMainData[i]);
+					drawRelocation(g, UnitMainData[i]);
 				}
 			}
 		});
 	}
 	
-	private void drawLocation(Graphics g, BattleUnit BattleUnit) {
+	private void drawRelocation(Graphics g, BattleUnit BattleUnit) {
 		int x = BattleUnit.getPositionX();
 		int y = BattleUnit.getPositionY();
 		Graphics2D g2 = (Graphics2D)g;
@@ -320,14 +321,26 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		g2.fill(new Arc2D.Double(x, y, 90, 90, 90, 360 * BattleUnit.locationRatio(), Arc2D.PIE));
 	}
 	
+	private void drawAwakenable() {
+		IntStream.range(0, UnitMainData.length).forEach(i -> {
+			remove(awakeLabel[i]);
+			if(canAwake(i)) {
+				add(awakeLabel[i]);
+				awakeLabel[i].setLocation(UnitMainData[i].getPositionX() + 25, UnitMainData[i].getPositionY() + 10);
+			}
+		});
+	}
+	
 	private void drawAwake(Graphics g) {
-		int x = selectUnit.getPositionX();
-		int y = selectUnit.getPositionY();
-		g.setColor(Color.RED);
-		g.fillRect(x + 15, y + 30, 10, 30);
-		g.fillPolygon(new int[] {x + 10, x + 20, x + 30}, new int[] {y + 40, y + 20, y + 40}, 3);
-		g.fillRect(x + 60, y + 30, 10, 30);
-		g.fillPolygon(new int[] {x + 55, x + 65, x + 75}, new int[] {y + 40, y + 20, y + 40}, 3);
+		if(canAwake) {
+			int x = selectUnit.getPositionX();
+			int y = selectUnit.getPositionY();
+			g.setColor(Color.RED);
+			g.fillRect(x + 15, y + 30, 10, 30);
+			g.fillPolygon(new int[] {x + 10, x + 20, x + 30}, new int[] {y + 40, y + 20, y + 40}, 3);
+			g.fillRect(x + 60, y + 30, 10, 30);
+			g.fillPolygon(new int[] {x + 55, x + 65, x + 75}, new int[] {y + 40, y + 20, y + 40}, 3);
+		}
 	}
 	
 	private void drawBullet(Graphics g) {
@@ -497,6 +510,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void unitMenu(int number) {
+		stageReturnButton.setEnabled(false);
 		timerStop();
 		selectUnit = UnitMainData[number];
 		addStatusButton(number);
@@ -569,6 +583,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		removeButton.accept(retreatButton);
 		removeButton.accept(awakeningButton);
 		removeButton.accept(unitReturnButton);
+		stageReturnButton.setEnabled(true);
 	}
 	
 	private void unitStatus(int number) {
@@ -620,6 +635,9 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		mainFuture = mainScheduler.scheduleAtFixedRate(() -> {
 			beforeMainTime = System.currentTimeMillis();
 			time += delay;
+			if(time % 2000 == 0) {
+				GameData.addCost(1);
+			}
 		}, initialDelay, delay, TimeUnit.MILLISECONDS);
 	}
 	
