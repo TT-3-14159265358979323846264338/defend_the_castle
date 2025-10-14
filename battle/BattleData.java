@@ -436,15 +436,30 @@ public class BattleData{
 	}
 	
 	private int getAtack() {
-		return statusControl(Buff.ATACK);
+		if(defaultWeaponStatus.get((int) Buff.ATACK) == 0) {
+			return 0;
+		}
+		int atack = statusControl(Buff.ATACK);
+		if(atack <= 10) {
+			return 10;
+		}
+		return atack;
 	}
 	
 	public int getRange() {
-		return statusControl(Buff.RANGE);
+		int range = statusControl(Buff.RANGE);
+		if(range <= 10) {
+			return 10;
+		}
+		return range;
 	}
 	
 	private int getAtackSpeed() {
-		return statusControl(Buff.ATACK_SPEED);
+		int atackSpeed = statusControl(Buff.ATACK_SPEED);
+		if(atackSpeed <= 100) {
+			return 100;
+		}
+		return atackSpeed;
 	}
 	
 	public int getAtackNumber() {
@@ -452,11 +467,20 @@ public class BattleData{
 	}
 	
 	public List<Integer> getWeapon(){
-		return IntStream.range(0, defaultWeaponStatus.size()).mapToObj(i -> statusControl(i)).toList();
+		List<Integer> status = new ArrayList<>();
+		status.add(getAtack());
+		status.add(getRange());
+		status.add(getAtackSpeed());
+		status.add(getAtackNumber());
+		return status;
 	}
 	
 	protected int getMaxHP() {
-		return statusControl(Buff.HP);
+		int HP = statusControl(Buff.HP);
+		if(HP <= 100) {
+			return 100;
+		}
+		return HP;
 	}
 	
 	public int getNowHP() {
@@ -464,11 +488,19 @@ public class BattleData{
 	}
 	
 	private int getDefense() {
-		return statusControl(Buff.DEFENCE);
+		int defence = statusControl(Buff.DEFENCE);
+		if(defence <= 0) {
+			return 0;
+		}
+		return defence;
 	}
 	
 	private int getRecover() {
-		return statusControl(Buff.HEAL);
+		int recover = statusControl(Buff.HEAL);
+		if(recover <= 0) {
+			return 0;
+		}
+		return recover;
 	}
 	
 	protected int getMoveSpeedOrBlock() {
@@ -476,19 +508,34 @@ public class BattleData{
 	}
 	
 	protected int getCost() {
-		return statusControl(Buff.COST);
+		int cost = statusControl(Buff.COST);
+		if(cost <= 0) {
+			return 0;
+		}
+		return cost;
 	}
 	
 	public List<Integer> getUnit(){
-		return IntStream.range(10, defaultUnitStatus.size() + 10).mapToObj(i -> statusControl(i)).toList();
+		List<Integer> status = new ArrayList<>();
+		status.add(getMaxHP());
+		status.add(getNowHP());
+		status.add(getDefense());
+		status.add(getRecover());
+		status.add(getMoveSpeedOrBlock());
+		status.add(getCost());
+		return status;
 	}
 	
 	private int getCut(double number) {
-		return statusControl(number);
+		int cut = statusControl(number);
+		if(cut <= 0) {
+			return 0;
+		}
+		return cut;
 	}
 	
 	public List<Integer> getCut(){
-		return IntStream.range(100, defaultCutStatus.size() + 100).mapToObj(i -> statusControl(i)).toList();
+		return IntStream.range(100, defaultCutStatus.size() + 100).mapToObj(i -> getCut(i)).toList();
 	}
 	
 	private int statusControl(double number) {
