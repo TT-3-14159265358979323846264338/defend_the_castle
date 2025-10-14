@@ -116,7 +116,7 @@ public abstract class WeaponData {
 	
 	/**
 	 * 武器属性コード。
-	 * @return 武器に付与される全ての属性コードを返却する。コードは{@link defaultdata.DefaultUnit#ELEMENT_MAP ELEMENT_MAP}参照。
+	 * @return 武器に付与される全ての属性コードを返却する。コードは{@link defaultdata.DefaultUnit#ELEMENT_MAP ELEMENT_MAP}参照。攻撃しない時は空のArrays.asList()を返却する。
 	 */
 	public abstract List<Integer> getElement();
 	

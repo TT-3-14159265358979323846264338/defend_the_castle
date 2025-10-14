@@ -9,6 +9,7 @@ public class DefaultAtackPattern {
 	//コード名
 	public static final int NEAR = 0;
 	public static final int FAR = 1;
+	public static final int NO_ATACK = 2;
 	
 	//コードの振り分け(戦闘時、各キャラに独自のAtackPatternクラスを搭載するため、毎回新インスタンスを生成する必要がある)
 	/**
@@ -19,10 +20,12 @@ public class DefaultAtackPattern {
 	 */
 	public AtackPattern getAtackPattern(int code) {
 		switch(code) {
-		case 0:
+		case NEAR:
 			return new No00Near();
-		case 1:
+		case FAR:
 			return new No01Far();
+		case NO_ATACK:
+			return new No02NoAtack();
 		default:
 			return null;
 		}

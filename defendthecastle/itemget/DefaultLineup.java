@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+import defaultdata.DefaultUnit;
+
 /*ガチャのラインナップ
  * LineupSetには、そのセットで排出されるユニット番号をリスト化
  * その後、各ガチャのmodeでどのLineupSetと排出確率を使用するか指定する(addCore(), addWeapon())
@@ -16,10 +18,10 @@ import java.util.stream.IntStream;
  * 各ガチャ全体の排出確率を100に必ずすること
  */
 class DefaultLineup{
-	private final List<Integer> coreLineupSet1 = Arrays.asList(1, 2, 3, 4, 5);
+	private final List<Integer> coreLineupSet1 = Arrays.asList(DefaultUnit.ATACK_CORE, DefaultUnit.DEFENCE_CORE, DefaultUnit.RANGE_CORE, DefaultUnit.HEAL_CORE, DefaultUnit.SPEED_CORE);
 	//private final List<Integer> coreLineupSet2 = Arrays.asList();
 	//private final List<Integer> coreLineupSet3 = Arrays.asList();
-	private final List<Integer> weaponLineupSet1 = Arrays.asList(0, 1);
+	private final List<Integer> weaponLineupSet1 = Arrays.asList(DefaultUnit.SWORD, DefaultUnit.BOW, DefaultUnit.SMALL_SHIELD);
 	//private final List<Integer> weaponLineupSet2 = Arrays.asList();
 	//private final List<Integer> weaponLineupSet3 = Arrays.asList();
 	

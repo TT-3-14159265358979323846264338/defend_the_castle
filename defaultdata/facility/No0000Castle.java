@@ -48,7 +48,7 @@ public class No0000Castle extends FacilityData{
 
 	@Override
 	public int getAtackPattern() {
-		return DefaultAtackPattern.NEAR;
+		return DefaultAtackPattern.NO_ATACK;
 	}
 
 	@Override

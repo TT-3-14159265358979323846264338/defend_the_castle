@@ -241,14 +241,14 @@ public class DisplayStatus extends StatusPanel{
 		weapon[6].setText("属性");
 		weapon[7].setText("ターゲット");
 		weapon[9].setText("左武器");
-		if(0 <= unitLeftData.getElement().get(0)) {
+		if(!unitLeftData.getElement().isEmpty()) {
 			IntStream.range(0, DefaultUnit.WEAPON_WEAPON_MAP.size()).forEach(i -> weapon[i + 10].setText("" + unitLeftData.getWeapon().get(i)));
 			weapon[14].setText("" + DefaultUnit.DISTANCE_MAP.get(unitMainData.getType()));
 			weapon[15].setText("" + getElement(unitLeftData.getElement()));
 			weapon[16].setText("" + unitLeftData.getAtackPattern().getExplanation());
 		}
 		weapon[18].setText("右武器");
-		if(0 <= unitMainData.getElement().get(0)) {
+		if(!unitMainData.getElement().isEmpty()) {
 			IntStream.range(0, DefaultUnit.WEAPON_WEAPON_MAP.size()).forEach(i -> weapon[i + 19].setText("" + unitMainData.getWeapon().get(i)));
 			weapon[23].setText("" + DefaultUnit.DISTANCE_MAP.get(unitMainData.getType()));
 			weapon[24].setText("" + getElement(unitMainData.getElement()));
@@ -284,6 +284,9 @@ public class DisplayStatus extends StatusPanel{
 	}
 	
 	private String getElement(List<Integer> elementList) {
+		if(elementList.isEmpty()) {
+			return "";
+		}
 		String element = "";
 		for(int i: elementList) {
 			element += DefaultUnit.ELEMENT_MAP.get(i) + ", ";

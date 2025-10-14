@@ -113,11 +113,13 @@ public class DefaultUnit {
 	public static final int NO_WEAPON = -1;
 	public static final int SWORD = 0;
 	public static final int BOW = 1;
+	public static final int SMALL_SHIELD = 2;
 	
 	public static final Map<Integer, WeaponData> WEAPON_DATA_MAP = new HashMap<>();
 	static {
 		WEAPON_DATA_MAP.put(SWORD, new No0000JapaneseSword());
 		WEAPON_DATA_MAP.put(BOW, new No0001Bow());
+		WEAPON_DATA_MAP.put(SMALL_SHIELD, new No0002SmallShield());
 	}
 	
 	//編成の順番コード

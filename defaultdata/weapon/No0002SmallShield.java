@@ -6,47 +6,40 @@ import java.util.List;
 import defaultdata.DefaultAtackPattern;
 import defaultdata.DefaultUnit;
 
-public class No0001Bow extends WeaponData{
+public class No0002SmallShield extends WeaponData{
 	@Override
 	public String getName() {
-		return "弓";
+		return "スモールシールド";
 	}
 
 	@Override
 	public String getExplanation() {
-		return "一般的な遠距離武器。長い射程で1体を攻撃する。";
+		return "攻撃を行わない代わりに防御力とブロックが高い。";
 	}
 	
 	@Override
 	public String getImageName() {
-		return "image/weapon/No0001 bow/bow.png";
+		return "image/weapon/No0002 small shield/small shield.png";
 	}
 
 	@Override
 	public List<String> getRightActionImageName() {
-		return Arrays.asList();
+		return Arrays.asList("image/weapon/No0002 small shield/small shield right 0.png");
 	}
 
 	@Override
 	public List<String> getLeftActionImageName() {
-		return Arrays.asList("image/weapon/No0001 bow/bow left 0.png",
-				"image/weapon/No0001 bow/bow left 1.png",
-				"image/weapon/No0001 bow/bow left 2.png",
-				"image/weapon/No0001 bow/bow left 3.png",
-				"image/weapon/No0001 bow/bow left 4.png",
-				"image/weapon/No0001 bow/bow left 5.png");
+		return Arrays.asList("image/weapon/No0002 small shield/small shield left 0.png");
 	}
 
 	@Override
 	public String getBulletImageName() {
-		return "image/weapon/No0001 bow/bow bullet.png";
+		return null;
 	}
 
 	@Override
 	public List<String> getHitImageName() {
-		return Arrays.asList("image/weapon/No0001 bow/bow hit 1.png",
-				"image/weapon/No0001 bow/bow hit 2.png",
-				"image/weapon/No0001 bow/bow hit 3.png");
+		return Arrays.asList();
 	}
 	
 	@Override
@@ -56,37 +49,37 @@ public class No0001Bow extends WeaponData{
 
 	@Override
 	public int getDistance() {
-		return DefaultUnit.FAR;
+		return DefaultUnit.NEAR;
 	}
 
 	@Override
 	public int getHandle() {
-		return DefaultUnit.BOTH;
+		return DefaultUnit.ONE;
 	}
 
 	@Override
 	public List<Integer> getElement() {
-		return Arrays.asList(DefaultUnit.PIERCE);
+		return Arrays.asList();
 	}
 
 	@Override
 	public int getAtackPattern() {
-		return DefaultAtackPattern.NEAR;
+		return DefaultAtackPattern.NO_ATACK;
 	}
 
 	@Override
 	public List<Integer> getWeaponStatus() {
-		return Arrays.asList(100, 150, 1000, 1);
+		return Arrays.asList(0, 0, 0, 0);
 	}
 
 	@Override
 	public List<Integer> getUnitStatus() {
-		return Arrays.asList(1000, 1000, 100, 10, 0, 10);
+		return Arrays.asList(1000, 1000, 150, 10, 3, 5);
 	}
 
 	@Override
 	public List<Integer> getCutStatus() {
-		return Arrays.asList(0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+		return Arrays.asList(10, 10, 10, 10, 5, 5, 5, 5, 5, 5, 5, 0);
 	}
 	
 	@Override
