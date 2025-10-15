@@ -115,6 +115,7 @@ public class DefaultUnit {
 	public static final int BOW = 1;
 	public static final int SMALL_SHIELD = 2;
 	public static final int FIRST_AID_KIT = 3;
+	public static final int FLAME_ROD = 4;
 	
 	public static final Map<Integer, WeaponData> WEAPON_DATA_MAP = new HashMap<>();
 	static {
@@ -122,6 +123,7 @@ public class DefaultUnit {
 		WEAPON_DATA_MAP.put(BOW, new No0001Bow());
 		WEAPON_DATA_MAP.put(SMALL_SHIELD, new No0002SmallShield());
 		WEAPON_DATA_MAP.put(FIRST_AID_KIT, new No0003FirstAidKit());
+		WEAPON_DATA_MAP.put(FLAME_ROD, new No0004FlameRod());
 	}
 	
 	//編成の順番コード
