@@ -20,7 +20,7 @@ class DefaultLineup{
 	private final List<Integer> coreLineupSet1 = Arrays.asList(ATACK_CORE, DEFENCE_CORE, RANGE_CORE, HEAL_CORE, SPEED_CORE);
 	//private final List<Integer> coreLineupSet2 = Arrays.asList();
 	//private final List<Integer> coreLineupSet3 = Arrays.asList();
-	private final List<Integer> weaponLineupSet1 = Arrays.asList(SWORD, BOW, SMALL_SHIELD, FIRST_AID_KIT);
+	private final List<Integer> weaponLineupSet1 = Arrays.asList(SWORD, BOW, SMALL_SHIELD, FIRST_AID_KIT, FLAME_ROD);
 	//private final List<Integer> weaponLineupSet2 = Arrays.asList();
 	//private final List<Integer> weaponLineupSet3 = Arrays.asList();
 	
