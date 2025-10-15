@@ -1,6 +1,7 @@
 package defendthecastle.itemget;
 
-import static javax.swing.JOptionPane.*;
+import static javax.swing.JOptionPane.showMessageDialog;
+import static defaultdata.DefaultUnit.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import defaultdata.DefaultUnit;
-
 /*ガチャのラインナップ
  * LineupSetには、そのセットで排出されるユニット番号をリスト化
  * その後、各ガチャのmodeでどのLineupSetと排出確率を使用するか指定する(addCore(), addWeapon())
@@ -18,10 +17,10 @@ import defaultdata.DefaultUnit;
  * 各ガチャ全体の排出確率を100に必ずすること
  */
 class DefaultLineup{
-	private final List<Integer> coreLineupSet1 = Arrays.asList(DefaultUnit.ATACK_CORE, DefaultUnit.DEFENCE_CORE, DefaultUnit.RANGE_CORE, DefaultUnit.HEAL_CORE, DefaultUnit.SPEED_CORE);
+	private final List<Integer> coreLineupSet1 = Arrays.asList(ATACK_CORE, DEFENCE_CORE, RANGE_CORE, HEAL_CORE, SPEED_CORE);
 	//private final List<Integer> coreLineupSet2 = Arrays.asList();
 	//private final List<Integer> coreLineupSet3 = Arrays.asList();
-	private final List<Integer> weaponLineupSet1 = Arrays.asList(DefaultUnit.SWORD, DefaultUnit.BOW, DefaultUnit.SMALL_SHIELD);
+	private final List<Integer> weaponLineupSet1 = Arrays.asList(SWORD, BOW, SMALL_SHIELD, FIRST_AID_KIT);
 	//private final List<Integer> weaponLineupSet2 = Arrays.asList();
 	//private final List<Integer> weaponLineupSet3 = Arrays.asList();
 	

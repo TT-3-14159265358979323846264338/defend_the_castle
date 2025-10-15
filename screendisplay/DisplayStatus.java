@@ -285,7 +285,7 @@ public class DisplayStatus extends StatusPanel{
 	
 	private String getElement(List<Integer> elementList) {
 		if(elementList.isEmpty()) {
-			return "";
+			return "なし";
 		}
 		String element = "";
 		for(int i: elementList) {

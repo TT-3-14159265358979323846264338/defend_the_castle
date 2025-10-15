@@ -475,7 +475,7 @@ public class BattleData{
 		return status;
 	}
 	
-	protected int getMaxHP() {
+	public int getMaxHP() {
 		int HP = statusControl(Buff.HP);
 		if(HP <= 100) {
 			return 100;

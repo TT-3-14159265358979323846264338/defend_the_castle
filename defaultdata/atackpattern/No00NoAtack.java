@@ -5,11 +5,11 @@ import java.util.List;
 
 import battle.BattleData;
 
-public class No02NoAtack extends AtackPattern{
+public class No00NoAtack extends AtackPattern{
 
 	@Override
 	public String getExplanation() {
-		return "";
+		return "なし";
 	}
 
 	@Override

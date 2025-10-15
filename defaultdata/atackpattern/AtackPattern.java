@@ -46,4 +46,8 @@ public abstract class AtackPattern {
 	protected double distanceCalculate(BattleData data) {
 		return Math.sqrt(Math.pow(myself.getPositionX() - data.getPositionX(), 2) + Math.pow(myself.getPositionY() - data.getPositionY(), 2));
 	}
+	
+	protected double ratioHP(BattleData data) {
+		return (double) data.getNowHP() / data.getMaxHP();
+	}
 }

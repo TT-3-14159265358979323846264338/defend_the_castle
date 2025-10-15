@@ -5,7 +5,7 @@ import java.util.List;
 
 import battle.BattleData;
 
-public class No00Near extends AtackPattern{
+public class No01Near extends AtackPattern{
 
 	@Override
 	public String getExplanation() {

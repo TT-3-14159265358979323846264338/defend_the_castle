@@ -98,7 +98,7 @@ public class StatusCalculation{
 	}
 	
 	private List<Integer> defaultElement(){
-		return Arrays.asList(NO_DATA);
+		return Arrays.asList();
 	}
 	
 	private List<Integer> defaultWeaponStatus(){

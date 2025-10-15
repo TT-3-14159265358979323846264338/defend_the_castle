@@ -411,7 +411,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		removeMenu();
+		actionInitialize();
 		int number = clickPointCheck(e, UnitMainData);
 		if(0 <= number) {
 			if(UnitMainData[number].canActivate()) {
@@ -436,7 +436,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	@Override
 	public void mousePressed(MouseEvent e) {
-		removeMenu();
+		actionInitialize();
 		mouse = e.getPoint();
 		IntStream.range(0, UnitMainData.length).filter(i -> !UnitMainData[i].canActivate()).forEach(i -> {
 			int x = initialX(i) + 30;
@@ -510,7 +510,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void unitMenu(int number) {
-		stageReturnButton.setEnabled(false);
+		deactivateAction();
 		timerStop();
 		selectUnit = UnitMainData[number];
 		addStatusButton(number);
@@ -522,7 +522,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private void addStatusButton(int number) {
 		add(statusButton);
 		statusButton.addActionListener(e->{
-			removeMenu();
+			actionInitialize();
 			new DisplayStatus().unit(UnitMainData[number], UnitLeftData[number]);
 			timerRestart();
 		});
@@ -531,7 +531,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private void addRetreatButton(int number) {
 		add(retreatButton);
 		retreatButton.addActionListener(e->{
-			removeMenu();
+			actionInitialize();
 			GameData.addCost((int) Math.ceil(UnitMainData[number].getCost() / 2));
 			UnitMainData[number].retreat();
 			timerRestart();
@@ -542,7 +542,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		if(canAwake(number)) {
 			add(awakeningButton);
 			awakeningButton.addActionListener(e->{
-				removeMenu();
+				actionInitialize();
 				awake(number);
 				timerRestart();
 			});
@@ -569,9 +569,14 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private void addUnitReturnButton() {
 		add(unitReturnButton);
 		unitReturnButton.addActionListener(e->{
-			removeMenu();
+			actionInitialize();
 			timerRestart();
 		});
+	}
+	
+	private void actionInitialize() {
+		removeMenu();
+		activateAction();
 	}
 	
 	private void removeMenu() {
@@ -583,7 +588,20 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		removeButton.accept(retreatButton);
 		removeButton.accept(awakeningButton);
 		removeButton.accept(unitReturnButton);
+	}
+	
+	private void activateAction() {
 		stageReturnButton.setEnabled(true);
+		if(getMouseListeners().length == 0) {
+			addMouseListener(this);
+			addMouseMotionListener(this);
+		}
+	}
+	
+	private void deactivateAction() {
+		stageReturnButton.setEnabled(false);
+		removeMouseListener(this);
+		removeMouseMotionListener(this);
 	}
 	
 	private void unitStatus(int number) {
