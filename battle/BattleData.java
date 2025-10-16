@@ -57,13 +57,13 @@ public class BattleData{
 	private Object buffLock = new Object();
 	private Object blockLock = new Object();
 	private Object HPLock = new Object();
-	private ScheduledExecutorService atackScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledExecutorService atackScheduler;
 	private ScheduledFuture<?> atackFuture;
 	private long beforeAtackTime;
-	private ScheduledExecutorService motionScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledExecutorService motionScheduler;
 	private ScheduledFuture<?> motionFuture;
 	private long beforeMotionTime;
-	private ScheduledExecutorService healScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledExecutorService healScheduler;
 	private ScheduledFuture<?> healFuture;
 	private long beforeHealTime;
 	
@@ -72,7 +72,19 @@ public class BattleData{
 		nowHP = defaultUnitStatus.get(1);
 	}
 	
+	protected void schedulerStart() {
+		atackScheduler = Executors.newSingleThreadScheduledExecutor();
+		motionScheduler = Executors.newSingleThreadScheduledExecutor();
+		healScheduler = Executors.newSingleThreadScheduledExecutor();
+	}
+	
 	protected void schedulerEnd() {
+		if(atackScheduler == null) {
+			return;
+		}
+		if(atackScheduler.isShutdown()) {
+			return;
+		}
 		atackScheduler.shutdown();
 		motionScheduler.shutdown();
 		healScheduler.shutdown();

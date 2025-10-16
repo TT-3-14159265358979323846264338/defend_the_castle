@@ -38,6 +38,7 @@ public class BattleFacility extends BattleData{
 		defaultCutStatus = FacilityData.getCutStatus().stream().toList();
 		canActivate = true;
 		super.initialize();
+		schedulerStart();
 		atackTimer(0);
 		healTimer(0);
 	}

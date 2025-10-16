@@ -103,6 +103,7 @@ public class BattleUnit extends BattleData{
 	}
 	
 	protected void install(GameData GameData, BattleUnit otherWeapon, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
+		schedulerStart();
 		this.GameData = GameData;
 		this.otherWeapon = otherWeapon;
 		allyData = Stream.concat(Stream.of(unitMainData), Stream.of(facilityData)).toList();

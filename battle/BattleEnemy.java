@@ -166,6 +166,7 @@ public class BattleEnemy extends BattleData{
 				return;
 			}
 			if(activateTime <= Battle.getMainTime()) {
+				schedulerStart();
 				GameData.moraleBoost(battle.GameData.ENEMY, 5);
 				activate();
 			}
@@ -304,5 +305,6 @@ public class BattleEnemy extends BattleData{
 		removeBlock(this);
 		GameData.lowMorale(battle.GameData.ENEMY, 3);
 		activateBuff(Buff.DEFEAT, target);
+		schedulerEnd();
 	}
 }
