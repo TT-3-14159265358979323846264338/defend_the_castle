@@ -81,17 +81,17 @@ public class No0003FirstAidKit extends WeaponData{
 
 	@Override
 	public List<Integer> getWeaponStatus() {
-		return Arrays.asList(100, 100, 1000, 1);
+		return Arrays.asList(50, 120, 1000, 1);
 	}
 
 	@Override
 	public List<Integer> getUnitStatus() {
-		return Arrays.asList(1000, 1000, 20, 15, 0, 5);
+		return Arrays.asList(200, 200, 10, 20, 0, 5);
 	}
 
 	@Override
 	public List<Integer> getCutStatus() {
-		return Arrays.asList(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5);
+		return Arrays.asList(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10);
 	}
 	
 	@Override

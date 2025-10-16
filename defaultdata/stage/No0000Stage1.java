@@ -150,10 +150,23 @@ public class No0000Stage1 extends StageData{
 	@Override
 	public List<List<Integer>> getEnemy() {
 		return Arrays.asList(
-				Arrays.asList(DefaultEnemy.HIGH_SLIME, 0, 1000),
-				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 1, 1000),
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 2, 2000),
-				Arrays.asList(DefaultEnemy.RED_SLIME, 3, 2000)
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 1000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 1000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 5000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 5000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 9000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 9000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 13000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 13000),
+				
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 20000),
+				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 20500),
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 250000),
+				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 255000),
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 30000),
+				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 30500),
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 35000),
+				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 35500)
 				);
 	}
 

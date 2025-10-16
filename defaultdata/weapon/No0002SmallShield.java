@@ -74,7 +74,7 @@ public class No0002SmallShield extends WeaponData{
 
 	@Override
 	public List<Integer> getUnitStatus() {
-		return Arrays.asList(1000, 1000, 150, 10, 3, 5);
+		return Arrays.asList(1000, 1000, 30, 10, 3, 5);
 	}
 
 	@Override

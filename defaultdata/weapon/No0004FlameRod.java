@@ -81,17 +81,17 @@ public class No0004FlameRod extends WeaponData{
 
 	@Override
 	public List<Integer> getWeaponStatus() {
-		return Arrays.asList(100, 100, 1000, 1);
+		return Arrays.asList(75, 120, 1000, 1);
 	}
 
 	@Override
 	public List<Integer> getUnitStatus() {
-		return Arrays.asList(1000, 1000, 50, 5, 0, 5);
+		return Arrays.asList(300, 300, 10, 5, 0, 5);
 	}
 
 	@Override
 	public List<Integer> getCutStatus() {
-		return Arrays.asList(0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0);
+		return Arrays.asList(0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0);
 	}
 	
 	@Override

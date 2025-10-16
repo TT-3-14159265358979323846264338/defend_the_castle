@@ -58,7 +58,7 @@ public class No0000Castle extends FacilityData{
 
 	@Override
 	public List<Integer> getUnitStatus() {
-		return Arrays.asList(10000, 10000, 0, 0, -1, 0);
+		return Arrays.asList(30000, 30000, 0, 0, -1, 0);
 	}
 
 	@Override

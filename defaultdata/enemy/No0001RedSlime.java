@@ -64,12 +64,12 @@ public class No0001RedSlime extends EnemyData{
 
 	@Override
 	public List<Integer> getWeaponStatus() {
-		return Arrays.asList(30, 30, 1000, 1);
+		return Arrays.asList(75, 30, 1000, 1);
 	}
 
 	@Override
 	public List<Integer> getUnitStatus() {
-		return Arrays.asList(1000, 1000, 10, 0, 100, 1);
+		return Arrays.asList(500, 500, 10, 0, 100, 1);
 	}
 
 	@Override
