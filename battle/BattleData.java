@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -57,43 +56,18 @@ public class BattleData{
 	private Object buffLock = new Object();
 	private Object blockLock = new Object();
 	private Object HPLock = new Object();
-	private ScheduledExecutorService atackScheduler;
+	protected ScheduledExecutorService scheduler;
 	private ScheduledFuture<?> atackFuture;
 	private long beforeAtackTime;
-	private ScheduledExecutorService motionScheduler;
 	private ScheduledFuture<?> motionFuture;
 	private long beforeMotionTime;
-	private ScheduledExecutorService healScheduler;
 	private ScheduledFuture<?> healFuture;
 	private long beforeHealTime;
 	
-	protected void initialize() {
+	protected void initialize(ScheduledExecutorService scheduler) {
 		leftActionImage = rightActionImage.stream().map(i -> EditImage.mirrorImage(i)).toList();
 		nowHP = defaultUnitStatus.get(1);
-	}
-	
-	protected void schedulerStart() {
-		atackScheduler = Executors.newSingleThreadScheduledExecutor();
-		motionScheduler = Executors.newSingleThreadScheduledExecutor();
-		healScheduler = Executors.newSingleThreadScheduledExecutor();
-	}
-	
-	protected void schedulerEnd() {
-		if(atackScheduler == null) {
-			return;
-		}
-		if(atackScheduler.isShutdown()) {
-			return;
-		}
-		atackScheduler.shutdown();
-		motionScheduler.shutdown();
-		healScheduler.shutdown();
-		generatedBuff.stream().forEach(i -> i.schedulerEnd());
-		individualSchedulerEnd();
-	}
-	
-	protected void individualSchedulerEnd() {
-		//詳細は@Overrideで記載
+		this.scheduler = scheduler;
 	}
 	
 	protected void futureStop() {
@@ -155,7 +129,7 @@ public class BattleData{
 			initialDelay = (stopTime - beforeAtackTime < delay)? delay - (stopTime - beforeAtackTime): 0;
 			beforeAtackTime += System.currentTimeMillis() - stopTime;
 		}
-		atackFuture = atackScheduler.schedule(() -> {
+		atackFuture = scheduler.schedule(() -> {
 			if(delay != getAtackSpeed()) {
 				CompletableFuture.runAsync(() -> atackFuture.cancel(true)).thenRun(() -> atackTimer(0));
 				return;
@@ -203,11 +177,11 @@ public class BattleData{
 			initialDelay = (stopTime - beforeMotionTime < delay)? delay - (stopTime - beforeMotionTime): 0;
 			beforeMotionTime += System.currentTimeMillis() - stopTime;
 		}
-		motionFuture = motionScheduler.scheduleAtFixedRate(() -> {
+		motionFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeMotionTime = System.currentTimeMillis();
 			if(rightActionImage.size() - 1 <= motionNumber) {
 				motionNumber = 0;
-				bulletList = targetList.stream().map(i -> new Bullet(Battle, this, i, bulletImage, hitImage)).toList();
+				bulletList = targetList.stream().map(i -> new Bullet(Battle, this, i, bulletImage, hitImage, scheduler)).toList();
 				CompletableFuture.allOf(atackProcess()).thenRun(this::timerRestart).thenRun(() -> atackTimer(0));
 				motionFuture.cancel(true);
 				return;
@@ -320,7 +294,7 @@ public class BattleData{
 			initialDelay = (stopTime - beforeHealTime < delay)? delay - (stopTime - beforeHealTime): 0;
 			beforeHealTime += System.currentTimeMillis() - stopTime;
 		}
-		healFuture = healScheduler.scheduleAtFixedRate(() -> {
+		healFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeHealTime = System.currentTimeMillis();
 			if(!canActivate) {
 				healFuture.cancel(true);

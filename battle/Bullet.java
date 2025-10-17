@@ -4,7 +4,6 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -15,10 +14,9 @@ import defaultdata.EditImage;
 public class Bullet {
 	public static final int CORRECTION = 25;
 	public static final int COUNT = 5;
-	private ScheduledExecutorService bulletScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledExecutorService scheduler;
 	private ScheduledFuture<?> bulletFuture;
 	private long beforeBulletTime;
-	private ScheduledExecutorService hitScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> hitFuture;
 	private long beforeHitTime;
 	private Battle Battle;
@@ -32,20 +30,23 @@ public class Bullet {
 	private double positionY;
 	private int bulletNumber = 0;
 	private int hitNumber = -1;
+	private boolean canEndBullet;
+	private boolean canEndHit;
 	
-	protected Bullet(Battle Battle, BattleData myself, BattleData target, BufferedImage bulletImage, List<BufferedImage> hitImage) {
+	protected Bullet(Battle Battle, BattleData myself, BattleData target, BufferedImage bulletImage, List<BufferedImage> hitImage, ScheduledExecutorService scheduler) {
 		this.Battle = Battle;
 		this.myself = myself;
 		this.target = target;
 		this.bulletImage = bulletImage;
 		this.hitImage = hitImage;
+		this.scheduler = scheduler;
 		bulletTimer();
 	}
 	
 	private void bulletTimer() {
 		if(Objects.isNull(bulletImage)) {
 			hit();
-			bulletScheduler.shutdown();
+			canEndBullet = true;
 			return;
 		}
 		positionX = (int) myself.getPositionX() + CORRECTION;
@@ -85,11 +86,11 @@ public class Bullet {
 			initialDelay = (stopTime - beforeBulletTime < delay)? delay - (stopTime - beforeBulletTime): 0;
 			beforeBulletTime += System.currentTimeMillis() - stopTime;
 		}
-		bulletFuture = bulletScheduler.scheduleAtFixedRate(() -> {
+		bulletFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeBulletTime = System.currentTimeMillis();
 			if(COUNT <= bulletNumber) {
 				hit();
-				bulletScheduler.shutdown();
+				canEndBullet = true;
 				return;
 			}
 			moveBullet();
@@ -104,7 +105,7 @@ public class Bullet {
 	
 	private void hit() {
 		if(Objects.isNull(hitImage)) {
-			hitScheduler.shutdown();
+			canEndHit = true;
 			completion();
 			return;
 		}
@@ -122,10 +123,10 @@ public class Bullet {
 			initialDelay = (stopTime - beforeHitTime < delay)? delay - (stopTime - beforeHitTime): 0;
 			beforeHitTime += System.currentTimeMillis() - stopTime;
 		}
-		hitFuture = hitScheduler.scheduleAtFixedRate(() -> {
+		hitFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeHitTime = System.currentTimeMillis();
 			if(hitImage.size() - 1 <= hitNumber) {
-				hitScheduler.shutdown();
+				canEndHit = true;
 				completion();
 				return;
 			}
@@ -134,7 +135,7 @@ public class Bullet {
 	}
 	
 	protected synchronized BattleData waitCompletion() {
-		if(bulletScheduler.isShutdown() && hitScheduler.isShutdown()) {
+		if(canEndBullet && canEndHit) {
 			return target;
 		}
 		try {

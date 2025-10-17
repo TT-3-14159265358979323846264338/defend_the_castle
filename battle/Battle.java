@@ -39,6 +39,8 @@ import screendisplay.DisplayStatus;
 //バトル画面制御
 public class Battle extends JPanel implements MouseListener, MouseMotionListener{
 	public static final int SIZE = 28;
+	
+	//表示パーツ
 	private JLabel costLabel = new JLabel();
 	private JLabel[] awakeLabel;
 	private JButton rangeDrawButton = new JButton();
@@ -55,6 +57,8 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private Color recastGray = new Color(128, 128, 128, 125);
 	private Color recastWhite = new Color(255, 255, 255, 125);
 	private Color HPGreen = new Color(150, 200, 100);
+	
+	//ゲームデータ
 	private StageData StageData;
 	private BufferedImage stageImage;
 	private List<BufferedImage> placementImage = new DefaultStage().getPlacementImage(4);
@@ -64,6 +68,8 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private BattleFacility[] FacilityData;
 	private BattleEnemy[] EnemyData;
 	private GameData GameData;
+	
+	//操作関連
 	private Point mouse;
 	private int select;
 	private boolean canSelect;
@@ -74,11 +80,11 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private boolean canAwake;
 	private BattleUnit selectUnit;
 	private final int AWAKE_COST = 10;
-	private ScheduledExecutorService mainScheduler = Executors.newSingleThreadScheduledExecutor();
+	
+	//システム関連
+	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(20);
 	private ScheduledFuture<?> mainFuture;
 	private long beforeMainTime;
-	private ScheduledExecutorService clearScheduler = Executors.newSingleThreadScheduledExecutor();
-	private ScheduledExecutorService autoScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> autoFuture;
 	private long beforeAutoTime;
 	private Object awakeLock = new Object();
@@ -133,10 +139,10 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		SaveComposition SaveComposition = new SaveComposition();
 		SaveComposition.load();
 		List<List<Integer>> composition = SaveComposition.getAllCompositionList().get(SaveComposition.getSelectNumber());
-		UnitMainData = IntStream.range(0, composition.size()).mapToObj(i -> new BattleUnit(this, composition.get(i), initialX(i), initialY(i))).toArray(BattleUnit[]::new);
-		UnitLeftData = IntStream.range(0, composition.size()).mapToObj(i -> new BattleUnit(this, composition.get(i))).toArray(BattleUnit[]::new);;
-		FacilityData = IntStream.range(0, StageData.getFacility().size()).mapToObj(i -> new BattleFacility(this, StageData, i)).toArray(BattleFacility[]::new);
-		EnemyData = IntStream.range(0, StageData.getEnemy().size()).mapToObj(i -> new BattleEnemy(this, StageData, i, difficultyCorrection)).toArray(BattleEnemy[]::new);
+		UnitMainData = IntStream.range(0, composition.size()).mapToObj(i -> new BattleUnit(this, composition.get(i), initialX(i), initialY(i), scheduler)).toArray(BattleUnit[]::new);
+		UnitLeftData = IntStream.range(0, composition.size()).mapToObj(i -> new BattleUnit(this, composition.get(i), scheduler)).toArray(BattleUnit[]::new);;
+		FacilityData = IntStream.range(0, StageData.getFacility().size()).mapToObj(i -> new BattleFacility(this, StageData, i, scheduler)).toArray(BattleFacility[]::new);
+		EnemyData = IntStream.range(0, StageData.getEnemy().size()).mapToObj(i -> new BattleEnemy(this, StageData, i, difficultyCorrection, scheduler)).toArray(BattleEnemy[]::new);
 		IntStream.range(0, UnitMainData.length).forEach(i -> UnitMainData[i].install(GameData, UnitLeftData[i], UnitMainData, FacilityData, EnemyData));
 		IntStream.range(0, UnitLeftData.length).forEach(i -> UnitLeftData[i].install(GameData, UnitMainData[i], UnitMainData, FacilityData, EnemyData));
 		Stream.of(FacilityData).forEach(i -> i.install(GameData, UnitMainData, FacilityData, EnemyData));
@@ -179,7 +185,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			initialDelay = (stopTime - beforeAutoTime < delay)? delay - (stopTime - beforeAutoTime): 0;
 			beforeAutoTime += System.currentTimeMillis() - stopTime;
 		}
-		autoFuture = autoScheduler.scheduleAtFixedRate(() -> {
+		autoFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeAutoTime = System.currentTimeMillis();
 			IntStream.range(0, UnitMainData.length).filter(i -> canAwake(i)).boxed().sorted(Comparator.comparing(i -> UnitMainData[i].getAwakeningNumber())).forEach(i -> awake(i));
 		}, initialDelay, delay, TimeUnit.MILLISECONDS);
@@ -558,7 +564,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			if(canAwake(number)) {
 				selectUnit = UnitMainData[number];
 				canAwake = true;
-				mainScheduler.schedule(() -> canAwake = false, 2, TimeUnit.SECONDS);
+				scheduler.schedule(() -> canAwake = false, 2, TimeUnit.SECONDS);
 				UnitMainData[number].awakening();
 				UnitLeftData[number].awakening();
 				GameData.consumeCost(AWAKE_COST);
@@ -650,7 +656,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			initialDelay = (stopTime - beforeMainTime < delay)? delay - (stopTime - beforeMainTime): 0;
 			beforeMainTime += System.currentTimeMillis() - stopTime;
 		}
-		mainFuture = mainScheduler.scheduleAtFixedRate(() -> {
+		mainFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeMainTime = System.currentTimeMillis();
 			time += delay;
 			if(time % 2000 == 0) {
@@ -697,7 +703,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	//ゲーム状態監視
 	private void clearTimer(MainFrame MainFrame, double difficultyCorrection) {
-		clearScheduler.scheduleAtFixedRate(() -> {
+		scheduler.scheduleAtFixedRate(() -> {
 			if(StageData.canClear(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData)) {
 				gameEnd();
 				new PauseDialog(StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
@@ -713,12 +719,6 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	public void gameEnd() {
-		mainScheduler.shutdown();
-		clearScheduler.shutdown();
-		autoScheduler.shutdown();
-		Stream.of(UnitMainData).forEach(i -> i.schedulerEnd());
-		Stream.of(UnitLeftData).forEach(i -> i.schedulerEnd());
-		Stream.of(FacilityData).forEach(i -> i.schedulerEnd());
-		Stream.of(EnemyData).forEach(i -> i.schedulerEnd());
+		scheduler.shutdown();
 	}
 }

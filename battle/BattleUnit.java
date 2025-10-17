@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -46,15 +45,13 @@ public class BattleUnit extends BattleData{
 	
 	//システム関連
 	private Object achievementLock = new Object();
-	private ScheduledExecutorService achievementScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> achievementFuture;
 	private long beforeAchievementTime;
-	private ScheduledExecutorService relocationScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> relocationFuture;
 	private long beforeRelocationTime;
 	
 	//右武器/コア用　攻撃・被弾などの判定はこちらで行う
-	protected BattleUnit(Battle Battle, List<Integer> composition, int positionX, int positionY) {
+	protected BattleUnit(Battle Battle, List<Integer> composition, int positionX, int positionY, ScheduledExecutorService scheduler) {
 		this.Battle = Battle;
 		StatusCalculation StatusCalculation = new StatusCalculation(composition);
 		try {
@@ -79,11 +76,11 @@ public class BattleUnit extends BattleData{
 		defaultUnitStatus = StatusCalculation.getUnitStatus().stream().collect(Collectors.toList());
 		defaultCutStatus = StatusCalculation.getCutStatus().stream().collect(Collectors.toList());
 		canActivate = false;
-		super.initialize();
+		super.initialize(scheduler);
 	}
 	
 	//左武器用
-	protected BattleUnit(Battle Battle, List<Integer> composition) {
+	protected BattleUnit(Battle Battle, List<Integer> composition, ScheduledExecutorService scheduler) {
 		this.Battle = Battle;
 		StatusCalculation StatusCalculation = new StatusCalculation(composition);
 		try {
@@ -99,17 +96,16 @@ public class BattleUnit extends BattleData{
 		defaultWeaponStatus = StatusCalculation.getLeftWeaponStatus();
 		defaultUnitStatus = StatusCalculation.getUnitStatus();
 		defaultCutStatus = StatusCalculation.getCutStatus();
-		super.initialize();
+		super.initialize(scheduler);
 	}
 	
 	protected void install(GameData GameData, BattleUnit otherWeapon, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
-		schedulerStart();
 		this.GameData = GameData;
 		this.otherWeapon = otherWeapon;
 		allyData = Stream.concat(Stream.of(unitMainData), Stream.of(facilityData)).toList();
 		this.enemyData = Stream.of(enemyData).toList();
 		existsOtherBuffRange = (defaultWeaponStatus.get((int) Buff.RANGE) <= otherWeapon.defaultWeaponStatus.get((int) Buff.RANGE))? true: false;
-		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData)).toList();
+		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData, scheduler)).toList();
 		canPossessSkill = generatedBuff.stream().anyMatch(i -> i.canPossessSkill());
 		if(Objects.isNull(AtackPattern)) {
 			return;
@@ -155,7 +151,7 @@ public class BattleUnit extends BattleData{
 			initialDelay = (stopTime - beforeAchievementTime < TIMER_INTERVAL)? TIMER_INTERVAL - (stopTime - beforeAchievementTime): 0;
 			beforeAchievementTime += System.currentTimeMillis() - stopTime;
 		}
-		achievementFuture = achievementScheduler.scheduleAtFixedRate(() -> {
+		achievementFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeAchievementTime = System.currentTimeMillis();
 			if(!canActivate) {
 				achievementFuture.cancel(true);
@@ -233,12 +229,6 @@ public class BattleUnit extends BattleData{
 	}
 	
 	@Override
-	protected void individualSchedulerEnd() {
-		achievementScheduler.shutdown();
-		relocationScheduler.shutdown();
-	}
-	
-	@Override
 	protected void individualFutureStop() {
 		if(achievementFuture != null && !achievementFuture.isCancelled()) {
 			achievementFuture.cancel(true);
@@ -291,7 +281,7 @@ public class BattleUnit extends BattleData{
 			initialDelay = (stopTime - beforeRelocationTime < TIMER_INTERVAL)? TIMER_INTERVAL - (stopTime - beforeRelocationTime): 0;
 			beforeRelocationTime += System.currentTimeMillis() - stopTime;
 		}
-		relocationFuture = relocationScheduler.scheduleAtFixedRate(() -> {
+		relocationFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeRelocationTime = System.currentTimeMillis();
 			relocationCount += TIMER_INTERVAL;
 			if(relocationTime <= relocationCount) {

@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -99,19 +98,16 @@ public class Buff {
 	private int durationCount = 0;
 	private int recastCount = 0;
 	private boolean canRecast;
-	private ScheduledExecutorService recastScheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledExecutorService scheduler;
 	private ScheduledFuture<?> recastFuture;
 	private long beforeRecastTime;
-	private ScheduledExecutorService targetScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> targetFuture;
-	private ScheduledExecutorService intervalScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> intervalFuture;
 	private long beforeIntervalTime;
-	private ScheduledExecutorService durationScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> durationFuture;
 	private long beforeDurationTime;
 	
-	protected Buff(List<Double> buffInformation, BattleData myself, List<BattleData> ally, List<BattleData> enemy, Battle Battle, GameData GameData) {
+	protected Buff(List<Double> buffInformation, BattleData myself, List<BattleData> ally, List<BattleData> enemy, Battle Battle, GameData GameData, ScheduledExecutorService scheduler) {
 		this.buffInformation = buffInformation;
 		this.myself = myself;
 		this.Battle = Battle;
@@ -123,6 +119,7 @@ public class Buff {
 			this.GameData = GameData;
 		}
 		canRecast = (canPossessSkill())? true: false;
+		this.scheduler = scheduler;
 	}
 	
 	protected void buffStart(BattleData BattleData) {
@@ -133,13 +130,6 @@ public class Buff {
 			return;
 		}
 		unitBuff(BattleData);
-	}
-	
-	protected void schedulerEnd() {
-		recastScheduler.shutdown();
-		targetScheduler.shutdown();
-		intervalScheduler.shutdown();
-		durationScheduler.shutdown();
 	}
 	
 	protected void futureStop() {
@@ -177,7 +167,7 @@ public class Buff {
 			initialDelay = (stopTime - beforeRecastTime < DELEY)? DELEY - (stopTime - beforeRecastTime): 0;
 			beforeRecastTime += System.currentTimeMillis() - stopTime;
 		}
-		recastFuture = recastScheduler.scheduleAtFixedRate(() -> {
+		recastFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeRecastTime = System.currentTimeMillis();
 			recastCount += DELEY;
 			if(recastMax() <= recastCount) {
@@ -208,7 +198,7 @@ public class Buff {
 			initialDelay = (stopTime - beforeIntervalTime < delay)? delay - (stopTime - beforeIntervalTime): 0;
 			beforeIntervalTime += System.currentTimeMillis() - stopTime;
 		}
-		intervalFuture = intervalScheduler.scheduleAtFixedRate(() -> {
+		intervalFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeIntervalTime = System.currentTimeMillis();
 			if(canNotActivateBuff()) {
 				return;
@@ -297,7 +287,7 @@ public class Buff {
 	}
 	
 	private void targetControl(Predicate<? super BattleData> rangeFilter) {
-		targetFuture = targetScheduler.scheduleAtFixedRate(() -> {
+		targetFuture = scheduler.scheduleAtFixedRate(() -> {
 			if(canNotActivateBuff()) {
 				return;
 			}
@@ -348,7 +338,7 @@ public class Buff {
 			initialDelay = (stopTime - beforeIntervalTime < delay)? delay - (stopTime - beforeIntervalTime): 0;
 			beforeIntervalTime += System.currentTimeMillis() - stopTime;
 		}
-		intervalFuture = intervalScheduler.scheduleAtFixedRate(() -> {
+		intervalFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeIntervalTime = System.currentTimeMillis();
 			if(canNotActivateBuff()) {
 				return;
@@ -369,7 +359,7 @@ public class Buff {
 			initialDelay = (stopTime - beforeDurationTime < DELEY)? DELEY - (stopTime - beforeDurationTime): 0;
 			beforeDurationTime += System.currentTimeMillis() - stopTime;
 		}
-		durationFuture = durationScheduler.scheduleAtFixedRate(() -> {
+		durationFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeDurationTime = System.currentTimeMillis();
 			durationCount += DELEY;
 			if(canNotActivateBuff()) {

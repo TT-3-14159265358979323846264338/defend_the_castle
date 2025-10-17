@@ -2,6 +2,7 @@ package battle;
 
 import java.awt.image.BufferedImage;
 import java.util.Objects;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -15,7 +16,7 @@ import defaultdata.stage.StageData;
 public class BattleFacility extends BattleData{
 	private BufferedImage breakImage;
 	
-	protected BattleFacility(Battle Battle, StageData StageData, int number) {
+	protected BattleFacility(Battle Battle, StageData StageData, int number, ScheduledExecutorService scheduler) {
 		this.Battle = Battle;
 		FacilityData FacilityData = DefaultStage.FACILITY_DATA_MAP.get(StageData.getFacility().get(number));
 		name = FacilityData.getName();
@@ -37,8 +38,7 @@ public class BattleFacility extends BattleData{
 		defaultUnitStatus = FacilityData.getUnitStatus().stream().toList();
 		defaultCutStatus = FacilityData.getCutStatus().stream().toList();
 		canActivate = true;
-		super.initialize();
-		schedulerStart();
+		super.initialize(scheduler);
 		atackTimer(0);
 		healTimer(0);
 	}
@@ -55,17 +55,12 @@ public class BattleFacility extends BattleData{
 		}else {
 			AtackPattern.install(this, this.enemyData);
 		}
-		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData)).toList();
+		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData, scheduler)).toList();
 		activateBuff(Buff.BIGINNING, null);
 	}
 	
 	protected BufferedImage getBreakImage() {
 		return breakImage;
-	}
-	
-	@Override
-	protected void individualSchedulerEnd() {
-		//特になし
 	}
 	
 	@Override

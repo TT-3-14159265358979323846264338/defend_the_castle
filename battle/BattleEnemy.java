@@ -3,7 +3,6 @@ package battle;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -35,11 +34,10 @@ public class BattleEnemy extends BattleData{
 	
 	//システム関連
 	private Object blockWait = new Object();
-	private ScheduledExecutorService moveScheduler = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> moveFuture;
 	private long beforeMoveTime;
 	
-	protected BattleEnemy(Battle Battle, StageData StageData, int number, double difficultyCorrection) {
+	protected BattleEnemy(Battle Battle, StageData StageData, int number, double difficultyCorrection, ScheduledExecutorService scheduler) {
 		this.Battle = Battle;
 		EnemyData EnemyData = DefaultEnemy.DATA_MAP.get(StageData.getEnemy().get(number).get(0));
 		name = EnemyData.getName();
@@ -60,7 +58,7 @@ public class BattleEnemy extends BattleData{
 		defaultUnitStatus = unitStatus(EnemyData, difficultyCorrection);
 		defaultCutStatus = EnemyData.getCutStatus().stream().toList();
 		canActivate = false;
-		super.initialize();
+		super.initialize(scheduler);
 	}
 	
 	private List<Integer> weaponStatus(EnemyData EnemyData, double difficultyCorrection){
@@ -96,7 +94,7 @@ public class BattleEnemy extends BattleData{
 		}else {
 			AtackPattern.install(this, this.enemyData);
 		}
-		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData)).toList();
+		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData, scheduler)).toList();
 		moveTimer();
 	}
 	
@@ -117,7 +115,7 @@ public class BattleEnemy extends BattleData{
 	}
 	
 	private void eternalStop() {
-		moveFuture = moveScheduler.scheduleAtFixedRate(() -> {
+		moveFuture = scheduler.scheduleAtFixedRate(() -> {
 			if(activateTime <= Battle.getMainTime()) {
 				canActivate = true;
 				GameData.moraleBoost(battle.GameData.ENEMY, 10);
@@ -138,7 +136,7 @@ public class BattleEnemy extends BattleData{
 			initialDelay = ((stopTime - beforeMoveTime) * 1000 < delay)? delay - (stopTime - beforeMoveTime) * 1000: 0;
 			beforeMoveTime += System.currentTimeMillis() - stopTime;
 		}
-		moveFuture = moveScheduler.scheduleAtFixedRate(() -> {
+		moveFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeMoveTime = System.currentTimeMillis();
 			if(canAtack) {
 				CompletableFuture.runAsync(this::timerWait).thenRun(() -> constantMove(0));
@@ -166,7 +164,6 @@ public class BattleEnemy extends BattleData{
 				return;
 			}
 			if(activateTime <= Battle.getMainTime()) {
-				schedulerStart();
 				GameData.moraleBoost(battle.GameData.ENEMY, 5);
 				activate();
 			}
@@ -270,11 +267,6 @@ public class BattleEnemy extends BattleData{
 	}
 	
 	@Override
-	protected void individualSchedulerEnd() {
-		moveScheduler.shutdown();
-	}
-	
-	@Override
 	protected void individualFutureStop() {
 		if(moveFuture == null && moveFuture.isCancelled()) {
 			return;
@@ -305,6 +297,5 @@ public class BattleEnemy extends BattleData{
 		removeBlock(this);
 		GameData.lowMorale(battle.GameData.ENEMY, 3);
 		activateBuff(Buff.DEFEAT, target);
-		schedulerEnd();
 	}
 }
