@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -22,7 +23,8 @@ import testdataedit.TestDataEdit;
 
 //トップメニュー画面
 public class MenuMain extends JPanel{
-	private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
+	private ScheduledFuture<?> mainFuture;
 	private final static int NUMBER = 20;
 	private MainFrame MainFrame;
 	private FallMotion[] FallMotion = IntStream.range(0, NUMBER).mapToObj(i -> new FallMotion()).toArray(FallMotion[]::new);
@@ -96,7 +98,7 @@ public class MenuMain extends JPanel{
 	}
 	
 	private void drawImage(Graphics g) {
-		if(scheduler.isShutdown()) {
+		if(mainFuture.isCancelled()) {
 			IntStream.range(0, NUMBER).forEach(i -> g.drawImage(coreImage.get(randamList.get(i)), FinalMotion[i].getX(), FinalMotion[i].getY(), this));
 			g.drawImage(titleImage, 40, 100, this);
 		}else {
@@ -105,17 +107,26 @@ public class MenuMain extends JPanel{
 	}
 
 	private void effectTimer() {
-		scheduler.scheduleWithFixedDelay(() -> {
+		mainFuture = scheduler.scheduleAtFixedRate(() -> {
 			try {
-				FallMotion[count].fallTimerStart();
+				FallMotion[count].fallTimerStart(scheduler);
 			}catch(Exception ignore) {
 			}
 			count++;
 			if(Stream.of(FallMotion).noneMatch(i -> i.canRunTimer())) {
-				Stream.of(FinalMotion).forEach(i -> i.finalTimerStart());
-				scheduler.shutdown();
+				Stream.of(FinalMotion).forEach(i -> i.finalTimerStart(scheduler));
+				schedulerEndMonitor();
+				mainFuture.cancel(true);
 			}
 		}, 0, 300, TimeUnit.MILLISECONDS);
+	}
+	
+	private void schedulerEndMonitor() {
+		scheduler.scheduleAtFixedRate(() -> {
+			if(Stream.of(FinalMotion).allMatch(i -> i.canEnd())) {
+				scheduler.shutdown();
+			}
+		}, 2, 1, TimeUnit.SECONDS);
 	}
 	
 	//テスト用

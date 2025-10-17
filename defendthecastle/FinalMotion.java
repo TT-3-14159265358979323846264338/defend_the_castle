@@ -1,11 +1,12 @@
 package defendthecastle;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 //最終画面の位置調整
 class FinalMotion{
+	private ScheduledFuture<?> finalFuture;
 	private int number;
 	private int x;
 	private int y;
@@ -17,13 +18,12 @@ class FinalMotion{
 		y = 300;
 	}
 	
-	protected void finalTimerStart() {
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		scheduler.scheduleWithFixedDelay(() -> {
+	protected void finalTimerStart(ScheduledExecutorService scheduler) {
+		finalFuture = scheduler.scheduleAtFixedRate(() -> {
 			y -= 10 * (number / 5);
 			count ++;
 			if(10 < count) {
-				scheduler.shutdown();
+				finalFuture.cancel(true);
 			}
 		}, 0, 50, TimeUnit.MILLISECONDS);
 	}
@@ -34,5 +34,9 @@ class FinalMotion{
 	
 	protected int getY() {
 		return y;
+	}
+	
+	protected boolean canEnd() {
+		return finalFuture.isCancelled();
 	}
 }

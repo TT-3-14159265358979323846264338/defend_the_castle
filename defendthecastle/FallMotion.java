@@ -1,26 +1,26 @@
 package defendthecastle;
 
 import java.util.Random;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 //落下コアの位置調整
 class FallMotion{
-	private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> fallFuture;
 	private double angle = new Random().nextInt((int) (Math.PI * 2 * 100)) / 100;
 	private int x = new Random().nextInt(400);
 	private int y = -100;
 	private boolean canStart;
 	
-	protected void fallTimerStart() {
+	protected void fallTimerStart(ScheduledExecutorService scheduler) {
 		canStart = true;
-		scheduler.scheduleWithFixedDelay(() -> {
+		fallFuture = scheduler.scheduleAtFixedRate(() -> {
 			angle += 0.1;
 			y += 10;
 			if(450 < y) {
 				canStart = false;
-				scheduler.shutdown();
+				fallFuture.cancel(true);
 			}
 		}, 0, 20, TimeUnit.MILLISECONDS);
 	}
