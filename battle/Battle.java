@@ -82,7 +82,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private final int AWAKE_COST = 10;
 	
 	//システム関連
-	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(20);
+	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(50);
 	private ScheduledFuture<?> mainFuture;
 	private long beforeMainTime;
 	private ScheduledFuture<?> autoFuture;
@@ -671,11 +671,11 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		canStop = true;
 		mainFuture.cancel(true);
 		long mainTime = System.currentTimeMillis();
-		CompletableFuture.runAsync(this::timerWait).thenRun(() -> mainTimer(mainTime));
+		CompletableFuture.runAsync(this::timerWait, scheduler).thenRun(() -> mainTimer(mainTime));
 		if(autoFuture != null && !autoFuture.isCancelled()) {
 			autoFuture.cancel(true);
 			long autoTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(this::timerWait).thenRun(() -> autoAwake(autoTime));
+			CompletableFuture.runAsync(this::timerWait, scheduler).thenRun(() -> autoAwake(autoTime));
 		}
 		Stream.of(UnitMainData).forEach(i -> i.futureStop());
 		Stream.of(UnitLeftData).forEach(i -> i.futureStop());

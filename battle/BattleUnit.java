@@ -233,12 +233,12 @@ public class BattleUnit extends BattleData{
 		if(achievementFuture != null && !achievementFuture.isCancelled()) {
 			achievementFuture.cancel(true);
 			long achievementTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> achievementTimer(achievementTime));
+			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> achievementTimer(achievementTime));
 		}
 		if(relocationFuture != null && !relocationFuture.isCancelled()) {
 			relocationFuture.cancel(true);
 			long relocationTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> relocation(relocationTime));
+			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> relocation(relocationTime));
 		}
 	}
 	

@@ -139,14 +139,14 @@ public class BattleEnemy extends BattleData{
 		moveFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeMoveTime = System.currentTimeMillis();
 			if(canAtack) {
-				CompletableFuture.runAsync(this::timerWait).thenRun(() -> constantMove(0));
+				CompletableFuture.runAsync(this::timerWait, scheduler).thenRun(() -> constantMove(0));
 				moveFuture.cancel(true);
 				return;
 			}
 			blockTarget = blockTarget();
 			if(Objects.nonNull(blockTarget)) {
 				blockTarget.addBlock(this);
-				CompletableFuture.runAsync(this::blockWait).thenRun(() -> constantMove(0));
+				CompletableFuture.runAsync(this::blockWait, scheduler).thenRun(() -> constantMove(0));
 				moveFuture.cancel(true);
 				return;
 			}
@@ -155,7 +155,7 @@ public class BattleEnemy extends BattleData{
 				return;
 			}
 			if(nowSpeed != getMoveSpeedOrBlock()) {
-				CompletableFuture.runAsync(() -> moveFuture.cancel(true)).thenRun(() -> constantMove(0));
+				CompletableFuture.runAsync(() -> moveFuture.cancel(true), scheduler).thenRun(() -> constantMove(0));
 				return;
 			}
 			if(canActivate || 0 < deactivateCount) {
@@ -282,7 +282,7 @@ public class BattleEnemy extends BattleData{
 		}
 		moveFuture.cancel(true);
 		long moveTime = System.currentTimeMillis();
-		CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> constantMove(moveTime));
+		CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> constantMove(moveTime));
 	}
 	
 	@Override

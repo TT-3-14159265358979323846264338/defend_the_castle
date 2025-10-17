@@ -136,21 +136,21 @@ public class Buff {
 		if(recastFuture != null && !recastFuture.isCancelled()) {
 			recastFuture.cancel(true);
 			long recastTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> recastBuff(recastTime));
+			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> recastBuff(recastTime));
 		}
 		if(intervalFuture != null && !intervalFuture.isCancelled()) {
 			intervalFuture.cancel(true);
 			long intervalTime = System.currentTimeMillis();
 			if(existsInterval()) {
-				CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> gameIntervalControl(intervalTime));
+				CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> gameIntervalControl(intervalTime));
 			}else {
-				CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> intervalControl(intervalTime));
+				CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> intervalControl(intervalTime));
 			}
 		}
 		if(durationFuture != null && !durationFuture.isCancelled()) {
 			durationFuture.cancel(true);
 			long durationTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> durationControl(durationTime));
+			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> durationControl(durationTime));
 		}
 	}
 	
@@ -384,7 +384,7 @@ public class Buff {
 	}
 	
 	private CompletableFuture<Void> buffEnd() {
-		return CompletableFuture.runAsync(this::futureCancel).thenRun(this::resetBuff);
+		return CompletableFuture.runAsync(this::futureCancel, scheduler).thenRun(this::resetBuff);
 	}
 	
 	private void futureCancel() {

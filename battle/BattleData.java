@@ -74,17 +74,17 @@ public class BattleData{
 		if(atackFuture != null && !atackFuture.isCancelled() && !canAtack) {
 			atackFuture.cancel(true);
 			long atackTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> atackTimer(atackTime));
+			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> atackTimer(atackTime));
 		}
 		if(motionFuture != null && !motionFuture.isCancelled()) {
 			motionFuture.cancel(true);
 			long motionTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> motionTimer(motionTime));
+			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> motionTimer(motionTime));
 		}
 		if(healFuture != null && !healFuture.isCancelled()) {
 			healFuture.cancel(true);
 			long healTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> healTimer(healTime));
+			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> healTimer(healTime));
 		}
 		bulletList.stream().forEach(i -> i.futureStop());
 		generatedBuff.stream().forEach(i -> i.futureStop());
@@ -131,7 +131,7 @@ public class BattleData{
 		}
 		atackFuture = scheduler.schedule(() -> {
 			if(delay != getAtackSpeed()) {
-				CompletableFuture.runAsync(() -> atackFuture.cancel(true)).thenRun(() -> atackTimer(0));
+				CompletableFuture.runAsync(() -> atackFuture.cancel(true), scheduler).thenRun(() -> atackTimer(0));
 				return;
 			}
 			targetList = targetCheck();
@@ -182,7 +182,7 @@ public class BattleData{
 			if(rightActionImage.size() - 1 <= motionNumber) {
 				motionNumber = 0;
 				bulletList = targetList.stream().map(i -> new Bullet(Battle, this, i, bulletImage, hitImage, scheduler)).toList();
-				scheduler.submit(this::atackProcess);
+				CompletableFuture.runAsync(this::atackProcess, scheduler);
 				motionFuture.cancel(true);
 				return;
 			}

@@ -152,12 +152,12 @@ public class Bullet {
 		if(bulletFuture != null && !bulletFuture.isCancelled()) {
 			bulletFuture.cancel(true);
 			long bulletTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> bullet(bulletTime));
+			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> bullet(bulletTime));
 		}
 		if(hitFuture != null && !hitFuture.isCancelled()) {
 			hitFuture.cancel(true);
 			long hitTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait).thenRun(() -> hitTimer(hitTime));
+			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> hitTimer(hitTime));
 		}
 	}
 	
