@@ -130,6 +130,8 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		drawSelectUnit(g);
 		drawMorale(g);
 		requestFocus();
+		//ゲーム時間表示(ステージ調整用)
+		g.drawString(time / 1000 + "s", 10, 10);
 	}
 	
 	private void install(double difficultyCorrection) {

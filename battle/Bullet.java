@@ -30,8 +30,7 @@ public class Bullet {
 	private double positionY;
 	private int bulletNumber = 0;
 	private int hitNumber = -1;
-	private boolean canEndBullet;
-	private boolean canEndHit;
+	private boolean canRestart;
 	
 	protected Bullet(Battle Battle, BattleData myself, BattleData target, BufferedImage bulletImage, List<BufferedImage> hitImage, ScheduledExecutorService scheduler) {
 		this.Battle = Battle;
@@ -46,7 +45,6 @@ public class Bullet {
 	private void bulletTimer() {
 		if(Objects.isNull(bulletImage)) {
 			hit();
-			canEndBullet = true;
 			return;
 		}
 		positionX = (int) myself.getPositionX() + CORRECTION;
@@ -90,7 +88,7 @@ public class Bullet {
 			beforeBulletTime = System.currentTimeMillis();
 			if(COUNT <= bulletNumber) {
 				hit();
-				canEndBullet = true;
+				bulletFuture.cancel(true);
 				return;
 			}
 			moveBullet();
@@ -105,7 +103,6 @@ public class Bullet {
 	
 	private void hit() {
 		if(Objects.isNull(hitImage)) {
-			canEndHit = true;
 			completion();
 			return;
 		}
@@ -126,27 +123,28 @@ public class Bullet {
 		hitFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeHitTime = System.currentTimeMillis();
 			if(hitImage.size() - 1 <= hitNumber) {
-				canEndHit = true;
 				completion();
+				hitFuture.cancel(true);
 				return;
 			}
 			hitNumber++;
 		}, initialDelay, delay, TimeUnit.MILLISECONDS);
 	}
 	
-	protected synchronized BattleData waitCompletion() {
-		if(canEndBullet && canEndHit) {
-			return target;
+	protected synchronized void waitCompletion() {
+		if(canRestart) {
+			return;
 		}
 		try {
 			wait();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		return target;
+		return;
 	}
 	
 	private synchronized void completion() {
+		canRestart = true;
 		notifyAll();
 	}
 	

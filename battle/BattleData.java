@@ -118,10 +118,10 @@ public class BattleData{
 	
 	//攻撃・回復処理
 	protected void atackTimer(long stopTime) {
-		int delay = getAtackSpeed();
-		if(delay <= 0) {
+		if(defaultWeaponStatus.get((int) Buff.ATACK) <= 0) {
 			return;
 		}
+		int delay = getAtackSpeed();
 		long initialDelay;
 		if(stopTime == 0) {
 			initialDelay = delay;
@@ -182,7 +182,7 @@ public class BattleData{
 			if(rightActionImage.size() - 1 <= motionNumber) {
 				motionNumber = 0;
 				bulletList = targetList.stream().map(i -> new Bullet(Battle, this, i, bulletImage, hitImage, scheduler)).toList();
-				CompletableFuture.allOf(atackProcess()).thenRun(this::timerRestart).thenRun(() -> atackTimer(0));
+				scheduler.submit(this::atackProcess);
 				motionFuture.cancel(true);
 				return;
 			}
@@ -190,8 +190,11 @@ public class BattleData{
 		}, initialDelay, delay, TimeUnit.MICROSECONDS);
 	}
 	
-	private CompletableFuture<?>[] atackProcess(){
-		return bulletList.stream().map(Bullet -> CompletableFuture.supplyAsync(Bullet::waitCompletion).thenAccept(this::result)).toArray(CompletableFuture[]::new);
+	private void atackProcess(){
+		bulletList.get(0).waitCompletion();
+		targetList.stream().forEach(this::result);
+		timerRestart();
+		atackTimer(0);
 	}
 	
 	protected synchronized void timerWait() {
