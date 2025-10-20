@@ -221,7 +221,9 @@ public class BattleUnit extends BattleData{
 	protected void activate(int x, int y) {
 		canActivate = true;
 		canLocate = false;
-		GameData.moraleBoost(battle.GameData.UNIT, 5);
+		if(defaultUnitStatus.get(5) != 0) {
+			GameData.moraleBoost(battle.GameData.UNIT, 5);
+		}
 		positionX = x;
 		positionY = y;
 		atackTimer(0);

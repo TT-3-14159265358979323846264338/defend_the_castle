@@ -115,7 +115,7 @@ public class No0000Stage1 extends StageData{
 		return Arrays.asList("ステージをクリアする(normal)",
 				"ユニットが一度も倒されずクリアする(normal)",
 				"ステージをクリアする(hard)",
-				"ユニットも設備も破壊されずクリアする(hard)");
+				"ユニットが一度も倒されずクリアする(hard)");
 	}
 
 	@Override
@@ -123,7 +123,7 @@ public class No0000Stage1 extends StageData{
 		return Arrays.asList(canClearStage(BattleEnemy.NORMAL_MODE, difficultyCorrection),
 				canNotDefeat(BattleEnemy.NORMAL_MODE, difficultyCorrection, UnitMainData, UnitLeftData),
 				canClearStage(BattleEnemy.HARD_MODE, difficultyCorrection),
-				canNotDefeat(BattleEnemy.HARD_MODE, difficultyCorrection, UnitMainData, UnitLeftData, FacilityData));
+				canNotDefeat(BattleEnemy.HARD_MODE, difficultyCorrection, UnitMainData, UnitLeftData));
 	}
 
 	@Override
@@ -171,7 +171,10 @@ public class No0000Stage1 extends StageData{
 				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 50000),
 				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 50500),
 				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 1, 53000),
-				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 1, 53500)
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 1, 53500),
+				
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 0, 65000),
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 1, 65000)
 				);
 	}
 

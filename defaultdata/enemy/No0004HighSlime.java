@@ -69,7 +69,7 @@ public class No0004HighSlime extends EnemyData{
 
 	@Override
 	public List<Integer> getUnitStatus() {
-		return Arrays.asList(750, 750, 10, 20, 125, 1);
+		return Arrays.asList(1000, 1000, 10, 20, 125, 1);
 	}
 
 	@Override
