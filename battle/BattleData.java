@@ -243,17 +243,12 @@ public class BattleData{
 		if(100 <= cutRatio) {
 			cutRatio = 100;
 		}
-		return (int) (awakeningCorrection() * baseDamage * (100 - cutRatio) / 100);
+		return (int) (baseDamage * (100 - cutRatio) / 100);
 	}
 	
 	protected int moraleCorrection() {
 		//詳細は@Overrideで記載
 		return 0;
-	}
-	
-	protected double awakeningCorrection() {
-		//BattleUnitのみ@Overrideで記載
-		return 1;
 	}
 	
 	protected void HPIncrease(int increase) {
@@ -314,7 +309,7 @@ public class BattleData{
 	
 	protected void activateSkillBuff() {
 		List<Buff> buff = generatedBuff.stream().filter(i -> i.getBuffTiming() == Buff.SKILL).filter(this::canPossessCost).toList();
-		if(buff.	size() == 0) {
+		if(buff.size() == 0) {
 			return;
 		}
 		buff.forEach(i -> i.buffStart(null));
@@ -428,7 +423,7 @@ public class BattleData{
 		if(defaultWeaponStatus.get((int) Buff.ATACK) == 0) {
 			return 0;
 		}
-		int atack = statusControl(Buff.ATACK);
+		int atack = (int) (statusControl(Buff.ATACK) * awakeningCorrection());
 		if(atack <= 10) {
 			return 10;
 		}
@@ -436,7 +431,7 @@ public class BattleData{
 	}
 	
 	public int getRange() {
-		int range = statusControl(Buff.RANGE);
+		int range = (int) (statusControl(Buff.RANGE) * awakeningCorrection());
 		if(range <= 10) {
 			return 10;
 		}
@@ -477,7 +472,7 @@ public class BattleData{
 	}
 	
 	private int getDefense() {
-		int defence = statusControl(Buff.DEFENCE);
+		int defence = (int) (statusControl(Buff.DEFENCE) * awakeningCorrection());
 		if(defence <= 0) {
 			return 0;
 		}
@@ -542,5 +537,10 @@ public class BattleData{
 	
 	private int calculate(int initialValue, double additionalValue, double ratio) {
 		return (int) ((initialValue + additionalValue) * ratio);
+	}
+	
+	protected double awakeningCorrection() {
+		//BattleUnitのみ@Overrideで記載
+		return 1;
 	}
 }

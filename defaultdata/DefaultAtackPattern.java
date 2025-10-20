@@ -13,7 +13,6 @@ public class DefaultAtackPattern {
 	public static final int LOW_HP = 3;
 	public static final int HIGH_HP = 4;
 	
-	//コードの振り分け(戦闘時、各キャラに独自のAtackPatternクラスを搭載するため、毎回新インスタンスを生成する必要がある)
 	/**
 	 * アタックパターンの取得。<br>
 	 * 新たなデータを追加したらPATTERN_SPECIESにも加算すること。

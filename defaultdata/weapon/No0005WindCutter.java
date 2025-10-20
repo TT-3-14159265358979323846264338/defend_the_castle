@@ -74,7 +74,7 @@ public class No0005WindCutter extends WeaponData{
 
 	@Override
 	public List<Integer> getWeaponStatus() {
-		return Arrays.asList(30, 120, 700, 5);
+		return Arrays.asList(30, 80, 700, 5);
 	}
 
 	@Override

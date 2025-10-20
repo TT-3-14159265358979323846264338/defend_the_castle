@@ -3,8 +3,6 @@ package defaultdata.core;
 import java.util.Arrays;
 import java.util.List;
 
-import battle.Buff;
-
 public class No0000NormalCore extends CoreData{
 	@Override
 	public String getName() {
@@ -48,8 +46,7 @@ public class No0000NormalCore extends CoreData{
 	
 	@Override
 	public List<List<Double>> getBuff(){
-		return Arrays.asList(
-				Arrays.asList(Buff.SKILL, Buff.ALLY, Buff.ALL, Buff.RANGE, Buff.MULTIPLICATION, 2.0, Buff.NONE, Buff.NONE, 5.0, 5.0, 10.0));
+		return Arrays.asList();
 	}
 
 	@Override

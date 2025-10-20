@@ -151,22 +151,27 @@ public class No0000Stage1 extends StageData{
 	public List<List<Integer>> getEnemy() {
 		return Arrays.asList(
 				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 1000),
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 1000),
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 5000),
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 5000),
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 9000),
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 9000),
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 13000),
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 13000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 1500),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 6000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 6500),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 11000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 11500),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 16000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 16500),
 				
-				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 20000),
-				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 20500),
-				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 250000),
-				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 255000),
-				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 30000),
-				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 30500),
-				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 35000),
-				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 35500)
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 26000),
+				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 26500),
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 31500),
+				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 31500),
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 36000),
+				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 36500),
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 41000),
+				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 41500),
+				
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 50000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 50500),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 1, 53000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 1, 53500)
 				);
 	}
 

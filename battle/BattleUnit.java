@@ -36,6 +36,8 @@ public class BattleUnit extends BattleData{
 	private final int PLACEMENT_ACHIEVEMENT = 1;
 	private final int KILL_ACHIEVEMENT = 60;
 	private final int TIMER_INTERVAL = 100;
+	private final double AWAKENING_RATIO = 1.2;
+	private final int MAX_AWAKENING = 5;
 	private int achievement;
 	private boolean canLocate = true;
 	private int relocationCount;
@@ -168,7 +170,7 @@ public class BattleUnit extends BattleData{
 	}
 	
 	protected boolean canAwake() {
-		if(10 <= awakeningNumber) {
+		if(MAX_AWAKENING <= awakeningNumber) {
 			return false;
 		}
 		return AWAKEING_CONDETION * (awakeningNumber + 1) <= achievement;
@@ -248,14 +250,6 @@ public class BattleUnit extends BattleData{
 	}
 	
 	@Override
-	protected double awakeningCorrection() {
-		if(awakeningNumber == 0) {
-			return 1;
-		}
-		return Math.pow(1.1, awakeningNumber);
-	}
-	
-	@Override
 	protected void defeat(BattleData target) {
 		int price = 60;
 		defeatNumber++;
@@ -266,7 +260,7 @@ public class BattleUnit extends BattleData{
 	}
 	
 	protected void retreat() {
-		int price = (5 + 20 * (getMaxHP() - nowHP) / getMaxHP());
+		int price = (5 + 10 * (getMaxHP() - nowHP) / getMaxHP());
 		GameData.lowMorale(battle.GameData.UNIT, price);
 		relocationTime = price * 1000;
 		relocation(0);
@@ -328,5 +322,10 @@ public class BattleUnit extends BattleData{
 	@Override
 	protected int buffRange() {
 		return existsOtherBuffRange? otherWeapon.getRange(): getRange();
+	}
+	
+	@Override
+	protected double awakeningCorrection() {
+		return Math.pow(AWAKENING_RATIO, awakeningNumber);
 	}
 }

@@ -69,13 +69,9 @@ public class BattleEnemy extends BattleData{
 	}
 	
 	private List<Integer> unitStatus(EnemyData EnemyData, double difficultyCorrection){
-		final int MAX_HP = (int) Buff.HP - 10;
-		final int HP = MAX_HP + 1;
 		final int DEFENCE = (int) Buff.DEFENCE - 10;
 		final int HEAL = (int) Buff.HEAL - 10;
 		List<Integer> defaultStatus = EnemyData.getUnitStatus();
-		defaultStatus.set(MAX_HP, defaultStatus(defaultStatus.get(MAX_HP), difficultyCorrection));
-		defaultStatus.set(HP, defaultStatus(defaultStatus.get(HP), difficultyCorrection));
 		defaultStatus.set(DEFENCE, defaultStatus(defaultStatus.get(DEFENCE), difficultyCorrection));
 		defaultStatus.set(HEAL, defaultStatus(defaultStatus.get(HEAL), difficultyCorrection));
 		return defaultStatus.stream().toList();
