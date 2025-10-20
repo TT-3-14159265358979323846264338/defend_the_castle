@@ -36,7 +36,7 @@ public class BattleUnit extends BattleData{
 	private final int PLACEMENT_ACHIEVEMENT = 1;
 	private final int KILL_ACHIEVEMENT = 60;
 	private final int TIMER_INTERVAL = 100;
-	private final double AWAKENING_RATIO = 1.2;
+	private final double AWAKENING_RATIO = 1.15;
 	private final int MAX_AWAKENING = 5;
 	private int achievement;
 	private boolean canLocate = true;
@@ -176,7 +176,7 @@ public class BattleUnit extends BattleData{
 		return AWAKEING_CONDETION * (awakeningNumber + 1) <= achievement;
 	}
 	
-	protected int getAwakeningNumber() {
+	public int getAwakeningNumber() {
 		return awakeningNumber;
 	}
 	

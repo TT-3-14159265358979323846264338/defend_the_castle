@@ -64,12 +64,12 @@ public class No0004HighSlime extends EnemyData{
 
 	@Override
 	public List<Integer> getWeaponStatus() {
-		return Arrays.asList(75, 30, 1000, 1);
+		return Arrays.asList(100, 30, 1000, 1);
 	}
 
 	@Override
 	public List<Integer> getUnitStatus() {
-		return Arrays.asList(1000, 1000, 10, 20, 125, 1);
+		return Arrays.asList(1000, 1000, 30, 20, 100, 1);
 	}
 
 	@Override

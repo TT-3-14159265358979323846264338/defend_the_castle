@@ -131,12 +131,12 @@ public abstract class StageData {
 	 * @param FacilityData - ゲーム終了後の設備データ。{@link battle.BattleFacility BattleFacility}
 	 * @param EnemyData - ゲーム終了後の敵データ。{@link battle.BattleEnemy BattleEnemy}
 	 * @param GameData - ゲーム終了後のゲームデータ。{@link battle.GameData GameData}
-	 * @param difficultyCorrection - ゲームの難易度。{@link battle.BattleEnemy#NORMAL_MODE ステータス補正倍率}
+	 * @param nowDifficulty - ゲームの難易度。{@link battle.BattleEnemy#NORMAL_MODE ステータス補正倍率}
 	 * @return 各戦功の達成状況のListを返却する。<br>
 	 * 			達成した場合をtrue, 未達成の場合をfalseとする。<br>
 	 * 			達成判定は{@link StageData}の下部で定義したメソッドを使用する。
 	 */
-	public abstract List<Boolean> canClearMerit(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection);
+	public abstract List<Boolean> canClearMerit(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double nowDifficulty);
 	
 	/**
 	 * 各戦功で獲得可能な報酬。
@@ -266,13 +266,13 @@ public abstract class StageData {
 	
 	/**
 	 * 指定の難易度でクリアしたかどうか判定。
-	 * @param base - 基準となる指定の難易度。
-	 * @param difficultyCorrection - 今回のゲームの難易度。
+	 * @param baseDifficulty - 基準となる指定の難易度。
+	 * @param nowDifficulty - 今回のゲームの難易度。
 	 * @return 引数が一致すればtrueを返却する。
 	 * @see {@link battle.BattleEnemy#NORMAL_MODE ステータス補正倍率}
 	 */
-	protected boolean canClearStage(double base, double difficultyCorrection) {
-		return base == difficultyCorrection;
+	protected boolean canClearStage(double baseDifficulty, double nowDifficulty) {
+		return baseDifficulty == nowDifficulty;
 	}
 	
 	/**
@@ -296,16 +296,16 @@ public abstract class StageData {
 	
 	/**
 	 * 指定の難易度でユニットが一度も倒されずクリアしたかどうか判定。
-	 * @param base - 基準となる指定の難易度。
-	 * @param difficultyCorrection - 今回のゲームの難易度。
+	 * @param baseDifficulty - 基準となる指定の難易度。
+	 * @param nowDifficulty - 今回のゲームの難易度。
 	 * @param UnitMainData - ゲーム終了後のユニットデータ。
 	 * @param UnitLeftData - ゲーム終了後のユニットデータ。
 	 * @return 指定の難易度で{@link battle.BattleUnit#defeatNumber 被撃破数}が全て0であるならばtrueを返却する。
 	 * @see {@link battle.BattleEnemy#NORMAL_MODE ステータス補正倍率}<br>
 	 * 		{@link battle.BattleUnit BattleUnit}
 	 */
-	protected boolean canNotDefeat(double base, double difficultyCorrection, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData) {
-		if(canClearStage(base, difficultyCorrection)) {
+	protected boolean canNotDefeat(double baseDifficulty, double nowDifficulty, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData) {
+		if(canClearStage(baseDifficulty, nowDifficulty)) {
 			return canNotDefeat(UnitMainData, UnitLeftData);
 		}
 		return false;
@@ -329,8 +329,8 @@ public abstract class StageData {
 	
 	/**
 	 * 指定の難易度で味方全てが一度も倒されずクリアしたかどうか判定。
-	 * @param base - 基準となる指定の難易度。
-	 * @param difficultyCorrection - 今回のゲームの難易度。
+	 * @param baseDifficulty - 基準となる指定の難易度。
+	 * @param nowDifficulty - 今回のゲームの難易度。
 	 * @param UnitMainData - ゲーム終了後のユニットデータ。
 	 * @param UnitLeftData - ゲーム終了後のユニットデータ。
 	 * @param FacilityData - ゲーム終了後の設備データ。
@@ -339,9 +339,34 @@ public abstract class StageData {
 	 * 		{@link battle.BattleUnit BattleUnit}<br>
 	 * 		{@link battle.BattleFacility BattleFacility}
 	 */
-	protected boolean canNotDefeat(double base, double difficultyCorrection, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData) {
-		if(canClearStage(base, difficultyCorrection)) {
+	protected boolean canNotDefeat(double baseDifficulty, double nowDifficulty, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData) {
+		if(canClearStage(baseDifficulty, nowDifficulty)) {
 			return canNotDefeat(UnitMainData, UnitLeftData, FacilityData);
+		}
+		return false;
+	}
+	
+	/**
+	 * 難易度に関わらず指定の覚醒回数以上であるか判定。
+	 * @param awakeningCount - 指定の覚醒回数。
+	 * @param UnitMainData - ゲーム終了後のユニットデータ。
+	 * @return 味方の総覚醒回数が指定の値以上であればtrueを返却する。
+	 */
+	protected boolean exsistOverAwakening(int awakeningCount, BattleUnit[] UnitMainData) {
+		return awakeningCount <= Stream.of(UnitMainData).mapToInt(i -> i.getAwakeningNumber()).sum();
+	}
+	
+	/**
+	 * 指定の難易度で指定の覚醒回数以上であるか判定。
+	 * @param baseDifficulty - 基準となる指定の難易度。
+	 * @param nowDifficulty - 今回のゲームの難易度。
+	 * @param awakeningCount - 指定の覚醒回数。
+	 * @param UnitMainData - ゲーム終了後のユニットデータ。
+	 * @return 指定の難易度で味方の総覚醒回数が指定の値以上であればtrueを返却する。
+	 */
+	protected boolean exsistOverAwakening(double baseDifficulty, double nowDifficulty, int awakeningCount, BattleUnit[] UnitMainData) {
+		if(canClearStage(baseDifficulty, nowDifficulty)) {
+			return exsistOverAwakening(awakeningCount, UnitMainData);
 		}
 		return false;
 	}

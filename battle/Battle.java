@@ -83,7 +83,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private final int AWAKE_COST = 10;
 	
 	//システム関連
-	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(50);
+	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(100);
 	private ScheduledFuture<?> mainFuture;
 	private long beforeMainTime;
 	private ScheduledFuture<?> autoFuture;
@@ -679,7 +679,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		mainFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeMainTime = System.currentTimeMillis();
 			time += delay;
-			if(time % 2000 == 0) {
+			if(time % 1000 == 0) {
 				GameData.addCost(1);
 			}
 		}, initialDelay, delay, TimeUnit.MILLISECONDS);

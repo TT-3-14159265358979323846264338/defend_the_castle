@@ -113,17 +113,17 @@ public class No0000Stage1 extends StageData{
 	@Override
 	public List<String> getMerit() {
 		return Arrays.asList("ステージをクリアする(normal)",
-				"ユニットが一度も倒されずクリアする(normal)",
+				"総覚醒回数が5回以上(normal)",
 				"ステージをクリアする(hard)",
 				"ユニットが一度も倒されずクリアする(hard)");
 	}
 
 	@Override
-	public List<Boolean> canClearMerit(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
-		return Arrays.asList(canClearStage(BattleEnemy.NORMAL_MODE, difficultyCorrection),
-				canNotDefeat(BattleEnemy.NORMAL_MODE, difficultyCorrection, UnitMainData, UnitLeftData),
-				canClearStage(BattleEnemy.HARD_MODE, difficultyCorrection),
-				canNotDefeat(BattleEnemy.HARD_MODE, difficultyCorrection, UnitMainData, UnitLeftData));
+	public List<Boolean> canClearMerit(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double nowDifficulty) {
+		return Arrays.asList(canClearStage(BattleEnemy.NORMAL_MODE, nowDifficulty),
+				exsistOverAwakening(BattleEnemy.NORMAL_MODE, nowDifficulty, 5, UnitMainData),
+				canClearStage(BattleEnemy.HARD_MODE, nowDifficulty),
+				canNotDefeat(BattleEnemy.HARD_MODE, nowDifficulty, UnitMainData, UnitLeftData));
 	}
 
 	@Override
@@ -196,7 +196,8 @@ public class No0000Stage1 extends StageData{
 						Arrays.asList(725, 0, 270, 0, 0),
 						Arrays.asList(0, 260, 0, 0, 0),
 						Arrays.asList(920, 0, 270, 0, 0),
-						Arrays.asList(0, 90, 180, 0, 0)
+						Arrays.asList(0, 90, 180, 0, 0),
+						Arrays.asList(550, 0, 270, 0, 0)
 						),
 				//route1: 通常ルート2
 				Arrays.asList(
@@ -208,7 +209,8 @@ public class No0000Stage1 extends StageData{
 						Arrays.asList(725, 0, 270, 0, 0),
 						Arrays.asList(0, 260, 0, 0, 0),
 						Arrays.asList(910, 0, 270, 0, 0),
-						Arrays.asList(0, 25, 180, 0, 0)
+						Arrays.asList(0, 25, 180, 0, 0),
+						Arrays.asList(550, 0, 90, 0, 0)
 						),
 				//route2: N字飛行
 				Arrays.asList(
@@ -232,7 +234,8 @@ public class No0000Stage1 extends StageData{
 						Arrays.asList(0, 30, 200, 0, 0),
 						Arrays.asList(0, 10, 180, 0, 0),
 						Arrays.asList(635, 0, 155, 0, 0),
-						Arrays.asList(610, 0, 135, 0, 0)
+						Arrays.asList(610, 0, 135, 0, 0),
+						Arrays.asList(550, 0, 90, 0, 0)
 						),
 				//route3: 右下から直行
 				Arrays.asList(

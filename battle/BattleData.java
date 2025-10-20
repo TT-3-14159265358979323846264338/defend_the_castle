@@ -385,8 +385,8 @@ public class BattleData{
 	}
 	
 	protected void removeBlock(BattleEnemy BattleEnemy) {
-		BattleEnemy.releaseBlock();
 		enemyData.stream().forEach(i -> i.getBlock().remove(BattleEnemy));
+		BattleEnemy.releaseBlock();
 	}
 	
 	protected void clearBlock() {

@@ -116,17 +116,17 @@ public class No0001Stage2 extends StageData {
 	@Override
 	public List<String> getMerit() {
 		return Arrays.asList("ステージをクリアする(normal)",
-				"ユニットが一度も倒されずクリアする(normal)",
+				"総覚醒回数が5回以上(normal)",
 				"ステージをクリアする(hard)",
-				"ユニットも設備も破壊されずクリアする(hard)");
+				"ユニットが一度も倒されずクリアする(hard)");
 	}
 
 	@Override
-	public List<Boolean> canClearMerit(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
-		return Arrays.asList(canClearStage(BattleEnemy.NORMAL_MODE, difficultyCorrection),
-				canNotDefeat(BattleEnemy.NORMAL_MODE, difficultyCorrection, UnitMainData, UnitLeftData),
-				canClearStage(BattleEnemy.HARD_MODE, difficultyCorrection),
-				canNotDefeat(BattleEnemy.HARD_MODE, difficultyCorrection, UnitMainData, UnitLeftData, FacilityData));
+	public List<Boolean> canClearMerit(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double nowDifficulty) {
+		return Arrays.asList(canClearStage(BattleEnemy.NORMAL_MODE, nowDifficulty),
+				exsistOverAwakening(BattleEnemy.NORMAL_MODE, nowDifficulty, 5, UnitMainData),
+				canClearStage(BattleEnemy.HARD_MODE, nowDifficulty),
+				canNotDefeat(BattleEnemy.HARD_MODE, nowDifficulty, UnitMainData, UnitLeftData));
 	}
 
 	@Override
@@ -153,20 +153,50 @@ public class No0001Stage2 extends StageData {
 	@Override
 	public List<List<Integer>> getEnemy() {
 		return Arrays.asList(
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 2, 500),
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 6, 500),
+				
 				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 1000),
-				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 1000),
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 2, 2000),
-				Arrays.asList(DefaultEnemy.RED_SLIME, 3, 2000),
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 4, 3000),
-				Arrays.asList(DefaultEnemy.RED_SLIME, 5, 3000),
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 6, 4000),
-				Arrays.asList(DefaultEnemy.RED_SLIME, 7, 4000)
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 1500),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 4, 6000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 5, 6500),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 11000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 11500),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 4, 16000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 5, 16500),
+				
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 35000),
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 4, 35000),
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 1, 40000),
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 5, 40000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 45000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 4, 45000),
+				
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 2, 55000),
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 6, 55000),
+				
+				Arrays.asList(DefaultEnemy.RED_SLIME, 0, 55000),
+				Arrays.asList(DefaultEnemy.RED_SLIME, 4, 55000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 65000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 4, 65000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 70000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 4, 70000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 75000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 4, 75000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 80000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 4, 80000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 85000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 4, 85000),
+				
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 1, 90000),
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 2, 90000),
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 6, 90000)
 				);
 	}
 
 	@Override
 	public List<Integer> getDisplayOrder() {
-		return Arrays.asList(DefaultEnemy.BLUE_SLIME, DefaultEnemy.RED_SLIME);
+		return Arrays.asList(DefaultEnemy.BLUE_SLIME, DefaultEnemy.RED_SLIME, DefaultEnemy.GREEN_SLIME, DefaultEnemy.YELLOW_SLIME, DefaultEnemy.HIGH_SLIME);
 	}
 
 	@Override
