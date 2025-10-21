@@ -90,7 +90,7 @@ public class No0001Stage2 extends StageData {
 	
 	@Override
 	public List<Integer> getMorale(){
-		return Arrays.asList(0, 10);
+		return Arrays.asList(0, 0);
 	}
 
 	@Override
@@ -124,7 +124,7 @@ public class No0001Stage2 extends StageData {
 	@Override
 	public List<Boolean> canClearMerit(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double nowDifficulty) {
 		return Arrays.asList(canClearStage(BattleEnemy.NORMAL_MODE, nowDifficulty),
-				exsistOverAwakening(BattleEnemy.NORMAL_MODE, nowDifficulty, 5, UnitMainData),
+				existsOverAwakening(BattleEnemy.NORMAL_MODE, nowDifficulty, 5, UnitMainData),
 				canClearStage(BattleEnemy.HARD_MODE, nowDifficulty),
 				canNotDefeat(BattleEnemy.HARD_MODE, nowDifficulty, UnitMainData, UnitLeftData));
 	}

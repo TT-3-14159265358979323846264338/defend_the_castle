@@ -33,6 +33,7 @@ public class BattleData{
 	protected List<BufferedImage> hitImage;
 	private List<Bullet> bulletList = Arrays.asList();
 	private List<BattleData> targetList = new ArrayList<>();
+	private int hitedCount;
 	
 	//バフ関連
 	protected List<List<Double>> generatedBuffInformation;
@@ -266,6 +267,7 @@ public class BattleData{
 	private void HPDecrease(int decrease, BattleData atackUnit) {
 		synchronized(HPLock) {
 			nowHP -= decrease;
+			hitedCount++;
 			if(nowHP <= 0 && canActivate) {
 				defeat(atackUnit);
 				atackUnit.activateBuff(Buff.KILL, this);
@@ -273,6 +275,10 @@ public class BattleData{
 				return;
 			}
 		}
+	}
+	
+	public int getHitedCount() {
+		return hitedCount;
 	}
 	
 	protected void defeat(BattleData target) {

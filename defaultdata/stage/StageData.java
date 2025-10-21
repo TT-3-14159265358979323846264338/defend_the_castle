@@ -352,7 +352,7 @@ public abstract class StageData {
 	 * @param UnitMainData - ゲーム終了後のユニットデータ。
 	 * @return 味方の総覚醒回数が指定の値以上であればtrueを返却する。
 	 */
-	protected boolean exsistOverAwakening(int awakeningCount, BattleUnit[] UnitMainData) {
+	protected boolean existsOverAwakening(int awakeningCount, BattleUnit[] UnitMainData) {
 		return awakeningCount <= Stream.of(UnitMainData).mapToInt(i -> i.getAwakeningNumber()).sum();
 	}
 	
@@ -364,9 +364,32 @@ public abstract class StageData {
 	 * @param UnitMainData - ゲーム終了後のユニットデータ。
 	 * @return 指定の難易度で味方の総覚醒回数が指定の値以上であればtrueを返却する。
 	 */
-	protected boolean exsistOverAwakening(double baseDifficulty, double nowDifficulty, int awakeningCount, BattleUnit[] UnitMainData) {
+	protected boolean existsOverAwakening(double baseDifficulty, double nowDifficulty, int awakeningCount, BattleUnit[] UnitMainData) {
 		if(canClearStage(baseDifficulty, nowDifficulty)) {
-			return exsistOverAwakening(awakeningCount, UnitMainData);
+			return existsOverAwakening(awakeningCount, UnitMainData);
+		}
+		return false;
+	}
+	
+	/**
+	 * 難易度に関わらず指定の設備が攻撃を受けていないか判定。
+	 * @param FacilityData - ゲーム終了後の設備データ。
+	 * @return 指定した全ての設備が1度も攻撃を受けていないならばtrueを返却する。
+	 */
+	protected boolean hasNotHited(BattleFacility... FacilityData) {
+		return Stream.of(FacilityData).allMatch(i -> i.getHitedCount() == 0);
+	}
+	
+	/**
+	 * 指定の難易度で指定の設備が攻撃を受けていないか判定。
+	 * @param baseDifficulty - 基準となる指定の難易度。
+	 * @param nowDifficulty - 今回のゲームの難易度。
+	 * @param FacilityData - ゲーム終了後の設備データ。
+	 * @return 指定の難易度で指定した全ての設備が1度も攻撃を受けていないならばtrueを返却する。
+	 */
+	protected boolean hasNotHited(double baseDifficulty, double nowDifficulty, BattleFacility... FacilityData) {
+		if(canClearStage(baseDifficulty, nowDifficulty)) {
+			return hasNotHited(FacilityData);
 		}
 		return false;
 	}

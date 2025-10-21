@@ -121,7 +121,7 @@ public class No0000Stage1 extends StageData{
 	@Override
 	public List<Boolean> canClearMerit(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double nowDifficulty) {
 		return Arrays.asList(canClearStage(BattleEnemy.NORMAL_MODE, nowDifficulty),
-				exsistOverAwakening(BattleEnemy.NORMAL_MODE, nowDifficulty, 5, UnitMainData),
+				existsOverAwakening(BattleEnemy.NORMAL_MODE, nowDifficulty, 5, UnitMainData),
 				canClearStage(BattleEnemy.HARD_MODE, nowDifficulty),
 				canNotDefeat(BattleEnemy.HARD_MODE, nowDifficulty, UnitMainData, UnitLeftData));
 	}
