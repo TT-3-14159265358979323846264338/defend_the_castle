@@ -290,9 +290,9 @@ public class BattleUnit extends BattleData{
 	
 	private void reset(BattleData target) {
 		nowHP = defaultUnitStatus.get(0);
-		clearBlock();
 		individualReset(target);
 		otherWeapon.individualReset(target);
+		clearBlock();
 	}
 	
 	private void individualReset(BattleData target) {

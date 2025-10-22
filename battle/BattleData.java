@@ -198,9 +198,11 @@ public class BattleData{
 		atackTimer(0);
 	}
 	
-	protected synchronized void timerWait() {
+	protected synchronized void atackWait() {
 		try {
-			wait();
+			if(canAtack) {
+				wait();
+			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

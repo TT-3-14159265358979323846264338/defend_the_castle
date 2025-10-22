@@ -88,6 +88,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private long beforeMainTime;
 	private ScheduledFuture<?> autoFuture;
 	private long beforeAutoTime;
+	private ScheduledFuture<?> awakeFuture = scheduler.schedule(() -> null, 0, TimeUnit.SECONDS);
 	private Object awakeLock = new Object();
 	
 	//メイン画面制御
@@ -584,7 +585,8 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			if(canAwake(number)) {
 				selectUnit = UnitMainData[number];
 				canAwake = true;
-				scheduler.schedule(() -> canAwake = false, 2, TimeUnit.SECONDS);
+				awakeFuture.cancel(true);
+				awakeFuture = scheduler.schedule(() -> canAwake = false, 2, TimeUnit.SECONDS);
 				UnitMainData[number].awakening();
 				UnitLeftData[number].awakening();
 				GameData.consumeCost(AWAKE_COST);
