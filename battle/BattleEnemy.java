@@ -175,7 +175,7 @@ public class BattleEnemy extends BattleData{
 			if(nearList.get(i).getMoveSpeedOrBlock() < 0) {
 				return nearList.get(i);
 			}
-			if(nearList.get(i).getBlock().size() < nearList.get(i).getMoveSpeedOrBlock()) {
+			if(nearList.get(i).block.size() < nearList.get(i).getMoveSpeedOrBlock()) {
 				return nearList.get(i);
 			}
 		}

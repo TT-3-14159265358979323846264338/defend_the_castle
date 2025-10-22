@@ -380,10 +380,6 @@ public class BattleData{
 	}
 	
 	//ブロック管理
-	protected List<BattleEnemy> getBlock(){
-		return block;
-	}
-	
 	protected void addBlock(BattleEnemy BattleEnemy) {
 		synchronized(blockLock) {
 			block.add(BattleEnemy);
@@ -391,13 +387,17 @@ public class BattleData{
 	}
 	
 	protected void removeBlock(BattleEnemy BattleEnemy) {
-		enemyData.stream().forEach(i -> i.getBlock().remove(BattleEnemy));
-		BattleEnemy.releaseBlock();
+		synchronized(blockLock) {
+			enemyData.stream().forEach(i -> i.block.remove(BattleEnemy));
+			BattleEnemy.releaseBlock();
+		}
 	}
 	
 	protected void clearBlock() {
-		block.stream().forEach(i -> i.releaseBlock());
-		block.clear();
+		synchronized(blockLock) {
+			block.stream().forEach(i -> i.releaseBlock());
+			block.clear();
+		}
 	}
 	
 	//ステータス計算

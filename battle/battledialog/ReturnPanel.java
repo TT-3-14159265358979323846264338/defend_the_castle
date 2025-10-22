@@ -75,7 +75,7 @@ class ReturnPanel extends JPanel{
 			PauseDialog.disposeDialog();
 			MainFrame.selectStageDraw();
 		});
-		returnButton.setText("降参");
+		returnButton.setText("退却");
 		returnButton.setFont(buttonFont);
 	}
 	
@@ -86,7 +86,7 @@ class ReturnPanel extends JPanel{
 			PauseDialog.disposeDialog();
 			MainFrame.battleDraw(StageData, difficultyCorrection);
 		});
-		retryButton.setText("再戦");
+		retryButton.setText("再挑戦");
 		retryButton.setFont(buttonFont);
 	}
 }
