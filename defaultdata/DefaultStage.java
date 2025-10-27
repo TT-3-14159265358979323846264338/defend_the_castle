@@ -67,11 +67,13 @@ public class DefaultStage {
 	//設備コード変換
 	public static final int CASTLE = 0;
 	public static final int GATE = 1;
+	public static final int STRONGHOLD = 2;
 		
 	public static final Map<Integer, FacilityData> FACILITY_DATA_MAP = new HashMap<>();
 	static {
 		FACILITY_DATA_MAP.put(CASTLE, new No0000Castle());
 		FACILITY_DATA_MAP.put(GATE, new No0001Gate());
+		FACILITY_DATA_MAP.put(STRONGHOLD, new No0002Stronghold());
 	}
 	
 	//配置マス画像ファイル
