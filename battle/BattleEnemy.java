@@ -134,6 +134,10 @@ public class BattleEnemy extends BattleData{
 		}
 		moveFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeMoveTime = System.currentTimeMillis();
+			if(nowHP <= 0) {
+				moveFuture.cancel(true);
+				return;
+			}
 			if(canAtack) {
 				CompletableFuture.runAsync(this::atackWait, scheduler).thenRun(() -> constantMove(0));
 				moveFuture.cancel(true);
@@ -143,10 +147,6 @@ public class BattleEnemy extends BattleData{
 			if(Objects.nonNull(blockTarget)) {
 				blockTarget.addBlock(this);
 				CompletableFuture.runAsync(() -> blockWait(blockTarget), scheduler).thenRun(() -> constantMove(0));
-				moveFuture.cancel(true);
-				return;
-			}
-			if(nowHP <= 0) {
 				moveFuture.cancel(true);
 				return;
 			}
