@@ -86,7 +86,7 @@ public class No0004FlameRod extends WeaponData{
 
 	@Override
 	public List<Integer> getUnitStatus() {
-		return Arrays.asList(300, 300, 10, 5, 0, 5);
+		return Arrays.asList(300, 300, 10, 10, 0, 5);
 	}
 
 	@Override

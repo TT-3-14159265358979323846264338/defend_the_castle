@@ -105,7 +105,7 @@ public class No0002Stage3 extends StageData {
 		return Arrays.asList("ステージをクリアする(normal)",
 				"本丸が1度も攻撃を受けない(normal)",
 				"ステージをクリアする(hard)",
-				"ユニットが一度も倒されずクリアする(hard)");
+				"ユニットが一度も倒されない(hard)");
 	}
 
 	@Override

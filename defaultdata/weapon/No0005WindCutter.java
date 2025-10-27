@@ -79,7 +79,7 @@ public class No0005WindCutter extends WeaponData{
 
 	@Override
 	public List<Integer> getUnitStatus() {
-		return Arrays.asList(1000, 1000, 30, 10, 0, 10);
+		return Arrays.asList(1000, 1000, 30, 30, 0, 10);
 	}
 
 	@Override

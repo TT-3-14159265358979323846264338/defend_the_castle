@@ -115,7 +115,8 @@ public class No0000Stage1 extends StageData{
 		return Arrays.asList("ステージをクリアする(normal)",
 				"総覚醒回数が5回以上(normal)",
 				"ステージをクリアする(hard)",
-				"ユニットが一度も倒されずクリアする(hard)");
+				"総覚醒回数が5回以上(hard)",
+				"ユニットが一度も倒されない(hard)");
 	}
 
 	@Override
@@ -123,6 +124,7 @@ public class No0000Stage1 extends StageData{
 		return Arrays.asList(canClearStage(BattleEnemy.NORMAL_MODE, nowDifficulty),
 				existsOverAwakening(BattleEnemy.NORMAL_MODE, nowDifficulty, 5, UnitMainData),
 				canClearStage(BattleEnemy.HARD_MODE, nowDifficulty),
+				existsOverAwakening(BattleEnemy.HARD_MODE, nowDifficulty, 5, UnitMainData),
 				canNotDefeat(BattleEnemy.HARD_MODE, nowDifficulty, UnitMainData, UnitLeftData));
 	}
 
@@ -131,6 +133,7 @@ public class No0000Stage1 extends StageData{
 		return Arrays.asList("メダル100",
 				"メダル200",
 				"メダル300",
+				"メダル200",
 				"メダル500");
 	}
 
@@ -140,6 +143,7 @@ public class No0000Stage1 extends StageData{
 			return Arrays.asList(getClass().getMethod("give100Medal"),
 					getClass().getMethod("give200Medal"),
 					getClass().getMethod("give300Medal"),
+					getClass().getMethod("give200Medal"),
 					getClass().getMethod("give500Medal"));
 		} catch (Exception e) {
 			e.printStackTrace();
