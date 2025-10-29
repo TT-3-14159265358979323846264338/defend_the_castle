@@ -57,7 +57,7 @@ public abstract class StageData {
 	public abstract List<Point> getFacilityPoint();
 	
 	/**
-	 * ユニットの配可能置位置。
+	 * ユニットの配置可能位置。
 	 * @return ユニットの配可能置位置を返却する。Listはnear, far, allの順番に、x座標, y座標を入れたList(Double)を登録する。
 	 * 			ステージ中心点は
 	 * 			double centerX = 483;
@@ -67,10 +67,10 @@ public abstract class StageData {
 	public abstract List<List<List<Double>>> getPlacementPoint();
 	
 	/**
-	 * 配可能置位置を使用条件。
+	 * 配置可能位置の使用条件。
 	 * @param Battle - 現在のゲームデータ。{@link battle.Battle Battle}
 	 * @param EnemyData - 現在の敵データ。{@link battle.BattleEnemy BattleEnemy}
-	 * @return 各配可能置位置が使用可能であればtrueが入ったListを返却する。データの順番は{@link #getPlacementPoint getPlacementPoint}の順に記載する。
+	 * @return 各配置可能位置が使用可能であればtrueを入りたListを返却する。データの順番は{@link #getPlacementPoint getPlacementPoint}の順に記載する。
 	 */
 	public abstract List<List<Boolean>> canUsePlacement(Battle Battle, BattleEnemy[] EnemyData);
 	
