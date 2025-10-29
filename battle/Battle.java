@@ -57,13 +57,13 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private Color placeBlue = new Color(220, 220, 255);
 	private Color recastGray = new Color(128, 128, 128, 125);
 	private Color recastWhite = new Color(255, 255, 255, 125);
-	private Color HPGreen = new Color(150, 200, 100);
 	
 	//ゲームデータ
 	private StageData StageData;
 	private BufferedImage stageImage;
 	private List<BufferedImage> placementImage = new DefaultStage().getPlacementImage(4);
 	private List<List<List<Double>>> placementList;
+	private List<List<Boolean>> canUsePlacement;
 	private BattleUnit[] UnitMainData;//右武器/コア用　攻撃・被弾などの判定はこちらで行う
 	private BattleUnit[] UnitLeftData;//左武器用
 	private BattleFacility[] FacilityData;
@@ -248,14 +248,17 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	private void drawField(Graphics g) {
 		g.drawImage(stageImage, 0, 0, this);
-		IntStream.range(0, placementList.size()).forEach(i -> placementList.get(i).stream().forEach(j -> g.drawImage(placementImage.get(i), j.get(0).intValue(), j.get(1).intValue(), this)));
+		canUsePlacement = StageData.canUsePlacement(this, EnemyData);
+		IntStream.range(0, placementList.size()).forEach(i -> IntStream.range(0, placementList.get(i).size())
+				.filter(j -> canUsePlacement.get(i).get(j))
+				.forEach(j -> g.drawImage(placementImage.get(i), placementList.get(i).get(j).get(0).intValue(), placementList.get(i).get(j).get(1).intValue(), this)));
 		IntStream.range(0, FacilityData.length).forEach(i -> {
 			if(canRangeDraw) {
 				rangeDraw(g, rangeRed, FacilityData[i].getPositionX(), FacilityData[i].getPositionY(), FacilityData[i].getRange());
 			}
 			g.drawImage(FacilityData[i].canActivate()? FacilityData[i].getActionImage(): FacilityData[i].getBreakImage(), FacilityData[i].getPositionX(), FacilityData[i].getPositionY(), this);
 			if(FacilityData[i].canActivate()) {
-				drawHP(g, FacilityData[i]);
+				drawHP(g, FacilityData[i], Color.BLUE);
 			}
 		});
 	}
@@ -266,7 +269,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 				rangeDraw(g, rangeRed, EnemyData[i].getPositionX(), EnemyData[i].getPositionY(), EnemyData[i].getRange());
 			}
 			g.drawImage(EnemyData[i].getActionImage(), EnemyData[i].getPositionX(), EnemyData[i].getPositionY(), this);
-			drawHP(g, EnemyData[i]);
+			drawHP(g, EnemyData[i], Color.RED);
 		});
 	}
 	
@@ -329,7 +332,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			g.drawImage(UnitMainData[i].getCoreImage(), x, y, this);
 			g.drawImage(UnitLeftData[i].getActionImage(), x, y, this);
 			if(UnitMainData[i].canActivate()) {
-				drawHP(g, UnitMainData[i]);
+				drawHP(g, UnitMainData[i], Color.BLUE);
 			}else {
 				if(!UnitMainData[i].canLocate()) {
 					drawRelocation(g, UnitMainData[i]);
@@ -399,13 +402,13 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		g.fillOval(x + correction - range, y + correction - range, range * 2, range * 2);
 	}
 	
-	private void drawHP(Graphics g, BattleData BattleData) {
+	private void drawHP(Graphics g, BattleData BattleData, Color color) {
 		int x = BattleData.getPositionX() + 30;
 		int y = BattleData.getPositionY() + 60;
 		int height = 5;
 		g.setColor(Color.BLACK);
 		g.fillRect(x, y, SIZE, height);
-		g.setColor(HPGreen);
+		g.setColor(color);
 		g.fillRect(x, y, SIZE * BattleData.getNowHP() / BattleData.getMaxHP(), height);
 		g.setColor(Color.WHITE);
 		g.drawRect(x, y, SIZE, height);
@@ -658,13 +661,16 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 			return Stream.of(UnitMainData).noneMatch(i -> i.getPositionX() == correctPosition.apply(point.get(0))
 					&& i.getPositionY() == correctPosition.apply(point.get(1)));
 		};
-		placementList.get(placementCode).stream().filter(i -> positionCheck.test(i)).forEach(i -> {
-			if(ValueRange.of(i.get(0).intValue(), i.get(0).intValue() + SIZE).isValidIntValue(mouse.x)
-					&& ValueRange.of(i.get(1).intValue(), i.get(1).intValue() + SIZE).isValidIntValue(mouse.y)) {
-				GameData.consumeCost(UnitMainData[select].getCost());
-				UnitMainData[select].activate(correctPosition.apply(i.get(0)), correctPosition.apply(i.get(1)));
-				UnitLeftData[select].activate(correctPosition.apply(i.get(0)), correctPosition.apply(i.get(1)));
-			}
+		IntStream.range(0, placementList.get(placementCode).size()).filter(i -> canUsePlacement.get(placementCode).get(i))
+			.filter(i -> positionCheck.test(placementList.get(placementCode).get(i)))
+			.forEach(i -> {
+				List<Double> position = placementList.get(placementCode).get(i);
+				if(ValueRange.of(position.get(0).intValue(), position.get(0).intValue() + SIZE).isValidIntValue(mouse.x)
+						&& ValueRange.of(position.get(1).intValue(), position.get(1).intValue() + SIZE).isValidIntValue(mouse.y)) {
+					GameData.consumeCost(UnitMainData[select].getCost());
+					UnitMainData[select].activate(correctPosition.apply(position.get(0)), correctPosition.apply(position.get(1)));
+					UnitLeftData[select].activate(correctPosition.apply(position.get(0)), correctPosition.apply(position.get(1)));
+				}
 		});
 	}
 	
