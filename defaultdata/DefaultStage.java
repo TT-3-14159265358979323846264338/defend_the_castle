@@ -59,10 +59,11 @@ public class DefaultStage {
 	
 	//ステージリスト
 	public static final List<StageData> STAGE_DATA = Arrays.asList(
-			new No0000Stage1(), 
-			new No0001Stage2(),
-			new No0002Stage3(),
-			new No0003Stage4()
+			new No0001Stage1(), 
+			new No0002Stage2(),
+			new No0003Stage3(),
+			new No0004Stage4(),
+			new No0005Stage5()
 			);
 	
 	//設備コード変換

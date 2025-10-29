@@ -28,20 +28,24 @@ public class DefaultEnemy {
 	public static final int GROUND = 0;
 	public static final int FLIGHT = 1;
 	public static final int ON_WATER = 2;
+	public static final int NO_MOVE = 3;
 	
 	public static final Map<Integer, String> MOVE_MAP = new HashMap<>();
 	static {
 		MOVE_MAP.put(GROUND, "地上");
 		MOVE_MAP.put(FLIGHT, "飛行");
 		MOVE_MAP.put(ON_WATER, "水上");
+		MOVE_MAP.put(NO_MOVE, "移動不可");
 	}
 	
 	public static final int NORMAL = 0;
-	public static final int BOSS = 1;
+	public static final int FACILITY = 1;
+	public static final int BOSS = 2;
 	
 	public static final Map<Integer, String> TYPE_MAP = new HashMap<>();
 	static {
 		TYPE_MAP.put(NORMAL, "一般");
+		TYPE_MAP.put(FACILITY, "設備");
 		TYPE_MAP.put(BOSS, "ボス");
 	}
 	
@@ -80,6 +84,9 @@ public class DefaultEnemy {
 	public static final int GREEN_SLIME = 2;
 	public static final int YELLOW_SLIME = 3;
 	public static final int HIGH_SLIME = 4;
+	public static final int CASTLE = 5;
+	public static final int FRONT_GATE = 6;
+	public static final int SIDE_GATE = 7;
 	
 	public static final Map<Integer, EnemyData> DATA_MAP = new HashMap<>();
 	static {
@@ -88,5 +95,8 @@ public class DefaultEnemy {
 		DATA_MAP.put(GREEN_SLIME, new No0002GreenSlime());
 		DATA_MAP.put(YELLOW_SLIME, new No0003YellowSlime());
 		DATA_MAP.put(HIGH_SLIME, new No0004HighSlime());
+		DATA_MAP.put(CASTLE, new No0005Castle());
+		DATA_MAP.put(FRONT_GATE, new No0006FrontGate());
+		DATA_MAP.put(SIDE_GATE, new No0007SideGate());
 	}
 }
