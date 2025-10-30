@@ -30,7 +30,7 @@ class EnemyPanel extends JPanel implements MouseListener{
 	
 	protected EnemyPanel(SelectPanel SelectPanel) {
 		BiFunction<Integer, List<List<Integer>>, Integer> count = (enemy, enemyList) -> {
-			return (int) enemyList.stream().filter(i -> i.get(0) == enemy).count();
+			return (int) enemyList.stream().filter(i -> i.get(0) == enemy).mapToInt(i -> (i.get(3) < 0)? -100000 :i.get(3) + 1).sum();
 		};
 		this.SelectPanel = SelectPanel;
 		enemyData = DefaultStage.STAGE_DATA.stream().map(i -> i.getDisplayOrder().stream().map(j -> DefaultEnemy.DATA_MAP.get(j)).toList()).toList();
@@ -47,7 +47,7 @@ class EnemyPanel extends JPanel implements MouseListener{
 			int y = i / COLUMN * SIZE;
 			g.drawImage(enemyImage.get(SelectPanel.getSelelct()).get(i), x, y, this);
 			g.setFont(font);
-			g.drawString("" + enemyCount.get(SelectPanel.getSelelct()).get(i), 80 + x, 80 + y);
+			g.drawString((enemyCount.get(SelectPanel.getSelelct()).get(i) < 0)? "∞": "" + enemyCount.get(SelectPanel.getSelelct()).get(i), 80 + x, 80 + y);
 		});
 	}
 	

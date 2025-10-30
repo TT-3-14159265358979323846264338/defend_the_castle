@@ -186,11 +186,13 @@ public abstract class StageData {
 	/**
 	 * 敵情報。<br>
 	 * 全ての敵情報を入力した複数のListを返却する。
-	 * @return List(enemyCode, moveCode, timing)<br>
+	 * @return List(enemyCode, moveCode, timing, resurrectionCount, interval)<br>
 	 * 			<br>
 	 * 			enemyCode - {@link defaultdata.DefaultEnemy#DATA_MAP DATA_MAP}の敵コード。<br>
 	 * 			moveCode - {@link #getRoute}の順番。<br>
-	 * 			timing - 出撃タイミング(1000 = 1 seceond)。
+	 * 			timing - 初回出撃タイミング(1000 = 1 seceond)。<br>
+	 * 			resurrectionCount - 復活回数。回数が0になるまで、撃破されてからintervalごとに復活する。-1を入力すると無限に復活する。<br>
+	 * 			interval - 復活までの時間(1000 = 1 seceond)。
 	 */
 	public abstract List<List<Integer>> getEnemy();
 	

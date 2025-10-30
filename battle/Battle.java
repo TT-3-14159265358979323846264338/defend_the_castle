@@ -42,7 +42,6 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	//表示パーツ
 	private JLabel costLabel = new JLabel();
-	private JLabel enemyLabel = new JLabel();
 	private JLabel[] awakeLabel;
 	private JButton rangeDrawButton = new JButton();
 	private JButton autoAwakeningButton = new JButton();
@@ -99,7 +98,6 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		setBackground(new Color(240, 170, 80));
 		install(difficultyCorrection);
 		addCostLabel();
-		addEnemyLabel();
 		addRangeDrawButton();
 		addAutoAwakeningButton();
 		addStageReturnButton(MainFrame, difficultyCorrection);
@@ -111,7 +109,6 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		super.paintComponent(g);
 		rangeDrawButton.setBounds(0, 0, 95, 40);
 		setCostLabel();
-		setEnemyLabel();
 		setMenuButton(rangeDrawButton, canRangeDraw? "射程表示": "射程なし", 1010, 465, 95, 40);
 		setMenuButton(autoAwakeningButton, canAutoAwake? "自動覚醒": "手動覚醒", 1115, 465, 95, 40);
 		setMenuButton(stageReturnButton, "一時停止", 1010, 515, 200, 40);
@@ -163,11 +160,6 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		costLabel.setHorizontalAlignment(JLabel.CENTER);
 	}
 	
-	private void addEnemyLabel() {
-		add(enemyLabel);
-		costLabel.setHorizontalAlignment(JLabel.CENTER);
-	}
-	
 	private void addRangeDrawButton() {
 		add(rangeDrawButton);
 		rangeDrawButton.addActionListener(e->{
@@ -214,16 +206,6 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		costLabel.setText("コスト: " + GameData.getCost());
 		costLabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
 		costLabel.setBounds(1010, 15, 200, 30);
-	}
-	
-	private void setEnemyLabel() {
-		enemyLabel.setText(killNumber() + " / " + EnemyData.length);
-		enemyLabel.setFont(new Font("Arail", Font.BOLD, 20));
-		enemyLabel.setBounds(470, 525, 200, 30);
-	}
-	
-	private long killNumber() {
-		return Stream.of(EnemyData).filter(i -> i.getNowHP() <= 0).count();
 	}
 	
 	private void setMenuButton(JButton button, String name, int x, int y, int width, int height) {

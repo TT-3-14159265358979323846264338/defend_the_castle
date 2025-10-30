@@ -167,7 +167,7 @@ public class No0005Stage5 extends StageData {
 	
 	@Override
 	public List<Integer> getMorale(){
-		return Arrays.asList(0, 0);
+		return Arrays.asList(30, 0);
 	}
 
 	@Override
@@ -230,14 +230,24 @@ public class No0005Stage5 extends StageData {
 	@Override
 	public List<List<Integer>> getEnemy() {
 		return Arrays.asList(
-				Arrays.asList(DefaultEnemy.CASTLE, 0, 0),
-				Arrays.asList(DefaultEnemy.FRONT_GATE, 4, 0),
-				Arrays.asList(DefaultEnemy.SIDE_GATE, 5, 0),
-				Arrays.asList(DefaultEnemy.SIDE_GATE, 6, 0),
-				Arrays.asList(DefaultEnemy.SIDE_GATE, 7, 0),
-				Arrays.asList(DefaultEnemy.FRONT_GATE, 8, 0),
+				Arrays.asList(DefaultEnemy.CASTLE, 0, 0, 0, 0),
+				Arrays.asList(DefaultEnemy.FRONT_GATE, 4, 0, 0, 0),
+				Arrays.asList(DefaultEnemy.SIDE_GATE, 5, 0, 0, 0),
+				Arrays.asList(DefaultEnemy.SIDE_GATE, 6, 0, 0, 0),
+				Arrays.asList(DefaultEnemy.SIDE_GATE, 7, 0, 0, 0),
+				Arrays.asList(DefaultEnemy.FRONT_GATE, 8, 0, 0, 0),
 				
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 500)
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 1000, 2, 3000)
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
 				);
 	}
 

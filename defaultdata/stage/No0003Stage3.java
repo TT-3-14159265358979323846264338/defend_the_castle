@@ -170,41 +170,41 @@ public class No0003Stage3 extends StageData {
 	@Override
 	public List<List<Integer>> getEnemy() {
 		return Arrays.asList(
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 500),
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 1000),
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 6500),
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 7000),
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 12500),
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 13000),
-				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 25000),
-				Arrays.asList(DefaultEnemy.GREEN_SLIME, 1, 25000),
-				Arrays.asList(DefaultEnemy.RED_SLIME, 0, 30000),
-				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 30000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 500, 0, 0),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 1000, 0, 0),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 6500, 0, 0),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 7000, 0, 0),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 12500, 0, 0),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 1, 13000, 0, 0),
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 25000, 0, 0),
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 1, 25000, 0, 0),
+				Arrays.asList(DefaultEnemy.RED_SLIME, 0, 30000, 0, 0),
+				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 30000, 0, 0),
 				
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 2, 32500),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 2, 32500, 0, 0),
 				
-				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 35000),
-				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 1, 35000),
-				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 40000),
-				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 45000),
-				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 50000),
-				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 55000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 35000, 0, 0),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 1, 35000, 0, 0),
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 40000, 0, 0),
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 45000, 0, 0),
+				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 50000, 0, 0),
+				Arrays.asList(DefaultEnemy.RED_SLIME, 1, 55000, 0, 0),
 				
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 2, 57000),
-				Arrays.asList(DefaultEnemy.BLUE_SLIME, 3, 57500),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 2, 57000, 0, 0),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 3, 57500, 0, 0),
 				
-				Arrays.asList(DefaultEnemy.HIGH_SLIME, 0, 60000),
-				Arrays.asList(DefaultEnemy.HIGH_SLIME, 1, 60000),
-				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 65000),
-				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 1, 65000),
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 0, 60000, 0, 0),
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 1, 60000, 0, 0),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 65000, 0, 0),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 1, 65000, 0, 0),
 				
-				Arrays.asList(DefaultEnemy.HIGH_SLIME, 2, 67000),
-				Arrays.asList(DefaultEnemy.HIGH_SLIME, 3, 67500),
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 2, 67000, 0, 0),
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 3, 67500, 0, 0),
 				
-				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 70000),
-				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 1, 70000),
-				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 75000),
-				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 1, 75000)
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 70000, 0, 0),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 1, 70000, 0, 0),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 75000, 0, 0),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 1, 75000, 0, 0)
 				);
 	}
 

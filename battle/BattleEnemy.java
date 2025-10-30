@@ -26,6 +26,8 @@ public class BattleEnemy extends BattleData{
 	private List<List<Integer>> route;
 	private int routeNumber;
 	private int activateTime;
+	private int resurrectionCount;
+	private int interval;
 	
 	//移動制御
 	private int pauseCount;
@@ -36,6 +38,8 @@ public class BattleEnemy extends BattleData{
 	private Object blockWait = new Object();
 	private ScheduledFuture<?> moveFuture;
 	private long beforeMoveTime;
+	private ScheduledFuture<?> resuscitationFuture;
+	private long beforeResuscitationTime;
 	
 	protected BattleEnemy(Battle Battle, StageData StageData, int number, double difficultyCorrection, ScheduledExecutorService scheduler) {
 		this.Battle = Battle;
@@ -50,8 +54,8 @@ public class BattleEnemy extends BattleData{
 		type = EnemyData.getType();
 		route = StageData.getRoute().get(StageData.getEnemy().get(number).get(1));
 		activateTime = StageData.getEnemy().get(number).get(2);
-		positionX = route.get(0).get(0);
-		positionY = route.get(0).get(1);
+		resurrectionCount = StageData.getEnemy().get(number).get(3);
+		interval = StageData.getEnemy().get(number).get(4);
 		element = EnemyData.getElement().stream().toList();
 		AtackPattern = new DefaultAtackPattern().getAtackPattern(EnemyData.getAtackPattern());
 		defaultWeaponStatus = weaponStatus(EnemyData, difficultyCorrection);
@@ -91,6 +95,15 @@ public class BattleEnemy extends BattleData{
 			AtackPattern.install(this, this.enemyData);
 		}
 		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData, scheduler)).toList();
+		reset();
+	}
+	
+	private void reset() {
+		routeNumber = 0;
+		pauseCount = 0;
+		nowHP = defaultUnitStatus.get(1);
+		positionX = route.get(0).get(0);
+		positionY = route.get(0).get(1);
 		moveTimer();
 	}
 	
@@ -114,7 +127,7 @@ public class BattleEnemy extends BattleData{
 		moveFuture = scheduler.scheduleAtFixedRate(() -> {
 			if(activateTime <= Battle.getMainTime()) {
 				canActivate = true;
-				GameData.moraleBoost(battle.GameData.ENEMY, 10);
+				GameData.moraleBoost(battle.GameData.ENEMY, 5);
 				atackTimer(0);
 				healTimer(0);
 				moveFuture.cancel(true);
@@ -266,6 +279,11 @@ public class BattleEnemy extends BattleData{
 	
 	@Override
 	protected void individualFutureStop() {
+		if(resuscitationFuture != null && !resuscitationFuture.isCancelled()) {
+			resuscitationFuture.cancel(true);
+			long resuscitationTime = System.currentTimeMillis();
+			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> resurrection(resuscitationTime));
+		}
 		if(moveFuture == null && moveFuture.isCancelled()) {
 			return;
 		}
@@ -295,5 +313,25 @@ public class BattleEnemy extends BattleData{
 		removeBlock(this);
 		GameData.lowMorale(battle.GameData.ENEMY, 3);
 		activateBuff(Buff.DEFEAT, target);
+		moveFuture.cancel(true);
+		beforeResuscitationTime = System.currentTimeMillis();
+		resurrection(0);
+	}
+	
+	private void resurrection(long stopTime) {
+		if(resurrectionCount == 0) {
+			return;
+		}
+		long delay;
+		if(stopTime == 0) {
+			delay = interval;
+		}else {
+			delay = (stopTime - beforeResuscitationTime < interval)? interval - (stopTime - beforeResuscitationTime): 0;
+			beforeResuscitationTime += System.currentTimeMillis() - stopTime;
+		}
+		resuscitationFuture = scheduler.schedule(() -> {
+			resurrectionCount--;
+			reset();
+		}, delay, TimeUnit.MILLISECONDS);
 	}
 }
