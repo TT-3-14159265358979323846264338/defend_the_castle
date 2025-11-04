@@ -279,12 +279,16 @@ public class BattleEnemy extends BattleData{
 	
 	@Override
 	protected void individualFutureStop() {
-		if(resuscitationFuture != null && !resuscitationFuture.isCancelled()) {
+		if(resuscitationFuture != null && !resuscitationFuture.isDone()) {
 			resuscitationFuture.cancel(true);
 			long resuscitationTime = System.currentTimeMillis();
 			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> resurrection(resuscitationTime));
+			return;
 		}
-		if(moveFuture == null && moveFuture.isCancelled()) {
+		if(moveFuture == null) {
+			return;
+		}
+		if(moveFuture.isCancelled()) {
 			return;
 		}
 		if(canAtack) {
