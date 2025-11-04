@@ -4,11 +4,12 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import javax.swing.JButton;
@@ -16,23 +17,23 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.Timer;
 
 import defaultdata.DefaultOther;
 import defaultdata.EditImage;
 import defendthecastle.MainFrame;
 
 //ガチャ本体
-public class MenuItemGet extends JPanel implements ActionListener{
+public class MenuItemGet extends JPanel{
 	private JLabel medalLabel = new JLabel();
 	private JButton gachaDetailButton = new JButton();
 	private JButton repeatButton = new JButton();
 	private JButton returnButton = new JButton();
+	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 	private DefaultLineup DefaultLineup = new DefaultLineup();
 	private HoldMedal HoldMedal = new HoldMedal(DefaultLineup);
-	private OpenBallMotion OpenBallMotion = new OpenBallMotion(this, HoldMedal, DefaultLineup);
-	private BallMotion BallMotion = new BallMotion(OpenBallMotion);
-	private HandleMotion HandleMotion = new HandleMotion(this, HoldMedal, BallMotion);
+	private OpenBallMotion OpenBallMotion = new OpenBallMotion(this, HoldMedal, DefaultLineup, scheduler);
+	private BallMotion BallMotion = new BallMotion(OpenBallMotion, scheduler);
+	private HandleMotion HandleMotion = new HandleMotion(this, HoldMedal, BallMotion, scheduler);
 	private JList<String> selectGachaJList = new JList<>(DefaultLineup.getGachaName());
 	private JScrollPane selectGachaScroll = new JScrollPane();
 	private BufferedImage ballImage = new DefaultOther().getBallImage(2);
@@ -41,7 +42,6 @@ public class MenuItemGet extends JPanel implements ActionListener{
 	private List<BufferedImage> machineImage = new ArrayList<>(new DefaultOther().getMachineImage(2));
 	private BufferedImage turnImage = new DefaultOther().getTurnImage(2);
 	private BufferedImage effectImage = new DefaultOther().getEffectImage(1);
-	private Timer timer = new Timer(50, this);
 	private double angle;
 	private boolean canPlay = true;
 	
@@ -51,7 +51,7 @@ public class MenuItemGet extends JPanel implements ActionListener{
 		addRepeatButton();
 		addReturnButton(MainFrame);
 		addGachaScroll();
-		timer.start();
+		mainTimer();
 	}
 	
 	protected void paintComponent(Graphics g) {
@@ -156,11 +156,12 @@ public class MenuItemGet extends JPanel implements ActionListener{
 		}
 	}
 	
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		angle += 0.03;
-		if(Math.PI * 10000 < angle) {
-			angle = 0;
-		}
+	private void mainTimer() {
+		scheduler.scheduleAtFixedRate(() -> {
+			angle += 0.03;
+			if(Math.PI * 10000 < angle) {
+				angle = 0;
+			}
+		}, 0, 50, TimeUnit.MILLISECONDS);
 	}
 }

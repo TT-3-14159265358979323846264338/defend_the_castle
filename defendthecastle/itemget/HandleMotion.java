@@ -1,30 +1,32 @@
 package defendthecastle.itemget;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
-import javax.swing.Timer;
-
 //ガチャハンドルの調整
-class HandleMotion implements MouseListener, MouseMotionListener, ActionListener{
+class HandleMotion implements MouseListener, MouseMotionListener{
 	private MenuItemGet MenuItemGet;
 	private HoldMedal HoldMedal;
 	private BallMotion BallMotion;
-	private Timer timer = new Timer(20, this);
 	private int startPointX;
 	private int startPointY;
 	private int activePointX;
 	private int activePointY;
 	private double angle;
+	private ScheduledExecutorService scheduler;
+	private ScheduledFuture<?> handleFuture;
 	
-	protected HandleMotion(MenuItemGet MenuItemGet, HoldMedal HoldMedal, BallMotion BallMotion) {
+	protected HandleMotion(MenuItemGet MenuItemGet, HoldMedal HoldMedal, BallMotion BallMotion, ScheduledExecutorService scheduler) {
 		this.MenuItemGet = MenuItemGet;
 		this.HoldMedal = HoldMedal;
 		this.BallMotion = BallMotion;
+		this.scheduler = scheduler;
+		handleFuture = scheduler.schedule(() -> null, 0, TimeUnit.MILLISECONDS);
 		addListener();
 	}
 	
@@ -39,7 +41,7 @@ class HandleMotion implements MouseListener, MouseMotionListener, ActionListener
 	}
 	
 	protected double angle() {
-		if(timer.isRunning()) {
+		if(!handleFuture.isDone()) {
 			if(Math.PI * 2 < angle) {
 				autoTurnStop();
 			}
@@ -67,11 +69,17 @@ class HandleMotion implements MouseListener, MouseMotionListener, ActionListener
 	private void autoTurnStart() {
 		MenuItemGet.deactivatePanel();
 		removeListener();
-		timer.start();
+		handleTimer();
+	}
+	
+	private void handleTimer() {
+		handleFuture = scheduler.scheduleAtFixedRate(() -> {
+			angle += 0.1;
+		}, 0, 20, TimeUnit.MILLISECONDS);
 	}
 	
 	private void autoTurnStop() {
-		timer.stop();
+		handleFuture.cancel(true);
 		BallMotion.timerStart(this);
 		reset();
 	}
@@ -118,10 +126,5 @@ class HandleMotion implements MouseListener, MouseMotionListener, ActionListener
 	}
 	@Override
 	public void mouseExited(MouseEvent e) {
-	}
-	
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		angle += 0.1;
 	}
 }
