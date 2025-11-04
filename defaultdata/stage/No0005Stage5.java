@@ -103,8 +103,8 @@ public class No0005Stage5 extends StageData {
 	public List<List<Boolean>> canUsePlacement(Battle Battle, BattleEnemy[] EnemyData) {
 		boolean hasBrokenFrontGate = canAllDefeat(EnemyData[1]);
 		boolean hasBrokenSubGate = canAllDefeat(EnemyData[2]);
-		boolean hasBrokenUpperGate = canAllDefeat(EnemyData[3]);
-		boolean hasBrokenLowerGate = canAllDefeat(EnemyData[4]);
+		boolean hasBrokenUpperGate = hasBrokenFrontGate? true: canAllDefeat(EnemyData[3]);
+		boolean hasBrokenLowerGate = hasBrokenFrontGate? true: canAllDefeat(EnemyData[4]);
 		return Arrays.asList(
 				Arrays.asList(hasBrokenFrontGate,
 						hasBrokenFrontGate,
@@ -167,7 +167,7 @@ public class No0005Stage5 extends StageData {
 	
 	@Override
 	public List<Integer> getMorale(){
-		return Arrays.asList(30, 0);
+		return Arrays.asList(0, 0);
 	}
 
 	@Override
@@ -237,17 +237,36 @@ public class No0005Stage5 extends StageData {
 				Arrays.asList(DefaultEnemy.SIDE_GATE, 7, 0, 0, 0),
 				Arrays.asList(DefaultEnemy.FRONT_GATE, 8, 0, 0, 0),
 				
-				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 0, 1000, 2, 3000)
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 1000, 5, 3000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 3, 1000, 5, 3000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 0, 5000, 5, 3000),
+				Arrays.asList(DefaultEnemy.BLUE_SLIME, 2, 10000, 5, 3000),
 				
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 3, 60000, 5, 2000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 2, 70000, 5, 2000),
+				Arrays.asList(DefaultEnemy.RED_SLIME, 0, 80000, 5, 2000),
 				
+				Arrays.asList(DefaultEnemy.RED_SLIME, 0, 100000, 5, 2000),
+				Arrays.asList(DefaultEnemy.YELLOW_SLIME, 1, 100000, 5, 2000),
+				Arrays.asList(DefaultEnemy.RED_SLIME, 0, 110000, 5, 2000),
 				
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 2, 110000, -1, 2000),
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 110000, 5, 2000),
+				Arrays.asList(DefaultEnemy.GREEN_SLIME, 0, 120000, 5, 2000),
 				
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 0, 150000, -1, 3000),
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 1, 150500, -1, 3000),
 				
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 0, 200000, -1, 3000),
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 2, 200000, -1, 3000),
 				
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 0, 300000, -1, 2000),
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 1, 300500, -1, 2000),
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 2, 300000, -1, 2000),
 				
-				
-				
-				
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 0, 400000, -1, 1500),
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 1, 400500, -1, 1500),
+				Arrays.asList(DefaultEnemy.HIGH_SLIME, 2, 400000, -1, 1500)
 				);
 	}
 

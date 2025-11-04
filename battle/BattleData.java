@@ -388,11 +388,15 @@ public class BattleData{
 		}
 	}
 	
-	protected void removeBlock(BattleEnemy BattleEnemy) {
+	private void removeBlock(BattleEnemy BattleEnemy) {
 		synchronized(blockLock) {
-			enemyData.stream().forEach(i -> i.block.remove(BattleEnemy));
-			BattleEnemy.releaseBlock();
+			block.remove(BattleEnemy);
 		}
+	}
+	
+	protected void releaseBlock(BattleEnemy BattleEnemy) {
+		enemyData.stream().forEach(i -> i.removeBlock(BattleEnemy));
+		BattleEnemy.releaseBlock();
 	}
 	
 	protected void clearBlock() {

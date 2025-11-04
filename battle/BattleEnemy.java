@@ -314,7 +314,7 @@ public class BattleEnemy extends BattleData{
 	protected void defeat(BattleData target) {
 		canActivate = false;
 		GameData.addCost(getCost());
-		removeBlock(this);
+		releaseBlock(this);
 		GameData.lowMorale(battle.GameData.ENEMY, 3);
 		activateBuff(Buff.DEFEAT, target);
 		moveFuture.cancel(true);

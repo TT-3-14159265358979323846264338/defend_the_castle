@@ -44,7 +44,7 @@ class AllEnemy extends JPanel implements MouseListener{
 			int y = i / COLUMN * SIZE;
 			g.drawImage(enemyImage.get(i), x, y, this);
 			g.setFont(font);
-			g.drawString("" + enemyCount.get(i), 80 + x, 80 + y);
+			g.drawString((enemyCount.get(i) < 0)? "∞": "" + enemyCount.get(i), 80 + x, 80 + y);
 		});
 	}
 	

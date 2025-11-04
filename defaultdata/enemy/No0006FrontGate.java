@@ -61,12 +61,12 @@ public class No0006FrontGate extends EnemyData{
 
 	@Override
 	public List<Integer> getWeaponStatus() {
-		return Arrays.asList(30, 150, 500, 5);
+		return Arrays.asList(30, 150, 500, 2);
 	}
 
 	@Override
 	public List<Integer> getUnitStatus() {
-		return Arrays.asList(3000, 3000, 5, 0, 0, 2);
+		return Arrays.asList(3000, 3000, 5, 0, 0, 10);
 	}
 
 	@Override

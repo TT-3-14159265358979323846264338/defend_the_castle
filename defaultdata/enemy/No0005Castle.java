@@ -61,12 +61,12 @@ public class No0005Castle extends EnemyData{
 
 	@Override
 	public List<Integer> getWeaponStatus() {
-		return Arrays.asList(50, 250, 500, 5);
+		return Arrays.asList(50, 250, 500, 3);
 	}
 
 	@Override
 	public List<Integer> getUnitStatus() {
-		return Arrays.asList(5000, 5000, 5, 0, 0, 5);
+		return Arrays.asList(5000, 5000, 5, 0, 0, 20);
 	}
 
 	@Override
