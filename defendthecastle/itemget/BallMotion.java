@@ -57,8 +57,8 @@ class BallMotion{
 	}
 	
 	private void timerStop() {
-		motionFuture.cancel(true);
 		reset();
+		motionFuture.cancel(true);
 	}
 	
 	protected double getBallAngel() {

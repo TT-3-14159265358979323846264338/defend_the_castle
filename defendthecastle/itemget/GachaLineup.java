@@ -15,20 +15,18 @@ import defaultdata.weapon.WeaponData;
 
 //ガチャ詳細
 class GachaLineup extends JDialog{
-	protected GachaLineup(DefaultLineup DefaultLineup) {
+	protected GachaLineup(GachaInformation GachaInformation) {
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
 		setTitle("ガチャラインナップ");
 		setSize(300, 600);
 		setLocationRelativeTo(null);
-		add(getLineupScrollPane(DefaultLineup));
+		add(getLineupScrollPane(GachaInformation));
 		setVisible(true);
 	}
 	
-	private JScrollPane getLineupScrollPane(DefaultLineup DefaultLineup) {
-		DefaultLineup.setLineup();
-		DefaultLineup.aptitudeTest();
+	private JScrollPane getLineupScrollPane(GachaInformation GachaInformation) {
 		Function<Integer, String> getRarity = (rarity) -> {
 			return "★" + rarity + " ";
 		};
@@ -38,10 +36,10 @@ class GachaLineup extends JDialog{
 		Function<Double, String> getRatio = (value) -> {
 			return String.format("%.1f", value) + "%";
 		};
-		List<Integer> coreLineup = DefaultLineup.getCoreLineup();
-		List<Double> coreRatio = DefaultLineup.getCoreRatio();
-		List<Integer> weaponLineup = DefaultLineup.getWeaponLineup();
-		List<Double> weaponRatio = DefaultLineup.getWeaponRatio();
+		List<Integer> coreLineup = GachaInformation.getCoreLineup();
+		List<Double> coreRatio = GachaInformation.getCoreRatio();
+		List<Integer> weaponLineup = GachaInformation.getWeaponLineup();
+		List<Double> weaponRatio = GachaInformation.getWeaponRatio();
 		DefaultListModel<String> lineup = new DefaultListModel<String>();
 		lineup.addElement("【コア確率】 " + getRatio.apply(getTotal(coreRatio)));
 		lineup.addElement(" ");

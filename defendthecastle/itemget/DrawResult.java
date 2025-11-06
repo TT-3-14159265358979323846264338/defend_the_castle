@@ -31,10 +31,10 @@ class DrawResult extends JPanel implements MouseListener{
 	private List<BufferedImage> weaponImageList = IntStream.range(0, DefaultUnit.WEAPON_DATA_MAP.size()).mapToObj(i -> DefaultUnit.WEAPON_DATA_MAP.get(i).getImage(2)).toList();
 	private int unitSize = 80;
 	
-	protected DrawResult(DefaultLineup DefaultLineup){
+	protected DrawResult(GachaInformation GachaInformation, HoldMedal HoldMedal){
 		addMouseListener(this);
 		setBackground(new Color(240, 170, 80));
-		switch(DefaultLineup.getRepeatNumber()) {
+		switch(GachaInformation.getRepeatNumber()) {
 		case 1:
 			position = 435;
 			break;
@@ -47,19 +47,19 @@ class DrawResult extends JPanel implements MouseListener{
 		default:
 			break;
 		}
-		IntStream.range(0, DefaultLineup.getRepeatNumber()).forEach(i -> gacha(DefaultLineup));
-		save(DefaultLineup);
+		IntStream.range(0, GachaInformation.getRepeatNumber()).forEach(i -> gacha(GachaInformation));
+		save(HoldMedal);
 	}
 	
-	private void gacha(DefaultLineup DefaultLineup) {
+	private void gacha(GachaInformation GachaInformation) {
 		Consumer<List<Point>> addPosition = (list) -> {
 			list.add(new Point(position, 90));
 		};
 		double value = Math.random() * 100;
 		total = 0;
-		if(result(value, DefaultLineup.getCoreLineup(), DefaultLineup.getCoreRatio(), getCore)) {
+		if(result(value, GachaInformation.getCoreLineup(), GachaInformation.getCoreRatio(), getCore)) {
 			addPosition.accept(corePosition);
-		}else if(result(value, DefaultLineup.getWeaponLineup(), DefaultLineup.getWeaponRatio(), getWeapon)) {
+		}else if(result(value, GachaInformation.getWeaponLineup(), GachaInformation.getWeaponRatio(), getWeapon)) {
 			addPosition.accept(weaponPosition);
 		}
 		position += 90;
@@ -78,13 +78,12 @@ class DrawResult extends JPanel implements MouseListener{
 		return false;
 	}
 	
-	private void save(DefaultLineup DefaultLineup) {
+	private void save(HoldMedal HoldMedal) {
 		//保有アイテムの更新
 		SaveHoldItem SaveHoldItem = new SaveHoldItem();
 		SaveHoldItem.load();
 		SaveHoldItem.save(getItemList(SaveHoldItem.getCoreNumberList(), getCore), getItemList(SaveHoldItem.getWeaponNumberList(), getWeapon));
 		//保有メダルの更新
-		HoldMedal HoldMedal = new HoldMedal(DefaultLineup);
 		HoldMedal.recountMedal();
 		HoldMedal.save();
 	}

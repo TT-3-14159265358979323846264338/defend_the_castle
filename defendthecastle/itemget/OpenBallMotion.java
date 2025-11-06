@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 class OpenBallMotion{
 	private MenuItemGet MenuItemGet;
 	private HoldMedal HoldMedal;
-	private DefaultLineup DefaultLineup;
+	private GachaInformation GachaInformation;
 	private HandleMotion HandleMotion;
 	private double bottomAngle;
 	private double topAngle;
@@ -22,10 +22,10 @@ class OpenBallMotion{
 	private ScheduledExecutorService scheduler;
 	private ScheduledFuture<?> openFuture;
 	
-	protected OpenBallMotion(MenuItemGet MenuItemGet, HoldMedal HoldMedal, DefaultLineup DefaultLineup, ScheduledExecutorService scheduler) {
+	protected OpenBallMotion(MenuItemGet MenuItemGet, HoldMedal HoldMedal, GachaInformation GachaInformation, ScheduledExecutorService scheduler) {
 		this.MenuItemGet = MenuItemGet;
 		this.HoldMedal = HoldMedal;
-		this.DefaultLineup = DefaultLineup;
+		this.GachaInformation = GachaInformation;
 		this.scheduler = scheduler;
 		openFuture = scheduler.schedule(() -> null, 0, TimeUnit.MILLISECONDS);
 		reset();
@@ -53,15 +53,11 @@ class OpenBallMotion{
 	}
 	
 	private void timerStop() {
-		openFuture.cancel(true);
 		reset();
 		HandleMotion.addListener();
 		MenuItemGet.activatePanel();
-		DefaultLineup.setLineup();
-		if(DefaultLineup.aptitudeTest()) {
-			HoldMedal.recountMedal();
-			new GachaResult(DefaultLineup);
-		}
+		new GachaResult(GachaInformation, HoldMedal);
+		openFuture.cancel(true);
 	}
 	
 	protected boolean canRunTimer() {

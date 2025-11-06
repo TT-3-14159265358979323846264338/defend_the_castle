@@ -29,12 +29,12 @@ public class MenuItemGet extends JPanel{
 	private JButton repeatButton = new JButton();
 	private JButton returnButton = new JButton();
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
-	private DefaultLineup DefaultLineup = new DefaultLineup();
-	private HoldMedal HoldMedal = new HoldMedal(DefaultLineup);
-	private OpenBallMotion OpenBallMotion = new OpenBallMotion(this, HoldMedal, DefaultLineup, scheduler);
+	private HoldMedal HoldMedal = new HoldMedal();
+	private GachaInformation GachaInformation = new GachaInformation(HoldMedal.getSaveData());
+	private OpenBallMotion OpenBallMotion = new OpenBallMotion(this, HoldMedal, GachaInformation, scheduler);
 	private BallMotion BallMotion = new BallMotion(OpenBallMotion, scheduler);
 	private HandleMotion HandleMotion = new HandleMotion(this, HoldMedal, BallMotion, scheduler);
-	private JList<String> selectGachaJList = new JList<>(DefaultLineup.getGachaName());
+	private JList<String> selectGachaJList = new JList<>(GachaInformation.getGachaName());
 	private JScrollPane selectGachaScroll = new JScrollPane();
 	private BufferedImage ballImage = new DefaultOther().getBallImage(2);
 	private List<BufferedImage> halfBallImage = new ArrayList<>(new DefaultOther().getHalfBallImage(2));
@@ -46,6 +46,7 @@ public class MenuItemGet extends JPanel{
 	private boolean canPlay = true;
 	
 	public MenuItemGet(MainFrame MainFrame) {
+		HoldMedal.install(GachaInformation);
 		addMedalLabel();
 		addGachaDetailButton();
 		addRepeatButton();
@@ -58,12 +59,12 @@ public class MenuItemGet extends JPanel{
 		super.paintComponent(g);
 		setLabel(medalLabel, "メダル: " + HoldMedal.getMedal() + "枚", 350, 20, 200, 30);
 		setButton(gachaDetailButton, "<html>ガチャ詳細", 350, 330, 210, 60);
-		setButton(repeatButton, "<html>&nbsp;" + DefaultLineup.getRepeatNumber() + "連<br>" + HoldMedal.useMedal() + "枚", 350, 400, 100, 60);
+		setButton(repeatButton, "<html>&nbsp;" + GachaInformation.getRepeatNumber() + "連<br>" + HoldMedal.useMedal() + "枚", 350, 400, 100, 60);
 		setButton(returnButton, "<html>戻る", 460, 400, 100, 60);
 		selectGachaJList.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
 		setScroll(selectGachaScroll, 350, 60, 210, 260);
 		drawGachaImage(g);
-		DefaultLineup.changeGachaMode(selectGachaJList.getSelectedIndex());
+		GachaInformation.changeGachaMode(selectGachaJList.getSelectedIndex());
 		requestFocus();
 	}
 	
@@ -75,14 +76,14 @@ public class MenuItemGet extends JPanel{
 	private void addGachaDetailButton() {
 		add(gachaDetailButton);
 		gachaDetailButton.addActionListener(e->{
-			new GachaLineup(DefaultLineup);
+			new GachaLineup(GachaInformation);
 		});
 	}
 	
 	private void addRepeatButton() {
 		add(repeatButton);
 		repeatButton.addActionListener(e->{
-			DefaultLineup.changeRepeatNumber();
+			GachaInformation.changeRepeatNumber();
 		});
 	}
 	

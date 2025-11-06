@@ -5,18 +5,25 @@ import savedata.SaveGameProgress;
 //保有メダル
 class HoldMedal{
 	private SaveGameProgress SaveGameProgress = new SaveGameProgress();
-	private DefaultLineup DefaultLineup;;
+	private GachaInformation GachaInformation;;
 	private int medal;
 	private final static int USE = 100;
 	
-	protected HoldMedal(DefaultLineup DefaultLineup) {
+	protected HoldMedal() {
 		SaveGameProgress.load();
-		this.DefaultLineup = DefaultLineup;
 		medal = SaveGameProgress.getMedal();
+	}
+	
+	protected void install(GachaInformation GachaInformation) {
+		this.GachaInformation = GachaInformation;
 	}
 	
 	protected void save() {
 		SaveGameProgress.save(SaveGameProgress.getClearStatus(), SaveGameProgress.getMeritStatus(), medal, SaveGameProgress.getSelectStage());
+	}
+	
+	protected SaveGameProgress getSaveData() {
+		return SaveGameProgress;
 	}
 	
 	protected int getMedal() {
@@ -32,6 +39,6 @@ class HoldMedal{
 	}
 	
 	protected int useMedal() {
-		return DefaultLineup.getRepeatNumber() * USE;
+		return GachaInformation.getRepeatNumber() * USE;
 	}
 }
