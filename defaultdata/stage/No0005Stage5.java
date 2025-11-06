@@ -12,11 +12,17 @@ import battle.BattleUnit;
 import battle.GameData;
 import defaultdata.DefaultEnemy;
 import defaultdata.DefaultStage;
+import savedata.SaveGameProgress;
 
 public class No0005Stage5 extends StageData {
 	@Override
 	public String getName() {
 		return "stage 5";
+	}
+
+	@Override
+	public boolean canActivate(SaveGameProgress SaveGameProgress) {
+		return hasClearedMerit(SaveGameProgress, 3, 3, 1) && hasClearedMerit(SaveGameProgress, 0, 3, 10);
 	}
 
 	@Override

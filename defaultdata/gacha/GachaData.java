@@ -46,7 +46,7 @@ public abstract class GachaData {
 	public abstract String getName();
 	
 	/**
-	 * このガチャが有効であるか判定する。
+	 * このガチャが有効であるか判定する。{@link GachaData GachaData}の下部で定義したメソッドを使用する。
 	 * @param SaveGameProgress - 現在のゲームクリア状況。
 	 * @return このガチャが有効であればtrueを返却する。
 	 */

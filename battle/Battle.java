@@ -79,6 +79,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private boolean canAutoAwake;
 	private boolean canAwake;
 	private BattleUnit selectUnit;
+	private BattleUnit awakeUnit;
 	private final int AWAKE_COST = 10;
 	
 	//システム関連
@@ -345,8 +346,8 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	private void drawAwake(Graphics g) {
 		if(canAwake) {
-			int x = selectUnit.getPositionX();
-			int y = selectUnit.getPositionY();
+			int x = awakeUnit.getPositionX();
+			int y = awakeUnit.getPositionY();
 			g.setColor(Color.RED);
 			g.fillRect(x + 15, y + 30, 10, 30);
 			g.fillPolygon(new int[] {x + 10, x + 20, x + 30}, new int[] {y + 40, y + 20, y + 40}, 3);
@@ -568,7 +569,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private void awake(int number) {
 		synchronized(awakeLock) {
 			if(canAwake(number)) {
-				selectUnit = UnitMainData[number];
+				awakeUnit = UnitMainData[number];
 				canAwake = true;
 				awakeFuture.cancel(true);
 				awakeFuture = scheduler.schedule(() -> canAwake = false, 2, TimeUnit.SECONDS);
