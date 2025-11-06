@@ -63,7 +63,7 @@ class EditProgress extends JPanel{
 		clearStatus = Stream.of(stage).map(i -> i.isSelected()).collect(Collectors.toList());
 		meritStatus = merit.stream().map(i -> Stream.of(i).map(j -> j.isSelected()).collect(Collectors.toList())).collect(Collectors.toList());
 		medal = (int) medalSpinner.getValue();
-		SaveGameProgress.save(clearStatus, meritStatus, medal, SaveGameProgress.getSelectStage());
+		SaveGameProgress.save(clearStatus, meritStatus, medal, 0);
 	}
 	
 	private void addLabel() {

@@ -27,11 +27,11 @@ public class MenuSelectStage extends JPanel{
 	private JScrollPane enemyScroll = new JScrollPane();
 	private JScrollPane meritScroll = new JScrollPane();
 	private ProgressData ProgressData = new ProgressData();
-	private List<BufferedImage> stageImage = DefaultStage.STAGE_DATA.stream().map(i -> EditImage.stageImage(i, 5)).toList();
-	private SelectPanel SelectPanel = new SelectPanel(stageImage, ProgressData.getClearStatus(), ProgressData.getSelectStage());
-	private MeritPanel MeritPanel = new MeritPanel(SelectPanel, ProgressData.getMeritStatus());
-	private EnemyPanel EnemyPanel = new EnemyPanel(SelectPanel);
-	private GameCondition GameCondition = new GameCondition(SelectPanel);
+	private List<BufferedImage> stageImage = ProgressData.getActivateStage().stream().map(i -> EditImage.stageImage(DefaultStage.STAGE_DATA.get(i), 5)).toList();
+	private SelectPanel SelectPanel = new SelectPanel(ProgressData, stageImage);
+	private MeritPanel MeritPanel = new MeritPanel(ProgressData, SelectPanel);
+	private EnemyPanel EnemyPanel = new EnemyPanel(ProgressData, SelectPanel);
+	private GameCondition GameCondition = new GameCondition(ProgressData, SelectPanel);
 	
 	public MenuSelectStage(MainFrame MainFrame) {
 		setBackground(new Color(240, 170, 80));

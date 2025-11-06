@@ -8,7 +8,6 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.time.temporal.ValueRange;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 
 import javax.swing.JPanel;
@@ -28,15 +27,28 @@ class EnemyPanel extends JPanel implements MouseListener{
 	private final int SIZE = 100;
 	private final int COLUMN = 3;
 	
-	protected EnemyPanel(SelectPanel SelectPanel) {
-		BiFunction<Integer, List<List<Integer>>, Integer> count = (enemy, enemyList) -> {
-			return (int) enemyList.stream().filter(i -> i.get(0) == enemy).mapToInt(i -> (i.get(3) < 0)? -100000 :i.get(3) + 1).sum();
-		};
+	protected EnemyPanel(ProgressData ProgressData, SelectPanel SelectPanel) {
 		this.SelectPanel = SelectPanel;
-		enemyData = DefaultStage.STAGE_DATA.stream().map(i -> i.getDisplayOrder().stream().map(j -> DefaultEnemy.DATA_MAP.get(j)).toList()).toList();
-		enemyImage = enemyData.stream().map(i -> i.stream().map(j -> j.getImage(2)).toList()).toList();
-		enemyCount = DefaultStage.STAGE_DATA.stream().map(i -> i.getDisplayOrder().stream().map(j -> count.apply(j, i.getEnemy())).toList()).toList();
+		enemyData = ProgressData.getActivateStage().stream().map(i -> enemyDataList(i)).toList();
+		enemyImage = enemyData.stream().map(i -> imageList(i)).toList();
+		enemyCount = ProgressData.getActivateStage().stream().map(i -> enemyCount(i)).toList();
 		addMouseListener(this);
+	}
+	
+	private List<EnemyData> enemyDataList(int number){
+		return DefaultStage.STAGE_DATA.get(number).getDisplayOrder().stream().map(j -> DefaultEnemy.DATA_MAP.get(j)).toList();
+	}
+	
+	private List<BufferedImage> imageList(List<EnemyData> enemyList){
+		return enemyList.stream().map(j -> j.getImage(2)).toList();
+	}
+	
+	private List<Integer> enemyCount(int number){
+		return DefaultStage.STAGE_DATA.get(number).getDisplayOrder().stream().map(j -> count(j, DefaultStage.STAGE_DATA.get(number).getEnemy())).toList();
+	}
+	
+	private int count(int enemyNumber, List<List<Integer>> enemyList) {
+		return (int) enemyList.stream().filter(i -> i.get(0) == enemyNumber).mapToInt(i -> (i.get(3) < 0)? -100000 :i.get(3) + 1).sum();
 	}
 	
 	protected void paintComponent(Graphics g) {

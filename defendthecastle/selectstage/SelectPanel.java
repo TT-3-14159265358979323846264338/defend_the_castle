@@ -15,25 +15,26 @@ import java.util.stream.Stream;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import defaultdata.DefaultStage;
 import defaultdata.EditImage;
 
 //ステージ切り替え
 class SelectPanel extends JPanel implements MouseListener{
-	private JLabel[] nameLabel = IntStream.range(0, DefaultStage.STAGE_DATA.size()).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
-	private JLabel[] clearLabel = IntStream.range(0, DefaultStage.STAGE_DATA.size()).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
+	private JLabel[] nameLabel;
+	private JLabel[] clearLabel;
 	private List<BufferedImage> stageImage;
 	private List<Boolean> clearStatus;
 	private List<String> stageNameList;
 	private int select = 0;
 	
-	protected SelectPanel(List<BufferedImage> stageImage, List<Boolean> clearStatus, int select) {
+	protected SelectPanel(ProgressData ProgressData, List<BufferedImage> stageImage) {
+		nameLabel = IntStream.range(0, ProgressData.getActivateStage().size()).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
 		Stream.of(nameLabel).forEach(i -> addNameLabel(i));
+		clearLabel = IntStream.range(0, nameLabel.length).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
 		Stream.of(clearLabel).forEach(i -> addClearLabel(i));
 		this.stageImage = stageImage.stream().map(i -> EditImage.scalingImage(i, 3.5)).toList();
-		this.clearStatus = clearStatus;
-		stageNameList = DefaultStage.STAGE_DATA.stream().map(i -> i.getName()).toList();
-		this.select = select;
+		clearStatus = ProgressData.getClearStatus();
+		stageNameList = ProgressData.getStageName();
+		select = ProgressData.getSelectStage();
 		addMouseListener(this);
 		setPreferredSize(new Dimension(100, 85 * stageImage.size()));
 	}

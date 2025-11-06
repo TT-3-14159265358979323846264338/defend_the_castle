@@ -18,8 +18,9 @@ class GameCondition extends JPanel{
 	private JLabel gameOverCommentLabel = new JLabel();
 	private JLabel gameOverConditionLabel = new JLabel();
 	private Font font = new Font("ＭＳ ゴシック", Font.BOLD, 15);
+	private List<List<String>> condition;
 	
-	protected GameCondition(SelectPanel SelectPanel) {
+	protected GameCondition(ProgressData ProgressData, SelectPanel SelectPanel) {
 		this.SelectPanel = SelectPanel;
 		add(clearCommentLabel);
 		clearCommentLabel.setFont(font);
@@ -29,18 +30,14 @@ class GameCondition extends JPanel{
 		gameOverCommentLabel.setFont(font);
 		add(gameOverConditionLabel);
 		gameOverConditionLabel.setFont(font);
+		condition = ProgressData.getActivateStage().stream().map(i -> condition(i)).toList();
 	}
 	
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		clearCommentLabel.setText("勝利条件: ");
-		clearCommentLabel.setBounds(5, 5, 80, 40);
-		clearConditionLabel.setText(conditionComment(DefaultStage.STAGE_DATA.get(SelectPanel.getSelelct()).getClearCondition()));
-		clearConditionLabel.setBounds(80, 5, 240, 40);
-		gameOverCommentLabel.setText("敗北条件: ");
-		gameOverCommentLabel.setBounds(5, 60, 100, 40);
-		gameOverConditionLabel.setText(conditionComment(DefaultStage.STAGE_DATA.get(SelectPanel.getSelelct()).getGameOverCondition()));
-		gameOverConditionLabel.setBounds(80, 60, 240, 40);
+	private List<String> condition(int number){
+		List<String> stageCondition = new ArrayList<>();
+		stageCondition.add(conditionComment(DefaultStage.STAGE_DATA.get(number).getClearCondition()));
+		stageCondition.add(conditionComment(DefaultStage.STAGE_DATA.get(number).getGameOverCondition()));
+		return stageCondition;
 	}
 	
 	private String conditionComment(String comment) {
@@ -58,5 +55,17 @@ class GameCondition extends JPanel{
 		StringBuilder wrapComment = new StringBuilder(comment);
 		wrapPosition.stream().sorted(Comparator.reverseOrder()).forEach(i -> wrapComment.insert(i, "<br>"));
 		return wrapComment.insert(0, "<html>").toString();
+	}
+	
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		clearCommentLabel.setText("勝利条件: ");
+		clearCommentLabel.setBounds(5, 5, 80, 40);
+		clearConditionLabel.setText(condition.get(SelectPanel.getSelelct()).get(0));
+		clearConditionLabel.setBounds(80, 5, 240, 40);
+		gameOverCommentLabel.setText("敗北条件: ");
+		gameOverCommentLabel.setBounds(5, 60, 100, 40);
+		gameOverConditionLabel.setText(condition.get(SelectPanel.getSelelct()).get(1));
+		gameOverConditionLabel.setBounds(80, 60, 240, 40);
 	}
 }

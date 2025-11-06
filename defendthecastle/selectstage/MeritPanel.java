@@ -30,15 +30,26 @@ class MeritPanel extends JPanel{
 	private Font clearFont = new Font("Arail", Font.BOLD, 30);
 	private Font rewardFont = meritFont;
 	
-	protected MeritPanel(SelectPanel SelectPanel, List<List<Boolean>> meritStatus) {
+	protected MeritPanel(ProgressData ProgressData, SelectPanel SelectPanel) {
 		this.SelectPanel = SelectPanel;
-		this.meritStatus = meritStatus;
-		meritLabel = IntStream.range(0, DefaultStage.STAGE_DATA.stream().mapToInt(i -> i.getMerit().size()).max().getAsInt()).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
+		meritStatus = ProgressData.getMeritStatus();
+		meritLabel = IntStream.range(0, labelNumber(ProgressData)).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
 		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
 		rewardLabel = IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
-		meritInformation = DefaultStage.STAGE_DATA.stream().map(i -> i.getMerit().stream().map(j -> wrap(j)).toList()).toList();
-		rewardInformation = DefaultStage.STAGE_DATA.stream().map(i -> i.getReward()).toList();
+		meritInformation = ProgressData.getActivateStage().stream().map(i -> informationList(i)).toList();
+		rewardInformation = ProgressData.getActivateStage().stream().map(i -> DefaultStage.STAGE_DATA.get(i).getReward()).toList();
 		addLabel();
+	}
+	
+	private int labelNumber(ProgressData ProgressData) {
+		return ProgressData.getActivateStage().stream()
+				.mapToInt(i -> DefaultStage.STAGE_DATA.get(i).getMerit().size())
+				.max()
+				.getAsInt();
+	}
+	
+	private List<String> informationList(int number){
+		return DefaultStage.STAGE_DATA.get(number).getMerit().stream().map(j -> wrap(j)).toList();
 	}
 	
 	private String wrap(String comment) {
