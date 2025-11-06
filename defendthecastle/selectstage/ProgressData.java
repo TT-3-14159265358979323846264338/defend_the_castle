@@ -42,4 +42,8 @@ class ProgressData{
 	protected List<String> getStageName(){
 		return stageNumberList.stream().map(i -> DefaultStage.STAGE_DATA.get(i).getName()).toList();
 	}
+	
+	protected boolean canAllActivate() {
+		return stageNumberList.size() == DefaultStage.STAGE_DATA.size();
+	}
 }
