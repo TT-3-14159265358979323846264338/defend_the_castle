@@ -20,7 +20,7 @@ class ProgressData{
 	}
 	
 	protected void save(int select) {
-		SaveGameProgress.save(SaveGameProgress.getClearStatus(), SaveGameProgress.getMeritStatus(), SaveGameProgress.getMedal(), select);
+		SaveGameProgress.save(SaveGameProgress.getClearStatus(), SaveGameProgress.getMeritStatus(), SaveGameProgress.getMedal(), stageNumberList.get(select));
 	}
 	
 	protected List<Integer> getActivateStage(){
@@ -36,7 +36,7 @@ class ProgressData{
 	}
 	
 	protected int getSelectStage() {
-		return SaveGameProgress.getSelectStage();
+		return stageNumberList.indexOf(SaveGameProgress.getSelectStage());
 	}
 	
 	protected List<String> getStageName(){
