@@ -38,6 +38,7 @@ public class BattleUnit extends BattleData{
 	private final int TIMER_INTERVAL = 100;
 	private final double AWAKENING_RATIO = 1.15;
 	private final int MAX_AWAKENING = 5;
+	private final int SOTIE_MORALE = 5;
 	private int achievement;
 	private boolean canLocate = true;
 	private int relocationCount;
@@ -57,16 +58,16 @@ public class BattleUnit extends BattleData{
 		this.Battle = Battle;
 		StatusCalculation StatusCalculation = new StatusCalculation(composition);
 		try {
-			rightActionImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.RIGHT_WEAPON)).getRightActionImage(4);
-			bulletImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.RIGHT_WEAPON)).getBulletImage(4);
-			hitImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.RIGHT_WEAPON)).getHitImage(4);
+			rightActionImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.RIGHT_WEAPON)).getRightActionImage(IMAGE_RATIO);
+			bulletImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.RIGHT_WEAPON)).getBulletImage(IMAGE_RATIO);
+			hitImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.RIGHT_WEAPON)).getHitImage(IMAGE_RATIO);
 		}catch(Exception e) {
 			rightActionImage = Arrays.asList(getBlankImage());
 		}
 		this.composition = composition;
-		rightCoreImage = DefaultUnit.CORE_DATA_MAP.get(composition.get(DefaultUnit.CORE)).getActionImage(4);
+		rightCoreImage = DefaultUnit.CORE_DATA_MAP.get(composition.get(DefaultUnit.CORE)).getActionImage(IMAGE_RATIO);
 		leftCoreImage = EditImage.mirrorImage(rightCoreImage);
-		skillImage = DefaultUnit.CORE_DATA_MAP.get(composition.get(DefaultUnit.CORE)).getSkillImage(4);
+		skillImage = DefaultUnit.CORE_DATA_MAP.get(composition.get(DefaultUnit.CORE)).getSkillImage(IMAGE_RATIO);
 		generatedBuffInformation = StatusCalculation.getRightBuffList();
 		this.positionX = positionX;
 		this.positionY = positionY;
@@ -86,9 +87,9 @@ public class BattleUnit extends BattleData{
 		this.Battle = Battle;
 		StatusCalculation StatusCalculation = new StatusCalculation(composition);
 		try {
-			rightActionImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.LEFT_WEAPON)).getLeftActionImage(4);
-			bulletImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.LEFT_WEAPON)).getBulletImage(4);
-			hitImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.LEFT_WEAPON)).getHitImage(4);
+			rightActionImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.LEFT_WEAPON)).getLeftActionImage(IMAGE_RATIO);
+			bulletImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.LEFT_WEAPON)).getBulletImage(IMAGE_RATIO);
+			hitImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.LEFT_WEAPON)).getHitImage(IMAGE_RATIO);
 		}catch(Exception e) {
 			rightActionImage = Arrays.asList(getBlankImage());
 		}
@@ -147,10 +148,10 @@ public class BattleUnit extends BattleData{
 	
 	private void achievementTimer(long stopTime) {
 		long initialDelay;
-		if(stopTime == 0) {
-			initialDelay = 0;
+		if(stopTime == NONE_DELAY) {
+			initialDelay = NONE_DELAY;
 		}else {
-			initialDelay = (stopTime - beforeAchievementTime < TIMER_INTERVAL)? TIMER_INTERVAL - (stopTime - beforeAchievementTime): 0;
+			initialDelay = (stopTime - beforeAchievementTime < TIMER_INTERVAL)? TIMER_INTERVAL - (stopTime - beforeAchievementTime): NONE_DELAY;
 			beforeAchievementTime += System.currentTimeMillis() - stopTime;
 		}
 		achievementFuture = scheduler.scheduleAtFixedRate(() -> {
@@ -181,7 +182,7 @@ public class BattleUnit extends BattleData{
 	}
 	
 	protected void awakening() {
-		GameData.moraleBoost(battle.GameData.UNIT, 5);
+		GameData.moraleBoost(battle.GameData.UNIT, SOTIE_MORALE);
 		awakeningNumber++;
 	}
 	
@@ -222,14 +223,14 @@ public class BattleUnit extends BattleData{
 		canActivate = true;
 		canLocate = false;
 		if(defaultUnitStatus.get(5) != 0) {
-			GameData.moraleBoost(battle.GameData.UNIT, 5);
+			GameData.moraleBoost(battle.GameData.UNIT, SOTIE_MORALE);
 		}
 		positionX = x;
 		positionY = y;
-		atackTimer(0);
-		healTimer(0);
+		atackTimer(NONE_DELAY);
+		healTimer(NONE_DELAY);
 		activateBuff(Buff.BIGINNING, null);
-		achievementTimer(0);
+		achievementTimer(NONE_DELAY);
 	}
 	
 	@Override
@@ -257,7 +258,7 @@ public class BattleUnit extends BattleData{
 		defeatNumber++;
 		GameData.lowMorale(battle.GameData.UNIT, price);
 		relocationTime = price * 1000;
-		relocation(0);
+		relocation(NONE_DELAY);
 		reset(target);
 	}
 	
@@ -265,16 +266,16 @@ public class BattleUnit extends BattleData{
 		int price = (5 + 10 * (getMaxHP() - nowHP) / getMaxHP());
 		GameData.lowMorale(battle.GameData.UNIT, price);
 		relocationTime = price * 1000;
-		relocation(0);
+		relocation(NONE_DELAY);
 		reset(null);
 	}
 	
 	private void relocation(long stopTime) {
 		long initialDelay;
-		if(stopTime == 0) {
-			initialDelay = 0;
+		if(stopTime == NONE_DELAY) {
+			initialDelay = NONE_DELAY;
 		}else {
-			initialDelay = (stopTime - beforeRelocationTime < TIMER_INTERVAL)? TIMER_INTERVAL - (stopTime - beforeRelocationTime): 0;
+			initialDelay = (stopTime - beforeRelocationTime < TIMER_INTERVAL)? TIMER_INTERVAL - (stopTime - beforeRelocationTime): NONE_DELAY;
 			beforeRelocationTime += System.currentTimeMillis() - stopTime;
 		}
 		relocationFuture = scheduler.scheduleAtFixedRate(() -> {

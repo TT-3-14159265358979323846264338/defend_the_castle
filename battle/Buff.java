@@ -106,6 +106,8 @@ public class Buff {
 	private long beforeIntervalTime;
 	private ScheduledFuture<?> durationFuture;
 	private long beforeDurationTime;
+	private final int NONE_DELAY = 0;
+	private final int INITIALIZE = 0;
 	
 	protected Buff(List<Double> buffInformation, BattleData myself, List<BattleData> ally, List<BattleData> enemy, Battle Battle, GameData GameData, ScheduledExecutorService scheduler) {
 		this.buffInformation = buffInformation;
@@ -124,7 +126,7 @@ public class Buff {
 	
 	protected void buffStart(BattleData BattleData) {
 		buffEnd().join();
-		recastBuff(0);
+		recastBuff(NONE_DELAY);
 		if(buffInformation.get(TARGET_CODE) == GAME) {
 			gameBuff();
 			return;
@@ -161,17 +163,17 @@ public class Buff {
 		}
 		canRecast = false;
 		long initialDelay;
-		if(stopTime == 0) {
-			initialDelay = 0;
+		if(stopTime == NONE_DELAY) {
+			initialDelay = NONE_DELAY;
 		}else {
-			initialDelay = (stopTime - beforeRecastTime < DELEY)? DELEY - (stopTime - beforeRecastTime): 0;
+			initialDelay = (stopTime - beforeRecastTime < DELEY)? DELEY - (stopTime - beforeRecastTime): NONE_DELAY;
 			beforeRecastTime += System.currentTimeMillis() - stopTime;
 		}
 		recastFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeRecastTime = System.currentTimeMillis();
 			recastCount += DELEY;
 			if(recastMax() <= recastCount) {
-				recastCount = 0;
+				recastCount = INITIALIZE;
 				canRecast = true;
 				recastFuture.cancel(true);
 			}
@@ -180,22 +182,22 @@ public class Buff {
 	
 	//ゲームバフ
 	private void gameBuff() {
-		effect.add(0.0);
+		effect.add((double) INITIALIZE);
 		if(existsInterval()) {
 			gameBuffSelect();
 			return;
 		}
-		gameIntervalControl(0);
-		durationControl(0);
+		gameIntervalControl(NONE_DELAY);
+		durationControl(NONE_DELAY);
 	}
 	
 	private void gameIntervalControl(long stopTime) {
 		int delay = getInterval();
 		long initialDelay;
-		if(stopTime == 0) {
-			initialDelay = 0;
+		if(stopTime == NONE_DELAY) {
+			initialDelay = NONE_DELAY;
 		}else {
-			initialDelay = (stopTime - beforeIntervalTime < delay)? delay - (stopTime - beforeIntervalTime): 0;
+			initialDelay = (stopTime - beforeIntervalTime < delay)? delay - (stopTime - beforeIntervalTime): NONE_DELAY;
 			beforeIntervalTime += System.currentTimeMillis() - stopTime;
 		}
 		intervalFuture = scheduler.scheduleAtFixedRate(() -> {
@@ -204,7 +206,7 @@ public class Buff {
 				return;
 			}
 			gameBuffSelect();
-			if(existsMax(0)) {
+			if(existsMax(INITIALIZE)) {
 				intervalFuture.cancel(true);
 			}
 		}, initialDelay, delay, TimeUnit.SECONDS);
@@ -219,7 +221,7 @@ public class Buff {
 	}
 	
 	private void moraleBuff() {
-		setEffect(0);
+		setEffect(INITIALIZE);
 		if(existsAddition()) {
 			GameData.moraleBoost(battle.GameData.UNIT, (int) getEffect());
 			return;
@@ -228,7 +230,7 @@ public class Buff {
 	}
 	
 	private void costBuff() {
-		setEffect(0);
+		setEffect(INITIALIZE);
 		if(existsAddition()) {
 			GameData.addCost((int) getEffect());
 			return;
@@ -266,14 +268,14 @@ public class Buff {
 		if(existsInterval() && existsDuration()) {
 			return;
 		}
-		intervalControl(0);
-		durationControl(0);
+		intervalControl(NONE_DELAY);
+		durationControl(NONE_DELAY);
 	}
 	
 	private void multipleBuff(Predicate<? super BattleData> rangeFilter) {
 		targetControl(rangeFilter);
-		intervalControl(0);
-		durationControl(0);
+		intervalControl(NONE_DELAY);
+		durationControl(NONE_DELAY);
 	}
 	
 	private boolean withinCheck(BattleData BattleData) {
@@ -301,7 +303,7 @@ public class Buff {
 		if(newTarget.stream().noneMatch(i -> i.equals(target.get(number)))) {
 			target.get(number).removeBuff(this);
 			if(existsHP()) {
-				target.get(number).HPIncrease(0);
+				target.get(number).HPIncrease(INITIALIZE);
 			}
 			target.remove(number);
 			effect.remove(number);
@@ -332,10 +334,10 @@ public class Buff {
 		}
 		int delay = getInterval();
 		long initialDelay;
-		if(stopTime == 0) {
-			initialDelay = 0;
+		if(stopTime == NONE_DELAY) {
+			initialDelay = NONE_DELAY;
 		}else {
-			initialDelay = (stopTime - beforeIntervalTime < delay)? delay - (stopTime - beforeIntervalTime): 0;
+			initialDelay = (stopTime - beforeIntervalTime < delay)? delay - (stopTime - beforeIntervalTime): NONE_DELAY;
 			beforeIntervalTime += System.currentTimeMillis() - stopTime;
 		}
 		intervalFuture = scheduler.scheduleAtFixedRate(() -> {
@@ -353,10 +355,10 @@ public class Buff {
 			return;
 		}
 		long initialDelay;
-		if(stopTime == 0) {
-			initialDelay = 0;
+		if(stopTime == NONE_DELAY) {
+			initialDelay = NONE_DELAY;
 		}else {
-			initialDelay = (stopTime - beforeDurationTime < DELEY)? DELEY - (stopTime - beforeDurationTime): 0;
+			initialDelay = (stopTime - beforeDurationTime < DELEY)? DELEY - (stopTime - beforeDurationTime): NONE_DELAY;
 			beforeDurationTime += System.currentTimeMillis() - stopTime;
 		}
 		durationFuture = scheduler.scheduleAtFixedRate(() -> {
@@ -366,7 +368,7 @@ public class Buff {
 				return;
 			}
 			if(buffInformation.get(DURATION) * 1000 <= durationCount) {
-				durationCount = 0;
+				durationCount = INITIALIZE;
 				buffEnd();
 			}
 		}, initialDelay, DELEY, TimeUnit.MILLISECONDS);
@@ -406,7 +408,7 @@ public class Buff {
 		}
 		target.clear();
 		effect.clear();
-		durationCount = 0;
+		durationCount = INITIALIZE;
 	}
 	
 	private double recastMax() {

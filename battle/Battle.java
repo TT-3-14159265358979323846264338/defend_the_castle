@@ -81,6 +81,9 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private BattleUnit selectUnit;
 	private BattleUnit awakeUnit;
 	private final int AWAKE_COST = 10;
+	private final int IMAGE_RATIO = 2;
+	private final int NATURAL_RECOVERY = 1;
+	private final int NONE_DELAY = 0;
 	
 	//システム関連
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(100);
@@ -102,7 +105,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		addRangeDrawButton();
 		addAutoAwakeningButton();
 		addStageReturnButton(MainFrame, difficultyCorrection);
-		mainTimer(0);
+		mainTimer(NONE_DELAY);
 		clearTimer(MainFrame, difficultyCorrection);
 	}
 	
@@ -138,7 +141,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	private void install(double difficultyCorrection) {
 		GameData = new GameData(StageData);
-		stageImage = StageData.getImage(2);
+		stageImage = StageData.getImage(IMAGE_RATIO);
 		placementList = StageData.getPlacementPoint();
 		SaveComposition SaveComposition = new SaveComposition();
 		SaveComposition.load();
@@ -173,7 +176,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		autoAwakeningButton.addActionListener(e->{
 			canAutoAwake = canAutoAwake? false: true;
 			if(canAutoAwake) {
-				autoAwake(0);
+				autoAwake(NONE_DELAY);
 				return;
 			}
 			autoFuture.cancel(true);
@@ -183,10 +186,10 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private void autoAwake(long stopTime) {
 		int delay = 100;
 		long initialDelay;
-		if(stopTime == 0) {
-			initialDelay = 0;
+		if(stopTime == NONE_DELAY) {
+			initialDelay = NONE_DELAY;
 		}else {
-			initialDelay = (stopTime - beforeAutoTime < delay)? delay - (stopTime - beforeAutoTime): 0;
+			initialDelay = (stopTime - beforeAutoTime < delay)? delay - (stopTime - beforeAutoTime): NONE_DELAY;
 			beforeAutoTime += System.currentTimeMillis() - stopTime;
 		}
 		autoFuture = scheduler.scheduleAtFixedRate(() -> {
@@ -304,7 +307,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	private void drawUnit(Graphics g) {
-		IntStream.range(0, 8).forEach(i -> {
+		IntStream.range(0, UnitMainData.length).forEach(i -> {
 			if(UnitMainData[i].canActivate() && canRangeDraw) {
 				rangeDraw(g, rangeRed, UnitMainData[i].getPositionX(), UnitMainData[i].getPositionY(), UnitMainData[i].getRange());
 				rangeDraw(g, rangeBlue, UnitLeftData[i].getPositionX(), UnitLeftData[i].getPositionY(), UnitLeftData[i].getRange());
@@ -661,17 +664,17 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private void mainTimer(long stopTime) {
 		int delay = 10;
 		long initialDelay;
-		if(stopTime == 0) {
-			initialDelay = 0;
+		if(stopTime == NONE_DELAY) {
+			initialDelay = NONE_DELAY;
 		}else {
-			initialDelay = (stopTime - beforeMainTime < delay)? delay - (stopTime - beforeMainTime): 0;
+			initialDelay = (stopTime - beforeMainTime < delay)? delay - (stopTime - beforeMainTime): NONE_DELAY;
 			beforeMainTime += System.currentTimeMillis() - stopTime;
 		}
 		mainFuture = scheduler.scheduleAtFixedRate(() -> {
 			beforeMainTime = System.currentTimeMillis();
 			time += delay;
 			if(time % 1000 == 0) {
-				GameData.addCost(1);
+				GameData.addCost(NATURAL_RECOVERY);
 			}
 		}, initialDelay, delay, TimeUnit.MILLISECONDS);
 	}

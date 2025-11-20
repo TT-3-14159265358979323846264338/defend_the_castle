@@ -15,17 +15,18 @@ import defaultdata.stage.StageData;
 //設備のバトル情報
 public class BattleFacility extends BattleData{
 	private BufferedImage breakImage;
+	private final int DEFEAT_MORALE = 30;
 	
 	protected BattleFacility(Battle Battle, StageData StageData, int number, ScheduledExecutorService scheduler) {
 		this.Battle = Battle;
 		FacilityData FacilityData = DefaultStage.FACILITY_DATA_MAP.get(StageData.getFacility().get(number));
 		name = FacilityData.getName();
 		explanation = FacilityData.getExplanation();
-		rightActionImage = StageData.getFacilityDirection().get(number)? FacilityData.getActionFrontImage(4): FacilityData.getActionSideImage(4);
-		bulletImage = FacilityData.getBulletImage(4);
-		hitImage = FacilityData.getHitImage(4);
+		rightActionImage = StageData.getFacilityDirection().get(number)? FacilityData.getActionFrontImage(IMAGE_RATIO): FacilityData.getActionSideImage(IMAGE_RATIO);
+		bulletImage = FacilityData.getBulletImage(IMAGE_RATIO);
+		hitImage = FacilityData.getHitImage(IMAGE_RATIO);
 		generatedBuffInformation = FacilityData.getBuff();
-		breakImage = FacilityData.getBreakImage(4);
+		breakImage = FacilityData.getBreakImage(IMAGE_RATIO);
 		positionX = StageData.getFacilityPoint().get(number).x;
 		positionY = StageData.getFacilityPoint().get(number).y;
 		element = FacilityData.getElement().stream().toList();
@@ -39,8 +40,8 @@ public class BattleFacility extends BattleData{
 		defaultCutStatus = FacilityData.getCutStatus().stream().toList();
 		canActivate = true;
 		super.initialize(scheduler);
-		atackTimer(0);
-		healTimer(0);
+		atackTimer(NONE_DELAY);
+		healTimer(NONE_DELAY);
 	}
 	
 	protected void install(GameData GameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
@@ -77,7 +78,7 @@ public class BattleFacility extends BattleData{
 	protected void defeat(BattleData target) {
 		canActivate = false;
 		clearBlock();
-		GameData.lowMorale(battle.GameData.UNIT, 30);
+		GameData.lowMorale(battle.GameData.UNIT, DEFEAT_MORALE);
 		activateBuff(Buff.DEFEAT, target);
 	}
 }

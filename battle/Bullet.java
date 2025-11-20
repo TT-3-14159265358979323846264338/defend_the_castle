@@ -31,6 +31,7 @@ public class Bullet {
 	private int bulletNumber = 0;
 	private int hitNumber = -1;
 	private boolean canRestart;
+	private final int NONE_DELAY = 0;
 	
 	protected Bullet(Battle Battle, BattleData myself, BattleData target, BufferedImage bulletImage, List<BufferedImage> hitImage, ScheduledExecutorService scheduler) {
 		this.Battle = Battle;
@@ -52,7 +53,7 @@ public class Bullet {
 		oneTimeMoveX = (myself.getPositionX() - target.getPositionX()) / COUNT;
 		oneTimeMoveY = (myself.getPositionY() - target.getPositionY()) / COUNT;
 		bulletImage = EditImage.rotateImage(bulletImage, angle());
-		bullet(0);
+		bullet(NONE_DELAY);
 	}
 	
 	private double angle() {
@@ -78,10 +79,10 @@ public class Bullet {
 	private void bullet(long stopTime) {
 		int delay = 30;
 		long initialDelay;
-		if(stopTime == 0) {
-			initialDelay = 0;
+		if(stopTime == NONE_DELAY) {
+			initialDelay = NONE_DELAY;
 		}else {
-			initialDelay = (stopTime - beforeBulletTime < delay)? delay - (stopTime - beforeBulletTime): 0;
+			initialDelay = (stopTime - beforeBulletTime < delay)? delay - (stopTime - beforeBulletTime): NONE_DELAY;
 			beforeBulletTime += System.currentTimeMillis() - stopTime;
 		}
 		bulletFuture = scheduler.scheduleAtFixedRate(() -> {
@@ -108,16 +109,16 @@ public class Bullet {
 		}
 		positionX = (int) target.getPositionX() + CORRECTION;
 		positionY = (int) target.getPositionY() + CORRECTION;
-		hitTimer(0);
+		hitTimer(NONE_DELAY);
 	}
 	
 	private void hitTimer(long stopTime) {
 		int delay = 50;
 		long initialDelay;
-		if(stopTime == 0) {
-			initialDelay = 0;
+		if(stopTime == NONE_DELAY) {
+			initialDelay = NONE_DELAY;
 		}else {
-			initialDelay = (stopTime - beforeHitTime < delay)? delay - (stopTime - beforeHitTime): 0;
+			initialDelay = (stopTime - beforeHitTime < delay)? delay - (stopTime - beforeHitTime): NONE_DELAY;
 			beforeHitTime += System.currentTimeMillis() - stopTime;
 		}
 		hitFuture = scheduler.scheduleAtFixedRate(() -> {

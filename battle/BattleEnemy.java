@@ -28,6 +28,9 @@ public class BattleEnemy extends BattleData{
 	private int activateTime;
 	private int resurrectionCount;
 	private int interval;
+	private final int SOTIE_MORALE = 5;
+	private final int DEFEAT_MORALE = 3;
+	private final int MOVE_DISTANCE = 2;
 	
 	//移動制御
 	private int pauseCount;
@@ -46,10 +49,10 @@ public class BattleEnemy extends BattleData{
 		EnemyData EnemyData = DefaultEnemy.DATA_MAP.get(StageData.getEnemy().get(number).get(0));
 		name = EnemyData.getName();
 		explanation = EnemyData.getExplanation();
-		rightActionImage = EnemyData.getActionImage(4);
-		bulletImage = EnemyData.getBulletImage(4);
+		rightActionImage = EnemyData.getActionImage(IMAGE_RATIO);
+		bulletImage = EnemyData.getBulletImage(IMAGE_RATIO);
 		generatedBuffInformation = EnemyData.getBuff();
-		hitImage = EnemyData.getHitImage(4);
+		hitImage = EnemyData.getHitImage(IMAGE_RATIO);
 		move = EnemyData.getMove();
 		type = EnemyData.getType();
 		route = StageData.getRoute().get(StageData.getEnemy().get(number).get(1));
@@ -120,16 +123,16 @@ public class BattleEnemy extends BattleData{
 			eternalStop();
 			return;
 		}
-		constantMove(0);
+		constantMove(NONE_DELAY);
 	}
 	
 	private void eternalStop() {
 		moveFuture = scheduler.scheduleAtFixedRate(() -> {
 			if(activateTime <= Battle.getMainTime()) {
 				canActivate = true;
-				GameData.moraleBoost(battle.GameData.ENEMY, 5);
-				atackTimer(0);
-				healTimer(0);
+				GameData.moraleBoost(battle.GameData.ENEMY, SOTIE_MORALE);
+				atackTimer(NONE_DELAY);
+				healTimer(NONE_DELAY);
 				moveFuture.cancel(true);
 			}
 		}, 0, 10, TimeUnit.MILLISECONDS);
@@ -137,12 +140,12 @@ public class BattleEnemy extends BattleData{
 	
 	private void constantMove(long stopTime) {
 		int nowSpeed = getMoveSpeedOrBlock();
-		double delay = 2000000.0 / nowSpeed;
+		double delay = MOVE_DISTANCE * 1000000.0 / nowSpeed;
 		double initialDelay;
-		if(stopTime == 0) {
-			initialDelay = 0;
+		if(stopTime == NONE_DELAY) {
+			initialDelay = NONE_DELAY;
 		}else {
-			initialDelay = ((stopTime - beforeMoveTime) * 1000 < delay)? delay - (stopTime - beforeMoveTime) * 1000: 0;
+			initialDelay = ((stopTime - beforeMoveTime) * 1000 < delay)? delay - (stopTime - beforeMoveTime) * 1000: NONE_DELAY;
 			beforeMoveTime += System.currentTimeMillis() - stopTime;
 		}
 		moveFuture = scheduler.scheduleAtFixedRate(() -> {
@@ -152,19 +155,19 @@ public class BattleEnemy extends BattleData{
 				return;
 			}
 			if(canAtack) {
-				CompletableFuture.runAsync(this::atackWait, scheduler).thenRun(() -> constantMove(0));
+				CompletableFuture.runAsync(this::atackWait, scheduler).thenRun(() -> constantMove(NONE_DELAY));
 				moveFuture.cancel(true);
 				return;
 			}
 			blockTarget = blockTarget();
 			if(Objects.nonNull(blockTarget)) {
 				blockTarget.addBlock(this);
-				CompletableFuture.runAsync(() -> blockWait(blockTarget), scheduler).thenRun(() -> constantMove(0));
+				CompletableFuture.runAsync(() -> blockWait(blockTarget), scheduler).thenRun(() -> constantMove(NONE_DELAY));
 				moveFuture.cancel(true);
 				return;
 			}
 			if(nowSpeed != getMoveSpeedOrBlock()) {
-				CompletableFuture.runAsync(() -> moveFuture.cancel(true), scheduler).thenRun(() -> constantMove(0));
+				CompletableFuture.runAsync(() -> moveFuture.cancel(true), scheduler).thenRun(() -> constantMove(NONE_DELAY));
 				return;
 			}
 			if(canActivate || 0 < deactivateCount) {
@@ -173,7 +176,7 @@ public class BattleEnemy extends BattleData{
 				return;
 			}
 			if(activateTime <= Battle.getMainTime()) {
-				GameData.moraleBoost(battle.GameData.ENEMY, 5);
+				GameData.moraleBoost(battle.GameData.ENEMY, SOTIE_MORALE);
 				activate();
 			}
 		}, (int) initialDelay, (int) delay, TimeUnit.MICROSECONDS);
@@ -223,8 +226,8 @@ public class BattleEnemy extends BattleData{
 			return;
 		}
 		double radian = route.get(routeNumber).get(2) * Math.PI / 180;
-		positionX += 2 * Math.cos(radian);
-		positionY += 2 * Math.sin(radian);
+		positionX += MOVE_DISTANCE * Math.cos(radian);
+		positionY += MOVE_DISTANCE * Math.sin(radian);
 	}
 	
 	private void routeChange() {
@@ -249,8 +252,8 @@ public class BattleEnemy extends BattleData{
 		}
 		try {
 			//所定の位置に到達したら次のルートに入る
-			if(Math.abs(route.get(routeNumber + 1).get(0) - positionX) <= 2
-					|| Math.abs(route.get(routeNumber + 1).get(1) - positionY) <= 2) {
+			if(Math.abs(route.get(routeNumber + 1).get(0) - positionX) <= MOVE_DISTANCE
+					|| Math.abs(route.get(routeNumber + 1).get(1) - positionY) <= MOVE_DISTANCE) {
 				routeNumber++;
 				activate();
 				deactivate();
@@ -264,8 +267,8 @@ public class BattleEnemy extends BattleData{
 		if(!canActivate) {
 			deactivateCount = 0;
 			canActivate = true;
-			atackTimer(0);
-			healTimer(0);
+			atackTimer(NONE_DELAY);
+			healTimer(NONE_DELAY);
 			activateBuff(Buff.BIGINNING, null);
 		}
 	}
@@ -315,11 +318,11 @@ public class BattleEnemy extends BattleData{
 		canActivate = false;
 		GameData.addCost(getCost());
 		releaseBlock(this);
-		GameData.lowMorale(battle.GameData.ENEMY, 3);
+		GameData.lowMorale(battle.GameData.ENEMY, DEFEAT_MORALE);
 		activateBuff(Buff.DEFEAT, target);
 		moveFuture.cancel(true);
 		beforeResuscitationTime = System.currentTimeMillis();
-		resurrection(0);
+		resurrection(NONE_DELAY);
 	}
 	
 	private void resurrection(long stopTime) {
@@ -327,10 +330,10 @@ public class BattleEnemy extends BattleData{
 			return;
 		}
 		long delay;
-		if(stopTime == 0) {
+		if(stopTime == NONE_DELAY) {
 			delay = interval;
 		}else {
-			delay = (stopTime - beforeResuscitationTime < interval)? interval - (stopTime - beforeResuscitationTime): 0;
+			delay = (stopTime - beforeResuscitationTime < interval)? interval - (stopTime - beforeResuscitationTime): NONE_DELAY;
 			beforeResuscitationTime += System.currentTimeMillis() - stopTime;
 		}
 		resuscitationFuture = scheduler.schedule(() -> {

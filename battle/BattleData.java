@@ -21,6 +21,7 @@ public class BattleData{
 	protected GameData GameData;
 	protected List<BattleData> allyData;
 	protected List<BattleData> enemyData;
+	protected final int IMAGE_RATIO = 4;
 	
 	//攻撃関連
 	protected AtackPattern AtackPattern;
@@ -34,6 +35,7 @@ public class BattleData{
 	private List<Bullet> bulletList = Arrays.asList();
 	private List<BattleData> targetList = new ArrayList<>();
 	private int hitedCount;
+	protected final int NONE_DELAY = 0;
 	
 	//バフ関連
 	protected List<List<Double>> generatedBuffInformation;
@@ -52,6 +54,10 @@ public class BattleData{
 	protected List<Integer> defaultUnitStatus;
 	protected List<Integer> defaultCutStatus;
 	protected List<BattleEnemy> block = new ArrayList<>();
+	private final int GUARANTEE_ATACK = 10;
+	private final int GUARANTEE_RANGE = 10;
+	private final int GUARANTEE_ATACK_SPEED = 100;
+	private final int GUARANTEE_MAX_HP = 100;
 	
 	//システム関連
 	private Object buffLock = new Object();
@@ -124,15 +130,15 @@ public class BattleData{
 		}
 		int delay = getAtackSpeed();
 		long initialDelay;
-		if(stopTime == 0) {
+		if(stopTime == NONE_DELAY) {
 			initialDelay = delay;
 		}else {
-			initialDelay = (stopTime - beforeAtackTime < delay)? delay - (stopTime - beforeAtackTime): 0;
+			initialDelay = (stopTime - beforeAtackTime < delay)? delay - (stopTime - beforeAtackTime): NONE_DELAY;
 			beforeAtackTime += System.currentTimeMillis() - stopTime;
 		}
 		atackFuture = scheduler.schedule(() -> {
 			if(delay != getAtackSpeed()) {
-				CompletableFuture.runAsync(() -> atackFuture.cancel(true), scheduler).thenRun(() -> atackTimer(0));
+				CompletableFuture.runAsync(() -> atackFuture.cancel(true), scheduler).thenRun(() -> atackTimer(NONE_DELAY));
 				return;
 			}
 			targetList = targetCheck();
@@ -141,7 +147,7 @@ public class BattleData{
 			}
 			beforeAtackTime = System.currentTimeMillis();
 			modeChange();
-			motionTimer(0);
+			motionTimer(NONE_DELAY);
 		}, initialDelay, TimeUnit.MILLISECONDS);
 	}
 	
@@ -172,10 +178,10 @@ public class BattleData{
 	private void motionTimer(long stopTime) {
 		int delay = 1000 * getAtackSpeed() / 50;
 		long initialDelay;
-		if(stopTime == 0) {
-			initialDelay = 0;
+		if(stopTime == NONE_DELAY) {
+			initialDelay = NONE_DELAY;
 		}else {
-			initialDelay = (stopTime - beforeMotionTime < delay)? delay - (stopTime - beforeMotionTime): 0;
+			initialDelay = (stopTime - beforeMotionTime < delay)? delay - (stopTime - beforeMotionTime): NONE_DELAY;
 			beforeMotionTime += System.currentTimeMillis() - stopTime;
 		}
 		motionFuture = scheduler.scheduleAtFixedRate(() -> {
@@ -195,7 +201,7 @@ public class BattleData{
 		bulletList.get(0).waitCompletion();
 		targetList.stream().forEach(this::result);
 		timerRestart();
-		atackTimer(0);
+		atackTimer(NONE_DELAY);
 	}
 	
 	protected synchronized void atackWait() {
@@ -294,10 +300,10 @@ public class BattleData{
 	protected void healTimer(long stopTime) {
 		int delay = 5000;
 		long initialDelay;
-		if(stopTime == 0) {
-			initialDelay = 0;
+		if(stopTime == NONE_DELAY) {
+			initialDelay = NONE_DELAY;
 		}else {
-			initialDelay = (stopTime - beforeHealTime < delay)? delay - (stopTime - beforeHealTime): 0;
+			initialDelay = (stopTime - beforeHealTime < delay)? delay - (stopTime - beforeHealTime): NONE_DELAY;
 			beforeHealTime += System.currentTimeMillis() - stopTime;
 		}
 		healFuture = scheduler.scheduleAtFixedRate(() -> {
@@ -436,24 +442,24 @@ public class BattleData{
 			return 0;
 		}
 		int atack = (int) (statusControl(Buff.ATACK) * awakeningCorrection());
-		if(atack <= 10) {
-			return 10;
+		if(atack <= GUARANTEE_ATACK) {
+			return GUARANTEE_ATACK;
 		}
 		return atack;
 	}
 	
 	public int getRange() {
 		int range = (int) (statusControl(Buff.RANGE) * awakeningCorrection());
-		if(range <= 10) {
-			return 10;
+		if(range <= GUARANTEE_RANGE) {
+			return GUARANTEE_RANGE;
 		}
 		return range;
 	}
 	
 	private int getAtackSpeed() {
 		int atackSpeed = statusControl(Buff.ATACK_SPEED);
-		if(atackSpeed <= 100) {
-			return 100;
+		if(atackSpeed <= GUARANTEE_ATACK_SPEED) {
+			return GUARANTEE_ATACK_SPEED;
 		}
 		return atackSpeed;
 	}
@@ -473,8 +479,8 @@ public class BattleData{
 	
 	public int getMaxHP() {
 		int HP = statusControl(Buff.HP);
-		if(HP <= 100) {
-			return 100;
+		if(HP <= GUARANTEE_MAX_HP) {
+			return GUARANTEE_MAX_HP;
 		}
 		return HP;
 	}
