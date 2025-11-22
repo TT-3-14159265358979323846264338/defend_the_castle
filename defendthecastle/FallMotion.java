@@ -12,17 +12,26 @@ class FallMotion{
 	private int x = new Random().nextInt(400);
 	private int y = -100;
 	private boolean canStart;
+	private final double ANGLE_CHANGE = 0.1;
+	private final int COODINATE_CHANGE = 10;
+	private final int FINAL_COODINATE = 450;
 	
 	protected void fallTimerStart(ScheduledExecutorService scheduler) {
 		canStart = true;
-		fallFuture = scheduler.scheduleAtFixedRate(() -> {
-			angle += 0.1;
-			y += 10;
-			if(450 < y) {
-				canStart = false;
-				fallFuture.cancel(true);
-			}
-		}, 0, 20, TimeUnit.MILLISECONDS);
+		fallFuture = scheduler.scheduleAtFixedRate(this::fallTimerProcess, 0, 20, TimeUnit.MILLISECONDS);
+	}
+	
+	protected void fallTimerProcess() {
+		angle += ANGLE_CHANGE;
+		y += COODINATE_CHANGE;
+		if(FINAL_COODINATE < y) {
+			canStart = false;
+			fallFuture.cancel(true);
+		}
+	}
+	
+	protected ScheduledFuture<?> getFallFuture(){
+		return fallFuture;
 	}
 	
 	protected boolean canRunTimer() {
