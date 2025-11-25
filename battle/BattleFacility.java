@@ -17,7 +17,7 @@ public class BattleFacility extends BattleData{
 	private BufferedImage breakImage;
 	private final int DEFEAT_MORALE = 30;
 	
-	protected BattleFacility(Battle Battle, StageData StageData, int number, ScheduledExecutorService scheduler) {
+	BattleFacility(Battle Battle, StageData StageData, int number, ScheduledExecutorService scheduler) {
 		this.Battle = Battle;
 		FacilityData FacilityData = DefaultStage.FACILITY_DATA_MAP.get(StageData.getFacility().get(number));
 		name = FacilityData.getName();
@@ -44,7 +44,7 @@ public class BattleFacility extends BattleData{
 		healTimer(NONE_DELAY);
 	}
 	
-	protected void install(GameData GameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
+	void install(GameData GameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
 		this.GameData = GameData;
 		if(Objects.isNull(AtackPattern)) {
 			return;
@@ -60,7 +60,7 @@ public class BattleFacility extends BattleData{
 		activateBuff(Buff.BIGINNING, null);
 	}
 	
-	protected BufferedImage getBreakImage() {
+	BufferedImage getBreakImage() {
 		return breakImage;
 	}
 	

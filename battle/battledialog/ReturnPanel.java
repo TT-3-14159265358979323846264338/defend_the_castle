@@ -22,7 +22,7 @@ class ReturnPanel extends JPanel{
 	private JButton retryButton = new JButton();
 	private Font buttonFont = new Font("ＭＳ ゴシック", Font.BOLD, 20);
 	
-	protected ReturnPanel(PauseDialog PauseDialog, Battle Battle, MainFrame MainFrame, StageData StageData, double difficultyCorrection) {
+	ReturnPanel(PauseDialog PauseDialog, Battle Battle, MainFrame MainFrame, StageData StageData, double difficultyCorrection) {
 		setBackground(new Color(240, 170, 80));
 		addGameCondition(StageData, difficultyCorrection);
 		addEnemyScroll(StageData);
@@ -32,6 +32,7 @@ class ReturnPanel extends JPanel{
 		addRetryButton(PauseDialog, Battle, MainFrame, StageData, difficultyCorrection);
 	}
 	
+	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		GameCondition.setBounds(50, 10, 430, 150);
@@ -44,22 +45,22 @@ class ReturnPanel extends JPanel{
 		retryButton.setBounds(335, 530, 120, 40);
 	}
 	
-	private void addGameCondition(StageData StageData, double difficultyCorrection) {
+	void addGameCondition(StageData StageData, double difficultyCorrection) {
 		GameCondition = new GameCondition(StageData, difficultyCorrection);
 		add(GameCondition);
 	}
 	
-	private void addEnemyScroll(StageData StageData) {
+	void addEnemyScroll(StageData StageData) {
 		enemyScroll.getViewport().setView(new AllEnemy(StageData));
 		add(enemyScroll);
 	}
 	
-	private void addMeritScroll(StageData StageData) {
+	void addMeritScroll(StageData StageData) {
 		meritScroll.getViewport().setView(new ClearMerit(StageData));
 		add(meritScroll);
 	}
 	
-	private void addRestartButton(PauseDialog PauseDialog) {
+	void addRestartButton(PauseDialog PauseDialog) {
 		add(restartButton);
 		restartButton.addActionListener(e->{
 			PauseDialog.disposeDialog();
@@ -68,7 +69,7 @@ class ReturnPanel extends JPanel{
 		restartButton.setFont(buttonFont);
 	}
 	
-	private void addReturnButton(PauseDialog PauseDialog, Battle Battle, MainFrame MainFrame) {
+	void addReturnButton(PauseDialog PauseDialog, Battle Battle, MainFrame MainFrame) {
 		add(returnButton);
 		returnButton.addActionListener(e->{
 			Battle.gameEnd();
@@ -79,7 +80,7 @@ class ReturnPanel extends JPanel{
 		returnButton.setFont(buttonFont);
 	}
 	
-	private void addRetryButton(PauseDialog PauseDialog, Battle Battle, MainFrame MainFrame, StageData StageData, double difficultyCorrection) {
+	void addRetryButton(PauseDialog PauseDialog, Battle Battle, MainFrame MainFrame, StageData StageData, double difficultyCorrection) {
 		add(retryButton);
 		retryButton.addActionListener(e->{
 			Battle.gameEnd();

@@ -21,7 +21,7 @@ class GameCondition extends JPanel{
 	private JLabel gameOverConditionLabel = new JLabel();
 	private Font font = new Font("ＭＳ ゴシック", Font.BOLD, 15);
 	
-	protected GameCondition(StageData StageData, double difficultyCorrection) {
+	GameCondition(StageData StageData, double difficultyCorrection) {
 		addDifficultyCommentLabel();
 		addDifficultyConditionLabel(difficultyCorrection);
 		addClearCommentLabel();
@@ -30,6 +30,7 @@ class GameCondition extends JPanel{
 		addGameOverConditionLabel(StageData);
 	}
 	
+	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		difficultyCommentLabel.setBounds(5, 5, 80, 40);
@@ -40,43 +41,43 @@ class GameCondition extends JPanel{
 		gameOverConditionLabel.setBounds(80, 105, 350, 40);
 	}
 	
-	private void addDifficultyCommentLabel() {
+	void addDifficultyCommentLabel() {
 		add(difficultyCommentLabel);
 		difficultyCommentLabel.setText("難易度: ");
 		difficultyCommentLabel.setFont(font);
 	}
 	
-	private void addDifficultyConditionLabel(double difficultyCorrection) {
+	void addDifficultyConditionLabel(double difficultyCorrection) {
 		add(difficultyConditionLabel);
 		difficultyConditionLabel.setText((difficultyCorrection == BattleEnemy.NORMAL_MODE)? "normal": "hard");
 		difficultyConditionLabel.setFont(font);
 	}
 	
-	private void addClearCommentLabel() {
+	void addClearCommentLabel() {
 		add(clearCommentLabel);
 		clearCommentLabel.setText("勝利条件: ");
 		clearCommentLabel.setFont(font);
 	}
 	
-	private void addClearConditionLabel(StageData StageData) {
+	void addClearConditionLabel(StageData StageData) {
 		add(clearConditionLabel);
 		clearConditionLabel.setText(conditionComment(StageData.getClearCondition()));
 		clearConditionLabel.setFont(font);
 	}
 	
-	private void addGameOverCommentLabel() {
+	void addGameOverCommentLabel() {
 		add(gameOverCommentLabel);
 		gameOverCommentLabel.setText("敗北条件: ");
 		gameOverCommentLabel.setFont(font);
 	}
 	
-	private void addGameOverConditionLabel(StageData StageData) {
+	void addGameOverConditionLabel(StageData StageData) {
 		add(gameOverConditionLabel);
 		gameOverConditionLabel.setText(conditionComment(StageData.getGameOverCondition()));
 		gameOverConditionLabel.setFont(font);
 	}
 	
-	private String conditionComment(String comment) {
+	String conditionComment(String comment) {
 		int lastPosition = 0;
 		List<Integer> wrapPosition = new ArrayList<>();
 		for(int i = 0; i < comment.length(); i++) {

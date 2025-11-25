@@ -109,7 +109,7 @@ public class Buff {
 	private final int NONE_DELAY = 0;
 	private final int INITIALIZE = 0;
 	
-	protected Buff(List<Double> buffInformation, BattleData myself, List<BattleData> ally, List<BattleData> enemy, Battle Battle, GameData GameData, ScheduledExecutorService scheduler) {
+	Buff(List<Double> buffInformation, BattleData myself, List<BattleData> ally, List<BattleData> enemy, Battle Battle, GameData GameData, ScheduledExecutorService scheduler) {
 		this.buffInformation = buffInformation;
 		this.myself = myself;
 		this.Battle = Battle;
@@ -124,7 +124,7 @@ public class Buff {
 		this.scheduler = scheduler;
 	}
 	
-	protected void buffStart(BattleData BattleData) {
+	void buffStart(BattleData BattleData) {
 		buffEnd().join();
 		recastBuff(NONE_DELAY);
 		if(buffInformation.get(TARGET_CODE) == GAME) {
@@ -134,7 +134,7 @@ public class Buff {
 		unitBuff(BattleData);
 	}
 	
-	protected void futureStop() {
+	void futureStop() {
 		if(recastFuture != null && !recastFuture.isCancelled()) {
 			recastFuture.cancel(true);
 			long recastTime = System.currentTimeMillis();
@@ -157,7 +157,7 @@ public class Buff {
 	}
 	
 	//リキャスト
-	private void recastBuff(long stopTime) {
+	void recastBuff(long stopTime) {
 		if(buffInformation.get(RECAST) == NONE) {
 			return;
 		}
@@ -181,7 +181,7 @@ public class Buff {
 	}
 	
 	//ゲームバフ
-	private void gameBuff() {
+	void gameBuff() {
 		effect.add((double) INITIALIZE);
 		if(existsInterval()) {
 			gameBuffSelect();
@@ -191,7 +191,7 @@ public class Buff {
 		durationControl(NONE_DELAY);
 	}
 	
-	private void gameIntervalControl(long stopTime) {
+	void gameIntervalControl(long stopTime) {
 		int delay = getInterval();
 		long initialDelay;
 		if(stopTime == NONE_DELAY) {
@@ -212,7 +212,7 @@ public class Buff {
 		}, initialDelay, delay, TimeUnit.SECONDS);
 	}
 	
-	private void gameBuffSelect() {
+	void gameBuffSelect() {
 		if(getBuffStatusCode() == MORALE) {
 			moraleBuff();
 		}else {
@@ -220,7 +220,7 @@ public class Buff {
 		}
 	}
 	
-	private void moraleBuff() {
+	void moraleBuff() {
 		setEffect(INITIALIZE);
 		if(existsAddition()) {
 			GameData.moraleBoost(battle.GameData.UNIT, (int) getEffect());
@@ -229,7 +229,7 @@ public class Buff {
 		GameData.lowMorale(battle.GameData.UNIT, (int) getEffect());
 	}
 	
-	private void costBuff() {
+	void costBuff() {
 		setEffect(INITIALIZE);
 		if(existsAddition()) {
 			GameData.addCost((int) getEffect());
@@ -239,7 +239,7 @@ public class Buff {
 	}
 	
 	//ユニットバフ
-	private void unitBuff(BattleData BattleData) {
+	void unitBuff(BattleData BattleData) {
 		if(existsRangeCode(MYSELF)) {
 			singleBuff(myself);
 			return;
@@ -261,7 +261,7 @@ public class Buff {
 		}
 	}
 	
-	private void singleBuff(BattleData BattleData) {
+	void singleBuff(BattleData BattleData) {
 		BattleData.receiveBuff(this);
 		target = Arrays.asList(BattleData);
 		effect = Arrays.asList(getEffect());
@@ -272,13 +272,13 @@ public class Buff {
 		durationControl(NONE_DELAY);
 	}
 	
-	private void multipleBuff(Predicate<? super BattleData> rangeFilter) {
+	void multipleBuff(Predicate<? super BattleData> rangeFilter) {
 		targetControl(rangeFilter);
 		intervalControl(NONE_DELAY);
 		durationControl(NONE_DELAY);
 	}
 	
-	private boolean withinCheck(BattleData BattleData) {
+	boolean withinCheck(BattleData BattleData) {
 		Function<BattleData, Double> distanceCalculate = (data) -> {
 			return Math.sqrt(Math.pow(myself.getPositionX() - data.getPositionX(), 2) + Math.pow(myself.getPositionY() - data.getPositionY(), 2));
 		};
@@ -288,7 +288,7 @@ public class Buff {
 		return distanceCheck.test(BattleData);
 	}
 	
-	private void targetControl(Predicate<? super BattleData> rangeFilter) {
+	void targetControl(Predicate<? super BattleData> rangeFilter) {
 		targetFuture = scheduler.scheduleAtFixedRate(() -> {
 			if(canNotActivateBuff()) {
 				return;
@@ -299,7 +299,7 @@ public class Buff {
 		}, 0, DELEY, TimeUnit.MILLISECONDS);
 	}
 	
-	private void removeUpdate(int number, List<BattleData> newTarget) {
+	void removeUpdate(int number, List<BattleData> newTarget) {
 		if(newTarget.stream().noneMatch(i -> i.equals(target.get(number)))) {
 			target.get(number).removeBuff(this);
 			if(existsHP()) {
@@ -310,7 +310,7 @@ public class Buff {
 		}
 	}
 	
-	private void addUpdate(BattleData BattleData) {
+	void addUpdate(BattleData BattleData) {
 		if(target.stream().noneMatch(i -> i.equals(BattleData))) {
 			if(existsHP()) {
 				int defaultHP = BattleData.getMaxHP();
@@ -322,13 +322,13 @@ public class Buff {
 		}
 	}
 	
-	private void addBuff(BattleData BattleData) {
+	void addBuff(BattleData BattleData) {
 		BattleData.receiveBuff(this);
 		target.add(BattleData);
 		effect.add(getEffect());
 	}
 	
-	private void intervalControl(long stopTime) {
+	void intervalControl(long stopTime) {
 		if(existsInterval()) {
 			return;
 		}
@@ -350,7 +350,7 @@ public class Buff {
 	}
 	
 	//共通メソッド
-	private void durationControl(long stopTime) {
+	void durationControl(long stopTime) {
 		if(existsDuration()) {
 			return;
 		}
@@ -374,7 +374,7 @@ public class Buff {
 		}, initialDelay, DELEY, TimeUnit.MILLISECONDS);
 	}
 	
-	private boolean canNotActivateBuff() {
+	boolean canNotActivateBuff() {
 		if(myself.canActivate()) {
 			return false;
 		}
@@ -385,11 +385,11 @@ public class Buff {
 		return true;
 	}
 	
-	private CompletableFuture<Void> buffEnd() {
+	CompletableFuture<Void> buffEnd() {
 		return CompletableFuture.runAsync(this::futureCancel, scheduler).thenRun(this::resetBuff);
 	}
 	
-	private void futureCancel() {
+	void futureCancel() {
 		if(targetFuture != null) {
 			targetFuture.cancel(true);
 		}
@@ -401,7 +401,7 @@ public class Buff {
 		}
 	}
 	
-	private void resetBuff() {
+	void resetBuff() {
 		target.stream().forEach(i -> i.removeBuff(this));
 		if(existsHP()) {
 			target.stream().forEach(i -> i.HPIncrease(0));
@@ -411,63 +411,63 @@ public class Buff {
 		durationCount = INITIALIZE;
 	}
 	
-	private double recastMax() {
+	double recastMax() {
 		return buffInformation.get(RECAST) * 1000;
 	}
 	
-	private int getInterval() {
+	int getInterval() {
 		return buffInformation.get(INTERVAL).intValue();
 	}
 	
-	private boolean existsRangeCode(double code) {
+	boolean existsRangeCode(double code) {
 		return buffInformation.get(RANGE_CODE) == code;
 	}
 	
-	private boolean existsInterval() {
+	boolean existsInterval() {
 		return getInterval() == NONE;
 	}
 	
-	private boolean existsDuration() {
+	boolean existsDuration() {
 		return buffInformation.get(DURATION) == NONE;
 	}
 	
-	private boolean existsMax(int number) {
+	boolean existsMax(int number) {
 		if(buffInformation.get(MAX) == NONE) {
 			return false;
 		}
 		return buffInformation.get(MAX) <= effect.get(number);
 	}
 	
-	private boolean existsAddition() {
+	boolean existsAddition() {
 		return getCalculationCode() == ADDITION;
 	}
 	
-	private boolean existsHP() {
+	boolean existsHP() {
 		return buffInformation.get(STATUS_CODE) == HP;
 	}
 	
-	private double getCalculationCode() {
+	double getCalculationCode() {
 		return buffInformation.get(CALCULATION_CODE);
 	}
 	
-	private double getEffect() {
+	double getEffect() {
 		return buffInformation.get(EFFECT);
 	}
 	
-	private void setEffect(int number) {
+	void setEffect(int number) {
 		effect.set(number, effect.get(number) + getEffect());
 	}
 	
 	//データ返却
-	protected double getBuffStatusCode() {
+	double getBuffStatusCode() {
 		return buffInformation.get(STATUS_CODE);
 	}
 	
-	protected double getBuffTiming() {
+	double getBuffTiming() {
 		return buffInformation.get(TIMING_CODE);
 	}
 	
-	protected double additionalEffect(BattleData BattleData, double status){
+	double additionalEffect(BattleData BattleData, double status){
 		if(getCalculationCode() == ADDITION) {
 			return status += getBuffValue(BattleData);
 		}
@@ -477,7 +477,7 @@ public class Buff {
 		return status;
 	}
 	
-	protected double ratioEffect(BattleData BattleData, double status) {
+	double ratioEffect(BattleData BattleData, double status) {
 		if(getCalculationCode() == MULTIPLICATION) {
 			return status *= getBuffValue(BattleData);
 		}
@@ -487,23 +487,23 @@ public class Buff {
 		return status;
 	}
 	
-	private double getBuffValue(BattleData BattleData) {
+	double getBuffValue(BattleData BattleData) {
 		return effect.get(target.indexOf(BattleData));
 	}
 	
-	protected int getCost() {
+	int getCost() {
 		return buffInformation.get(CONSUME_COST).intValue();
 	}
 	
-	protected boolean canPossessSkill() {
+	boolean canPossessSkill() {
 		return getBuffTiming() == SKILL;
 	}
 	
-	protected boolean canRecast() {
+	boolean canRecast() {
 		return canRecast;
 	}
 	
-	protected double recastRatio() {
+	double recastRatio() {
 		return recastCount / recastMax();
 	}
 }

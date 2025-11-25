@@ -33,7 +33,7 @@ public class Bullet {
 	private boolean canRestart;
 	private final int NONE_DELAY = 0;
 	
-	protected Bullet(Battle Battle, BattleData myself, BattleData target, BufferedImage bulletImage, List<BufferedImage> hitImage, ScheduledExecutorService scheduler) {
+	Bullet(Battle Battle, BattleData myself, BattleData target, BufferedImage bulletImage, List<BufferedImage> hitImage, ScheduledExecutorService scheduler) {
 		this.Battle = Battle;
 		this.myself = myself;
 		this.target = target;
@@ -43,7 +43,7 @@ public class Bullet {
 		bulletTimer();
 	}
 	
-	private void bulletTimer() {
+	void bulletTimer() {
 		if(Objects.isNull(bulletImage)) {
 			hit();
 			return;
@@ -56,7 +56,7 @@ public class Bullet {
 		bullet(NONE_DELAY);
 	}
 	
-	private double angle() {
+	double angle() {
 		//x, y は 角度を求めたい点, 起点, 目標点 の位置順
 		//角度は余弦定理から、回転方向は外積から算出
 		double[] x = {myself.getPositionX(), myself.getPositionX() - 10, target.getPositionX()};
@@ -76,7 +76,7 @@ public class Bullet {
 		return (0 < outerProductDirection)? Math.PI * 2 - cosineTheoremAngle: cosineTheoremAngle;
 	}
 	
-	private void bullet(long stopTime) {
+	void bullet(long stopTime) {
 		int delay = 30;
 		long initialDelay;
 		if(stopTime == NONE_DELAY) {
@@ -96,13 +96,13 @@ public class Bullet {
 		}, initialDelay, delay, TimeUnit.MILLISECONDS);
 	}
 	
-	private void moveBullet() {
+	void moveBullet() {
 		bulletNumber++;
 		positionX -= oneTimeMoveX;
 		positionY -= oneTimeMoveY;
 	}
 	
-	private void hit() {
+	void hit() {
 		if(Objects.isNull(hitImage)) {
 			completion();
 			return;
@@ -112,7 +112,7 @@ public class Bullet {
 		hitTimer(NONE_DELAY);
 	}
 	
-	private void hitTimer(long stopTime) {
+	void hitTimer(long stopTime) {
 		int delay = 50;
 		long initialDelay;
 		if(stopTime == NONE_DELAY) {
@@ -132,7 +132,7 @@ public class Bullet {
 		}, initialDelay, delay, TimeUnit.MILLISECONDS);
 	}
 	
-	protected synchronized void waitCompletion() {
+	synchronized void waitCompletion() {
 		if(canRestart) {
 			return;
 		}
@@ -144,12 +144,12 @@ public class Bullet {
 		return;
 	}
 	
-	private synchronized void completion() {
+	synchronized void completion() {
 		canRestart = true;
 		notifyAll();
 	}
 	
-	protected void futureStop() {
+	void futureStop() {
 		if(bulletFuture != null && !bulletFuture.isCancelled()) {
 			bulletFuture.cancel(true);
 			long bulletTime = System.currentTimeMillis();
@@ -162,15 +162,15 @@ public class Bullet {
 		}
 	}
 	
-	protected BufferedImage getImage() {
+	BufferedImage getImage() {
 		return (0 <= hitNumber)? hitImage.get(hitNumber): bulletImage;
 	}
 	
-	protected int getPsitionX() {
+	int getPsitionX() {
 		return (int) positionX;
 	}
 	
-	protected int getPsitionY() {
+	int getPsitionY() {
 		return (int) positionY;
 	}
 }

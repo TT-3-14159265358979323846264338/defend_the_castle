@@ -26,7 +26,7 @@ class AllEnemy extends JPanel implements MouseListener{
 	private final int SIZE = 100;
 	private final int COLUMN = 4;
 	
-	protected AllEnemy(StageData StageData) {
+	AllEnemy(StageData StageData) {
 		Function<Integer, Integer> count = (number) -> {
 			return (int) StageData.getEnemy().stream().filter(i -> i.get(0) == number).mapToInt(i -> (i.get(3) < 0)? -100000 :i.get(3) + 1).sum();
 		};
@@ -37,6 +37,7 @@ class AllEnemy extends JPanel implements MouseListener{
 		addMouseListener(this);
 	}
 	
+	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		IntStream.range(0, enemyImage.size()).forEach(i -> {

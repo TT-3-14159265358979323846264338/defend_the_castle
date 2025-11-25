@@ -54,7 +54,7 @@ public class BattleUnit extends BattleData{
 	private long beforeRelocationTime;
 	
 	//右武器/コア用　攻撃・被弾などの判定はこちらで行う
-	protected BattleUnit(Battle Battle, List<Integer> composition, int positionX, int positionY, ScheduledExecutorService scheduler) {
+	BattleUnit(Battle Battle, List<Integer> composition, int positionX, int positionY, ScheduledExecutorService scheduler) {
 		this.Battle = Battle;
 		StatusCalculation StatusCalculation = new StatusCalculation(composition);
 		try {
@@ -83,7 +83,7 @@ public class BattleUnit extends BattleData{
 	}
 	
 	//左武器用
-	protected BattleUnit(Battle Battle, List<Integer> composition, ScheduledExecutorService scheduler) {
+	BattleUnit(Battle Battle, List<Integer> composition, ScheduledExecutorService scheduler) {
 		this.Battle = Battle;
 		StatusCalculation StatusCalculation = new StatusCalculation(composition);
 		try {
@@ -102,7 +102,7 @@ public class BattleUnit extends BattleData{
 		super.initialize(scheduler);
 	}
 	
-	protected void install(GameData GameData, BattleUnit otherWeapon, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
+	void install(GameData GameData, BattleUnit otherWeapon, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
 		this.GameData = GameData;
 		this.otherWeapon = otherWeapon;
 		allyData = Stream.concat(Stream.of(unitMainData), Stream.of(facilityData)).toList();
@@ -124,13 +124,13 @@ public class BattleUnit extends BattleData{
 		return composition;
 	}
 	
-	private BufferedImage getBlankImage() {
+	BufferedImage getBlankImage() {
 		BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 		image.setRGB(0, 0, 0);
 		return image;
 	}
 	
-	protected BufferedImage getCoreImage() {
+	BufferedImage getCoreImage() {
 		return existsRight? rightCoreImage: leftCoreImage;
 	}
 	
@@ -138,7 +138,7 @@ public class BattleUnit extends BattleData{
 		return rightCoreImage;
 	}
 	
-	protected BufferedImage getSkillImage() {
+	BufferedImage getSkillImage() {
 		return skillImage;
 	}
 	
@@ -146,7 +146,7 @@ public class BattleUnit extends BattleData{
 		return type;
 	}
 	
-	private void achievementTimer(long stopTime) {
+	void achievementTimer(long stopTime) {
 		long initialDelay;
 		if(stopTime == NONE_DELAY) {
 			initialDelay = NONE_DELAY;
@@ -164,13 +164,13 @@ public class BattleUnit extends BattleData{
 		}, initialDelay, TIMER_INTERVAL, TimeUnit.MILLISECONDS);
 	}
 	
-	private void setAchievement(int value) {
+	void setAchievement(int value) {
 		synchronized(achievementLock) {
 			achievement += value;
 		}
 	}
 	
-	protected boolean canAwake() {
+	boolean canAwake() {
 		if(MAX_AWAKENING <= awakeningNumber) {
 			return false;
 		}
@@ -181,16 +181,16 @@ public class BattleUnit extends BattleData{
 		return awakeningNumber;
 	}
 	
-	protected void awakening() {
+	void awakening() {
 		GameData.moraleBoost(battle.GameData.UNIT, SOTIE_MORALE);
 		awakeningNumber++;
 	}
 	
-	protected boolean canLocate() {
+	boolean canLocate() {
 		return canLocate;
 	}
 	
-	protected double locationRatio() {
+	double locationRatio() {
 		return (double) relocationCount / relocationTime;
 	}
 	
@@ -198,19 +198,19 @@ public class BattleUnit extends BattleData{
 		return defeatNumber;
 	}
 	
-	protected boolean canPossessSkill() {
+	boolean canPossessSkill() {
 		return canPossessSkill;
 	}
 	
-	protected boolean canRecast() {
+	boolean canRecast() {
 		return generatedBuff.stream().anyMatch(i -> i.canRecast());
 	}
 	
-	protected Point getInitialPosition() {
+	Point getInitialPosition() {
 		return initialPosition;
 	}
 	
-	protected double recastRatio() {
+	double recastRatio() {
 		for(Buff i: generatedBuff) {
 			if(i.canPossessSkill()) {
 				return i.recastRatio();
@@ -219,7 +219,7 @@ public class BattleUnit extends BattleData{
 		return 0;
 	}
 	
-	protected void activate(int x, int y) {
+	void activate(int x, int y) {
 		canActivate = true;
 		canLocate = false;
 		if(defaultUnitStatus.get(5) != 0) {
@@ -262,7 +262,7 @@ public class BattleUnit extends BattleData{
 		reset(target);
 	}
 	
-	protected void retreat() {
+	void retreat() {
 		int price = (5 + 10 * (getMaxHP() - nowHP) / getMaxHP());
 		GameData.lowMorale(battle.GameData.UNIT, price);
 		relocationTime = price * 1000;
@@ -270,7 +270,7 @@ public class BattleUnit extends BattleData{
 		reset(null);
 	}
 	
-	private void relocation(long stopTime) {
+	void relocation(long stopTime) {
 		long initialDelay;
 		if(stopTime == NONE_DELAY) {
 			initialDelay = NONE_DELAY;
@@ -289,14 +289,14 @@ public class BattleUnit extends BattleData{
 		}, initialDelay, TIMER_INTERVAL, TimeUnit.MILLISECONDS);
 	}
 	
-	private void reset(BattleData target) {
+	void reset(BattleData target) {
 		nowHP = defaultUnitStatus.get(0);
 		individualReset(target);
 		otherWeapon.individualReset(target);
 		clearBlock();
 	}
 	
-	private void individualReset(BattleData target) {
+	void individualReset(BattleData target) {
 		canActivate = false;
 		positionX = initialPosition.x;
 		positionY = initialPosition.y;

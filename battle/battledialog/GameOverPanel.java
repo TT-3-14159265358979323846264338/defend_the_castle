@@ -14,11 +14,12 @@ import javax.swing.JPanel;
 class GameOverPanel extends JPanel{
 	private JButton OKButton = new JButton();
 	
-	protected GameOverPanel(PauseDialog PauseDialog) {
+	GameOverPanel(PauseDialog PauseDialog) {
 		setBackground(new Color(240, 170, 80));
 		addOKButton(PauseDialog);
 	}
 	
+	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		setOKButton();
@@ -26,7 +27,7 @@ class GameOverPanel extends JPanel{
 		requestFocus();
 	}
 	
-	private void addOKButton(PauseDialog PauseDialog) {
+	void addOKButton(PauseDialog PauseDialog) {
 		add(OKButton);
 		OKButton.addActionListener(e->{
 			PauseDialog.disposeDialog();
@@ -34,12 +35,12 @@ class GameOverPanel extends JPanel{
 		OKButton.setText("OK");
 	}
 	
-	private void setOKButton() {
+	void setOKButton() {
 		OKButton.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
 		OKButton.setBounds(200, 320, 150, 60);
 	}
 	
-	private void gameOverComment(Graphics g) {
+	void gameOverComment(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
 		Font endFont = new Font("Aria", Font.BOLD|Font.ITALIC, 150);
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

@@ -45,7 +45,7 @@ public class PauseDialog extends JDialog implements WindowListener{
 		setVisible(true);
 	}
 	
-	private void setDialog(Battle Battle) {
+	void setDialog(Battle Battle) {
 		this.Battle = Battle;
 		addWindowListener(this);
 		setModalityType(ModalityType.APPLICATION_MODAL);
@@ -53,7 +53,7 @@ public class PauseDialog extends JDialog implements WindowListener{
 		setResizable(false);
 	}
 	
-	protected void disposeDialog() {
+	void disposeDialog() {
 		dispose();
 	}
 

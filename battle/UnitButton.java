@@ -15,6 +15,7 @@ class UnitButton extends JButton{
 		setContentAreaFilled(false);
 	}
 	
+	@Override
 	protected void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D)g;
 		if(getModel().isArmed()) {
@@ -26,6 +27,7 @@ class UnitButton extends JButton{
 		super.paintComponent(g2);
 	}
 	
+	@Override
 	protected void paintBorder(Graphics g) {
 		g.drawOval(0, 0, getSize().width, getSize().height);
 	}

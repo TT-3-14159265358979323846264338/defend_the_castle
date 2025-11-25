@@ -44,7 +44,7 @@ public class BattleEnemy extends BattleData{
 	private ScheduledFuture<?> resuscitationFuture;
 	private long beforeResuscitationTime;
 	
-	protected BattleEnemy(Battle Battle, StageData StageData, int number, double difficultyCorrection, ScheduledExecutorService scheduler) {
+	BattleEnemy(Battle Battle, StageData StageData, int number, double difficultyCorrection, ScheduledExecutorService scheduler) {
 		this.Battle = Battle;
 		EnemyData EnemyData = DefaultEnemy.DATA_MAP.get(StageData.getEnemy().get(number).get(0));
 		name = EnemyData.getName();
@@ -68,14 +68,14 @@ public class BattleEnemy extends BattleData{
 		super.initialize(scheduler);
 	}
 	
-	private List<Integer> weaponStatus(EnemyData EnemyData, double difficultyCorrection){
+	List<Integer> weaponStatus(EnemyData EnemyData, double difficultyCorrection){
 		final int ATACK = (int) Buff.ATACK;
 		List<Integer> defaultStatus = EnemyData.getWeaponStatus();
 		defaultStatus.set(ATACK, defaultStatus(defaultStatus.get(ATACK), difficultyCorrection));
 		return defaultStatus.stream().toList();
 	}
 	
-	private List<Integer> unitStatus(EnemyData EnemyData, double difficultyCorrection){
+	List<Integer> unitStatus(EnemyData EnemyData, double difficultyCorrection){
 		final int DEFENCE = (int) Buff.DEFENCE - 10;
 		final int HEAL = (int) Buff.HEAL - 10;
 		List<Integer> defaultStatus = EnemyData.getUnitStatus();
@@ -84,11 +84,11 @@ public class BattleEnemy extends BattleData{
 		return defaultStatus.stream().toList();
 	}
 	
-	private int defaultStatus(int status, double difficultyCorrection) {
+	int defaultStatus(int status, double difficultyCorrection) {
 		return (int) (status * difficultyCorrection);
 	}
 	
-	protected void install(GameData GameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
+	void install(GameData GameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
 		this.GameData = GameData;
 		allyData = Stream.of(enemyData).toList();
 		this.enemyData = Stream.concat(Stream.of(facilityData), Stream.of(unitMainData)).toList();
@@ -101,7 +101,7 @@ public class BattleEnemy extends BattleData{
 		reset();
 	}
 	
-	private void reset() {
+	void reset() {
 		routeNumber = 0;
 		pauseCount = 0;
 		nowHP = defaultUnitStatus.get(1);
@@ -118,7 +118,7 @@ public class BattleEnemy extends BattleData{
 		return type;
 	}
 	
-	private void moveTimer() {
+	void moveTimer() {
 		if(getMoveSpeedOrBlock() <= 0) {
 			eternalStop();
 			return;
@@ -126,7 +126,7 @@ public class BattleEnemy extends BattleData{
 		constantMove(NONE_DELAY);
 	}
 	
-	private void eternalStop() {
+	void eternalStop() {
 		moveFuture = scheduler.scheduleAtFixedRate(() -> {
 			if(activateTime <= Battle.getMainTime()) {
 				canActivate = true;
@@ -138,7 +138,7 @@ public class BattleEnemy extends BattleData{
 		}, 0, 10, TimeUnit.MILLISECONDS);
 	}
 	
-	private void constantMove(long stopTime) {
+	void constantMove(long stopTime) {
 		int nowSpeed = getMoveSpeedOrBlock();
 		double delay = MOVE_DISTANCE * 1000000.0 / nowSpeed;
 		double initialDelay;
@@ -182,7 +182,7 @@ public class BattleEnemy extends BattleData{
 		}, (int) initialDelay, (int) delay, TimeUnit.MICROSECONDS);
 	}
 	
-	private BattleData blockTarget() {
+	BattleData blockTarget() {
 		List<BattleData> nearList = enemyData.stream().filter(i -> i.canActivate()).filter(this::existsInside).toList();
 		if(nearList.isEmpty()) {
 			return null;
@@ -198,11 +198,11 @@ public class BattleEnemy extends BattleData{
 		return null;
 	}
 	
-	private boolean existsInside(BattleData BattleData) {
+	boolean existsInside(BattleData BattleData) {
 		return Math.sqrt(Math.pow(positionX - BattleData.getPositionX(), 2) + Math.pow(positionY - BattleData.getPositionY(), 2)) <= battle.Battle.SIZE;
 	}
 	
-	private void blockWait(BattleData blockTarget) {
+	void blockWait(BattleData blockTarget) {
 		synchronized (blockWait) {
 			try {
 				if(blockTarget.canActivate()) {
@@ -214,13 +214,13 @@ public class BattleEnemy extends BattleData{
 		}
 	}
 	
-	protected void releaseBlock() {
+	void releaseBlock() {
 		synchronized (blockWait) {
 			blockWait.notifyAll();
 		}
 	}
 	
-	private void move() {
+	void move() {
 		if(0 < route.get(routeNumber).get(3)) {
 			pauseCount++;
 			return;
@@ -230,7 +230,7 @@ public class BattleEnemy extends BattleData{
 		positionY += MOVE_DISTANCE * Math.sin(radian);
 	}
 	
-	private void routeChange() {
+	void routeChange() {
 		//描写停止中の時は指定の描写回数になったら描写を開始する
 		//deactivateCountは独立制御(描写停止中に、移動も停止もできる)
 		if(0 < deactivateCount) {
@@ -263,7 +263,7 @@ public class BattleEnemy extends BattleData{
 		}
 	}
 	
-	private void activate() {
+	void activate() {
 		if(!canActivate) {
 			deactivateCount = 0;
 			canActivate = true;
@@ -273,7 +273,7 @@ public class BattleEnemy extends BattleData{
 		}
 	}
 	
-	private void deactivate(){
+	void deactivate(){
 		if(0 < route.get(routeNumber).get(4)) {
 			deactivateCount++;
 			canActivate = false;
@@ -325,7 +325,7 @@ public class BattleEnemy extends BattleData{
 		resurrection(NONE_DELAY);
 	}
 	
-	private void resurrection(long stopTime) {
+	void resurrection(long stopTime) {
 		if(resurrectionCount == 0) {
 			return;
 		}

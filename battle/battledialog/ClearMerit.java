@@ -35,7 +35,7 @@ class ClearMerit extends JPanel{
 	private JLabel[] clearLabel;
 	private Font clearFont = new Font("Arail", Font.BOLD, 30);
 	
-	protected ClearMerit(StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
+	ClearMerit(StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
 		thisClearList = StageData.canClearMerit(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
 		beforeSet(StageData);
 		updateClearData(StageData);
@@ -43,12 +43,13 @@ class ClearMerit extends JPanel{
 		afterSet();
 	}
 	
-	protected ClearMerit(StageData StageData) {
+	ClearMerit(StageData StageData) {
 		beforeSet(StageData);
 		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
 		afterSet();
 	}
 	
+	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		IntStream.range(0, meritLabel.length).forEach(i -> setLabel(i));
@@ -57,7 +58,7 @@ class ClearMerit extends JPanel{
 		IntStream.range(0, meritLabel.length).forEach(i -> g.drawLine(0, 70 * i, 500, 70 * i));
 	}
 	
-	private void beforeSet(StageData StageData) {
+	void beforeSet(StageData StageData) {
 		stageNumber = DefaultStage.STAGE_DATA.indexOf(StageData);
 		SaveGameProgress.load();
 		meritLabel = IntStream.range(0, StageData.getMerit().size()).mapToObj(i -> new JLabel(meritComment(i, StageData))).toArray(JLabel[]::new);
@@ -65,12 +66,12 @@ class ClearMerit extends JPanel{
 		completeLabel =  IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel(completeComment(i))).toArray(JLabel[]::new);
 	}
 	
-	private void afterSet() {
+	void afterSet() {
 		IntStream.range(0, meritLabel.length).forEach(i -> addLabel(i));
 		setPreferredSize(new Dimension(200, 70 * meritLabel.length));
 	}
 	
-	private void updateClearData(StageData StageData) {
+	void updateClearData(StageData StageData) {
 		List<Boolean> clearStatus = SaveGameProgress.getClearStatus();
 		List<List<Boolean>> meritStatus = SaveGameProgress.getMeritStatus();
 		List<Boolean> newClearList = new ArrayList<>();
@@ -89,7 +90,7 @@ class ClearMerit extends JPanel{
 		StageData.giveClearReward(newClearList);
 	}
 	
-	private String meritComment(int number, StageData StageData) {
+	String meritComment(int number, StageData StageData) {
 		String comment = StageData.getMerit().get(number);
 		int lastPosition = 0;
 		List<Integer> wrapPosition = new ArrayList<>();
@@ -107,51 +108,51 @@ class ClearMerit extends JPanel{
 		return wrapComment.insert(0, "<html>").toString();
 	}
 	
-	private String completeComment(int number) {
+	String completeComment(int number) {
 		return hasCleared(number)? "済": "";
 	}
 	
-	private boolean hasCleared(int number) {
+	boolean hasCleared(int number) {
 		return SaveGameProgress.getMeritStatus().get(stageNumber).get(number);
 	}
 	
-	private String clearComment(int number) {
+	String clearComment(int number) {
 		return thisClearList.get(number)? "clear": "";
 	}
 	
-	private void addLabel(int number) {
+	void addLabel(int number) {
 		addMeritLabel(number);
 		addRewardLabel(number);
 		addCompleteLabel(number);
 		addClearLabel(number);
 	}
 	
-	private void addMeritLabel(int number) {
+	void addMeritLabel(int number) {
 		add(meritLabel[number]);
 		meritLabel[number].setFont(meritFont);
 	}
 	
-	private void addRewardLabel(int number) {
+	void addRewardLabel(int number) {
 		add(rewardLabel[number]);
 		rewardLabel[number].setFont(rewardFont);
 		rewardLabel[number].setHorizontalAlignment(JLabel.CENTER);
 	}
 	
-	private void addCompleteLabel(int number) {
+	void addCompleteLabel(int number) {
 		add(completeLabel[number]);
 		completeLabel[number].setHorizontalAlignment(JLabel.CENTER);
 		completeLabel[number].setForeground(Color.GRAY);
 		completeLabel[number].setFont(completeFont);
 	}
 	
-	private void addClearLabel(int number) {
+	void addClearLabel(int number) {
 		add(clearLabel[number]);
 		clearLabel[number].setHorizontalAlignment(JLabel.CENTER);
 		clearLabel[number].setForeground(Color.RED);
 		clearLabel[number].setFont(clearFont);
 	}
 	
-	private void setLabel(int number) {
+	void setLabel(int number) {
 		meritLabel[number].setBounds(5, number * 70, 400, 70);
 		rewardLabel[number].setBounds(290, number * 70, 100, 70);
 		completeLabel[number].setBounds(290, number * 70, 100, 70);

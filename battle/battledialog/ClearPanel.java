@@ -22,12 +22,13 @@ class ClearPanel extends JPanel{
 	private JButton OKButton = new JButton();
 	private JScrollPane meritScroll = new JScrollPane();
 	
-	protected ClearPanel(PauseDialog PauseDialog, StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
+	ClearPanel(PauseDialog PauseDialog, StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
 		setBackground(new Color(240, 170, 80));
 		addOKButton(PauseDialog);
 		addMeritScroll(StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
 	}
 	
+	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		setOKButton();
@@ -36,7 +37,7 @@ class ClearPanel extends JPanel{
 		requestFocus();
 	}
 	
-	private void addOKButton(PauseDialog PauseDialog) {
+	void addOKButton(PauseDialog PauseDialog) {
 		add(OKButton);
 		OKButton.addActionListener(e->{
 			PauseDialog.disposeDialog();
@@ -44,22 +45,22 @@ class ClearPanel extends JPanel{
 		OKButton.setText("OK");
 	}
 	
-	private void setOKButton() {
+	void setOKButton() {
 		OKButton.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
 		OKButton.setBounds(240, 320, 150, 60);
 	}
 	
-	private void addMeritScroll(StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
+	void addMeritScroll(StageData StageData, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
 		meritScroll.getViewport().setView(new ClearMerit(StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection));
 		add(meritScroll);
 	}
 	
-	private void setMeritScroll() {
+	void setMeritScroll() {
 		meritScroll.setBounds(50, 170, 530, 140);
 		meritScroll.setPreferredSize(meritScroll.getSize());
 	}
 	
-	private void clearComment(Graphics g) {
+	void clearComment(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
 		Font endFont = new Font("Aria", Font.BOLD|Font.ITALIC, 150);
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

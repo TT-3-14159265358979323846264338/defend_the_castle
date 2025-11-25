@@ -109,6 +109,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		clearTimer(MainFrame, difficultyCorrection);
 	}
 	
+	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		rangeDrawButton.setBounds(0, 0, 95, 40);
@@ -139,7 +140,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		g.drawString(time / 1000 + "s", 980, 30);
 	}
 	
-	private void install(double difficultyCorrection) {
+	void install(double difficultyCorrection) {
 		GameData = new GameData(StageData);
 		stageImage = StageData.getImage(IMAGE_RATIO);
 		placementList = StageData.getPlacementPoint();
@@ -157,21 +158,21 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		awakeLabel = IntStream.range(0, UnitMainData.length).mapToObj(i -> new AwakeLabel()).toArray(JLabel[]::new);
 	}
 	
-	private void addCostLabel() {
+	void addCostLabel() {
 		add(costLabel);
 		costLabel.setBackground(Color.WHITE);
 		costLabel.setOpaque(true);
 		costLabel.setHorizontalAlignment(JLabel.CENTER);
 	}
 	
-	private void addRangeDrawButton() {
+	void addRangeDrawButton() {
 		add(rangeDrawButton);
 		rangeDrawButton.addActionListener(e->{
 			canRangeDraw = canRangeDraw? false: true;
 		});
 	}
 	
-	private void addAutoAwakeningButton() {
+	void addAutoAwakeningButton() {
 		add(autoAwakeningButton);
 		autoAwakeningButton.addActionListener(e->{
 			canAutoAwake = canAutoAwake? false: true;
@@ -183,7 +184,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		});
 	}
 	
-	private void autoAwake(long stopTime) {
+	void autoAwake(long stopTime) {
 		int delay = 100;
 		long initialDelay;
 		if(stopTime == NONE_DELAY) {
@@ -198,7 +199,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		}, initialDelay, delay, TimeUnit.MILLISECONDS);
 	}
 	
-	private void addStageReturnButton(MainFrame MainFrame, double difficultyCorrection) {
+	void addStageReturnButton(MainFrame MainFrame, double difficultyCorrection) {
 		add(stageReturnButton);
 		stageReturnButton.addActionListener(e->{
 			timerStop();
@@ -206,33 +207,33 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		});
 	}
 	
-	private void setCostLabel() {
+	void setCostLabel() {
 		costLabel.setText("コスト: " + GameData.getCost());
 		costLabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
 		costLabel.setBounds(1010, 15, 200, 30);
 	}
 	
-	private void setMenuButton(JButton button, String name, int x, int y, int width, int height) {
+	void setMenuButton(JButton button, String name, int x, int y, int width, int height) {
 		button.setText(name);
 		button.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 12));
 		button.setBounds(x, y, width, height);
 	}
 	
-	private void setUnitButton(JButton button, String name, int x, int y) {
+	void setUnitButton(JButton button, String name, int x, int y) {
 		button.setText(name);
 		button.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 10));
 		button.setLocation(x, y);
 	}
 	
-	private int initialX(int i) {
+	int initialX(int i) {
 		return 1015 + i % 2 * 100;
 	}
 	
-	private int initialY(int i) {
+	int initialY(int i) {
 		return 55 + i / 2 * 100;
 	}
 	
-	private void drawField(Graphics g) {
+	void drawField(Graphics g) {
 		g.drawImage(stageImage, 0, 0, this);
 		canUsePlacement = StageData.canUsePlacement(this, EnemyData);
 		IntStream.range(0, placementList.size()).forEach(i -> IntStream.range(0, placementList.get(i).size())
@@ -249,7 +250,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		});
 	}
 	
-	private void drawEnemy(Graphics g) {
+	void drawEnemy(Graphics g) {
 		IntStream.range(0, EnemyData.length).filter(i -> EnemyData[i].canActivate()).boxed().sorted(Comparator.reverseOrder()).forEach(i -> {
 			if(canRangeDraw) {
 				rangeDraw(g, rangeRed, EnemyData[i].getPositionX(), EnemyData[i].getPositionY(), EnemyData[i].getRange());
@@ -259,7 +260,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		});
 	}
 	
-	private void drawBackground(Graphics g) {
+	void drawBackground(Graphics g) {
 		IntStream.range(0, 8).forEach(i -> {
 			switch(UnitMainData[i].getType()) {
 			case DefaultUnit.NEAR:
@@ -285,11 +286,11 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		IntStream.range(0, 5).forEach(i -> g.drawLine(1010, 50 + i * 100, 1210, 50 + i * 100));
 	}
 	
-	private void drawSkill(Graphics g) {
+	void drawSkill(Graphics g) {
 		Stream.of(UnitMainData).filter(i -> i.canActivate() && i.canPossessSkill()).forEach(i -> skill(g, i));
 	}
 	
-	private void skill(Graphics g, BattleUnit BattleUnit) {
+	void skill(Graphics g, BattleUnit BattleUnit) {
 		int x = BattleUnit.getInitialPosition().x;
 		int y = BattleUnit.getInitialPosition().y;
 		if(BattleUnit.canRecast()) {
@@ -306,7 +307,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		g2.fill(new Arc2D.Double(x, y, 90, 90, 90, 360 * BattleUnit.recastRatio(), Arc2D.PIE));
 	}
 	
-	private void drawUnit(Graphics g) {
+	void drawUnit(Graphics g) {
 		IntStream.range(0, UnitMainData.length).forEach(i -> {
 			if(UnitMainData[i].canActivate() && canRangeDraw) {
 				rangeDraw(g, rangeRed, UnitMainData[i].getPositionX(), UnitMainData[i].getPositionY(), UnitMainData[i].getRange());
@@ -327,7 +328,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		});
 	}
 	
-	private void drawRelocation(Graphics g, BattleUnit BattleUnit) {
+	void drawRelocation(Graphics g, BattleUnit BattleUnit) {
 		int x = BattleUnit.getPositionX();
 		int y = BattleUnit.getPositionY();
 		Graphics2D g2 = (Graphics2D)g;
@@ -337,7 +338,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		g2.fill(new Arc2D.Double(x, y, 90, 90, 90, 360 * BattleUnit.locationRatio(), Arc2D.PIE));
 	}
 	
-	private void drawAwakenable() {
+	void drawAwakenable() {
 		IntStream.range(0, UnitMainData.length).forEach(i -> {
 			remove(awakeLabel[i]);
 			if(canAwake(i)) {
@@ -347,7 +348,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		});
 	}
 	
-	private void drawAwake(Graphics g) {
+	void drawAwake(Graphics g) {
 		if(canAwake) {
 			int x = awakeUnit.getPositionX();
 			int y = awakeUnit.getPositionY();
@@ -359,18 +360,18 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		}
 	}
 	
-	private void drawBullet(Graphics g) {
+	void drawBullet(Graphics g) {
 		drawBullet(g, UnitMainData);
 		drawBullet(g, UnitLeftData);
 		drawBullet(g, FacilityData);
 		drawBullet(g, EnemyData);
 	}
 	
-	private void drawBullet(Graphics g, BattleData[] BattleData) {
+	void drawBullet(Graphics g, BattleData[] BattleData) {
 		Stream.of(BattleData).filter(i -> i.canAtack()).forEach(i -> i.getBulletList().stream().forEach(j -> g.drawImage(j.getImage(), j.getPsitionX(), j.getPsitionY(), this)));
 	}
 	
-	private void drawSelectUnit(Graphics g) {
+	void drawSelectUnit(Graphics g) {
 		if(canSelect) {
 			int x = mouse.x - 45;
 			int y = mouse.y - 45;
@@ -382,13 +383,13 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		}
 	}
 	
-	private void rangeDraw(Graphics g, Color color, int x, int y, int range) {
+	void rangeDraw(Graphics g, Color color, int x, int y, int range) {
 		int correction = 45;
 		g.setColor(color);
 		g.fillOval(x + correction - range, y + correction - range, range * 2, range * 2);
 	}
 	
-	private void drawHP(Graphics g, BattleData BattleData, Color color) {
+	void drawHP(Graphics g, BattleData BattleData, Color color) {
 		int x = BattleData.getPositionX() + 30;
 		int y = BattleData.getPositionY() + 60;
 		int height = 5;
@@ -400,7 +401,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		g.drawRect(x, y, SIZE, height);
 	}
 	
-	private void drawMorale(Graphics g) {
+	void drawMorale(Graphics g) {
 		g.setColor(Color.BLUE);
 		g.fillRect(25, 525, 950, 30);
 		int moralePosition = 475 + GameData.getMoraleDifference() * 2;
@@ -497,7 +498,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	public void mouseExited(MouseEvent e) {
 	}
 	
-	private int clickPointCheck(MouseEvent e, BattleData[] data) {
+	int clickPointCheck(MouseEvent e, BattleData[] data) {
 		for(int i = 0; i < data.length; i++) {
 			int x = data[i].getPositionX() + 30;
 			int y = data[i].getPositionY() + 30;
@@ -509,7 +510,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		return -1;
 	}
 	
-	private boolean canActivateSkill(MouseEvent e) {
+	boolean canActivateSkill(MouseEvent e) {
 		for(int i = 0; i < UnitMainData.length; i++) {
 			if(!UnitMainData[i].canActivate() || !UnitMainData[i].canPossessSkill() || !UnitMainData[i].canRecast()) {
 				continue;
@@ -525,7 +526,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		return false;
 	}
 	
-	private void unitMenu(int number) {
+	void unitMenu(int number) {
 		deactivateAction();
 		timerStop();
 		selectUnit = UnitMainData[number];
@@ -535,7 +536,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		addUnitReturnButton();
 	}
 	
-	private void addStatusButton(int number) {
+	void addStatusButton(int number) {
 		add(statusButton);
 		statusButton.addActionListener(e->{
 			actionInitialize();
@@ -544,7 +545,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		});
 	}
 	
-	private void addRetreatButton(int number) {
+	void addRetreatButton(int number) {
 		add(retreatButton);
 		retreatButton.addActionListener(e->{
 			actionInitialize();
@@ -554,7 +555,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		});
 	}
 	
-	private void addAwakeningButton(int number) {
+	void addAwakeningButton(int number) {
 		if(canAwake(number)) {
 			add(awakeningButton);
 			awakeningButton.addActionListener(e->{
@@ -565,11 +566,11 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		}
 	}
 	
-	private boolean canAwake(int number) {
+	boolean canAwake(int number) {
 		return UnitMainData[number].canAwake() && AWAKE_COST <= GameData.getCost();
 	}
 	
-	private void awake(int number) {
+	void awake(int number) {
 		synchronized(awakeLock) {
 			if(canAwake(number)) {
 				awakeUnit = UnitMainData[number];
@@ -583,7 +584,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		}
 	}
 	
-	private void addUnitReturnButton() {
+	void addUnitReturnButton() {
 		add(unitReturnButton);
 		unitReturnButton.addActionListener(e->{
 			actionInitialize();
@@ -591,12 +592,12 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		});
 	}
 	
-	private void actionInitialize() {
+	void actionInitialize() {
 		removeMenu();
 		activateAction();
 	}
 	
-	private void removeMenu() {
+	void removeMenu() {
 		Consumer<JButton> removeButton = (button) -> {
 			remove(button);
 			Stream.of(button.getActionListeners()).forEach(i -> button.removeActionListener(i));
@@ -607,7 +608,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		removeButton.accept(unitReturnButton);
 	}
 	
-	private void activateAction() {
+	void activateAction() {
 		stageReturnButton.setEnabled(true);
 		if(getMouseListeners().length == 0) {
 			addMouseListener(this);
@@ -615,31 +616,31 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		}
 	}
 	
-	private void deactivateAction() {
+	void deactivateAction() {
 		stageReturnButton.setEnabled(false);
 		removeMouseListener(this);
 		removeMouseMotionListener(this);
 	}
 	
-	private void unitStatus(int number) {
+	void unitStatus(int number) {
 		timerStop();
 		new DisplayStatus().unit(UnitMainData[number], UnitLeftData[number]);
 		timerRestart();
 	}
 	
-	private void facilityStatus(int number) {
+	void facilityStatus(int number) {
 		timerStop();
 		new DisplayStatus().facility(FacilityData[number]);
 		timerRestart();
 	}
 	
-	private void enemyStatus(int number) {
+	void enemyStatus(int number) {
 		timerStop();
 		new DisplayStatus().enemy(EnemyData[number]);
 		timerRestart();
 	}
 	
-	private void placeUnit(int placementCode) {
+	void placeUnit(int placementCode) {
 		Function<Double, Integer> correctPosition = (position) -> {
 			return position.intValue() - SIZE;
 		};
@@ -661,7 +662,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	//メインタイマー制御
-	private void mainTimer(long stopTime) {
+	void mainTimer(long stopTime) {
 		int delay = 10;
 		long initialDelay;
 		if(stopTime == NONE_DELAY) {
@@ -679,7 +680,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		}, initialDelay, delay, TimeUnit.MILLISECONDS);
 	}
 	
-	private void timerStop() {
+	void timerStop() {
 		canStop = true;
 		mainFuture.cancel(true);
 		long mainTime = System.currentTimeMillis();
@@ -695,7 +696,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		Stream.of(EnemyData).forEach(i -> i.futureStop());
 	}
 	
-	protected synchronized void timerWait() {
+	synchronized void timerWait() {
 		if(!canStop) {
 			return;
 		}
@@ -711,12 +712,12 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		notifyAll();
 	}
 	
-	protected int getMainTime() {
+	int getMainTime() {
 		return time;
 	}
 	
 	//ゲーム状態監視
-	private void clearTimer(MainFrame MainFrame, double difficultyCorrection) {
+	void clearTimer(MainFrame MainFrame, double difficultyCorrection) {
 		scheduler.scheduleAtFixedRate(() -> {
 			if(StageData.canClear(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData)) {
 				gameEnd();

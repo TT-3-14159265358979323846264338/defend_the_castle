@@ -71,13 +71,13 @@ public class BattleData{
 	private ScheduledFuture<?> healFuture;
 	private long beforeHealTime;
 	
-	protected void initialize(ScheduledExecutorService scheduler) {
+	void initialize(ScheduledExecutorService scheduler) {
 		leftActionImage = rightActionImage.stream().map(i -> EditImage.mirrorImage(i)).toList();
 		nowHP = defaultUnitStatus.get(1);
 		this.scheduler = scheduler;
 	}
 	
-	protected void futureStop() {
+	void futureStop() {
 		if(atackFuture != null && !atackFuture.isCancelled() && !canAtack) {
 			atackFuture.cancel(true);
 			long atackTime = System.currentTimeMillis();
@@ -103,7 +103,7 @@ public class BattleData{
 	}
 	
 	//画像管理
-	protected BufferedImage getActionImage(){
+	BufferedImage getActionImage(){
 		return existsRight? rightActionImage.get(motionNumber): leftActionImage.get(motionNumber);
 	}
 	
@@ -111,11 +111,11 @@ public class BattleData{
 		return rightActionImage.get(0);
 	}
 	
-	protected List<Bullet> getBulletList(){
+	List<Bullet> getBulletList(){
 		return bulletList;
 	}
 	
-	protected boolean canAtack() {
+	boolean canAtack() {
 		return canAtack;
 	}
 	
@@ -124,7 +124,7 @@ public class BattleData{
 	}
 	
 	//攻撃・回復処理
-	protected void atackTimer(long stopTime) {
+	void atackTimer(long stopTime) {
 		if(defaultWeaponStatus.get((int) Buff.ATACK) <= 0) {
 			return;
 		}
@@ -151,7 +151,7 @@ public class BattleData{
 		}, initialDelay, TimeUnit.MILLISECONDS);
 	}
 	
-	private List<BattleData> targetCheck() {
+	List<BattleData> targetCheck() {
 		List<BattleData> targetList = AtackPattern.getTarget();
 		do {
 			try {
@@ -170,12 +170,12 @@ public class BattleData{
 		return targetList;
 	}
 	
-	private void modeChange() {
+	void modeChange() {
 		canAtack = true;
 		existsRight = (targetList.get(0).getPositionX() <= positionX)? true: false;
 	}
 	
-	private void motionTimer(long stopTime) {
+	void motionTimer(long stopTime) {
 		int delay = 1000 * getAtackSpeed() / 50;
 		long initialDelay;
 		if(stopTime == NONE_DELAY) {
@@ -197,14 +197,14 @@ public class BattleData{
 		}, initialDelay, delay, TimeUnit.MICROSECONDS);
 	}
 	
-	private void atackProcess(){
+	void atackProcess(){
 		bulletList.get(0).waitCompletion();
 		targetList.stream().forEach(this::result);
 		timerRestart();
 		atackTimer(NONE_DELAY);
 	}
 	
-	protected synchronized void atackWait() {
+	synchronized void atackWait() {
 		try {
 			if(canAtack) {
 				wait();
@@ -214,13 +214,13 @@ public class BattleData{
 		}
 	}
 	
-	private synchronized void timerRestart() {
+	synchronized void timerRestart() {
 		bulletList = Arrays.asList();
 		canAtack = false;
 		notifyAll();
 	}
 	
-	private void result(BattleData target) {
+	void result(BattleData target) {
 		activateBuff(Buff.HIT, target);
 		target.activateBuff(Buff.DAMAGE, this);
 		if(element.stream().anyMatch(i -> i == DefaultUnit.SUPPORT)) {
@@ -230,23 +230,23 @@ public class BattleData{
 		damage(target);
 	}
 	
-	private void heal(BattleData target) {
+	void heal(BattleData target) {
 		target.HPIncrease(healValue());
 	}
 	
-	private int healValue() {
+	int healValue() {
 		double baseHeal = ((double) getAtack() * (100 + getCut(Buff.SUPPORT)) / 100) * (100 + moraleCorrection()) / 100;
 		return (int) baseHeal;
 	}
 	
-	private void damage(BattleData target) {
+	void damage(BattleData target) {
 		if(getAtack() == 0 && target.getDefense() == 0) {
 			return;
 		}
 		target.HPDecrease(damageValue(target), this);
 	}
 	
-	private int damageValue(BattleData target) {
+	int damageValue(BattleData target) {
 		double baseDamage = (Math.pow(getAtack(), 2) / (getAtack() + target.getDefense())) * (100 + moraleCorrection()) / 100;
 		double cutRatio = element.stream().mapToInt(i -> target.getCut(i + 100)).sum() / element.size();
 		if(100 <= cutRatio) {
@@ -260,7 +260,7 @@ public class BattleData{
 		return 0;
 	}
 	
-	protected void HPIncrease(int increase) {
+	void HPIncrease(int increase) {
 		synchronized(HPLock) {
 			if(nowHP <= 0) {
 				return;
@@ -272,7 +272,7 @@ public class BattleData{
 		}
 	}
 	
-	private void HPDecrease(int decrease, BattleData atackUnit) {
+	void HPDecrease(int decrease, BattleData atackUnit) {
 		synchronized(HPLock) {
 			nowHP -= decrease;
 			hitedCount++;
@@ -297,7 +297,7 @@ public class BattleData{
 		//BattleUnitのみ@Overrideで記載
 	}
 	
-	protected void healTimer(long stopTime) {
+	void healTimer(long stopTime) {
 		int delay = 5000;
 		long initialDelay;
 		if(stopTime == NONE_DELAY) {
@@ -317,11 +317,11 @@ public class BattleData{
 	}
 	
 	//バフ管理
-	protected void activateBuff(double timingCode, BattleData target){
+	void activateBuff(double timingCode, BattleData target){
 		generatedBuff.stream().filter(i -> i.getBuffTiming() == timingCode).forEach(i -> i.buffStart(target));
 	}
 	
-	protected void activateSkillBuff() {
+	void activateSkillBuff() {
 		List<Buff> buff = generatedBuff.stream().filter(i -> i.getBuffTiming() == Buff.SKILL).filter(this::canPossessCost).toList();
 		if(buff.size() == 0) {
 			return;
@@ -330,21 +330,21 @@ public class BattleData{
 		GameData.consumeCost(skillCost());
 	}
 	
-	protected int skillCost() {
+	int skillCost() {
 		return generatedBuff.stream().mapToInt(i -> i.getCost()).max().getAsInt();
 	}
 	
-	private boolean canPossessCost(Buff Buff) {
+	boolean canPossessCost(Buff Buff) {
 		return Buff.getCost() <= GameData.getCost();
 	}
 	
-	protected void receiveBuff(Buff Buff) {
+	void receiveBuff(Buff Buff) {
 		synchronized(buffLock) {
 			receivedBuff.add(Buff);
 		}
 	}
 	
-	protected void removeBuff(Buff Buff) {
+	void removeBuff(Buff Buff) {
 		synchronized(buffLock) {
 			receivedBuff.remove(Buff);
 		}
@@ -355,7 +355,7 @@ public class BattleData{
 		return totalAdditionalBuff(0, statusCode, this);
 	}
 	
-	protected double totalAdditionalBuff(double buff, double statusCode, BattleData BattleData) {
+	double totalAdditionalBuff(double buff, double statusCode, BattleData BattleData) {
 		for(Buff i: BattleData.receivedBuff){
 			if(i.getBuffStatusCode() == statusCode) {
 				buff = i.additionalEffect(BattleData, buff);
@@ -369,7 +369,7 @@ public class BattleData{
 		return totalRatioBuff(1, statusCode, this);
 	}
 	
-	protected double totalRatioBuff(double buff, double statusCode, BattleData BattleData) {
+	double totalRatioBuff(double buff, double statusCode, BattleData BattleData) {
 		for(Buff i: BattleData.receivedBuff){
 			if(i.getBuffStatusCode() == statusCode) {
 				buff = i.ratioEffect(BattleData, buff);
@@ -383,29 +383,29 @@ public class BattleData{
 		return getRange();
 	}
 	
-	protected void HPBuff(double buffValue) {
+	void HPBuff(double buffValue) {
 		HPIncrease((int) buffValue);
 	}
 	
 	//ブロック管理
-	protected void addBlock(BattleEnemy BattleEnemy) {
+	void addBlock(BattleEnemy BattleEnemy) {
 		synchronized(blockLock) {
 			block.add(BattleEnemy);
 		}
 	}
 	
-	private void removeBlock(BattleEnemy BattleEnemy) {
+	void removeBlock(BattleEnemy BattleEnemy) {
 		synchronized(blockLock) {
 			block.remove(BattleEnemy);
 		}
 	}
 	
-	protected void releaseBlock(BattleEnemy BattleEnemy) {
+	void releaseBlock(BattleEnemy BattleEnemy) {
 		enemyData.stream().forEach(i -> i.removeBlock(BattleEnemy));
 		BattleEnemy.releaseBlock();
 	}
 	
-	protected void clearBlock() {
+	void clearBlock() {
 		synchronized(blockLock) {
 			block.stream().forEach(i -> i.releaseBlock());
 			block.clear();
@@ -437,7 +437,7 @@ public class BattleData{
 		return AtackPattern;
 	}
 	
-	private int getAtack() {
+	int getAtack() {
 		if(defaultWeaponStatus.get((int) Buff.ATACK) == 0) {
 			return 0;
 		}
@@ -456,7 +456,7 @@ public class BattleData{
 		return range;
 	}
 	
-	private int getAtackSpeed() {
+	int getAtackSpeed() {
 		int atackSpeed = statusControl(Buff.ATACK_SPEED);
 		if(atackSpeed <= GUARANTEE_ATACK_SPEED) {
 			return GUARANTEE_ATACK_SPEED;
@@ -489,7 +489,7 @@ public class BattleData{
 		return nowHP;
 	}
 	
-	private int getDefense() {
+	int getDefense() {
 		int defence = (int) (statusControl(Buff.DEFENCE) * awakeningCorrection());
 		if(defence <= 0) {
 			return 0;
@@ -497,7 +497,7 @@ public class BattleData{
 		return defence;
 	}
 	
-	private int getRecover() {
+	int getRecover() {
 		int recover = statusControl(Buff.HEAL);
 		if(recover <= 0) {
 			return 0;
@@ -505,11 +505,11 @@ public class BattleData{
 		return recover;
 	}
 	
-	protected int getMoveSpeedOrBlock() {
+	int getMoveSpeedOrBlock() {
 		return statusControl(Buff.MOVE_SPEED_OR_BLOCK);
 	}
 	
-	protected int getCost() {
+	int getCost() {
 		int cost = statusControl(Buff.COST);
 		if(cost <= 0) {
 			return 0;
@@ -528,7 +528,7 @@ public class BattleData{
 		return status;
 	}
 	
-	private int getCut(double number) {
+	int getCut(double number) {
 		int cut = statusControl(number);
 		if(cut <= 0) {
 			return 0;
@@ -540,7 +540,7 @@ public class BattleData{
 		return IntStream.range(100, defaultCutStatus.size() + 100).mapToObj(i -> getCut(i)).toList();
 	}
 	
-	private int statusControl(double number) {
+	int statusControl(double number) {
 		if(number < 10) {
 			return calculate(defaultWeaponStatus.get((int) number), getAdditionalBuff(number), getRatioBuff(number));
 		}
@@ -553,7 +553,7 @@ public class BattleData{
 		return 0;
 	}
 	
-	private int calculate(int initialValue, double additionalValue, double ratio) {
+	int calculate(int initialValue, double additionalValue, double ratio) {
 		return (int) ((initialValue + additionalValue) * ratio);
 	}
 	
