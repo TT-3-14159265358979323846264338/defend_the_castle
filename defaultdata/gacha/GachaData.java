@@ -11,7 +11,7 @@ public abstract class GachaData {
 	 * コアのラインナップリスト。
 	 * {@link defaultdata.DefaultUnit DefaultUnit}のコアコード変換番号を格納したリストを、{@link #addCore addCore}メソッドを用いて作成する。
 	 */
-	private  List<Integer> coreLineup = new ArrayList<>();
+	private List<Integer> coreLineup = new ArrayList<>();
 	
 	/**
 	 * コアの排出確率リスト。
@@ -88,14 +88,14 @@ public abstract class GachaData {
 	 * @param totalRatio - lineupSetの合計排出確率。
 	 * @return 合計排出確率を要素数で割った値を格納した要素数sizeのリストを返却する。
 	 */
-	private List<Double> getRatioList(int size, double totalRatio){
+	List<Double> getRatioList(int size, double totalRatio){
 		return IntStream.range(0, size).mapToObj(i -> (double) (totalRatio / size)).toList();
 	}
 	
 	/**
 	 * このガチャリストの合計確率が100%でない場合、メッセージを表示する。
 	 */
-	private void aptitudeTest() {
+	void aptitudeTest() {
 		double sum = coreRatio.stream().mapToDouble(Double::doubleValue).sum() + weaponRatio.stream().mapToDouble(Double::doubleValue).sum();
 		if(Math.round(sum) != 100) {
 			System.out.println("ガチャモード「" + getName() + "」は使用できません");
@@ -134,7 +134,7 @@ public abstract class GachaData {
 	 * @param clearCount - このガチャが有効になる最低戦功クリア数。-1を指定すると半数以上を表す。
 	 * @return 戦功クリア数が一定以上であればtrueを返却する。
 	 */
-	protected boolean hasClearedMerit(SaveGameProgress SaveGameProgress, int minStageNumber, int maxStageNumber, int clearCount) {
+	boolean hasClearedMerit(SaveGameProgress SaveGameProgress, int minStageNumber, int maxStageNumber, int clearCount) {
 		List<List<Boolean>> meritStatus = IntStream.range(0, SaveGameProgress.getMeritStatus().size())
 											.filter(i -> minStageNumber <= i && i <= maxStageNumber)
 											.mapToObj(i -> SaveGameProgress.getMeritStatus().get(i))
@@ -152,7 +152,7 @@ public abstract class GachaData {
 	 * @param maxStageNumber - 検索する最大ステージ番号。ステージ番号は{@link defaultdata.DefaultStage#STAGE_DATA STAGE_DATA}のリスト順である。このステージ番号を含む。
 	 * @return 範囲内の全てのステージがクリア済みならtrueを返却する。
 	 */
-	protected boolean hasClearedStage(SaveGameProgress SaveGameProgress, int minStageNumber, int maxStageNumber) {
+	boolean hasClearedStage(SaveGameProgress SaveGameProgress, int minStageNumber, int maxStageNumber) {
 		return 0 == IntStream.range(0, SaveGameProgress.getMeritStatus().size())
 						.filter(i -> minStageNumber <= i && i <= maxStageNumber)
 						.mapToObj(i -> SaveGameProgress.getClearStatus().get(i))

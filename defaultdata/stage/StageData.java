@@ -244,7 +244,7 @@ public abstract class StageData {
 	 * @param clearCount - このステージが有効になる最低戦功クリア数。-1を指定すると半数以上を表す。
 	 * @return 戦功クリア数が一定以上であればtrueを返却する。
 	 */
-	protected boolean hasClearedMerit(SaveGameProgress SaveGameProgress, int minStageNumber, int maxStageNumber, int clearCount) {
+	boolean hasClearedMerit(SaveGameProgress SaveGameProgress, int minStageNumber, int maxStageNumber, int clearCount) {
 		List<List<Boolean>> meritStatus = IntStream.range(0, SaveGameProgress.getMeritStatus().size())
 											.filter(i -> minStageNumber <= i && i <= maxStageNumber)
 											.mapToObj(i -> SaveGameProgress.getMeritStatus().get(i))
@@ -262,7 +262,7 @@ public abstract class StageData {
 	 * @param maxStageNumber - 検索する最大ステージ番号。ステージ番号は{@link defaultdata.DefaultStage#STAGE_DATA STAGE_DATA}のリスト順である。このステージ番号を含む。
 	 * @return 範囲内の全てのステージがクリア済みならtrueを返却する。
 	 */
-	protected boolean hasClearedStage(SaveGameProgress SaveGameProgress, int minStageNumber, int maxStageNumber) {
+	boolean hasClearedStage(SaveGameProgress SaveGameProgress, int minStageNumber, int maxStageNumber) {
 		return 0 == IntStream.range(0, SaveGameProgress.getMeritStatus().size())
 						.filter(i -> minStageNumber <= i && i <= maxStageNumber)
 						.mapToObj(i -> SaveGameProgress.getClearStatus().get(i))
@@ -287,7 +287,7 @@ public abstract class StageData {
 	 * @param BattleEnemy - 指定した敵を全て記載。
 	 * @return 全ての敵を倒していればtrueを返却する。
 	 */
-	protected boolean canAllDefeat(BattleEnemy... BattleEnemy) {
+	boolean canAllDefeat(BattleEnemy... BattleEnemy) {
 		return Stream.of(BattleEnemy).allMatch(i -> i.getNowHP() <= 0);
 	}
 	
@@ -296,7 +296,7 @@ public abstract class StageData {
 	 * @param BattleFacility - 指定した設備を全て記載。
 	 * @return 全ての設備が破壊されていればtrueを返却する。
 	 */
-	protected boolean canAllBreak(BattleFacility... BattleFacility) {
+	boolean canAllBreak(BattleFacility... BattleFacility) {
 		return Stream.of(BattleFacility).allMatch(i -> i.getNowHP() <= 0);
 	}
 	
@@ -305,7 +305,7 @@ public abstract class StageData {
 	 * @param BattleFacility - 指定した設備を全て記載。
 	 * @return いずれかの設備が破壊されていればtrueを返却する。
 	 */
-	protected boolean canAnyBreak(BattleFacility... BattleFacility) {
+	boolean canAnyBreak(BattleFacility... BattleFacility) {
 		return Stream.of(BattleFacility).anyMatch(i -> i.getNowHP() <= 0);
 	}
 	
@@ -325,7 +325,7 @@ public abstract class StageData {
 	 * 難易度に関わらずゲームをクリアしたかどうか判定。
 	 * @return 常にtrueを返却する。
 	 */
-	protected boolean canClearStage() {
+	boolean canClearStage() {
 		return true;
 	}
 	
@@ -336,7 +336,7 @@ public abstract class StageData {
 	 * @return 引数が一致すればtrueを返却する。
 	 * @see {@link battle.BattleEnemy#NORMAL_MODE ステータス補正倍率}
 	 */
-	protected boolean canClearStage(double baseDifficulty, double nowDifficulty) {
+	boolean canClearStage(double baseDifficulty, double nowDifficulty) {
 		return baseDifficulty == nowDifficulty;
 	}
 	
@@ -347,7 +347,7 @@ public abstract class StageData {
 	 * @return {@link battle.BattleUnit#defeatNumber 被撃破数}が全て0であるならばtrueを返却する。
 	 * @see {@link battle.BattleUnit BattleUnit}
 	 */
-	protected boolean canNotDefeat(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData) {
+	boolean canNotDefeat(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData) {
 		Predicate<BattleUnit[]> canNotDefeatCheack = (data) -> {
 			return Stream.of(data).noneMatch(i -> 0 < i.getDefeatNumber());
 		};
@@ -369,7 +369,7 @@ public abstract class StageData {
 	 * @see {@link battle.BattleEnemy#NORMAL_MODE ステータス補正倍率}<br>
 	 * 		{@link battle.BattleUnit BattleUnit}
 	 */
-	protected boolean canNotDefeat(double baseDifficulty, double nowDifficulty, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData) {
+	boolean canNotDefeat(double baseDifficulty, double nowDifficulty, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData) {
 		if(canClearStage(baseDifficulty, nowDifficulty)) {
 			return canNotDefeat(UnitMainData, UnitLeftData);
 		}
@@ -385,7 +385,7 @@ public abstract class StageData {
 	 * @see {@link battle.BattleUnit BattleUnit}<br>
 	 * 		{@link battle.BattleFacility BattleFacility}
 	 */
-	protected boolean canNotDefeat(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData) {
+	boolean canNotDefeat(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData) {
 		if(Stream.of(FacilityData).noneMatch(i -> !i.canActivate())) {
 			return canNotDefeat(UnitMainData, UnitLeftData);
 		}
@@ -404,7 +404,7 @@ public abstract class StageData {
 	 * 		{@link battle.BattleUnit BattleUnit}<br>
 	 * 		{@link battle.BattleFacility BattleFacility}
 	 */
-	protected boolean canNotDefeat(double baseDifficulty, double nowDifficulty, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData) {
+	boolean canNotDefeat(double baseDifficulty, double nowDifficulty, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData) {
 		if(canClearStage(baseDifficulty, nowDifficulty)) {
 			return canNotDefeat(UnitMainData, UnitLeftData, FacilityData);
 		}
@@ -417,7 +417,7 @@ public abstract class StageData {
 	 * @param UnitMainData - ゲーム終了後のユニットデータ。
 	 * @return 味方の総覚醒回数が指定の値以上であればtrueを返却する。
 	 */
-	protected boolean existsOverAwakening(int awakeningCount, BattleUnit[] UnitMainData) {
+	boolean existsOverAwakening(int awakeningCount, BattleUnit[] UnitMainData) {
 		return awakeningCount <= Stream.of(UnitMainData).mapToInt(i -> i.getAwakeningNumber()).sum();
 	}
 	
@@ -429,7 +429,7 @@ public abstract class StageData {
 	 * @param UnitMainData - ゲーム終了後のユニットデータ。
 	 * @return 指定の難易度で味方の総覚醒回数が指定の値以上であればtrueを返却する。
 	 */
-	protected boolean existsOverAwakening(double baseDifficulty, double nowDifficulty, int awakeningCount, BattleUnit[] UnitMainData) {
+	boolean existsOverAwakening(double baseDifficulty, double nowDifficulty, int awakeningCount, BattleUnit[] UnitMainData) {
 		if(canClearStage(baseDifficulty, nowDifficulty)) {
 			return existsOverAwakening(awakeningCount, UnitMainData);
 		}
@@ -441,7 +441,7 @@ public abstract class StageData {
 	 * @param FacilityData - ゲーム終了後の設備データ。
 	 * @return 指定した全ての設備が1度も攻撃を受けていないならばtrueを返却する。
 	 */
-	protected boolean hasNotHited(BattleFacility... FacilityData) {
+	boolean hasNotHited(BattleFacility... FacilityData) {
 		return Stream.of(FacilityData).allMatch(i -> i.getHitedCount() == 0);
 	}
 	
@@ -452,7 +452,7 @@ public abstract class StageData {
 	 * @param FacilityData - ゲーム終了後の設備データ。
 	 * @return 指定の難易度で指定した全ての設備が1度も攻撃を受けていないならばtrueを返却する。
 	 */
-	protected boolean hasNotHited(double baseDifficulty, double nowDifficulty, BattleFacility... FacilityData) {
+	boolean hasNotHited(double baseDifficulty, double nowDifficulty, BattleFacility... FacilityData) {
 		if(canClearStage(baseDifficulty, nowDifficulty)) {
 			return hasNotHited(FacilityData);
 		}
@@ -510,7 +510,7 @@ public abstract class StageData {
 	 * メダルを獲得する。
 	 * @param number - 獲得するメダル枚数。
 	 */
-	private void giveMedal(int number) {
+	void giveMedal(int number) {
 		SaveGameProgress SaveGameProgress = new SaveGameProgress();
 		SaveGameProgress.load();
 		SaveGameProgress.save(SaveGameProgress.getClearStatus(), SaveGameProgress.getMeritStatus(), SaveGameProgress.getMedal() + number, SaveGameProgress.getSelectStage());

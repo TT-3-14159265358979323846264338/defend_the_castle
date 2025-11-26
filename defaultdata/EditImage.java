@@ -55,7 +55,7 @@ public class EditImage{
 		return imageNameList.stream().map(i -> (i == null)? null: input(i, ratio)).toList();
 	}
 	
-	private static BufferedImage getImage(BufferedImage originalImage, double ratio) {
+	static BufferedImage getImage(BufferedImage originalImage, double ratio) {
 		int width = originalImage.getWidth();
 		int height = originalImage.getHeight();
 		BufferedImage image = getBlankImage(width, height);
@@ -184,7 +184,7 @@ public class EditImage{
 		return scalingImage(image, ratio / 2);
 	}
 	
-	private static BufferedImage getBlankImage(int width, int height) {
+	static BufferedImage getBlankImage(int width, int height) {
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		IntStream.range(0, height).forEach(y -> IntStream.range(0, width).forEach(x -> image.setRGB(x, y, 0)));
 		return image;

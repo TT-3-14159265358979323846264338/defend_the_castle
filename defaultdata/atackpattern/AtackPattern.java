@@ -40,7 +40,7 @@ public abstract class AtackPattern {
 	 * @param data - ターゲット候補。
 	 * @return アクティブ状態であればtrueを返却する。
 	 */
-	protected boolean activeCheck(BattleData data){
+	boolean activeCheck(BattleData data){
 		return data.canActivate();
 	}
 	
@@ -49,7 +49,7 @@ public abstract class AtackPattern {
 	 * @param data - ターゲット候補。
 	 * @return 自身の射程内にいればtrueを返却する。
 	 */
-	protected boolean rangeCheck(BattleData data) {
+	boolean rangeCheck(BattleData data) {
 		return distanceCalculate(data) <= myself.getRange() + Battle.SIZE / 2;
 	}
 	
@@ -58,7 +58,7 @@ public abstract class AtackPattern {
 	 * @param data - ターゲット候補。
 	 * @return ターゲット候補と自身の距離を返却する。
 	 */
-	protected double distanceCalculate(BattleData data) {
+	double distanceCalculate(BattleData data) {
 		return Math.sqrt(Math.pow(myself.getPositionX() - data.getPositionX(), 2) + Math.pow(myself.getPositionY() - data.getPositionY(), 2));
 	}
 	
@@ -67,7 +67,7 @@ public abstract class AtackPattern {
 	 * @param data - ターゲット候補。
 	 * @return ターゲット候補の残存HP割合を返却する。
 	 */
-	protected double ratioHP(BattleData data) {
+	double ratioHP(BattleData data) {
 		return (double) data.getNowHP() / data.getMaxHP();
 	}
 }
