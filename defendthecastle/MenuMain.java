@@ -102,7 +102,7 @@ public class MenuMain extends JPanel{
 			IntStream.range(0, NUMBER).forEach(i -> g.drawImage(coreImage.get(randamList.get(i)), FinalMotion[i].getX(), FinalMotion[i].getY(), this));
 			g.drawImage(titleImage, 40, 100, this);
 		}else {
-			IntStream.range(0, NUMBER).filter(i -> FallMotion[i].canRunTimer()).forEach(i -> g.drawImage(EditImage.rotateImage(coreImage.get(randamList.get(i)), FallMotion[i].getAngle()), FallMotion[i].getX(), FallMotion[i].getY(), this));
+			IntStream.range(0, NUMBER).filter(i -> FallMotion[i].canStart()).forEach(i -> g.drawImage(EditImage.rotateImage(coreImage.get(randamList.get(i)), FallMotion[i].getAngle()), FallMotion[i].getX(), FallMotion[i].getY(), this));
 		}
 	}
 
@@ -113,7 +113,7 @@ public class MenuMain extends JPanel{
 			}catch(Exception ignore) {
 			}
 			count++;
-			if(Stream.of(FallMotion).noneMatch(i -> i.canRunTimer())) {
+			if(Stream.of(FallMotion).noneMatch(i -> i.canStart())) {
 				Stream.of(FinalMotion).forEach(i -> i.finalTimerStart(scheduler));
 				schedulerEndMonitor();
 				mainFuture.cancel(true);

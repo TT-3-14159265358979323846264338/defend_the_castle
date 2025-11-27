@@ -16,37 +16,53 @@ class FallMotion{
 	private final int COODINATE_CHANGE = 10;
 	private final int FINAL_COODINATE = 450;
 	
-	protected void fallTimerStart(ScheduledExecutorService scheduler) {
-		canStart = true;
-		fallFuture = scheduler.scheduleAtFixedRate(this::fallTimerProcess, 0, 20, TimeUnit.MILLISECONDS);
+	void fallTimerStart(ScheduledExecutorService scheduler) {
+		setStart(true);
+		setFallFuture(scheduler.scheduleAtFixedRate(this::fallTimerProcess, 0, 20, TimeUnit.MILLISECONDS));
 	}
 	
-	protected void fallTimerProcess() {
+	void fallTimerProcess() {
 		angle += ANGLE_CHANGE;
 		y += COODINATE_CHANGE;
+		timerStop();
+	}
+	
+	void timerStop() {
 		if(FINAL_COODINATE < y) {
-			canStart = false;
+			setStart(false);
 			fallFuture.cancel(true);
 		}
 	}
 	
-	protected ScheduledFuture<?> getFallFuture(){
+	void setFallFuture(ScheduledFuture<?> future){
+		fallFuture = future;
+	}
+	
+	ScheduledFuture<?> getFallFuture(){
 		return fallFuture;
 	}
 	
-	protected boolean canRunTimer() {
+	void setStart(boolean exists) {
+		canStart = exists;
+	}
+	
+	boolean canStart() {
 		return canStart;
 	}
 	
-	protected double getAngle() {
+	double getAngle() {
 		return angle;
 	}
 	
-	protected int getX() {
+	int getX() {
 		return x;
 	}
 	
-	protected int getY() {
+	void setY(int value) {
+		y = value;
+	}
+	
+	int getY() {
 		return y;
 	}
 }
