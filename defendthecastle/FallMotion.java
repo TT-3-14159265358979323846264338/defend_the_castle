@@ -8,8 +8,8 @@ import java.util.concurrent.TimeUnit;
 //落下コアの位置調整
 class FallMotion{
 	private ScheduledFuture<?> fallFuture;
-	private double angle = new Random().nextInt((int) (Math.PI * 2 * 100)) / 100;
-	private int x = new Random().nextInt(400);
+	private double angle = randomAngle();
+	private int x = randomX();
 	private int y = -100;
 	private boolean canStart;
 	private final double ANGLE_CHANGE = 0.1;
@@ -40,6 +40,14 @@ class FallMotion{
 	
 	ScheduledFuture<?> getFallFuture(){
 		return fallFuture;
+	}
+	
+	double randomAngle() {
+		return new Random().nextInt((int) (Math.PI * 2 * 100)) / 100.0;
+	}
+	
+	int randomX() {
+		return new Random().nextInt(400);
 	}
 	
 	void setStart(boolean exists) {
