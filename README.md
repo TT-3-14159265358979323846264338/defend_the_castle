@@ -26,4 +26,5 @@ ExecutorとFutureで使用するスレッド数はThreadPoolで事前に作成�
 ♦現在JUnit勉強中♦  
   
 ♦過去に作成した練習用プログラム♦  
-https://github.com/TT-3-14159265358979323846264338/practice-code
+https://github.com/TT-3-14159265358979323846264338/practice-code  
+練習用なので、できは非常に悪いです。
