@@ -1,14 +1,20 @@
 package defendthecastle;
 
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 class FallMotionTest {
 	private FallMotion FallMotion;
@@ -27,7 +33,7 @@ class FallMotionTest {
 		ScheduledExecutorService mockScheduler = mock(ScheduledExecutorService.class);
 		FallMotion.fallTimerStart(mockScheduler);
 		assertTrue(FallMotion.canStart());
-		verify(mockScheduler).scheduleAtFixedRate(any(Runnable.class), anyLong(), anyLong(), any(TimeUnit.class));
+		verify(mockScheduler).scheduleAtFixedRate(Mockito.any(Runnable.class), anyLong(), anyLong(), Mockito.any(TimeUnit.class));
 	}
 	
 	/**
@@ -70,5 +76,25 @@ class FallMotionTest {
 		FallMotion.timerStop();
 		assertFalse(FallMotion.canStart());
 		verify(mockFuture).cancel(true);
+	}
+	
+	/**
+	 * 角度が2πラジアン以内であるか確認。
+	 */
+	@Test
+	void testRandomAngle() {
+		List<Double> angle = new ArrayList<>();
+		IntStream.range(0, 100).forEach(i -> angle.add(FallMotion.randomAngle()));
+		assertThat(angle, allOf(everyItem(lessThan(Math.PI * 2)), everyItem(greaterThanOrEqualTo(0.0))));
+	}
+	
+	/**
+	 * 落下位置が画面内にあるか確認。
+	 */
+	@Test
+	void testRandomX() {
+		List<Integer> position = new ArrayList<>();
+		IntStream.range(0, 100).forEach(i -> position.add(FallMotion.randomX()));
+		assertThat(position, allOf(everyItem(lessThan(400)), everyItem(greaterThanOrEqualTo(0))));
 	}
 }
