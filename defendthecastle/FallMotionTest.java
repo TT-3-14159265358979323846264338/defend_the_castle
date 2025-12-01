@@ -2,7 +2,6 @@ package defendthecastle;
 
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
@@ -32,7 +31,7 @@ class FallMotionTest {
 	void testFallTimerStart() {
 		ScheduledExecutorService mockScheduler = mock(ScheduledExecutorService.class);
 		FallMotion.fallTimerStart(mockScheduler);
-		assertTrue(FallMotion.canStart());
+		assertThat(FallMotion.canStart(), is(true));
 		verify(mockScheduler).scheduleAtFixedRate(Mockito.any(Runnable.class), anyLong(), anyLong(), Mockito.any(TimeUnit.class));
 	}
 	
@@ -45,8 +44,8 @@ class FallMotionTest {
 		double initialAngle = FallMotion.getAngle();
 		int initialY = FallMotion.getY();
 		FallMotion.fallTimerProcess();
-		assertTrue(initialAngle != FallMotion.getAngle());
-		assertTrue(initialY != FallMotion.getY());
+		assertThat(FallMotion.getAngle(), is(not(initialAngle)));
+		assertThat(FallMotion.getY(), is(not(initialY)));
 		verify(FallMotion).timerStop();
 	}
 	
@@ -60,7 +59,7 @@ class FallMotionTest {
 		FallMotion.setFallFuture(mockFuture);
 		FallMotion.setY(100);
 		FallMotion.timerStop();
-		assertTrue(FallMotion.canStart());
+		assertThat(FallMotion.canStart(), is(true));
 		verify(mockFuture, never()).cancel(true);
 	}
 	
@@ -74,7 +73,7 @@ class FallMotionTest {
 		FallMotion.setFallFuture(mockFuture);
 		FallMotion.setY(500);
 		FallMotion.timerStop();
-		assertFalse(FallMotion.canStart());
+		assertThat(FallMotion.canStart(), is(false));
 		verify(mockFuture).cancel(true);
 	}
 	

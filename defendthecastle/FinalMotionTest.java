@@ -1,6 +1,7 @@
 package defendthecastle;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -13,6 +14,7 @@ import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 class FinalMotionTest {
 	private FinalMotion FinalMotion;
@@ -34,8 +36,8 @@ class FinalMotionTest {
 			positionX.add(FinalMotion.getX());
 			positionY.add(FinalMotion.getY());
 		});
-		assertTrue(canChangeInMultiplesOf5(positionX));
-		assertTrue(positionY.stream().allMatch(i -> i == positionY.get(0).intValue()));
+		assertThat(canChangeInMultiplesOf5(positionX), is(true));
+		assertThat(positionY.stream().allMatch(i -> i == positionY.get(0).intValue()), is(true));
 	}
 	
 	boolean canChangeInMultiplesOf5(List<Integer> position) {
@@ -68,7 +70,7 @@ class FinalMotionTest {
 	void testFinalTimerStart() {
 		ScheduledExecutorService mockScheduler = mock(ScheduledExecutorService.class);
 		FinalMotion.finalTimerStart(mockScheduler);
-		verify(mockScheduler).scheduleAtFixedRate(any(Runnable.class), anyLong(), anyLong(), any(TimeUnit.class));
+		verify(mockScheduler).scheduleAtFixedRate(Mockito.any(Runnable.class), anyLong(), anyLong(), Mockito.any(TimeUnit.class));
 	}
 	
 	/**
@@ -80,8 +82,8 @@ class FinalMotionTest {
 		int y = FinalMotion.getY();
 		int count = FinalMotion.getCount();
 		FinalMotion.finalTimerProcess();
-		assertTrue(y != FinalMotion.getY());
-		assertTrue(count != FinalMotion.getCount());
+		assertThat(FinalMotion.getY(), is(not(y)));
+		assertThat(FinalMotion.getCount(), is(not(count)));
 		verify(FinalMotion).timerStop();
 	}
 	
@@ -92,7 +94,7 @@ class FinalMotionTest {
 	void testCanEndFalse() {
 		ScheduledFuture<?> mockFuture = mock(ScheduledFuture.class);
 		FinalMotion.setFinalFuture(mockFuture);
-		assertFalse(FinalMotion.canEnd());
+		assertThat(FinalMotion.canEnd(), is(false));
 	}
 	
 	/**
