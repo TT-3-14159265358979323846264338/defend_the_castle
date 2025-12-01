@@ -37,7 +37,7 @@ class FinalMotionTest {
 			positionY.add(FinalMotion.getY());
 		});
 		assertThat(canChangeInMultiplesOf5(positionX), is(true));
-		assertThat(positionY.stream().allMatch(i -> i == positionY.get(0).intValue()), is(true));
+		assertThat(positionY, everyItem(is(positionY.get(0))));
 	}
 	
 	boolean canChangeInMultiplesOf5(List<Integer> position) {
