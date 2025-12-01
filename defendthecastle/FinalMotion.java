@@ -19,13 +19,27 @@ class FinalMotion{
 	}
 	
 	void finalTimerStart(ScheduledExecutorService scheduler) {
-		finalFuture = scheduler.scheduleAtFixedRate(() -> {
-			y -= 10 * (number / 5);
-			count ++;
-			if(10 < count) {
-				finalFuture.cancel(true);
-			}
-		}, 0, 50, TimeUnit.MILLISECONDS);
+		finalFuture = scheduler.scheduleAtFixedRate(this::finalTimerProcess, 0, 50, TimeUnit.MILLISECONDS);
+	}
+	
+	void finalTimerProcess() {
+		y -= 10 * (number / 5);
+		count++;
+		timerStop();
+	}
+	
+	boolean canEnd() {
+		return finalFuture.isCancelled();
+	}
+	
+	void timerStop() {
+		if(10 < count) {
+			finalFuture.cancel(true);
+		}
+	}
+	
+	void setFinalFuture(ScheduledFuture<?> future){
+		finalFuture = future;
 	}
 	
 	int getX() {
@@ -36,7 +50,11 @@ class FinalMotion{
 		return y;
 	}
 	
-	boolean canEnd() {
-		return finalFuture.isCancelled();
+	int getCount() {
+		return count;
+	}
+	
+	void setCount(int value) {
+		count = value;
 	}
 }

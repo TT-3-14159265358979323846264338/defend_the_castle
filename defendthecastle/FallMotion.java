@@ -38,10 +38,6 @@ class FallMotion{
 		fallFuture = future;
 	}
 	
-	ScheduledFuture<?> getFallFuture(){
-		return fallFuture;
-	}
-	
 	double randomAngle() {
 		return new Random().nextInt((int) (Math.PI * 2 * 100)) / 100.0;
 	}
