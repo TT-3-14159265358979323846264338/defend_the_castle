@@ -12,13 +12,13 @@ class FinalMotion{
 	private int y;
 	private int count;
 	
-	protected FinalMotion(int number) {
+	FinalMotion(int number) {
 		this.number = number;
 		x = 100 * (number % 5);
 		y = 300;
 	}
 	
-	protected void finalTimerStart(ScheduledExecutorService scheduler) {
+	void finalTimerStart(ScheduledExecutorService scheduler) {
 		finalFuture = scheduler.scheduleAtFixedRate(() -> {
 			y -= 10 * (number / 5);
 			count ++;
@@ -28,15 +28,15 @@ class FinalMotion{
 		}, 0, 50, TimeUnit.MILLISECONDS);
 	}
 	
-	protected int getX() {
+	int getX() {
 		return x;
 	}
 	
-	protected int getY() {
+	int getY() {
 		return y;
 	}
 	
-	protected boolean canEnd() {
+	boolean canEnd() {
 		return finalFuture.isCancelled();
 	}
 }
