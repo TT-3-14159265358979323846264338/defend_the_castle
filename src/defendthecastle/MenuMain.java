@@ -41,7 +41,7 @@ public class MenuMain extends JPanel{
 	//テスト用
 	private JButton testButton = new JButton();
 	
-	protected MenuMain(MainFrame MainFrame) {
+	MenuMain(MainFrame MainFrame) {
 		this.MainFrame = MainFrame;
 		setBackground(new Color(240, 170, 80));
 		addItemGetButton();
@@ -63,41 +63,41 @@ public class MenuMain extends JPanel{
 		requestFocus();
 	}
 	
-	private void addItemGetButton() {
+	void addItemGetButton() {
 		add(itemGetButton);
 		itemGetButton.addActionListener(e->{
 			MainFrame.itemGetMenuDraw();
 		});
 	}
 	
-	private void addItemDisposeButton() {
+	void addItemDisposeButton() {
 		add(itemDisposeButton);
 		itemDisposeButton.addActionListener(e->{
 			MainFrame.itemDisposeMenuDraw();
 		});
 	}
 	
-	private void addCompositionButton() {
+	void addCompositionButton() {
 		add(compositionButton);
 		compositionButton.addActionListener(e->{
 			MainFrame.compositionDraw();
 		});
 	}
 	
-	private void addBattleButton() {
+	void addBattleButton() {
 		add(selectStageButton);
 		selectStageButton.addActionListener(e->{
 			MainFrame.selectStageDraw();
 		});
 	}
 	
-	private void setButton(JButton button, String name, int x, int y, int width, int height) {
+	void setButton(JButton button, String name, int x, int y, int width, int height) {
 		button.setText(name);
 		button.setBounds(x, y, width, height);
 		button.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 15));
 	}
 	
-	private void drawImage(Graphics g) {
+	void drawImage(Graphics g) {
 		if(mainFuture.isCancelled()) {
 			IntStream.range(0, NUMBER).forEach(i -> g.drawImage(coreImage.get(randamList.get(i)), FinalMotion[i].getX(), FinalMotion[i].getY(), this));
 			g.drawImage(titleImage, 40, 100, this);
@@ -106,7 +106,7 @@ public class MenuMain extends JPanel{
 		}
 	}
 
-	private void effectTimer() {
+	void effectTimer() {
 		mainFuture = scheduler.scheduleAtFixedRate(() -> {
 			try {
 				FallMotion[count].fallTimerStart(scheduler);
@@ -121,7 +121,7 @@ public class MenuMain extends JPanel{
 		}, 0, 300, TimeUnit.MILLISECONDS);
 	}
 	
-	private void schedulerEndMonitor() {
+	void schedulerEndMonitor() {
 		scheduler.scheduleAtFixedRate(() -> {
 			if(Stream.of(FinalMotion).allMatch(i -> i.canEnd())) {
 				scheduler.shutdown();
@@ -130,10 +130,66 @@ public class MenuMain extends JPanel{
 	}
 	
 	//テスト用
-	private void addTestButton() {
+	void addTestButton() {
 		add(testButton);
 		testButton.addActionListener(e->{
 			new TestDataEdit();
 		});
+	}
+
+	ScheduledFuture<?> getMainFuture() {
+		return mainFuture;
+	}
+
+	void setMainFuture(ScheduledFuture<?> mainFuture) {
+		this.mainFuture = mainFuture;
+	}
+
+	MainFrame getMainFrame() {
+		return MainFrame;
+	}
+
+	void setMainFrame(MainFrame mainFrame) {
+		MainFrame = mainFrame;
+	}
+
+	JButton getItemGetButton() {
+		return itemGetButton;
+	}
+
+	void setItemGetButton(JButton itemGetButton) {
+		this.itemGetButton = itemGetButton;
+	}
+
+	JButton getItemDisposeButton() {
+		return itemDisposeButton;
+	}
+
+	void setItemDisposeButton(JButton itemDisposeButton) {
+		this.itemDisposeButton = itemDisposeButton;
+	}
+
+	JButton getCompositionButton() {
+		return compositionButton;
+	}
+
+	void setCompositionButton(JButton compositionButton) {
+		this.compositionButton = compositionButton;
+	}
+
+	JButton getSelectStageButton() {
+		return selectStageButton;
+	}
+
+	void setSelectStageButton(JButton selectStageButton) {
+		this.selectStageButton = selectStageButton;
+	}
+
+	JButton getTestButton() {
+		return testButton;
+	}
+
+	void setTestButton(JButton testButton) {
+		this.testButton = testButton;
 	}
 }
