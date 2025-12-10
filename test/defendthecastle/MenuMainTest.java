@@ -1,10 +1,12 @@
 package defendthecastle;
 
+import static custommatcher.MatcherOfDisplayAllText.*;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,11 +20,13 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 class MenuMainTest {
+	private MainFrame MainFrame;
 	private MenuMain MenuMain;
 
 	@BeforeEach
 	void setUp() throws Exception {
-		
+		MainFrame = mock(MainFrame.class);
+		MenuMain = spy(new MenuMain(MainFrame));
 	}
 
 	/**
@@ -33,20 +37,19 @@ class MenuMainTest {
 	 */
 	@Test
 	void testMenuMain() {
-		MainFrame MainFrame = mock(MainFrame.class);
 		ScheduledExecutorService mockScheduler = mock(ScheduledExecutorService.class);
-		MockedStatic<Executors> mockExecutors = mockStatic(Executors.class);
-		mockExecutors.when(() -> Executors.newScheduledThreadPool(anyInt())).thenReturn(mockScheduler);
+		MockedStatic<Executors> mockExecutor = mockStatic(Executors.class);
+		mockExecutor.when(() -> Executors.newScheduledThreadPool(anyInt())).thenReturn(mockScheduler);
 		MenuMain = new MenuMain(MainFrame);
-		JButton[] allButton = allButton();
+		JButton[] allButton = buttonArray();
 		assertThat(MenuMain.getMainFrame(), is(MainFrame));
 		assertThat(MenuMain.getComponents(), arrayContainingInAnyOrder(allButton));
 		Stream.of(allButton).forEach(this::assertActionListeners);
 		verify(mockScheduler).scheduleAtFixedRate(Mockito.any(Runnable.class), anyLong(), anyLong(), Mockito.any(TimeUnit.class));
-		mockExecutors.close();
+		mockExecutor.close();
 	}
 	
-	JButton[] allButton() {
+	JButton[] buttonArray() {
 		return new JButton[]{MenuMain.getItemGetButton(),
 			MenuMain.getItemDisposeButton(),
 			MenuMain.getCompositionButton(),
@@ -57,5 +60,25 @@ class MenuMainTest {
 	
 	void assertActionListeners(JButton button) {
 		assertThat(button.getActionListeners(), not(emptyArray()));
+	}
+	
+	/**
+	 * JButtonにテキストが設定されており、テキストの全文が表示可能であるか確認。
+	 */
+	@Test
+	void testPaintComponent() {
+		Graphics g = brankGraphics();
+		MenuMain.paintComponent(g);
+		JButton[] allButton = buttonArray();
+		Stream.of(allButton).forEach(this::assertButton);
+	}
+	
+	Graphics brankGraphics() {
+		return new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB).createGraphics();
+	}
+	
+	void assertButton(JButton button) {
+		assertThat(button.getText(), not(emptyOrNullString()));
+		assertThat(button, displayAllText());
 	}
 }
