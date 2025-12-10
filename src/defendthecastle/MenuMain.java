@@ -102,9 +102,9 @@ public class MenuMain extends JPanel{
 		if(mainFuture.isCancelled()) {
 			IntStream.range(0, NUMBER).forEach(i -> g.drawImage(coreImage.get(randamList.get(i)), FinalMotion[i].getX(), FinalMotion[i].getY(), this));
 			g.drawImage(titleImage, 40, 100, this);
-		}else {
-			IntStream.range(0, NUMBER).filter(i -> FallMotion[i].canStart()).forEach(i -> g.drawImage(EditImage.rotateImage(coreImage.get(randamList.get(i)), FallMotion[i].getAngle()), FallMotion[i].getX(), FallMotion[i].getY(), this));
+			return;
 		}
+		IntStream.range(0, NUMBER).filter(i -> FallMotion[i].canStart()).forEach(i -> g.drawImage(EditImage.rotateImage(coreImage.get(randamList.get(i)), FallMotion[i].getAngle()), FallMotion[i].getX(), FallMotion[i].getY(), this));
 	}
 
 	private void effectTimer() {
@@ -202,5 +202,21 @@ public class MenuMain extends JPanel{
 
 	void setScheduler(ScheduledExecutorService scheduler) {
 		this.scheduler = scheduler;
+	}
+	
+	FinalMotion[] getFinalMotion() {
+		return FinalMotion;
+	}
+
+	void setFinalMotion(FinalMotion[] finalMotion) {
+		FinalMotion = finalMotion;
+	}
+
+	FallMotion[] getFallMotion() {
+		return FallMotion;
+	}
+
+	void setFallMotion(FallMotion[] fallMotion) {
+		FallMotion = fallMotion;
 	}
 }
