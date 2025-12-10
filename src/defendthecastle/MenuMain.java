@@ -52,6 +52,7 @@ public class MenuMain extends JPanel{
 		effectTimer();
 	}
 	
+	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		setButton(itemGetButton, "ガチャ", 10, 400, 130, 60);
@@ -63,35 +64,35 @@ public class MenuMain extends JPanel{
 		requestFocus();
 	}
 	
-	void addItemGetButton() {
+	private void addItemGetButton() {
 		add(itemGetButton);
 		itemGetButton.addActionListener(e->{
 			MainFrame.itemGetMenuDraw();
 		});
 	}
 	
-	void addItemDisposeButton() {
+	private void addItemDisposeButton() {
 		add(itemDisposeButton);
 		itemDisposeButton.addActionListener(e->{
 			MainFrame.itemDisposeMenuDraw();
 		});
 	}
 	
-	void addCompositionButton() {
+	private void addCompositionButton() {
 		add(compositionButton);
 		compositionButton.addActionListener(e->{
 			MainFrame.compositionDraw();
 		});
 	}
 	
-	void addBattleButton() {
+	private void addBattleButton() {
 		add(selectStageButton);
 		selectStageButton.addActionListener(e->{
 			MainFrame.selectStageDraw();
 		});
 	}
 	
-	void setButton(JButton button, String name, int x, int y, int width, int height) {
+	private void setButton(JButton button, String name, int x, int y, int width, int height) {
 		button.setText(name);
 		button.setBounds(x, y, width, height);
 		button.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 15));
@@ -106,19 +107,21 @@ public class MenuMain extends JPanel{
 		}
 	}
 
-	void effectTimer() {
-		mainFuture = scheduler.scheduleAtFixedRate(() -> {
-			try {
-				FallMotion[count].fallTimerStart(scheduler);
-			}catch(Exception ignore) {
-			}
-			count++;
-			if(Stream.of(FallMotion).noneMatch(i -> i.canStart())) {
-				Stream.of(FinalMotion).forEach(i -> i.finalTimerStart(scheduler));
-				schedulerEndMonitor();
-				mainFuture.cancel(true);
-			}
-		}, 0, 300, TimeUnit.MILLISECONDS);
+	private void effectTimer() {
+		mainFuture = scheduler.scheduleAtFixedRate(this::effectTimerProcess, 0, 300, TimeUnit.MILLISECONDS);
+	}
+	
+	void effectTimerProcess() {
+		try {
+			FallMotion[count].fallTimerStart(scheduler);
+		}catch(Exception ignore) {
+		}
+		count++;
+		if(Stream.of(FallMotion).noneMatch(i -> i.canStart())) {
+			Stream.of(FinalMotion).forEach(i -> i.finalTimerStart(scheduler));
+			schedulerEndMonitor();
+			mainFuture.cancel(true);
+		}
 	}
 	
 	void schedulerEndMonitor() {
@@ -191,5 +194,13 @@ public class MenuMain extends JPanel{
 
 	void setTestButton(JButton testButton) {
 		this.testButton = testButton;
+	}
+
+	ScheduledExecutorService getScheduler() {
+		return scheduler;
+	}
+
+	void setScheduler(ScheduledExecutorService scheduler) {
+		this.scheduler = scheduler;
 	}
 }
