@@ -6,9 +6,13 @@ import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -26,7 +30,7 @@ class MenuMainTest {
 	@BeforeEach
 	void setUp() throws Exception {
 		MainFrame = mock(MainFrame.class);
-		MenuMain = spy(new MenuMain(MainFrame));
+		MenuMain = new MenuMain(MainFrame);
 	}
 
 	/**
@@ -67,8 +71,7 @@ class MenuMainTest {
 	 */
 	@Test
 	void testPaintComponent() {
-		Graphics g = brankGraphics();
-		MenuMain.paintComponent(g);
+		MenuMain.paintComponent(brankGraphics());
 		JButton[] allButton = buttonArray();
 		Stream.of(allButton).forEach(this::assertButton);
 	}
@@ -80,5 +83,50 @@ class MenuMainTest {
 	void assertButton(JButton button) {
 		assertThat(button.getText(), not(emptyOrNullString()));
 		assertThat(button, displayAllText());
+	}
+	
+	/**
+	 * futureがキャンセルされていれば、全てのコアとタイトルを描写したか確認。
+	 */
+	@Test
+	void testDrawImageFutureCancelled() {
+		Graphics mockGraphics = mock(Graphics.class);
+		doReturn(true).when(mockGraphics).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
+		ScheduledFuture<?> mockFuture = mock(ScheduledFuture.class);
+		MenuMain.setMainFuture(mockFuture);
+		doReturn(true).when(mockFuture).isCancelled();
+		MenuMain.drawImage(mockGraphics);
+		verify(mockGraphics, times(MenuMain.getFinalMotion().length + 1)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
+	}
+	
+	/**
+	 * futureが実行中であれば、全ての実行中のコアを描写したか確認。
+	 */
+	@Test
+	void testDrawImageFutureOperation() {
+		Graphics mockGraphics = mock(Graphics.class);
+		doReturn(true).when(mockGraphics).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
+		ScheduledFuture<?> mockFuture = mock(ScheduledFuture.class);
+		MenuMain.setMainFuture(mockFuture);
+		doReturn(false).when(mockFuture).isCancelled();
+		FallMotion mockFallMotion = mock(FallMotion.class);
+		FallMotion[] mockFallMotionArray = new FallMotion[MenuMain.getFallMotion().length];
+		Arrays.fill(mockFallMotionArray, mockFallMotion);
+		MenuMain.setFallMotion(mockFallMotionArray);
+		doReturn(true).when(mockFallMotion).canStart();
+		MenuMain.drawImage(mockGraphics);
+		verify(mockGraphics, times(MenuMain.getFallMotion().length)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
+	}
+	
+	/**
+	 * 
+	 */
+	@Test
+	void testEffectTimerProcess() {
+		
+		
+		
+		
+		
 	}
 }
