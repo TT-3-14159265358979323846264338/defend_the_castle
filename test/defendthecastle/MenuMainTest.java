@@ -90,13 +90,22 @@ class MenuMainTest {
 	 */
 	@Test
 	void testDrawImageFutureCancelled() {
-		Graphics mockGraphics = mock(Graphics.class);
-		doReturn(true).when(mockGraphics).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
-		ScheduledFuture<?> mockFuture = mock(ScheduledFuture.class);
-		MenuMain.setMainFuture(mockFuture);
-		doReturn(true).when(mockFuture).isCancelled();
+		Graphics mockGraphics = setMockGraphics();
+		setMockFuture(true);
 		MenuMain.drawImage(mockGraphics);
 		verify(mockGraphics, times(MenuMain.getFinalMotion().length + 1)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
+	}
+	
+	Graphics setMockGraphics() {
+		Graphics mockGraphics = mock(Graphics.class);
+		doReturn(true).when(mockGraphics).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
+		return mockGraphics;
+	}
+	
+	void setMockFuture(boolean exists) {
+		ScheduledFuture<?> mockFuture = mock(ScheduledFuture.class);
+		MenuMain.setMainFuture(mockFuture);
+		doReturn(exists).when(mockFuture).isCancelled();
 	}
 	
 	/**
@@ -104,18 +113,19 @@ class MenuMainTest {
 	 */
 	@Test
 	void testDrawImageFutureOperation() {
-		Graphics mockGraphics = mock(Graphics.class);
-		doReturn(true).when(mockGraphics).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
-		ScheduledFuture<?> mockFuture = mock(ScheduledFuture.class);
-		MenuMain.setMainFuture(mockFuture);
-		doReturn(false).when(mockFuture).isCancelled();
+		Graphics mockGraphics = setMockGraphics();
+		setMockFuture(false);
+		setMockFallMotion();
+		MenuMain.drawImage(mockGraphics);
+		verify(mockGraphics, times(MenuMain.getFallMotion().length)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
+	}
+	
+	void setMockFallMotion() {
 		FallMotion mockFallMotion = mock(FallMotion.class);
 		FallMotion[] mockFallMotionArray = new FallMotion[MenuMain.getFallMotion().length];
 		Arrays.fill(mockFallMotionArray, mockFallMotion);
 		MenuMain.setFallMotion(mockFallMotionArray);
 		doReturn(true).when(mockFallMotion).canStart();
-		MenuMain.drawImage(mockGraphics);
-		verify(mockGraphics, times(MenuMain.getFallMotion().length)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
 	}
 	
 	/**
