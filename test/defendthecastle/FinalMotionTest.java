@@ -1,5 +1,6 @@
 package defendthecastle;
 
+import static custommatcher.MatcherOfPeriodicChange.*;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -36,31 +37,8 @@ class FinalMotionTest {
 			positionX.add(FinalMotion.getX());
 			positionY.add(FinalMotion.getY());
 		});
-		assertThat(canChangeInMultiplesOf5(positionX), is(true));
+		assertThat(positionX, periodicChange(5));
 		assertThat(positionY, everyItem(is(positionY.get(0))));
-	}
-	
-	boolean canChangeInMultiplesOf5(List<Integer> position) {
-		int loop = 5;
-		for(int i = 0; i < loop; i++) {
-			if(canLoopEveryCycle(i, position, loop)) {
-				continue;
-			}
-			return false;
-		}
-		return true;
-	}
-	
-	boolean canLoopEveryCycle(int number, List<Integer> position, int cycle) {
-		int index = number + cycle;
-		do{
-			if(position.get(number) == position.get(index).intValue()) {
-				index += cycle;
-				continue;
-			}
-			return false;
-		}while(index < position.size());
-		return true;
 	}
 	
 	/**

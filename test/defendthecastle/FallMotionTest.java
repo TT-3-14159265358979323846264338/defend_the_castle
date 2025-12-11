@@ -44,8 +44,8 @@ class FallMotionTest {
 		double initialAngle = FallMotion.getAngle();
 		int initialY = FallMotion.getY();
 		FallMotion.fallTimerProcess();
-		assertThat(FallMotion.getAngle(), is(not(initialAngle)));
-		assertThat(FallMotion.getY(), is(not(initialY)));
+		assertThat(FallMotion.getAngle(), not(initialAngle));
+		assertThat(FallMotion.getY(), not(initialY));
 		verify(FallMotion).timerStop();
 	}
 	
