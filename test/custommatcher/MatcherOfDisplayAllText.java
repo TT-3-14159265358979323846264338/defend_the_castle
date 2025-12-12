@@ -6,23 +6,13 @@ import javax.swing.JButton;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 
-public class MatcherOfDisplayAllText extends BaseMatcher<JButton>{
+class MatcherOfDisplayAllText extends BaseMatcher<JButton>{
 	private int displayWidth;
 	private int displayHeight;
 	private int actualWidth;
 	private int actualHeight;
 	private final int CORRECTION = 8;
-	
-	/**
-	 * JButtonのテキストが全て表示されるだけのサイズがあるか検査するMatcher。<br>
-	 * 事前にsetText, setFont, setBoundsなどで表示情報を設定しておくこと。
-	 * @return JButtonに対するMatcherを返却する。テキストが全て表示可能であればテストは成功する。
-	 */
-	public static Matcher<JButton> displayAllText() {
-        return new MatcherOfDisplayAllText();
-    }
 	
 	@Override
 	public boolean matches(Object obj) {

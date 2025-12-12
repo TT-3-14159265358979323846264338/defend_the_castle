@@ -1,6 +1,6 @@
 package defendthecastle;
 
-import static custommatcher.MatcherOfPeriodicChange.*;
+import static custommatcher.CustomMatcher.*;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.*;
