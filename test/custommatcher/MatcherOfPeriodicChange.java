@@ -8,7 +8,7 @@ import org.hamcrest.Description;
 class MatcherOfPeriodicChange extends BaseMatcher<List<Integer>>{
 	private int period;
 	
-	public MatcherOfPeriodicChange(int period) {
+	MatcherOfPeriodicChange(int period) {
 		this.period = period;
 	}
 	

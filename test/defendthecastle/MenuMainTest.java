@@ -26,11 +26,37 @@ import org.mockito.Mockito;
 class MenuMainTest {
 	private MainFrame MainFrame;
 	private MenuMain MenuMain;
+	private FallMotion mockFallMotion;
+	private FinalMotion mockFinalMotion;
 
 	@BeforeEach
 	void setUp() throws Exception {
 		MainFrame = mock(MainFrame.class);
 		MenuMain = new MenuMain(MainFrame);
+	}
+	
+	/**
+	 * タイトル画像が取り込まれていることを確認。
+	 */
+	@Test
+	void testTitleImageNoNull() {
+		assertThat(MenuMain.getTitleImage(), notNullValue());
+	}
+	
+	/**
+	 * コア画像が全て取り込まれていることを確認。
+	 */
+	@Test
+	void testCoreImageNoNull() {
+		assertThat(MenuMain.getCoreImage(), everyItem(notNullValue()));
+	}
+	
+	/**
+	 * コア画像番号がランダムに格納されたリストであるか確認。
+	 */
+	@Test
+	void testRandamList() {
+		assertThat(MenuMain.getRandamList(), everyItem(allOf(lessThan(MenuMain.getCoreImage().size()), greaterThanOrEqualTo(0))));
 	}
 
 	/**
@@ -121,22 +147,73 @@ class MenuMainTest {
 	}
 	
 	void setMockFallMotion() {
-		FallMotion mockFallMotion = mock(FallMotion.class);
+		mockFallMotion = mock(FallMotion.class);
 		FallMotion[] mockFallMotionArray = new FallMotion[MenuMain.getFallMotion().length];
 		Arrays.fill(mockFallMotionArray, mockFallMotion);
 		MenuMain.setFallMotion(mockFallMotionArray);
 		doReturn(true).when(mockFallMotion).canStart();
+		doNothing().when(mockFallMotion).fallTimerStart(Mockito.any(ScheduledExecutorService.class));
 	}
 	
 	/**
-	 * 
+	 * タイマーのカウントが1増加していることを確認。<br>
+	 * 落下用タイマーが1つ以上呼ばれたことを確認。<br>
+	 * 落下用タイマーが稼働中はメインのタイマーが停止しないことを確認。
 	 */
 	@Test
-	void testEffectTimerProcess() {
-		
-		
-		
-		
-		
+	void testEffectTimerProcessNotCancel() {
+		setMockFallMotion();
+		doReturn(true).when(mockFallMotion).canStart();
+		int oldCount = MenuMain.getCount();
+		MenuMain.effectTimerProcess();
+		assertThat(MenuMain.getCount(), is(oldCount + 1));
+		verify(mockFallMotion, atLeastOnce()).fallTimerStart(Mockito.any(ScheduledExecutorService.class));
+		assertThat(MenuMain.getMainFuture().isCancelled(), is(false));
+	}
+	
+	/**
+	 * カウントがユニット数以上になったら落下用タイマーが呼ばれないことを確認。<br>
+	 * 落下用タイマーが停止すればメインのタイマーが停止し、最終段階タイマーが稼働することを確認。
+	 */
+	@Test
+	void testEffectTimerProcessCanCancel() {
+		MenuMain.setCount(MenuMain.getFallMotion().length + 1);
+		setMockFallMotion();
+		setMockFinalMotion();
+		doReturn(false).when(mockFallMotion).canStart();
+		MenuMain.effectTimerProcess();
+		verify(mockFallMotion, never()).fallTimerStart(Mockito.any(ScheduledExecutorService.class));
+		verify(mockFinalMotion, atLeastOnce()).finalTimerStart(Mockito.any(ScheduledExecutorService.class));
+		assertThat(MenuMain.getMainFuture().isCancelled(), is(true));
+	}
+	
+	void setMockFinalMotion() {
+		mockFinalMotion = mock(FinalMotion.class);
+		FinalMotion[] mockFinalMotionArray = new FinalMotion[MenuMain.getFinalMotion().length];
+		Arrays.fill(mockFinalMotionArray, mockFinalMotion);
+		MenuMain.setFinalMotion(mockFinalMotionArray);
+		doNothing().when(mockFinalMotion).finalTimerStart(Mockito.any(ScheduledExecutorService.class));
+	}
+	
+	/**
+	 * 最終段階タイマーが稼働中ならschedulerも稼働していることを確認。
+	 */
+	@Test
+	void testsSchedulerEndProcessNotEnd() {
+		setMockFinalMotion();
+		doReturn(false).when(mockFinalMotion).canEnd();
+		MenuMain.schedulerEndProcess();
+		assertThat(MenuMain.getScheduler().isShutdown(), is(false));
+	}
+	
+	/**
+	 * 最終段階タイマーが停止したならschedulerも停止することを確認。
+	 */
+	@Test
+	void testsSchedulerEndProcessCanEnd() {
+		setMockFinalMotion();
+		doReturn(true).when(mockFinalMotion).canEnd();
+		MenuMain.schedulerEndProcess();
+		assertThat(MenuMain.getScheduler().isShutdown(), is(true));
 	}
 }
