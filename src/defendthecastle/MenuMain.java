@@ -119,21 +119,19 @@ public class MenuMain extends JPanel{
 		count++;
 		if(Stream.of(FallMotion).noneMatch(i -> i.canStart())) {
 			Stream.of(FinalMotion).forEach(i -> i.finalTimerStart(scheduler));
-			schedulerEndMonitor();
+			scheduler.scheduleAtFixedRate(this::schedulerEndProcess, 2, 1, TimeUnit.SECONDS);
 			mainFuture.cancel(true);
 		}
 	}
 	
-	void schedulerEndMonitor() {
-		scheduler.scheduleAtFixedRate(() -> {
-			if(Stream.of(FinalMotion).allMatch(i -> i.canEnd())) {
-				scheduler.shutdown();
-			}
-		}, 2, 1, TimeUnit.SECONDS);
+	void schedulerEndProcess() {
+		if(Stream.of(FinalMotion).allMatch(i -> i.canEnd())) {
+			scheduler.shutdown();
+		}
 	}
 	
 	//テスト用
-	void addTestButton() {
+	private void addTestButton() {
 		add(testButton);
 		testButton.addActionListener(e->{
 			new TestDataEdit();
@@ -218,5 +216,37 @@ public class MenuMain extends JPanel{
 
 	void setFallMotion(FallMotion[] fallMotion) {
 		FallMotion = fallMotion;
+	}
+
+	int getCount() {
+		return count;
+	}
+
+	void setCount(int count) {
+		this.count = count;
+	}
+
+	BufferedImage getTitleImage() {
+		return titleImage;
+	}
+
+	void setTitleImage(BufferedImage titleImage) {
+		this.titleImage = titleImage;
+	}
+
+	List<BufferedImage> getCoreImage() {
+		return coreImage;
+	}
+
+	void setCoreImage(List<BufferedImage> coreImage) {
+		this.coreImage = coreImage;
+	}
+
+	List<Integer> getRandamList() {
+		return randamList;
+	}
+
+	void setRandamList(List<Integer> randamList) {
+		this.randamList = randamList;
 	}
 }
