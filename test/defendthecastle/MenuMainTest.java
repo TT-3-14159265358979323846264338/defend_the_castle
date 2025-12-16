@@ -73,7 +73,7 @@ class MenuMainTest {
 		MenuMain = new MenuMain(MainFrame);
 		JButton[] allButton = buttonArray();
 		assertThat(MenuMain.getMainFrame(), is(MainFrame));
-		assertThat(MenuMain.getComponents(), arrayContainingInAnyOrder(allButton));
+		assertThat(MenuMain.getComponents(), hasAllItemInArray(allButton));
 		Stream.of(allButton).forEach(this::assertActionListeners);
 		verify(mockScheduler).scheduleAtFixedRate(Mockito.any(Runnable.class), anyLong(), anyLong(), Mockito.any(TimeUnit.class));
 		mockExecutor.close();

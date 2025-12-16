@@ -24,4 +24,14 @@ public class CustomMatcher {
 	public static Matcher<List<Integer>> periodicChange(int period){
 		return new MatcherOfPeriodicChange(period);
 	}
+	
+	/**
+	 * 与えられた配列の全ての要素が、元の配列内に含まれているか検査するMatcher。
+	 * @param target - 与えられた配列。
+	 * @return 与えられた配列の全ての要素が、元の配列内の要素に含まれていればテストは成功する。
+	 * 			要素の順番や個数は加味しない。
+	 */
+	public static Matcher<Object[]> hasAllItemInArray(Object[] target){
+		return new MatcherOfHavingAllItemInArray(target);
+	}
 }

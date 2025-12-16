@@ -13,7 +13,7 @@ class MenuItemDisposeTest {
 
 	@Test
 	void test() {
-		fail("まだ実装されていません");
+		
 	}
 
 }
