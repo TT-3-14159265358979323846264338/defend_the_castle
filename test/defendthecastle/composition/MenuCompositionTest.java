@@ -8,6 +8,8 @@ import static org.mockito.Mockito.*;
 import java.util.stream.Stream;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +28,7 @@ class MenuCompositionTest {
 
 	/**
 	 * ユニット画像が全て取り込まれていることを確認。<br>
-	 * コアと左武器はnull禁止で全て取り込まれている必要がある。<br>
+	 * コアと左武器はnull禁止で全て取り込まれている必要がある。
 	 * 右武器はnullの可能性があるので、Listの要素数が左武器と一致することを確認。
 	 */
 	@Test
@@ -37,22 +39,31 @@ class MenuCompositionTest {
 	}
 	
 	/**
-	 * 
+	 * MouseListenerが設定されていることを確認。<br>
+	 * 全てのComponentが追加されているか確認。<br>
+	 * ButtonにActionListenerが、ScrollにViewが設定されていることを確認。
 	 */
 	@Test
 	void testMenuComposition() {
+		JLabel[] allLabel = labelArray();
 		JButton[] allButton = buttonArray();
-		assertThat(MenuComposition.getComponents(), hasAllItemInArray(allButton));
+		JScrollPane[] allScroll = scrollArray();
+		assertThat(MenuComposition.getMouseListeners(), notNullValue());
+		assertThat(MenuComposition.getComponents(), allOf(hasAllItemInArray(allLabel),
+															hasAllItemInArray(allButton),
+															hasAllItemInArray(allScroll)));
 		Stream.of(allButton).forEach(this::assertActionListeners);
-		
-		
-		
-		
-		
+		Stream.of(allScroll).forEach(this::assertView);
+	}
+	
+	JLabel[] labelArray() {
+		return new JLabel[] {MenuComposition.getCompositionNameLabel(),
+				MenuComposition.getCompositionLabel(),
+				MenuComposition.getTypeLabel()};
 	}
 	
 	JButton[] buttonArray() {
-		return new JButton[]{MenuComposition.getNewButton(),
+		return new JButton[] {MenuComposition.getNewButton(),
 				MenuComposition.getRemoveButton(),
 				MenuComposition.getSwapButton(),
 				MenuComposition.getNameChangeButton(),
@@ -65,7 +76,16 @@ class MenuCompositionTest {
 		};
 	}
 	
+	JScrollPane[] scrollArray() {
+		return new JScrollPane[] {MenuComposition.getCompositionScroll(),
+				MenuComposition.getItemScroll()};
+	}
+	
 	void assertActionListeners(JButton button) {
 		assertThat(button.getActionListeners(), not(emptyArray()));
+	}
+	
+	void assertView(JScrollPane scroll) {
+		assertThat(scroll.getViewport().getView(), notNullValue());
 	}
 }
