@@ -71,6 +71,7 @@ public class MenuComposition extends JPanel implements MouseListener{
 		addItemScroll();
 	}
 	
+	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		setLabel(compositionNameLabel, "編成名", 10, 10, 130, 30);
