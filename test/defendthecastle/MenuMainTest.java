@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.util.Arrays;
@@ -20,8 +21,11 @@ import javax.swing.JButton;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+
+import testdataedit.TestDataEdit;
 
 class MenuMainTest {
 	private MainFrame MainFrame;
@@ -36,26 +40,14 @@ class MenuMainTest {
 	}
 	
 	/**
-	 * タイトル画像が取り込まれていることを確認。
-	 */
-	@Test
-	void testTitleImageNoNull() {
-		assertThat(MenuMain.getTitleImage(), notNullValue());
-	}
-	
-	/**
-	 * コア画像が全て取り込まれていることを確認。
-	 */
-	@Test
-	void testCoreImageNoNull() {
-		assertThat(MenuMain.getCoreImage(), everyItem(notNullValue()));
-	}
-	
-	/**
+	 * タイトル画像が取り込まれていることを確認。<br>
+	 * コア画像が全て取り込まれていることを確認。<br>
 	 * コア画像番号がランダムに格納されたリストであるか確認。
 	 */
 	@Test
-	void testRandamList() {
+	void testVariables() {
+		assertThat(MenuMain.getTitleImage(), notNullValue());
+		assertThat(MenuMain.getCoreImage(), everyItem(notNullValue()));
 		assertThat(MenuMain.getRandamList(), everyItem(allOf(lessThan(MenuMain.getCoreImage().size()), greaterThanOrEqualTo(0))));
 	}
 
@@ -109,6 +101,58 @@ class MenuMainTest {
 	void assertButton(JButton button) {
 		assertThat(button.getText(), not(emptyOrNullString()));
 		assertThat(button, displayAllText());
+	}
+	
+	/**
+	 * ガチャ画面が1回のみ呼び出されることを確認。
+	 */
+	@Test
+	void testItemGetButtonAction() {
+		ActionEvent e = mock(ActionEvent.class);
+		MenuMain.itemGetButtonAction(e);
+		verify(MainFrame, times(1)).itemGetMenuDraw();
+	}
+	
+	/**
+	 * リサイクル画面が1回のみ呼び出されることを確認。
+	 */
+	@Test
+	void testItemDisposeButtonAction() {
+		ActionEvent e = mock(ActionEvent.class);
+		MenuMain.itemDisposeButtonAction(e);
+		verify(MainFrame, times(1)).itemDisposeMenuDraw();
+	}
+	
+	/**
+	 * 編成画面が1回のみ呼び出されることを確認。
+	 */
+	@Test
+	void testCompositionButtonAction() {
+		ActionEvent e = mock(ActionEvent.class);
+		MenuMain.compositionButtonAction(e);
+		verify(MainFrame, times(1)).compositionDraw();
+	}
+	
+	/**
+	 * ステージ選択画面が1回のみ呼び出されることを確認。
+	 */
+	@Test
+	void testBattleButtonAction() {
+		ActionEvent e = mock(ActionEvent.class);
+		MenuMain.battleButtonAction(e);
+		verify(MainFrame, times(1)).selectStageDraw();
+	}
+	
+	/**
+	 * データ編集画面が1回のみ呼び出されることを確認。
+	 */
+	@Test
+	void testTestButtonAction() {
+		MockedConstruction<TestDataEdit> mockTestDataEdit = mockConstruction(TestDataEdit.class);
+		ActionEvent e = mock(ActionEvent.class);
+		MenuMain.testButtonAction(e);
+		assertThat(mockTestDataEdit.constructed(), hasSize(1));
+		mockTestDataEdit.close();
 	}
 	
 	/**
