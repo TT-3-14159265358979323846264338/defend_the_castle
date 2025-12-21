@@ -161,56 +161,28 @@ public class MenuMain extends JPanel{
 		return MainFrame;
 	}
 
-	void setMainFrame(MainFrame mainFrame) {
-		MainFrame = mainFrame;
-	}
-
 	JButton getItemGetButton() {
 		return itemGetButton;
-	}
-
-	void setItemGetButton(JButton itemGetButton) {
-		this.itemGetButton = itemGetButton;
 	}
 
 	JButton getItemDisposeButton() {
 		return itemDisposeButton;
 	}
 
-	void setItemDisposeButton(JButton itemDisposeButton) {
-		this.itemDisposeButton = itemDisposeButton;
-	}
-
 	JButton getCompositionButton() {
 		return compositionButton;
-	}
-
-	void setCompositionButton(JButton compositionButton) {
-		this.compositionButton = compositionButton;
 	}
 
 	JButton getSelectStageButton() {
 		return selectStageButton;
 	}
 
-	void setSelectStageButton(JButton selectStageButton) {
-		this.selectStageButton = selectStageButton;
-	}
-
 	JButton getTestButton() {
 		return testButton;
 	}
 
-	void setTestButton(JButton testButton) {
-		this.testButton = testButton;
-	}
-
 	ScheduledExecutorService getScheduler() {
 		return scheduler;
-	}
-
-	void setScheduler(ScheduledExecutorService scheduler) {
-		this.scheduler = scheduler;
 	}
 	
 	FinalMotion[] getFinalMotion() {
@@ -241,23 +213,11 @@ public class MenuMain extends JPanel{
 		return titleImage;
 	}
 
-	void setTitleImage(BufferedImage titleImage) {
-		this.titleImage = titleImage;
-	}
-
 	List<BufferedImage> getCoreImage() {
 		return coreImage;
 	}
 
-	void setCoreImage(List<BufferedImage> coreImage) {
-		this.coreImage = coreImage;
-	}
-
 	List<Integer> getRandamList() {
 		return randamList;
-	}
-
-	void setRandamList(List<Integer> randamList) {
-		this.randamList = randamList;
 	}
 }
