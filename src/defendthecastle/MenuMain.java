@@ -3,6 +3,7 @@ package defendthecastle;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Random;
@@ -66,30 +67,38 @@ public class MenuMain extends JPanel{
 	
 	private void addItemGetButton() {
 		add(itemGetButton);
-		itemGetButton.addActionListener(e->{
-			MainFrame.itemGetMenuDraw();
-		});
+		itemGetButton.addActionListener(this::itemGetButtonAction);
+	}
+	
+	void itemGetButtonAction(ActionEvent e) {
+		MainFrame.itemGetMenuDraw();
 	}
 	
 	private void addItemDisposeButton() {
 		add(itemDisposeButton);
-		itemDisposeButton.addActionListener(e->{
-			MainFrame.itemDisposeMenuDraw();
-		});
+		itemDisposeButton.addActionListener(this::itemDisposeButtonAction);
+	}
+	
+	void itemDisposeButtonAction(ActionEvent e) {
+		MainFrame.itemDisposeMenuDraw();
 	}
 	
 	private void addCompositionButton() {
 		add(compositionButton);
-		compositionButton.addActionListener(e->{
-			MainFrame.compositionDraw();
-		});
+		compositionButton.addActionListener(this::compositionButtonAction);
+	}
+	
+	void compositionButtonAction(ActionEvent e) {
+		MainFrame.compositionDraw();
 	}
 	
 	private void addBattleButton() {
 		add(selectStageButton);
-		selectStageButton.addActionListener(e->{
-			MainFrame.selectStageDraw();
-		});
+		selectStageButton.addActionListener(this::battleButtonAction);
+	}
+	
+	void battleButtonAction(ActionEvent e) {
+		MainFrame.selectStageDraw();
 	}
 	
 	private void setButton(JButton button, String name, int x, int y, int width, int height) {
@@ -133,9 +142,11 @@ public class MenuMain extends JPanel{
 	//テスト用
 	private void addTestButton() {
 		add(testButton);
-		testButton.addActionListener(e->{
-			new TestDataEdit();
-		});
+		testButton.addActionListener(this::testButtonAction);
+	}
+	
+	void testButtonAction(ActionEvent e) {
+		new TestDataEdit();
 	}
 
 	ScheduledFuture<?> getMainFuture() {
