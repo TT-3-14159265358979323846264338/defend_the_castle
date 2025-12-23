@@ -99,7 +99,6 @@ class MenuMainTest {
 	}
 	
 	void assertButton(JButton button) {
-		assertThat(button.getText(), not(emptyOrNullString()));
 		assertThat(button, displayAllText());
 	}
 	

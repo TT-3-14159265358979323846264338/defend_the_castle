@@ -26,13 +26,13 @@ class MatcherOfDisplayAllText extends BaseMatcher<JComponent>{
 		return canClearTest();
 	}
 	
-	String text(Object comp) {
-		if(comp instanceof JButton) {
-			JButton button = (JButton) comp;
+	String text(Object obj) {
+		if(obj instanceof JButton) {
+			JButton button = (JButton) obj;
 			return button.getText();
 		}
-		if(comp instanceof JLabel) {
-			JLabel label = (JLabel) comp;
+		if(obj instanceof JLabel) {
+			JLabel label = (JLabel) obj;
 			return label.getText();
 		}
 		return "";
@@ -40,7 +40,15 @@ class MatcherOfDisplayAllText extends BaseMatcher<JComponent>{
 	
 	void install(Object obj, String text) {
 		JComponent comp = (JComponent) obj;
-		Insets margin = comp.getBorder().getBorderInsets(comp);
+		Insets margin;
+		try{
+			margin = comp.getBorder().getBorderInsets(comp);
+			if(margin == null) {
+				margin = new Insets(0, 0, 0, 0);
+			}
+		}catch(Exception e) {
+			margin = new Insets(0, 0, 0, 0);
+		}
 		displayWidth = comp.getFontMetrics(comp.getFont()).stringWidth(text) + margin.left + margin.right;
 		actualWidth = comp.getWidth() ;
 		displayHeight = comp.getFontMetrics(comp.getFont()).getHeight() + margin.top + margin.bottom;
@@ -67,7 +75,7 @@ class MatcherOfDisplayAllText extends BaseMatcher<JComponent>{
 			return;
 		}
 		desc.appendText("このテキストを表示するには最低限");
-		desc.appendValue(String.format("幅%d, 高さ%d", displayWidth, displayHeight));
+		desc.appendValue(String.format("幅%d, 高さ%d", displayWidth + 1, displayHeight + 1));
 		desc.appendText("が必要です。しかし、このJButtonの設定値は");
 		desc.appendValue(String.format("幅%d, 高さ%d", actualWidth, actualHeight));
 		desc.appendText("です。");

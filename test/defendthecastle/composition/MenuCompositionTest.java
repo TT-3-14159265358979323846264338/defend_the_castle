@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.util.stream.Stream;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
@@ -92,11 +93,15 @@ class MenuCompositionTest {
 	}
 	
 	/**
-	 * 
+	 * JLabel, JButtonにテキストが設定されており、テキストの全文が表示可能であるか確認。
+	 * 選択した編成とその編成でのユニット数計算を呼び出していることを確認。
 	 */
 	@Test
 	void testPaintComponent() {
 		JLabel[] allLabel = labelArray();
+		JButton[] allButton = buttonArray();
+		SaveData SaveData = mock(SaveData.class);
+		MenuComposition.setSaveData(SaveData);
 		
 		
 		
@@ -105,11 +110,17 @@ class MenuCompositionTest {
 		
 		
 		
-		
-		
+		Stream.of(allLabel).forEach(this::assertText);
+		Stream.of(allButton).forEach(this::assertText);
+		verify(SaveData).selectNumberUpdate(anyInt());
+		verify(SaveData).countNumber();
 	}
 	
 	Graphics brankGraphics() {
 		return new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB).createGraphics();
+	}
+	
+	void assertText(JComponent comp) {
+		assertThat(comp, displayAllText());
 	}
 }
