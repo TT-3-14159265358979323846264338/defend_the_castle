@@ -12,7 +12,7 @@ public class CustomMatcher {
 	 * 事前にsetText, setFont, setBoundsなどで表示情報を設定しておくこと。
 	 * @return JButton, JLabelに対するMatcherを返却する。
 	 * 			テキストが全て表示可能であればテストは成功する。
-	 * 			getBorder()による余白設定を考慮する。
+	 * 			setBorder()による余白設定を考慮する。
 	 */
 	public static Matcher<JComponent> displayAllText() {
         return new MatcherOfDisplayAllText();
