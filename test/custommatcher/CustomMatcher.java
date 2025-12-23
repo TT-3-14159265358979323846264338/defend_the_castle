@@ -12,8 +12,8 @@ public class CustomMatcher {
 	 * 事前にsetText, setFont, setBoundsなどで表示情報を設定しておくこと。
 	 * @return JButtonに対するMatcherを返却する。テキストが全て表示可能であればテストは成功する。
 	 */
-	public static Matcher<JButton> displayAllText() {
-        return new MatcherOfDisplayAllText();
+	public static Matcher<JButton> displayAllTextInButton() {
+        return new MatcherOfDisplayAllTextInButton();
     }
 	
 	/**

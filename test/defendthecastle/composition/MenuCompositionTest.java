@@ -5,6 +5,8 @@ import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.util.stream.Stream;
 
 import javax.swing.JButton;
@@ -87,5 +89,27 @@ class MenuCompositionTest {
 	
 	void assertView(JScrollPane scroll) {
 		assertThat(scroll.getViewport().getView(), notNullValue());
+	}
+	
+	/**
+	 * 
+	 */
+	@Test
+	void testPaintComponent() {
+		JLabel[] allLabel = labelArray();
+		
+		
+		
+		MenuComposition.paintComponent(brankGraphics());
+		
+		
+		
+		
+		
+		
+	}
+	
+	Graphics brankGraphics() {
+		return new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB).createGraphics();
 	}
 }
