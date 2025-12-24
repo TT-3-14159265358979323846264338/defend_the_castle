@@ -98,20 +98,11 @@ class MenuCompositionTest {
 	 */
 	@Test
 	void testPaintComponent() {
-		JLabel[] allLabel = labelArray();
-		JButton[] allButton = buttonArray();
 		SaveData SaveData = mock(SaveData.class);
 		MenuComposition.setSaveData(SaveData);
-		
-		
-		
 		MenuComposition.paintComponent(brankGraphics());
-		
-		
-		
-		
-		Stream.of(allLabel).forEach(this::assertText);
-		Stream.of(allButton).forEach(this::assertText);
+		Stream.of(labelArray()).forEach(this::assertText);
+		Stream.of(buttonArray()).forEach(this::assertText);
 		verify(SaveData).selectNumberUpdate(anyInt());
 		verify(SaveData).countNumber();
 	}
