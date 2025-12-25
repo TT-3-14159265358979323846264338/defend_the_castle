@@ -3,10 +3,15 @@ package defendthecastle.composition;
 import static custommatcher.CustomMatcher.*;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 import javax.swing.JButton;
@@ -16,6 +21,7 @@ import javax.swing.JScrollPane;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import defendthecastle.MainFrame;
 
@@ -113,5 +119,48 @@ class MenuCompositionTest {
 	
 	void assertText(JComponent comp) {
 		assertThat(comp, displayAllText());
+	}
+	
+	/**
+	 * 編成された8体の武器とコア合計3個を表示することを確認。
+	 */
+	@Test
+	void testDrawCompositionOfDrawingAll() {
+		setUnitNumber(0);
+		setImage();
+		Graphics mockGraphics = mock(Graphics.class);
+		MenuComposition.drawComposition(mockGraphics);
+		verify(mockGraphics, times(24)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
+	}
+	
+	/**
+	 * 編成された8体の武器画像がnullの時、コアのみを表示することを確認。
+	 */
+	@Test
+	void testDrawCompositionOfDrawingCore() {
+		setUnitNumber(1);
+		setImage();
+		Graphics mockGraphics = mock(Graphics.class);
+		MenuComposition.drawComposition(mockGraphics);
+		verify(mockGraphics, times(8)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
+	}
+	
+	void setUnitNumber(int index) {
+		SaveData mockSaveData = mock(SaveData.class);
+		List<?> mockList = mock(List.class);
+		MenuComposition.setSaveData(mockSaveData);
+		doReturn(mockList).when(mockSaveData).getActiveCompositionList();
+		doReturn(8).when(mockList).size();
+		doReturn(mockList).when(mockSaveData).getActiveUnit(anyInt());
+		doReturn(index).when(mockList).get(anyInt());
+	}
+	
+	void setImage() {
+		BufferedImage brankImage = mock(BufferedImage.class);
+		List<BufferedImage> weaponList = Arrays.asList(brankImage, null);
+		List<BufferedImage> coreList = Arrays.asList(brankImage, brankImage);
+		MenuComposition.setRightWeaponList(weaponList);
+		MenuComposition.setCeterCoreList(coreList);
+		MenuComposition.setLeftWeaponList(weaponList);
 	}
 }
