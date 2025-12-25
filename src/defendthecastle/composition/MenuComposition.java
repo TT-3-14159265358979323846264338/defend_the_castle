@@ -77,14 +77,14 @@ public class MenuComposition extends JPanel implements MouseListener{
 		setLabel(compositionNameLabel, "編成名", 10, 10, 130, 30);
 		setLabel(compositionLabel, "ユニット編成", 230, 10, 130, 30);
 		setLabel(typeLabel, (itemScroll.getViewport().getView() == CoreImagePanel)? "コアリスト": "武器リスト", 570, 10, 130, 30);
-		setButton(newButton, "編成追加", 10, 250, 100, 60);
-		setButton(removeButton, "編成削除", 120, 250, 100, 60);
-		setButton(swapButton, "編成入替", 10, 320, 100, 60);
-		setButton(nameChangeButton, "名称変更", 120, 320, 100, 60);
-		setButton(saveButton, "セーブ", 10, 390, 100, 60);
-		setButton(loadButton, "ロード", 120, 390, 100, 60);
-		setButton(resetButton, "リセット", 10, 460, 100, 60);
-		setButton(returnButton, "戻る", 120, 460, 100, 60);
+		setButton(newButton, "編成追加", 10, 250, 101, 60);
+		setButton(removeButton, "編成削除", 120, 250, 101, 60);
+		setButton(swapButton, "編成入替", 10, 320, 101, 60);
+		setButton(nameChangeButton, "名称変更", 120, 320, 101, 60);
+		setButton(saveButton, "セーブ", 10, 390, 101, 60);
+		setButton(loadButton, "ロード", 120, 390, 101, 60);
+		setButton(resetButton, "リセット", 10, 460, 101, 60);
+		setButton(returnButton, "戻る", 120, 460, 101, 60);
 		setButton(switchButton, "表示切替", 570, 460, 185, 60);
 		setButton(sortButton, "ソート", 765, 460, 185, 60);
 		compositionJList.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
@@ -216,7 +216,7 @@ public class MenuComposition extends JPanel implements MouseListener{
 		compositionJList.setSelectedIndex(SaveData.getSelectNumber());
 	}
 	
-	private void drawComposition(Graphics g) {
+	void drawComposition(Graphics g) {
 		g.setColor(Color.WHITE);
 		g.fillRect(230, 40, 330, 480);
 		IntStream.range(0, SaveData.getActiveCompositionList().size()).forEach(i -> {
@@ -234,11 +234,11 @@ public class MenuComposition extends JPanel implements MouseListener{
 		});
 	}
 	
-	private int getPositionX(int i) {
+	int getPositionX(int i) {
 		return 230 + i % 2 * 150;
 	}
 	
-	private int getPositionY(int i) {
+	int getPositionY(int i) {
 		return 40 + i / 2 * 100;
 	}
 	
