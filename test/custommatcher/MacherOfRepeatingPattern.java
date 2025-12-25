@@ -1,14 +1,15 @@
 package custommatcher;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
-class MatcherOfPeriodicChange extends BaseMatcher<List<Integer>>{
+class MacherOfRepeatingPattern extends BaseMatcher<List<Integer>>{
 	private int period;
 	
-	MatcherOfPeriodicChange(int period) {
+	MacherOfRepeatingPattern(int period) {
 		this.period = period;
 	}
 	
@@ -22,8 +23,11 @@ class MatcherOfPeriodicChange extends BaseMatcher<List<Integer>>{
 		}
 		@SuppressWarnings("unchecked")
 		List<Integer> list = (List<Integer>) obj;
-		for(int i = 0; i < period; i++) {
-			if(canLoopEveryCycle(i, list, period)) {
+		List<List<Integer>> repeatList = IntStream.range(0, (int) Math.ceil((double) list.size() / period))
+												.mapToObj(i -> list.stream().skip(i * period).limit(period).toList())
+												.toList();
+		for(List<Integer> i: repeatList) {
+			if(i.stream().allMatch(j -> i.get(0).equals(j))) {
 				continue;
 			}
 			return false;
@@ -44,24 +48,12 @@ class MatcherOfPeriodicChange extends BaseMatcher<List<Integer>>{
 		return true;
 	}
 	
-	boolean canLoopEveryCycle(int number, List<Integer> position, int cycle) {
-		int index = number + cycle;
-		do{
-			if(position.get(number).equals(position.get(index))) {
-				index += cycle;
-				continue;
-			}
-			return false;
-		}while(index < position.size());
-		return true;
-	}
-
 	@Override
 	public void describeTo(Description desc) {
 		if(period < 2) {
 			desc.appendText("指定する周期は2以上にしてください");
 			return;
 		}
-		desc.appendText("与えられたList<Integer>は、指定した周期ごとに値がループしていません。");
+		desc.appendText("与えられたList<Integer>は、指定した周期ごとに同じ値が並んでいません。");
 	}
 }

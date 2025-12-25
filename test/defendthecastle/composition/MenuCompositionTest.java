@@ -10,8 +10,10 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.swing.JButton;
@@ -23,6 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import defaultdata.DefaultUnit;
 import defendthecastle.MainFrame;
 
 class MenuCompositionTest {
@@ -122,45 +125,64 @@ class MenuCompositionTest {
 	}
 	
 	/**
-	 * 編成された8体の武器とコア合計3個を表示することを確認。
+	 * 武器とコア合計3個を表示することを確認。
 	 */
 	@Test
 	void testDrawCompositionOfDrawingAll() {
-		setUnitNumber(0);
+		setUnitListIndex(0);
 		setImage();
 		Graphics mockGraphics = mock(Graphics.class);
 		MenuComposition.drawComposition(mockGraphics);
-		verify(mockGraphics, times(24)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
+		verify(mockGraphics, times(3)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
 	}
 	
 	/**
-	 * 編成された8体の武器画像がnullの時、コアのみを表示することを確認。
+	 * 武器画像がない時(画像リストのindexが-1)、コアのみを表示することを確認。
 	 */
 	@Test
 	void testDrawCompositionOfDrawingCore() {
-		setUnitNumber(1);
+		setUnitListIndex(-1);
 		setImage();
 		Graphics mockGraphics = mock(Graphics.class);
 		MenuComposition.drawComposition(mockGraphics);
-		verify(mockGraphics, times(8)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
+		verify(mockGraphics, times(1)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
 	}
 	
-	void setUnitNumber(int index) {
+	void setUnitListIndex(int index) {
 		SaveData mockSaveData = mock(SaveData.class);
 		List<?> mockList = mock(List.class);
 		MenuComposition.setSaveData(mockSaveData);
 		doReturn(mockList).when(mockSaveData).getActiveCompositionList();
-		doReturn(8).when(mockList).size();
+		doReturn(1).when(mockList).size();
 		doReturn(mockList).when(mockSaveData).getActiveUnit(anyInt());
 		doReturn(index).when(mockList).get(anyInt());
+		doReturn(0).when(mockList).get(DefaultUnit.CORE);
 	}
 	
 	void setImage() {
-		BufferedImage brankImage = mock(BufferedImage.class);
-		List<BufferedImage> weaponList = Arrays.asList(brankImage, null);
-		List<BufferedImage> coreList = Arrays.asList(brankImage, brankImage);
-		MenuComposition.setRightWeaponList(weaponList);
-		MenuComposition.setCeterCoreList(coreList);
-		MenuComposition.setLeftWeaponList(weaponList);
+		List<BufferedImage> imageList = Arrays.asList(mock(BufferedImage.class));
+		MenuComposition.setRightWeaponList(imageList);
+		MenuComposition.setCeterCoreList(imageList);
+		MenuComposition.setLeftWeaponList(imageList);
+	}
+	
+	/**
+	 * x座標は2の倍数ごとに値がループしていることを確認。
+	 */
+	@Test
+	void testGetPositionX() {
+		List<Integer> list = new ArrayList<>();
+		IntStream.range(0, 10).forEach(i -> list.add(MenuComposition.getPositionX(i)));
+		assertThat(list, periodicChange(2));
+	}
+	
+	/**
+	 * y座標は2の倍数ごとに同じ値が並んでいることを確認。
+	 */
+	@Test
+	void testGetPositionY() {
+		List<Integer> list = new ArrayList<>();
+		IntStream.range(0, 10).forEach(i -> list.add(MenuComposition.getPositionY(i)));
+		assertThat(list, repeatingPattern(2));
 	}
 }

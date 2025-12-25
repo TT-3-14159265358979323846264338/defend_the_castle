@@ -20,13 +20,25 @@ public class CustomMatcher {
     }
 	
 	/**
-	 * List内に格納された値が一定周期ごとにループしているか検査するMatcher。
-	 * @param period - 指定する周期。
+	 * List内に格納された値が一定周期ごとにループしているか検査するMatcher。<br>
+	 * テスト成功例) Arrays.asList(0, 2, 4, 6, 0, 2, 4, 6, 0, 2, 4, 6)
+	 * @param period - 指定する周期。値が2以上でなければテストは失敗する。
 	 * @return List(Integer)に対するMatcherを返却する。
 	 * 			指定した周期ごとに値がループしていればテストは成功する。
 	 */
 	public static Matcher<List<Integer>> periodicChange(int period){
 		return new MatcherOfPeriodicChange(period);
+	}
+	
+	/**
+	 * List内に格納された値が一定周期ごとに同じ値が並んでいるか検査するMatcher。<br>
+	 * テスト成功例) Arrays.asList(0, 0, 0, 2, 2, 2, 4, 4, 4, 6, 6, 6)
+	 * @param period - 指定する周期。値が2以上でなければテストは失敗する。
+	 * @return List(Integer)に対するMatcherを返却する。
+	 * 			指定した周期ごとに同じ値が並んでいるならテストは成功する。
+	 */
+	public static Matcher<List<Integer>> repeatingPattern(int period){
+		return new MacherOfRepeatingPattern(period);
 	}
 	
 	/**
