@@ -86,7 +86,7 @@ class ImagePanel extends JPanel implements MouseListener{
 					selectNumber = displayList.get(i);
 				}
 				break;
-	    	}
+			}
 			if(i == displayList.size() - 1) {
 				resetSelectNumber();
 			}

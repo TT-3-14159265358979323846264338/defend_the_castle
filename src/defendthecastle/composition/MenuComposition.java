@@ -3,6 +3,7 @@ package defendthecastle.composition;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -26,6 +27,7 @@ import screendisplay.DisplayStatus;
 //編成
 public class MenuComposition extends JPanel implements MouseListener{
 	public static final int SIZE = 60;
+	private MainFrame MainFrame;
 	private JLabel compositionNameLabel = new JLabel();
 	private JLabel compositionLabel = new JLabel();
 	private JLabel typeLabel = new JLabel();
@@ -52,6 +54,7 @@ public class MenuComposition extends JPanel implements MouseListener{
 	private List<BufferedImage> leftWeaponList = IntStream.range(0, DefaultUnit.WEAPON_DATA_MAP.size()).mapToObj(i -> DefaultUnit.WEAPON_DATA_MAP.get(i).getLeftActionImage(2).get(0)).toList();
 	
 	public MenuComposition(MainFrame MainFrame) {
+		this.MainFrame = MainFrame;
 		addMouseListener(this);
 		setBackground(new Color(240, 170, 80));
 		add(compositionNameLabel);
@@ -64,7 +67,7 @@ public class MenuComposition extends JPanel implements MouseListener{
 		addSaveButton();
 		addLoadButton();
 		addResetButton();
-		addReturnButton(MainFrame);
+		addReturnButton();
 		addSwitchButton();
 		addSortButton();
 		addCompositionScroll();
@@ -98,85 +101,105 @@ public class MenuComposition extends JPanel implements MouseListener{
 	
 	private void addNewButton(){
 		add(newButton);
-		newButton.addActionListener(e->{
-			SaveData.addNewComposition();
-			modelUpdate();
-		});
+		newButton.addActionListener(this::newButtonAction);
+	}
+	
+	void newButtonAction(ActionEvent e) {
+		SaveData.addNewComposition();
+		modelUpdate();
 	}
 	
 	private void addRemoveButton() {
 		add(removeButton);
-		removeButton.addActionListener(e->{
-			SaveData.removeComposition(compositionJList.getSelectedIndices());
-			modelUpdate();
-		});
+		removeButton.addActionListener(this::removeButtonAction);
+	}
+	
+	void removeButtonAction(ActionEvent e) {
+		SaveData.removeComposition(compositionJList.getSelectedIndices());
+		modelUpdate();
 	}
 	
 	private void addSwapButton(){
 		add(swapButton);
-		swapButton.addActionListener(e->{
-			SaveData.swapComposition(compositionJList.getMaxSelectionIndex(), compositionJList.getMinSelectionIndex());
-			modelUpdate();
-		});
+		swapButton.addActionListener(this::swapButtonAction);
+	}
+	
+	void swapButtonAction(ActionEvent e) {
+		SaveData.swapComposition(compositionJList.getMaxSelectionIndex(), compositionJList.getMinSelectionIndex());
+		modelUpdate();
 	}
 	
 	private void addNameChangeButton() {
 		add(nameChangeButton);
-		nameChangeButton.addActionListener(e->{
-			String newName = SaveData.changeCompositionName();
-			if(newName != null) {
-				compositionListModel.set(SaveData.getSelectNumber(), newName);
-			}
-		});
+		nameChangeButton.addActionListener(this::nameChangeButtonAction);
+	}
+	
+	void nameChangeButtonAction(ActionEvent e) {
+		String newName = SaveData.changeCompositionName();
+		if(newName != null) {
+			compositionListModel.set(SaveData.getSelectNumber(), newName);
+		}
 	}
 	
 	private void addSaveButton() {
 		add(saveButton);
-		saveButton.addActionListener(e->{
-			SaveData.saveProcessing();
-		});
+		saveButton.addActionListener(this::saveButtonAction);
+	}
+	
+	void saveButtonAction(ActionEvent e) {
+		SaveData.saveProcessing();
 	}
 	
 	private void addLoadButton() {
 		add(loadButton);
-		loadButton.addActionListener(e->{
-			SaveData.loadProcessing();
-			modelUpdate();
-		});
+		loadButton.addActionListener(this::loadButtonAction);
+	}
+	
+	void loadButtonAction(ActionEvent e) {
+		SaveData.loadProcessing();
+		modelUpdate();
 	}
 	
 	private void addResetButton() {
 		add(resetButton);
-		resetButton.addActionListener(e->{
-			SaveData.resetComposition();
-		});
+		resetButton.addActionListener(this::resetButtonAction);
 	}
 	
-	private void addReturnButton(MainFrame MainFrame) {
+	void resetButtonAction(ActionEvent e) {
+		SaveData.resetComposition();
+	}
+	
+	private void addReturnButton() {
 		add(returnButton);
-		returnButton.addActionListener(e->{
-			if(SaveData.returnProcessing()) {
-				MainFrame.mainMenuDraw();
-			}
-		});
+		returnButton.addActionListener(this::returnButtonAction);
+	}
+	
+	void returnButtonAction(ActionEvent e) {
+		if(SaveData.returnProcessing()) {
+			MainFrame.mainMenuDraw();
+		}
 	}
 	
 	private void addSwitchButton() {
 		add(switchButton);
-		switchButton.addActionListener(e->{
-			itemScroll.getViewport().setView((itemScroll.getViewport().getView() == CoreImagePanel)? WeaponImagePanel: CoreImagePanel);
-		});
+		switchButton.addActionListener(this::switchButtonAction);
+	}
+	
+	void switchButtonAction(ActionEvent e) {
+		itemScroll.getViewport().setView((itemScroll.getViewport().getView() == CoreImagePanel)? WeaponImagePanel: CoreImagePanel);
 	}
 	
 	private void addSortButton() {
 		add(sortButton);
-		sortButton.addActionListener(e->{
-			if(itemScroll.getViewport().getView() == CoreImagePanel) {
-				CoreImagePanel.updateList(DisplayListCreation.getCoreDisplayList());
-			}else {
-				WeaponImagePanel.updateList(DisplayListCreation.getWeaponDisplayList());
-			}
-		});
+		sortButton.addActionListener(this::sortButtonAction);
+	}
+	
+	void sortButtonAction(ActionEvent e) {
+		if(itemScroll.getViewport().getView() == CoreImagePanel) {
+			CoreImagePanel.updateList(DisplayListCreation.getCoreDisplayList());
+		}else {
+			WeaponImagePanel.updateList(DisplayListCreation.getWeaponDisplayList());
+		}
 	}
 	
 	private void addCompositionScroll() {
@@ -210,7 +233,7 @@ public class MenuComposition extends JPanel implements MouseListener{
 		scroll.setPreferredSize(scroll.getSize());
 	}
 	
-	private void modelUpdate() {
+	void modelUpdate() {
 		compositionListModel.clear();
 		SaveData.getCompositionNameList().stream().forEach(i -> compositionListModel.addElement(i));
 		compositionJList.setSelectedIndex(SaveData.getSelectNumber());
@@ -273,14 +296,12 @@ public class MenuComposition extends JPanel implements MouseListener{
 				if(0 < SaveData.getCoreNumberList().get(selectCore)) {
 					SaveData.changeCore(number, selectCore);
 					CoreImagePanel.resetSelectNumber();
-					SaveData.countNumber();
 				}
 			}else {
 				int selectWeapon = WeaponImagePanel.getSelectNumber();
 				if(0 < SaveData.getWeaponNumberList().get(selectWeapon)) {
 					SaveData.changeWeapon(number, selectWeapon);
 					WeaponImagePanel.resetSelectNumber();
-					SaveData.countNumber();
 				}
 			}
 		}catch(Exception notSelect) {
