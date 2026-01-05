@@ -252,25 +252,7 @@ public class MenuComposition extends JPanel implements MouseListener{
 			int y = getPositionY(i) + 60;
 			if(ValueRange.of(x, x + SIZE).isValidIntValue(e.getX())
 					&& ValueRange.of(y, y + SIZE).isValidIntValue(e.getY())){
-				try {
-					if(itemScroll.getViewport().getView() == CoreImagePanel) {
-						int selectCore = CoreImagePanel.getSelectNumber();
-						if(0 < SaveData.getCoreNumberList().get(selectCore)) {
-							SaveData.changeCore(i, selectCore);
-							CoreImagePanel.resetSelectNumber();
-							SaveData.countNumber();
-						}
-					}else {
-						int selectWeapon = WeaponImagePanel.getSelectNumber();
-						if(0 < SaveData.getWeaponNumberList().get(selectWeapon)) {
-							SaveData.changeWeapon(i, selectWeapon);
-							WeaponImagePanel.resetSelectNumber();
-							SaveData.countNumber();
-						}
-					}
-				}catch(Exception notSelect) {
-					new DisplayStatus().unit(EditImage.compositeImage(getImageList(SaveData.getActiveUnit(i))), SaveData.getActiveUnit(i));
-				}
+				unitOperation(i);
 			}
 		});
 	}
@@ -282,6 +264,28 @@ public class MenuComposition extends JPanel implements MouseListener{
 	}
 	@Override
 	public void mouseExited(MouseEvent e) {
+	}
+	
+	void unitOperation(int number) {
+		try {
+			if(itemScroll.getViewport().getView() == CoreImagePanel) {
+				int selectCore = CoreImagePanel.getSelectNumber();
+				if(0 < SaveData.getCoreNumberList().get(selectCore)) {
+					SaveData.changeCore(number, selectCore);
+					CoreImagePanel.resetSelectNumber();
+					SaveData.countNumber();
+				}
+			}else {
+				int selectWeapon = WeaponImagePanel.getSelectNumber();
+				if(0 < SaveData.getWeaponNumberList().get(selectWeapon)) {
+					SaveData.changeWeapon(number, selectWeapon);
+					WeaponImagePanel.resetSelectNumber();
+					SaveData.countNumber();
+				}
+			}
+		}catch(Exception notSelect) {
+			new DisplayStatus().unit(EditImage.compositeImage(getImageList(SaveData.getActiveUnit(number))), SaveData.getActiveUnit(number));
+		}
 	}
 	
 	private List<BufferedImage> getImageList(List<Integer> unitData){
