@@ -8,6 +8,7 @@ import static org.mockito.Mockito.*;
 
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
@@ -18,13 +19,16 @@ import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JScrollPane;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedConstruction.MockInitializer;
 import org.mockito.Mockito;
@@ -111,13 +115,19 @@ class MenuCompositionTest {
 	 */
 	@Test
 	void testPaintComponent() {
-		SaveData SaveData = mock(SaveData.class);
-		MenuComposition.setSaveData(SaveData);
+		SaveData mockSaveData = createMockSaveData();
 		MenuComposition.paintComponent(brankGraphics());
 		Stream.of(labelArray()).forEach(this::assertText);
 		Stream.of(buttonArray()).forEach(this::assertText);
-		verify(SaveData).selectNumberUpdate(anyInt());
-		verify(SaveData).countNumber();
+		verify(mockSaveData).selectNumberUpdate(anyInt());
+		verify(mockSaveData).countNumber();
+	}
+	
+	SaveData createMockSaveData() {
+		SaveData mockSaveData = mock(SaveData.class);
+		doReturn(Arrays.asList("test")).when(mockSaveData).getCompositionNameList();
+		MenuComposition.setSaveData(mockSaveData);
+		return mockSaveData;
 	}
 	
 	Graphics brankGraphics() {
@@ -133,11 +143,15 @@ class MenuCompositionTest {
 	 */
 	@Test
 	void testDrawCompositionOfDrawingAll() {
-		setUnitListIndex(0);
-		setImage();
-		Graphics mockGraphics = mock(Graphics.class);
+		createMockUnitList(0);
+		creatMockImage();
+		Graphics mockGraphics = createMockGraphics();
 		MenuComposition.drawComposition(mockGraphics);
 		verify(mockGraphics, times(3)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
+	}
+	
+	Graphics createMockGraphics() {
+		return mock(Graphics.class);
 	}
 	
 	/**
@@ -145,17 +159,16 @@ class MenuCompositionTest {
 	 */
 	@Test
 	void testDrawCompositionOfDrawingCore() {
-		setUnitListIndex(-1);
-		setImage();
-		Graphics mockGraphics = mock(Graphics.class);
+		createMockUnitList(-1);
+		creatMockImage();
+		Graphics mockGraphics = createMockGraphics();
 		MenuComposition.drawComposition(mockGraphics);
 		verify(mockGraphics, times(1)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
 	}
 	
-	void setUnitListIndex(int index) {
-		SaveData mockSaveData = mock(SaveData.class);
+	void createMockUnitList(int index) {
+		SaveData mockSaveData = createMockSaveData();
 		List<?> mockList = mock(List.class);
-		MenuComposition.setSaveData(mockSaveData);
 		doReturn(mockList).when(mockSaveData).getActiveCompositionList();
 		doReturn(1).when(mockList).size();
 		doReturn(mockList).when(mockSaveData).getActiveUnit(anyInt());
@@ -163,11 +176,65 @@ class MenuCompositionTest {
 		doReturn(0).when(mockList).get(DefaultUnit.CORE);
 	}
 	
-	void setImage() {
+	void creatMockImage() {
 		List<BufferedImage> imageList = Arrays.asList(mock(BufferedImage.class));
 		MenuComposition.setRightWeaponList(imageList);
 		MenuComposition.setCeterCoreList(imageList);
 		MenuComposition.setLeftWeaponList(imageList);
+	}
+	
+	/**
+	 * 
+	 */
+	@Test
+	void testNewButtonAction() {
+		
+		
+		//MenuComposition.newButtonAction(mock(ActionEvent.class));
+		
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * Scroll用のModelを初期化した後、再度要素の追加と選択を行うことを確認。
+	 */
+	@Test
+	void testModelUpdate() {
+		DefaultListModel<String> mockModel = createMockModel();
+		JList<String> mockJList = createMockJList();
+		InOrder InOrder = inOrder(mockModel, mockJList);
+		createMockSaveData();
+		MenuComposition.modelUpdate();
+		InOrder.verify(mockModel).clear();
+		InOrder.verify(mockModel).addElement(anyString());
+		InOrder.verify(mockJList).setSelectedIndex(anyInt());
+	}
+	
+	DefaultListModel<String> createMockModel(){
+		@SuppressWarnings("unchecked")
+		DefaultListModel<String> mockModel = mock(DefaultListModel.class);
+		MenuComposition.setCompositionListModel(mockModel);
+		return mockModel;
+	}
+	
+	JList<String> createMockJList(){
+		@SuppressWarnings("unchecked")
+		JList<String> mockJList = mock(JList.class);
+		MenuComposition.setCompositionJList(mockJList);
+		return mockJList;
 	}
 	
 	/**
@@ -196,9 +263,9 @@ class MenuCompositionTest {
 	@Test
 	void testMousePressedOperationUnit() {
 		MockedConstruction<ValueRange> mockValueRange = mockConstruction(ValueRange.class, defineMockInitializer(true));
-		setUnitListIndex(0);
+		createMockUnitList(0);
 		doNothing().when(MenuComposition).unitOperation(anyInt());
-		MenuComposition.mousePressed(mock(MouseEvent.class));
+		MenuComposition.mousePressed(createMockMouseEvent());
 		verify(MenuComposition, times(1)).unitOperation(anyInt());
 		mockValueRange.close();
 	}
@@ -209,9 +276,9 @@ class MenuCompositionTest {
 	@Test
 	void testMousePressedNotOperationUnit() {
 		MockedConstruction<ValueRange> mockValueRange = mockConstruction(ValueRange.class, defineMockInitializer(false));
-		setUnitListIndex(0);
+		createMockUnitList(0);
 		doNothing().when(MenuComposition).unitOperation(anyInt());
-		MenuComposition.mousePressed(mock(MouseEvent.class));
+		MenuComposition.mousePressed(createMockMouseEvent());
 		verify(MenuComposition, never()).unitOperation(anyInt());
 		mockValueRange.close();
 	}
@@ -220,11 +287,21 @@ class MenuCompositionTest {
 		return (mock, context) -> doReturn(exist).when(mock).isValidIntValue(anyLong());
 	}
 	
+	MouseEvent createMockMouseEvent() {
+		return mock(MouseEvent.class);
+	}
+	
 	/**
 	 * 
 	 */
 	@Test
-	void testUnitOperatio() {
+	void testUnitOperationCoreImagePanelSelection() {
+		
+		
+		
+		//MenuComposition.unitOperation(0);
+		
+		
 		
 	}
 }
