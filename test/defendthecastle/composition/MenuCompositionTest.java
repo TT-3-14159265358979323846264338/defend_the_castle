@@ -8,8 +8,10 @@ import static org.mockito.Mockito.*;
 
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
+import java.time.temporal.ValueRange;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +25,8 @@ import javax.swing.JScrollPane;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedConstruction;
+import org.mockito.MockedConstruction.MockInitializer;
 import org.mockito.Mockito;
 
 import defaultdata.DefaultUnit;
@@ -35,7 +39,7 @@ class MenuCompositionTest {
 	@BeforeEach
 	void setUp() throws Exception {
 		MainFrame = mock(MainFrame.class);
-		MenuComposition = new MenuComposition(MainFrame);
+		MenuComposition = spy(new MenuComposition(MainFrame));
 	}
 
 	/**
@@ -184,5 +188,43 @@ class MenuCompositionTest {
 		List<Integer> list = new ArrayList<>();
 		IntStream.range(0, 10).forEach(i -> list.add(MenuComposition.getPositionY(i)));
 		assertThat(list, repeatingPattern(2));
+	}
+	
+	/**
+	 * クリック地点にユニットが存在していれば、ユニット操作メソッドを行うことを確認。
+	 */
+	@Test
+	void testMousePressedOperationUnit() {
+		MockedConstruction<ValueRange> mockValueRange = mockConstruction(ValueRange.class, defineMockInitializer(true));
+		setUnitListIndex(0);
+		doNothing().when(MenuComposition).unitOperation(anyInt());
+		MenuComposition.mousePressed(mock(MouseEvent.class));
+		verify(MenuComposition, times(1)).unitOperation(anyInt());
+		mockValueRange.close();
+	}
+	
+	/**
+	 * クリック地点にユニットが存在していなければ、ユニット操作メソッドを行わないことを確認。
+	 */
+	@Test
+	void testMousePressedNotOperationUnit() {
+		MockedConstruction<ValueRange> mockValueRange = mockConstruction(ValueRange.class, defineMockInitializer(false));
+		setUnitListIndex(0);
+		doNothing().when(MenuComposition).unitOperation(anyInt());
+		MenuComposition.mousePressed(mock(MouseEvent.class));
+		verify(MenuComposition, never()).unitOperation(anyInt());
+		mockValueRange.close();
+	}
+	
+	MockInitializer<ValueRange> defineMockInitializer(boolean exist){
+		return (mock, context) -> doReturn(exist).when(mock).isValidIntValue(anyLong());
+	}
+	
+	/**
+	 * 
+	 */
+	@Test
+	void testUnitOperatio() {
+		
 	}
 }
