@@ -112,6 +112,17 @@ class MenuCompositionTest {
 	}
 	
 	/**
+	 * 一定時間処理を停止させた後、スクロール位置を表示していることを確認。
+	 * Threadがモック不可のため、停止については検証していない。
+	 */
+	@Test
+	void testDelaySelect() {
+		JList<String> mockJList = createMockJList();
+		MenuComposition.delaySelect();
+		verify(mockJList).ensureIndexIsVisible(anyInt());
+	}
+	
+	/**
 	 * JLabel, JButtonにテキストが設定されており、テキストの全文が表示可能であるか確認。
 	 * 選択した編成とその編成でのユニット数計算を呼び出していることを確認。
 	 */
