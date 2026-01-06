@@ -32,11 +32,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.MockedConstruction;
-import org.mockito.MockedConstruction.MockInitializer;
 import org.mockito.Mockito;
 
 import defaultdata.DefaultUnit;
 import defendthecastle.MainFrame;
+import screendisplay.DisplayStatus;
 
 class MenuCompositionTest {
 	private MainFrame MainFrame;
@@ -128,12 +128,18 @@ class MenuCompositionTest {
 	SaveData createMockSaveData() {
 		SaveData mockSaveData = mock(SaveData.class);
 		doReturn(Arrays.asList("test")).when(mockSaveData).getCompositionNameList();
+		doReturn(Arrays.asList(0, 1)).when(mockSaveData).getCoreNumberList();
+		doReturn(Arrays.asList(0, 1)).when(mockSaveData).getWeaponNumberList();
 		MenuComposition.setSaveData(mockSaveData);
 		return mockSaveData;
 	}
 	
+	BufferedImage brankBufferedImage() {
+		return new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+	}
+	
 	Graphics brankGraphics() {
-		return new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB).createGraphics();
+		return brankBufferedImage().createGraphics();
 	}
 	
 	void assertText(JComponent comp) {
@@ -146,7 +152,7 @@ class MenuCompositionTest {
 	@Test
 	void testDrawCompositionOfDrawingAll() {
 		createMockUnitList(0);
-		creatMockImage();
+		creatBranckImage();
 		Graphics mockGraphics = createMockGraphics();
 		MenuComposition.drawComposition(mockGraphics);
 		verify(mockGraphics, times(3)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
@@ -162,7 +168,7 @@ class MenuCompositionTest {
 	@Test
 	void testDrawCompositionOfDrawingCore() {
 		createMockUnitList(-1);
-		creatMockImage();
+		creatBranckImage();
 		Graphics mockGraphics = createMockGraphics();
 		MenuComposition.drawComposition(mockGraphics);
 		verify(mockGraphics, times(1)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
@@ -178,8 +184,8 @@ class MenuCompositionTest {
 		doReturn(0).when(mockList).get(DefaultUnit.CORE);
 	}
 	
-	void creatMockImage() {
-		List<BufferedImage> imageList = Arrays.asList(mock(BufferedImage.class));
+	void creatBranckImage() {
+		List<BufferedImage> imageList = Arrays.asList(brankBufferedImage());
 		MenuComposition.setRightWeaponList(imageList);
 		MenuComposition.setCeterCoreList(imageList);
 		MenuComposition.setLeftWeaponList(imageList);
@@ -310,7 +316,6 @@ class MenuCompositionTest {
 	void testSortButtonActionCore() {
 		ImagePanel mockImagePanel = creteMockImagePanel();
 		MenuComposition.setCoreImagePanel(mockImagePanel);
-		createMockView(mockImagePanel);
 		createMockDisplayListCreation();
 		MenuComposition.sortButtonAction(createMockActionEvent());
 		verify(mockImagePanel).updateList(Mockito.any(List.class));
@@ -324,14 +329,15 @@ class MenuCompositionTest {
 	void testSortButtonActionWeapon() {
 		ImagePanel mockImagePanel = creteMockImagePanel();
 		MenuComposition.setWeaponImagePanel(mockImagePanel);
-		createMockView(mockImagePanel);
 		createMockDisplayListCreation();
 		MenuComposition.sortButtonAction(createMockActionEvent());
 		verify(mockImagePanel).updateList(Mockito.any(List.class));
 	}
 	
 	ImagePanel creteMockImagePanel() {
-		return mock(ImagePanel.class);
+		ImagePanel mockImagePanel = mock(ImagePanel.class);
+		createMockView(mockImagePanel);
+		return mockImagePanel;
 	}
 	
 	void createMockView(ImagePanel mockImagePanel) {
@@ -407,7 +413,7 @@ class MenuCompositionTest {
 	 */
 	@Test
 	void testMousePressedOperationUnit() {
-		MockedConstruction<ValueRange> mockValueRange = mockConstruction(ValueRange.class, defineMockInitializer(true));
+		MockedConstruction<ValueRange> mockValueRange = createMockValueRange(true);
 		createMockUnitList(0);
 		doNothing().when(MenuComposition).unitOperation(anyInt());
 		MenuComposition.mousePressed(createMockMouseEvent());
@@ -420,7 +426,7 @@ class MenuCompositionTest {
 	 */
 	@Test
 	void testMousePressedNotOperationUnit() {
-		MockedConstruction<ValueRange> mockValueRange = mockConstruction(ValueRange.class, defineMockInitializer(false));
+		MockedConstruction<ValueRange> mockValueRange = createMockValueRange(false);
 		createMockUnitList(0);
 		doNothing().when(MenuComposition).unitOperation(anyInt());
 		MenuComposition.mousePressed(createMockMouseEvent());
@@ -428,8 +434,9 @@ class MenuCompositionTest {
 		mockValueRange.close();
 	}
 	
-	MockInitializer<ValueRange> defineMockInitializer(boolean exist){
-		return (mock, context) -> doReturn(exist).when(mock).isValidIntValue(anyLong());
+	MockedConstruction<ValueRange> createMockValueRange(boolean exist){
+		return mockConstruction(ValueRange.class,
+				(mock, context) -> doReturn(exist).when(mock).isValidIntValue(anyLong()));
 	}
 	
 	MouseEvent createMockMouseEvent() {
@@ -437,16 +444,98 @@ class MenuCompositionTest {
 	}
 	
 	/**
-	 * 
+	 * コアが選択されていて所持数が1以上なら、コアの変更操作を行うことを確認。
 	 */
 	@Test
-	void testUnitOperationCoreImagePanelSelection() {
-		
-		
-		
-		//MenuComposition.unitOperation(0);
-		
-		
-		
+	void testUnitOperationHavingCoreSelected() {
+		ImagePanel mockImagePanel = creteMockImagePanel();
+		doReturn(1).when(mockImagePanel).getSelectNumber();
+		MenuComposition.setCoreImagePanel(mockImagePanel);
+		SaveData mockSaveData = createMockSaveData();
+		MenuComposition.unitOperation(0);
+		verify(mockSaveData).changeCore(anyInt(), anyInt());
+	}
+	
+	/**
+	 * コアが選択されていて所持数が0以下なら、コアの変更操作を行わないことを確認。
+	 */
+	@Test
+	void testUnitOperationNotHavingCoreSelected() {
+		ImagePanel mockImagePanel = creteMockImagePanel();
+		doReturn(0).when(mockImagePanel).getSelectNumber();
+		MenuComposition.setCoreImagePanel(mockImagePanel);
+		SaveData mockSaveData = createMockSaveData();
+		MenuComposition.unitOperation(0);
+		verify(mockSaveData, never()).changeCore(anyInt(), anyInt());
+	}
+	
+	/**
+	 * コアが選択されていなければ、ステータス表示を行うことを確認。
+	 * ステータス表示には、武器とコア合計3個を表示可能であることを確認。
+	 */
+	@SuppressWarnings("unchecked")
+	@Test
+	void testUnitOperationCoreNotSelected() {
+		MockedConstruction<DisplayStatus> mockDisplayStatus = createMockDisplayStatus();
+		ImagePanel mockImagePanel = creteMockImagePanel();
+		doReturn(-1).when(mockImagePanel).getSelectNumber();
+		MenuComposition.setCoreImagePanel(mockImagePanel);
+		createMockSaveData();
+		createMockUnitList(0);
+		creatBranckImage();
+		MenuComposition.unitOperation(0);
+		verify(mockDisplayStatus.constructed().get(0)).unit(Mockito.any(BufferedImage.class), Mockito.any(List.class));
+		mockDisplayStatus.close();
+	}
+	
+	/**
+	 * 武器が選択されていて所持数が1以上なら、コアの変更操作を行うことを確認。
+	 */
+	@Test
+	void testUnitOperationHavingWeaponSelected() {
+		ImagePanel mockImagePanel = creteMockImagePanel();
+		doReturn(1).when(mockImagePanel).getSelectNumber();
+		MenuComposition.setWeaponImagePanel(mockImagePanel);
+		SaveData mockSaveData = createMockSaveData();
+		MenuComposition.unitOperation(0);
+		verify(mockSaveData).changeWeapon(anyInt(), anyInt());
+	}
+	
+	/**
+	 * 武器が選択されていて所持数が0以下なら、武器の変更操作を行わないことを確認。
+	 */
+	@Test
+	void testUnitOperationNotHavingWeaponSelected() {
+		ImagePanel mockImagePanel = creteMockImagePanel();
+		doReturn(0).when(mockImagePanel).getSelectNumber();
+		MenuComposition.setWeaponImagePanel(mockImagePanel);
+		SaveData mockSaveData = createMockSaveData();
+		MenuComposition.unitOperation(0);
+		verify(mockSaveData, never()).changeWeapon(anyInt(), anyInt());
+	}
+	
+	/**
+	 * 武器が選択されていなければ、ステータス表示を行うことを確認。
+	 * ステータス表示には、武器がない時(画像リストのindexが-1)、コアのみを表示可能であることを確認。
+	 */
+	@SuppressWarnings("unchecked")
+	@Test
+	void testUnitOperationWeaponNotSelected() {
+		MockedConstruction<DisplayStatus> mockDisplayStatus = createMockDisplayStatus();
+		ImagePanel mockImagePanel = creteMockImagePanel();
+		doReturn(-1).when(mockImagePanel).getSelectNumber();
+		MenuComposition.setWeaponImagePanel(mockImagePanel);
+		createMockSaveData();
+		createMockUnitList(-1);
+		creatBranckImage();
+		MenuComposition.unitOperation(0);
+		verify(mockDisplayStatus.constructed().get(0)).unit(Mockito.any(BufferedImage.class), Mockito.any(List.class));
+		mockDisplayStatus.close();
+	}
+	
+	@SuppressWarnings("unchecked")
+	MockedConstruction<DisplayStatus> createMockDisplayStatus(){
+		return mockConstruction(DisplayStatus.class,
+				(mock, context) -> doNothing().when(mock).unit(Mockito.any(BufferedImage.class), Mockito.any(List.class)));
 	}
 }
