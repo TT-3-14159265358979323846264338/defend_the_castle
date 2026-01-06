@@ -137,7 +137,7 @@ public class MenuComposition extends JPanel implements MouseListener{
 	void nameChangeButtonAction(ActionEvent e) {
 		String newName = SaveData.changeCompositionName();
 		if(newName != null) {
-			compositionListModel.set(SaveData.getSelectNumber(), newName);
+			modelUpdate();
 		}
 	}
 	
