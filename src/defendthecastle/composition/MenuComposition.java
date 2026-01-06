@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.time.temporal.ValueRange;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
 import javax.swing.DefaultListModel;
@@ -206,7 +207,16 @@ public class MenuComposition extends JPanel implements MouseListener{
 		modelUpdate();
 		compositionScroll.getViewport().setView(compositionJList);
 		add(compositionScroll);
-		new DelaySelect(compositionJList, SaveData.getSelectNumber()).start();
+		CompletableFuture.runAsync(this::delaySelect);
+	}
+	
+	void delaySelect() {
+		try {
+			Thread.sleep(100);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		compositionJList.ensureIndexIsVisible(SaveData.getSelectNumber());
 	}
 	
 	private void addItemScroll() {
