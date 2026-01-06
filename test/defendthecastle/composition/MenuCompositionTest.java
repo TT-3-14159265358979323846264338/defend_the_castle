@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -25,6 +26,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -184,29 +186,172 @@ class MenuCompositionTest {
 	}
 	
 	/**
-	 * 
+	 * 新たな編成を追加した後、Scrollを更新したことを確認。
 	 */
 	@Test
 	void testNewButtonAction() {
-		
-		
-		//MenuComposition.newButtonAction(mock(ActionEvent.class));
-		
-		
+		SaveData mockcSaveData = createMockSaveData();
+		InOrder InOrder = inOrder(mockcSaveData, MenuComposition); 
+		MenuComposition.newButtonAction(createMockActionEvent());
+		InOrder.verify(mockcSaveData).addNewComposition();
+		InOrder.verify(MenuComposition).modelUpdate();
 	}
 	
+	/**
+	 * 編成削除をした後に、Scrollを更新したことを確認。
+	 */
+	@Test
+	void testRemoveButtonAction() {
+		SaveData mockcSaveData = createMockSaveData();
+		InOrder InOrder = inOrder(mockcSaveData, MenuComposition); 
+		MenuComposition.removeButtonAction(createMockActionEvent());
+		InOrder.verify(mockcSaveData).removeComposition(Mockito.any(int[].class));
+		InOrder.verify(MenuComposition).modelUpdate();
+	}
 	
+	/**
+	 * 編成を入れ替えた後に、Scrollを更新したことを確認。
+	 */
+	@Test
+	void testSwapButtonAction() {
+		SaveData mockcSaveData = createMockSaveData();
+		InOrder InOrder = inOrder(mockcSaveData, MenuComposition); 
+		MenuComposition.swapButtonAction(createMockActionEvent());
+		InOrder.verify(mockcSaveData).swapComposition(anyInt(), anyInt());
+		InOrder.verify(MenuComposition).modelUpdate();
+	}
 	
+	/**
+	 * 有効な名称が入力されれば、その後に、Scrollを更新したことを確認。
+	 */
+	@Test
+	void testNameChangeButtonActionValidName() {
+		SaveData mockcSaveData = createMockSaveData();
+		doReturn("test").when(mockcSaveData).changeCompositionName();
+		InOrder InOrder = inOrder(mockcSaveData, MenuComposition); 
+		MenuComposition.nameChangeButtonAction(createMockActionEvent());
+		InOrder.verify(mockcSaveData).changeCompositionName();
+		InOrder.verify(MenuComposition).modelUpdate();
+	}
 	
+	/**
+	 * セーブ操作が実行されたことを確認。
+	 */
+	@Test
+	void testSaveButtonAction() {
+		SaveData mockcSaveData = createMockSaveData();
+		MenuComposition.saveButtonAction(createMockActionEvent());
+		verify(mockcSaveData).saveProcessing();
+	}
 	
+	/**
+	 * ロードした後に、Scrollを更新したことを確認。
+	 */
+	@Test
+	void testLoadButtonAction() {
+		SaveData mockcSaveData = createMockSaveData();
+		InOrder InOrder = inOrder(mockcSaveData, MenuComposition); 
+		MenuComposition.loadButtonAction(createMockActionEvent());
+		InOrder.verify(mockcSaveData).loadProcessing();
+		InOrder.verify(MenuComposition).modelUpdate();
+	}
 	
+	/**
+	 * 編成のリセット操作が実行されたことを確認。
+	 */
+	@Test
+	void testResetButtonAction() {
+		SaveData mockcSaveData = createMockSaveData();
+		MenuComposition.resetButtonAction(createMockActionEvent());
+		verify(mockcSaveData).resetComposition();
+	}
 	
+	/**
+	 * 画面を戻す時にはメインメニューへの切り替えが実行されたことを確認。
+	 */
+	@Test
+	void testReturnButtonActionExecution() {
+		SaveData mockcSaveData = createMockSaveData();
+		doReturn(true).when(mockcSaveData).returnProcessing();
+		MenuComposition.returnButtonAction(createMockActionEvent());
+		verify(MainFrame).mainMenuDraw();
+	}
 	
+	/**
+	 * 画面を戻す時にはメインメニューへの切り替えが実行されたことを確認。
+	 */
+	@Test
+	void testReturnButtonActionUnexecuted() {
+		SaveData mockcSaveData = createMockSaveData();
+		doReturn(false).when(mockcSaveData).returnProcessing();
+		MenuComposition.returnButtonAction(createMockActionEvent());
+		verify(MainFrame, never()).mainMenuDraw();
+	}
 	
+	/**
+	 * 表示するパネルが変更したことを確認。
+	 */
+	@Test
+	void testSwitchButtonAction() {
+		Component oldComponent = getViewComponent();
+		MenuComposition.switchButtonAction(createMockActionEvent());
+		assertThat(getViewComponent(), not(oldComponent));
+	}
 	
+	Component getViewComponent() {
+		return MenuComposition.getItemScroll().getViewport().getView();
+	}
 	
+	/**
+	 * コア表示時はコアの表示リストを変更をしたことを確認。
+	 */
+	@SuppressWarnings("unchecked")
+	@Test
+	void testSortButtonActionCore() {
+		ImagePanel mockImagePanel = creteMockImagePanel();
+		MenuComposition.setCoreImagePanel(mockImagePanel);
+		createMockView(mockImagePanel);
+		createMockDisplayListCreation();
+		MenuComposition.sortButtonAction(createMockActionEvent());
+		verify(mockImagePanel).updateList(Mockito.any(List.class));
+	}
 	
+	/**
+	 * 武器表示時は武器の表示リストを変更をしたことを確認。
+	 */
+	@SuppressWarnings("unchecked")
+	@Test
+	void testSortButtonActionWeapon() {
+		ImagePanel mockImagePanel = creteMockImagePanel();
+		MenuComposition.setWeaponImagePanel(mockImagePanel);
+		createMockView(mockImagePanel);
+		createMockDisplayListCreation();
+		MenuComposition.sortButtonAction(createMockActionEvent());
+		verify(mockImagePanel).updateList(Mockito.any(List.class));
+	}
 	
+	ImagePanel creteMockImagePanel() {
+		return mock(ImagePanel.class);
+	}
+	
+	void createMockView(ImagePanel mockImagePanel) {
+		JScrollPane mockScroll = mock(JScrollPane.class);
+		JViewport mockViewport = mock(JViewport.class);
+		doReturn(mockViewport).when(mockScroll).getViewport();
+		doReturn(mockImagePanel).when(mockViewport).getView();
+		MenuComposition.setItemScroll(mockScroll);
+	}
+	
+	void createMockDisplayListCreation() {
+		DisplayListCreation mockDisplayListCreation = mock(DisplayListCreation.class);
+		doReturn(Arrays.asList()).when(mockDisplayListCreation).getCoreDisplayList();
+		doReturn(Arrays.asList()).when(mockDisplayListCreation).getWeaponDisplayList();
+		MenuComposition.setDisplayListCreation(mockDisplayListCreation);
+	}
+	
+	ActionEvent createMockActionEvent() {
+		return mock(ActionEvent.class);
+	}
 	
 	/**
 	 * Scroll用のModelを初期化した後、再度要素の追加と選択を行うことを確認。
