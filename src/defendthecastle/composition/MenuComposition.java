@@ -329,116 +329,56 @@ public class MenuComposition extends JPanel implements MouseListener{
 		return compositionNameLabel;
 	}
 
-	void setCompositionNameLabel(JLabel compositionNameLabel) {
-		this.compositionNameLabel = compositionNameLabel;
-	}
-
 	JLabel getCompositionLabel() {
 		return compositionLabel;
-	}
-
-	void setCompositionLabel(JLabel compositionLabel) {
-		this.compositionLabel = compositionLabel;
 	}
 
 	JLabel getTypeLabel() {
 		return typeLabel;
 	}
 
-	void setTypeLabel(JLabel typeLabel) {
-		this.typeLabel = typeLabel;
-	}
-
 	JButton getNewButton() {
 		return newButton;
-	}
-
-	void setNewButton(JButton newButton) {
-		this.newButton = newButton;
 	}
 
 	JButton getRemoveButton() {
 		return removeButton;
 	}
 
-	void setRemoveButton(JButton removeButton) {
-		this.removeButton = removeButton;
-	}
-
 	JButton getSwapButton() {
 		return swapButton;
-	}
-
-	void setSwapButton(JButton swapButton) {
-		this.swapButton = swapButton;
 	}
 
 	JButton getNameChangeButton() {
 		return nameChangeButton;
 	}
 
-	void setNameChangeButton(JButton nameChangeButton) {
-		this.nameChangeButton = nameChangeButton;
-	}
-
 	JButton getSaveButton() {
 		return saveButton;
-	}
-
-	void setSaveButton(JButton saveButton) {
-		this.saveButton = saveButton;
 	}
 
 	JButton getLoadButton() {
 		return loadButton;
 	}
 
-	void setLoadButton(JButton loadButton) {
-		this.loadButton = loadButton;
-	}
-
 	JButton getResetButton() {
 		return resetButton;
-	}
-
-	void setResetButton(JButton resetButton) {
-		this.resetButton = resetButton;
 	}
 
 	JButton getReturnButton() {
 		return returnButton;
 	}
 
-	void setReturnButton(JButton returnButton) {
-		this.returnButton = returnButton;
-	}
-
 	JButton getSwitchButton() {
 		return switchButton;
-	}
-
-	void setSwitchButton(JButton switchButton) {
-		this.switchButton = switchButton;
 	}
 
 	JButton getSortButton() {
 		return sortButton;
 	}
 
-	void setSortButton(JButton sortButton) {
-		this.sortButton = sortButton;
-	}
-
-	DefaultListModel<String> getCompositionListModel() {
-		return compositionListModel;
-	}
-
 	void setCompositionListModel(DefaultListModel<String> compositionListModel) {
 		this.compositionListModel = compositionListModel;
-	}
-
-	JList<String> getCompositionJList() {
-		return compositionJList;
 	}
 
 	void setCompositionJList(JList<String> compositionJList) {
@@ -449,10 +389,6 @@ public class MenuComposition extends JPanel implements MouseListener{
 		return compositionScroll;
 	}
 
-	void setCompositionScroll(JScrollPane compositionScroll) {
-		this.compositionScroll = compositionScroll;
-	}
-
 	JScrollPane getItemScroll() {
 		return itemScroll;
 	}
@@ -461,32 +397,16 @@ public class MenuComposition extends JPanel implements MouseListener{
 		this.itemScroll = itemScroll;
 	}
 
-	ImagePanel getCoreImagePanel() {
-		return CoreImagePanel;
-	}
-
 	void setCoreImagePanel(ImagePanel coreImagePanel) {
 		CoreImagePanel = coreImagePanel;
-	}
-
-	ImagePanel getWeaponImagePanel() {
-		return WeaponImagePanel;
 	}
 
 	void setWeaponImagePanel(ImagePanel weaponImagePanel) {
 		WeaponImagePanel = weaponImagePanel;
 	}
 
-	SaveData getSaveData() {
-		return SaveData;
-	}
-
 	void setSaveData(SaveData saveData) {
 		SaveData = saveData;
-	}
-
-	DisplayListCreation getDisplayListCreation() {
-		return DisplayListCreation;
 	}
 
 	void setDisplayListCreation(DisplayListCreation displayListCreation) {
