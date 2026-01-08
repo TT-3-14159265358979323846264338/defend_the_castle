@@ -32,8 +32,8 @@ import org.mockito.quality.Strictness;
 
 import testdataedit.TestDataEdit;
 
-@MockitoSettings(strictness = Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class MenuMainTest {
 	@Mock
 	private MainFrame MainFrame;
