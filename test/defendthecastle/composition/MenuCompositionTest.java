@@ -31,6 +31,9 @@ import javax.swing.JViewport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
@@ -166,31 +169,21 @@ class MenuCompositionTest {
 	}
 	
 	/**
-	 * 武器とコア合計3個を表示することを確認。
+	 * 武器画像がある時は武器とコア合計3個を表示することを確認。
+	 * 武器画像がない時(画像リストのindexが-1)、コア1個のみを表示することを確認。
 	 */
-	@Test
-	void testDrawCompositionOfDrawingAll() {
-		createMockUnitList(0);
+	@ParameterizedTest
+	@CsvSource({"0, 3", "-1, 1"})
+	void testDrawComposition(int index, int times) {
+		createMockUnitList(index);
 		creatBranckImage();
 		Graphics mockGraphics = createMockGraphics();
 		MenuComposition.drawComposition(mockGraphics);
-		verify(mockGraphics, times(3)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
+		verify(mockGraphics, times(times)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
 	}
 	
 	Graphics createMockGraphics() {
 		return mock(Graphics.class);
-	}
-	
-	/**
-	 * 武器画像がない時(画像リストのindexが-1)、コアのみを表示することを確認。
-	 */
-	@Test
-	void testDrawCompositionOfDrawingCore() {
-		createMockUnitList(-1);
-		creatBranckImage();
-		Graphics mockGraphics = createMockGraphics();
-		MenuComposition.drawComposition(mockGraphics);
-		verify(mockGraphics, times(1)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
 	}
 	
 	void createMockUnitList(int index) {
@@ -329,25 +322,18 @@ class MenuCompositionTest {
 	
 	/**
 	 * コア表示時はコアの表示リストを変更をしたことを確認。
-	 */
-	@SuppressWarnings("unchecked")
-	@Test
-	void testSortButtonActionCore() {
-		ImagePanel mockImagePanel = creteMockImagePanel();
-		MenuComposition.setCoreImagePanel(mockImagePanel);
-		createMockDisplayListCreation();
-		MenuComposition.sortButtonAction(createMockActionEvent());
-		verify(mockImagePanel).updateList(Mockito.any(List.class));
-	}
-	
-	/**
 	 * 武器表示時は武器の表示リストを変更をしたことを確認。
 	 */
 	@SuppressWarnings("unchecked")
-	@Test
-	void testSortButtonActionWeapon() {
+	@ParameterizedTest
+	@ValueSource(strings = {"core", "weapon"})
+	void testSortButtonAction(String name) {
 		ImagePanel mockImagePanel = creteMockImagePanel();
-		MenuComposition.setWeaponImagePanel(mockImagePanel);
+		if(name.equals("core")) {
+			MenuComposition.setCoreImagePanel(mockImagePanel);
+		}else {
+			MenuComposition.setWeaponImagePanel(mockImagePanel);
+		}
 		createMockDisplayListCreation();
 		MenuComposition.sortButtonAction(createMockActionEvent());
 		verify(mockImagePanel).updateList(Mockito.any(List.class));
@@ -429,33 +415,22 @@ class MenuCompositionTest {
 	
 	/**
 	 * クリック地点にユニットが存在していれば、ユニット操作メソッドを行うことを確認。
+	 * 存在していなければ、ユニット操作メソッドを行わないことを確認。
 	 */
-	@Test
-	void testMousePressedOperationUnit() {
-		MockedConstruction<ValueRange> mockValueRange = createMockValueRange(true);
+	@ParameterizedTest
+	@CsvSource({"true, 1", "false, 0"})
+	void testMousePressed(boolean exists, int times) {
+		MockedConstruction<ValueRange> mockValueRange = createMockValueRange(exists);
 		createMockUnitList(0);
 		doNothing().when(MenuComposition).unitOperation(anyInt());
 		MenuComposition.mousePressed(createMockMouseEvent());
-		verify(MenuComposition, times(1)).unitOperation(anyInt());
+		verify(MenuComposition, times(times)).unitOperation(anyInt());
 		mockValueRange.close();
 	}
 	
-	/**
-	 * クリック地点にユニットが存在していなければ、ユニット操作メソッドを行わないことを確認。
-	 */
-	@Test
-	void testMousePressedNotOperationUnit() {
-		MockedConstruction<ValueRange> mockValueRange = createMockValueRange(false);
-		createMockUnitList(0);
-		doNothing().when(MenuComposition).unitOperation(anyInt());
-		MenuComposition.mousePressed(createMockMouseEvent());
-		verify(MenuComposition, never()).unitOperation(anyInt());
-		mockValueRange.close();
-	}
-	
-	MockedConstruction<ValueRange> createMockValueRange(boolean exist){
+	MockedConstruction<ValueRange> createMockValueRange(boolean exists){
 		return mockConstruction(ValueRange.class,
-				(mock, context) -> doReturn(exist).when(mock).isValidIntValue(anyLong()));
+				(mock, context) -> doReturn(exists).when(mock).isValidIntValue(anyLong()));
 	}
 	
 	MouseEvent createMockMouseEvent() {
@@ -464,28 +439,17 @@ class MenuCompositionTest {
 	
 	/**
 	 * コアが選択されていて所持数が1以上なら、コアの変更操作を行うことを確認。
-	 */
-	@Test
-	void testUnitOperationHavingCoreSelected() {
-		ImagePanel mockImagePanel = creteMockImagePanel();
-		doReturn(1).when(mockImagePanel).getSelectNumber();
-		MenuComposition.setCoreImagePanel(mockImagePanel);
-		SaveData mockSaveData = createMockSaveData();
-		MenuComposition.unitOperation(0);
-		verify(mockSaveData).changeCore(anyInt(), anyInt());
-	}
-	
-	/**
 	 * コアが選択されていて所持数が0以下なら、コアの変更操作を行わないことを確認。
 	 */
-	@Test
-	void testUnitOperationNotHavingCoreSelected() {
+	@ParameterizedTest
+	@ValueSource(ints = {1, 0})
+	void testUnitOperationCoreSelected(int number) {
 		ImagePanel mockImagePanel = creteMockImagePanel();
-		doReturn(0).when(mockImagePanel).getSelectNumber();
+		doReturn(number).when(mockImagePanel).getSelectNumber();
 		MenuComposition.setCoreImagePanel(mockImagePanel);
 		SaveData mockSaveData = createMockSaveData();
 		MenuComposition.unitOperation(0);
-		verify(mockSaveData, never()).changeCore(anyInt(), anyInt());
+		verify(mockSaveData, times(number)).changeCore(anyInt(), anyInt());
 	}
 	
 	/**
@@ -509,28 +473,17 @@ class MenuCompositionTest {
 	
 	/**
 	 * 武器が選択されていて所持数が1以上なら、コアの変更操作を行うことを確認。
-	 */
-	@Test
-	void testUnitOperationHavingWeaponSelected() {
-		ImagePanel mockImagePanel = creteMockImagePanel();
-		doReturn(1).when(mockImagePanel).getSelectNumber();
-		MenuComposition.setWeaponImagePanel(mockImagePanel);
-		SaveData mockSaveData = createMockSaveData();
-		MenuComposition.unitOperation(0);
-		verify(mockSaveData).changeWeapon(anyInt(), anyInt());
-	}
-	
-	/**
 	 * 武器が選択されていて所持数が0以下なら、武器の変更操作を行わないことを確認。
 	 */
-	@Test
-	void testUnitOperationNotHavingWeaponSelected() {
+	@ParameterizedTest
+	@ValueSource(ints = {1, 0})
+	void testUnitOperationWeaponSelected(int number) {
 		ImagePanel mockImagePanel = creteMockImagePanel();
-		doReturn(0).when(mockImagePanel).getSelectNumber();
+		doReturn(number).when(mockImagePanel).getSelectNumber();
 		MenuComposition.setWeaponImagePanel(mockImagePanel);
 		SaveData mockSaveData = createMockSaveData();
 		MenuComposition.unitOperation(0);
-		verify(mockSaveData, never()).changeWeapon(anyInt(), anyInt());
+		verify(mockSaveData, times(number)).changeWeapon(anyInt(), anyInt());
 	}
 	
 	/**

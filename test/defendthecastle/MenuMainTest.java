@@ -21,6 +21,8 @@ import javax.swing.JButton;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
@@ -167,18 +169,6 @@ class MenuMainTest {
 		verify(mockGraphics, times(MenuMain.getFinalMotion().length + 1)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
 	}
 	
-	Graphics createMockGraphics() {
-		Graphics mockGraphics = mock(Graphics.class);
-		doReturn(true).when(mockGraphics).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
-		return mockGraphics;
-	}
-	
-	void createMockFuture(boolean exists) {
-		ScheduledFuture<?> mockFuture = mock(ScheduledFuture.class);
-		MenuMain.setMainFuture(mockFuture);
-		doReturn(exists).when(mockFuture).isCancelled();
-	}
-	
 	/**
 	 * futureが実行中であれば、全ての実行中のコアを描写したか確認。
 	 */
@@ -189,6 +179,18 @@ class MenuMainTest {
 		createMockFallMotion();
 		MenuMain.drawImage(mockGraphics);
 		verify(mockGraphics, times(MenuMain.getFallMotion().length)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
+	}
+	
+	Graphics createMockGraphics() {
+		Graphics mockGraphics = mock(Graphics.class);
+		doReturn(true).when(mockGraphics).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
+		return mockGraphics;
+	}
+	
+	void createMockFuture(boolean exists) {
+		ScheduledFuture<?> mockFuture = mock(ScheduledFuture.class);
+		MenuMain.setMainFuture(mockFuture);
+		doReturn(exists).when(mockFuture).isCancelled();
 	}
 	
 	FallMotion createMockFallMotion() {
@@ -244,23 +246,14 @@ class MenuMainTest {
 	
 	/**
 	 * 最終段階タイマーが稼働中ならschedulerも稼働していることを確認。
-	 */
-	@Test
-	void testsSchedulerEndProcessNotEnd() {
-		FinalMotion mockFinalMotion = createMockFinalMotion();
-		doReturn(false).when(mockFinalMotion).canEnd();
-		MenuMain.schedulerEndProcess();
-		assertThat(MenuMain.getScheduler().isShutdown(), is(false));
-	}
-	
-	/**
 	 * 最終段階タイマーが停止したならschedulerも停止することを確認。
 	 */
-	@Test
-	void testsSchedulerEndProcessCanEnd() {
+	@ParameterizedTest
+	@ValueSource(booleans = {true, false})
+	void testsSchedulerEndProcess(boolean exists) {
 		FinalMotion mockFinalMotion = createMockFinalMotion();
-		doReturn(true).when(mockFinalMotion).canEnd();
+		doReturn(exists).when(mockFinalMotion).canEnd();
 		MenuMain.schedulerEndProcess();
-		assertThat(MenuMain.getScheduler().isShutdown(), is(true));
+		assertThat(MenuMain.getScheduler().isShutdown(), is(exists));
 	}
 }

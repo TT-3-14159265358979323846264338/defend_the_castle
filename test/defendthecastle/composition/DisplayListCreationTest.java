@@ -6,16 +6,19 @@ import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class DisplayListCreationTest {
-	private DisplayListCreation DisplayListCreation;
+	@Mock
+	private SaveData SaveData;
 	
-	@BeforeEach
-	void setUp() throws Exception {
-		
-	}
+	@InjectMocks
+	private DisplayListCreation DisplayListCreation;
 	
 	/**
 	 * 

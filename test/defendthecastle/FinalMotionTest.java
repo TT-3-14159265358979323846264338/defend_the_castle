@@ -15,6 +15,8 @@ import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 
 class FinalMotionTest {
@@ -77,25 +79,15 @@ class FinalMotionTest {
 	
 	/**
 	 * タイマーが基準に達すれば停止するか確認。
-	 */
-	@Test
-	void testTimerStopTrue() {
-		ScheduledFuture<?> mockFuture = mock(ScheduledFuture.class);
-		FinalMotion.setFinalFuture(mockFuture);
-		FinalMotion.setCount(11);
-		FinalMotion.timerStop();
-		verify(mockFuture).cancel(true);
-	}
-	
-	/**
 	 * タイマーが基準に達していなければ稼働を続けているか確認。
 	 */
-	@Test
-	void testTimerStopFalse() {
+	@ParameterizedTest
+	@CsvSource({"11, 1", "10, 0"})
+	void testTimerStop(int number, int times) {
 		ScheduledFuture<?> mockFuture = mock(ScheduledFuture.class);
 		FinalMotion.setFinalFuture(mockFuture);
-		FinalMotion.setCount(10);
+		FinalMotion.setCount(number);
 		FinalMotion.timerStop();
-		verify(mockFuture, never()).cancel(true);
+		verify(mockFuture, times(times)).cancel(true);
 	}
 }

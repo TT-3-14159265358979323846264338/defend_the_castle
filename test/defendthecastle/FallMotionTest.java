@@ -13,6 +13,8 @@ import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -50,30 +52,18 @@ class FallMotionTest {
 	
 	/**
 	 * yの値が基準より小さければタイマーは動作を継続しているか確認。
-	 */
-	@Test
-	void testTimerStopFalse() {
-		ScheduledFuture<?> mockFuture = mock(ScheduledFuture.class);
-		FallMotion.setStart(true);
-		FallMotion.setFallFuture(mockFuture);
-		FallMotion.setY(100);
-		FallMotion.timerStop();
-		assertThat(FallMotion.canStart(), is(true));
-		verify(mockFuture, never()).cancel(true);
-	}
-	
-	/**
 	 * yの値が基準より大きければタイマーは動作を停止させたか確認。
 	 */
-	@Test
-	void testTimerStopTrue() {
+	@ParameterizedTest
+	@CsvSource({"100, true, 0", "500, false, 1"})
+	void testTimerStop(int position, boolean exists, int times) {
 		ScheduledFuture<?> mockFuture = mock(ScheduledFuture.class);
 		FallMotion.setStart(true);
 		FallMotion.setFallFuture(mockFuture);
-		FallMotion.setY(500);
+		FallMotion.setY(position);
 		FallMotion.timerStop();
-		assertThat(FallMotion.canStart(), is(false));
-		verify(mockFuture).cancel(true);
+		assertThat(FallMotion.canStart(), is(exists));
+		verify(mockFuture, times(times)).cancel(true);
 	}
 	
 	/**
