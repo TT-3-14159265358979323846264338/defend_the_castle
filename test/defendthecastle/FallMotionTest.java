@@ -11,17 +11,16 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class FallMotionTest {
+	@Spy
 	private FallMotion FallMotion;
-
-	@BeforeEach
-	void setUp() {
-		FallMotion = spy(new FallMotion());
-	}
 	
 	/**
 	 * タイマーが起動するとtrueとなることを確認。<br>

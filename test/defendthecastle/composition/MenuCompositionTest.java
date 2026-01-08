@@ -30,21 +30,29 @@ import javax.swing.JViewport;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
+import org.mockito.Mock;
 import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 
 import defaultdata.DefaultUnit;
 import defendthecastle.MainFrame;
 import screendisplay.DisplayStatus;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
+@MockitoSettings(strictness = Strictness.LENIENT)
+@ExtendWith(MockitoExtension.class)
 class MenuCompositionTest {
+	@Mock
 	private MainFrame MainFrame;
+	
 	private MenuComposition MenuComposition;
 
 	@BeforeEach
 	void setUp() throws Exception {
-		MainFrame = mock(MainFrame.class);
 		MenuComposition = spy(new MenuComposition(MainFrame));
 	}
 

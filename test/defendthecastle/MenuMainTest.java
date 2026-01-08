@@ -19,26 +19,28 @@ import java.util.stream.Stream;
 
 import javax.swing.JButton;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import testdataedit.TestDataEdit;
 
+@MockitoSettings(strictness = Strictness.LENIENT)
+@ExtendWith(MockitoExtension.class)
 class MenuMainTest {
+	@Mock
 	private MainFrame MainFrame;
-	private MenuMain MenuMain;
-	private FallMotion mockFallMotion;
-	private FinalMotion mockFinalMotion;
-
-	@BeforeEach
-	void setUp() throws Exception {
-		MainFrame = mock(MainFrame.class);
-		MenuMain = new MenuMain(MainFrame);
-	}
 	
+	@InjectMocks
+	private MenuMain MenuMain;
+
 	/**
 	 * タイトル画像が取り込まれていることを確認。<br>
 	 * コア画像が全て取り込まれていることを確認。<br>
@@ -184,18 +186,19 @@ class MenuMainTest {
 	void testDrawImageFutureOperation() {
 		Graphics mockGraphics = createMockGraphics();
 		createMockFuture(false);
-		setMockFallMotion();
+		createMockFallMotion();
 		MenuMain.drawImage(mockGraphics);
 		verify(mockGraphics, times(MenuMain.getFallMotion().length)).drawImage(Mockito.any(Image.class), anyInt(), anyInt(), Mockito.any(ImageObserver.class));
 	}
 	
-	void setMockFallMotion() {
-		mockFallMotion = mock(FallMotion.class);
+	FallMotion createMockFallMotion() {
+		FallMotion mockFallMotion = mock(FallMotion.class);
 		FallMotion[] mockFallMotionArray = new FallMotion[MenuMain.getFallMotion().length];
 		Arrays.fill(mockFallMotionArray, mockFallMotion);
 		MenuMain.setFallMotion(mockFallMotionArray);
 		doReturn(true).when(mockFallMotion).canStart();
 		doNothing().when(mockFallMotion).fallTimerStart(Mockito.any(ScheduledExecutorService.class));
+		return mockFallMotion;
 	}
 	
 	/**
@@ -205,7 +208,7 @@ class MenuMainTest {
 	 */
 	@Test
 	void testEffectTimerProcessNotCancel() {
-		setMockFallMotion();
+		FallMotion mockFallMotion = createMockFallMotion();
 		doReturn(true).when(mockFallMotion).canStart();
 		int oldCount = MenuMain.getCount();
 		MenuMain.effectTimerProcess();
@@ -221,8 +224,8 @@ class MenuMainTest {
 	@Test
 	void testEffectTimerProcessCanCancel() {
 		MenuMain.setCount(MenuMain.getFallMotion().length + 1);
-		setMockFallMotion();
-		setMockFinalMotion();
+		FallMotion mockFallMotion = createMockFallMotion();
+		FinalMotion mockFinalMotion = createMockFinalMotion();
 		doReturn(false).when(mockFallMotion).canStart();
 		MenuMain.effectTimerProcess();
 		verify(mockFallMotion, never()).fallTimerStart(Mockito.any(ScheduledExecutorService.class));
@@ -230,12 +233,13 @@ class MenuMainTest {
 		assertThat(MenuMain.getMainFuture().isCancelled(), is(true));
 	}
 	
-	void setMockFinalMotion() {
-		mockFinalMotion = mock(FinalMotion.class);
+	FinalMotion createMockFinalMotion() {
+		FinalMotion mockFinalMotion = mock(FinalMotion.class);
 		FinalMotion[] mockFinalMotionArray = new FinalMotion[MenuMain.getFinalMotion().length];
 		Arrays.fill(mockFinalMotionArray, mockFinalMotion);
 		MenuMain.setFinalMotion(mockFinalMotionArray);
 		doNothing().when(mockFinalMotion).finalTimerStart(Mockito.any(ScheduledExecutorService.class));
+		return mockFinalMotion;
 	}
 	
 	/**
@@ -243,7 +247,7 @@ class MenuMainTest {
 	 */
 	@Test
 	void testsSchedulerEndProcessNotEnd() {
-		setMockFinalMotion();
+		FinalMotion mockFinalMotion = createMockFinalMotion();
 		doReturn(false).when(mockFinalMotion).canEnd();
 		MenuMain.schedulerEndProcess();
 		assertThat(MenuMain.getScheduler().isShutdown(), is(false));
@@ -254,7 +258,7 @@ class MenuMainTest {
 	 */
 	@Test
 	void testsSchedulerEndProcessCanEnd() {
-		setMockFinalMotion();
+		FinalMotion mockFinalMotion = createMockFinalMotion();
 		doReturn(true).when(mockFinalMotion).canEnd();
 		MenuMain.schedulerEndProcess();
 		assertThat(MenuMain.getScheduler().isShutdown(), is(true));
