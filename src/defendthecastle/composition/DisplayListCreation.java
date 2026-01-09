@@ -11,20 +11,28 @@ class DisplayListCreation{
 	private DisplaySort coreDisplaySort = new DisplaySort();
 	private DisplaySort weaponDisplaySort = new DisplaySort();
 	
-	protected DisplayListCreation(SaveData SaveData) {
+	DisplayListCreation(SaveData SaveData) {
 		coreDisplaySort.core(getDisplayList(SaveData.getCoreNumberList()));
 		weaponDisplaySort.weapon(getDisplayList(SaveData.getWeaponNumberList()));
 	}
 	
-	protected List<Integer> getDisplayList(List<Integer> list){
+	List<Integer> getDisplayList(List<Integer> list){
 		return IntStream.range(0, list.size()).mapToObj(i -> (list.get(i) == 0)? -1: i).filter(i -> i != -1).collect(Collectors.toList());
 	}
 	
-	protected List<Integer> getCoreDisplayList() {
+	List<Integer> getCoreDisplayList() {
 		return coreDisplaySort.getDisplayList();
 	}
 	
-	protected List<Integer> getWeaponDisplayList() {
+	List<Integer> getWeaponDisplayList() {
 		return weaponDisplaySort.getDisplayList();
+	}
+
+	void setCoreDisplaySort(DisplaySort coreDisplaySort) {
+		this.coreDisplaySort = coreDisplaySort;
+	}
+
+	void setWeaponDisplaySort(DisplaySort weaponDisplaySort) {
+		this.weaponDisplaySort = weaponDisplaySort;
 	}
 }
