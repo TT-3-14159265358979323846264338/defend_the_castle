@@ -336,7 +336,7 @@ class MenuCompositionTest {
 		}
 		createMockDisplayListCreation();
 		MenuComposition.sortButtonAction(createMockActionEvent());
-		verify(mockImagePanel).updateList(Mockito.any(List.class));
+		verify(mockImagePanel).setDisplayList(Mockito.any(List.class));
 	}
 	
 	ImagePanel creteMockImagePanel() {
