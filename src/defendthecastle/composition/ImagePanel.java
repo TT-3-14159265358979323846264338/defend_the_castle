@@ -22,31 +22,28 @@ class ImagePanel extends JPanel implements MouseListener{
 	private List<Integer> numberList;
 	private boolean existsWhich;
 	private int selectNumber;
-	private int drawSize = 120;
-	private int column = 3;
+	private final int DRAW_SIZE = 120;
+	private final int COLUMN = 3;
 	
-	protected ImagePanel() {
+	ImagePanel() {
 		resetSelectNumber();
 		addMouseListener(this);
 	}
 	
-	protected void setImagePanel(List<BufferedImage> imageList, List<Integer> displayList, List<Integer> numberList, boolean existsWhich) {
+	void setImagePanel(List<BufferedImage> imageList, List<Integer> displayList, List<Integer> numberList, boolean existsWhich) {
 		this.imageList = imageList;
 		this.displayList = displayList;
 		this.numberList = numberList;
 		this.existsWhich = existsWhich;
 	}
 	
-	protected void updateList(List<Integer> displayList) {
-		this.displayList = displayList;
-	}
-	
+	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		setPreferredSize(new Dimension(100, (displayList.size() / column + 1) * drawSize));
+		setPreferredSize(new Dimension(100, (displayList.size() / COLUMN + 1) * DRAW_SIZE));
 		IntStream.range(0, displayList.size()).forEach(i -> {
-			int x = i % column * drawSize;
-			int y = i / column * drawSize;
+			int x = i % COLUMN * DRAW_SIZE;
+			int y = i / COLUMN * DRAW_SIZE;
 			if(selectNumber == displayList.get(i)) {
 				g.setColor(Color.WHITE);
 				g.fillRect(x, y, 90, 90);
@@ -58,11 +55,8 @@ class ImagePanel extends JPanel implements MouseListener{
 		});
 	}
 	
-	protected int getSelectNumber() {
-		return selectNumber;
-	}
 	
-	protected void resetSelectNumber() {
+	void resetSelectNumber() {
 		selectNumber = -1;
 	}
 
@@ -72,8 +66,8 @@ class ImagePanel extends JPanel implements MouseListener{
 	@Override
 	public void mousePressed(MouseEvent e) {
 		for(int i = 0; i < displayList.size(); i++) {
-			int x = i % column * drawSize + 10;
-			int y = i / column * drawSize + 10;
+			int x = i % COLUMN * DRAW_SIZE + 10;
+			int y = i / COLUMN * DRAW_SIZE + 10;
 			if(ValueRange.of(x, x + MenuComposition.SIZE).isValidIntValue(e.getX())
 					&& ValueRange.of(y, y + MenuComposition.SIZE).isValidIntValue(e.getY())){
 				if(selectNumber == displayList.get(i)) {
@@ -100,5 +94,29 @@ class ImagePanel extends JPanel implements MouseListener{
 	}
 	@Override
 	public void mouseExited(MouseEvent e) {
+	}
+
+	List<BufferedImage> getImageList() {
+		return imageList;
+	}
+
+	List<Integer> getDisplayList() {
+		return displayList;
+	}
+
+	void setDisplayList(List<Integer> displayList) {
+		this.displayList = displayList;
+	}
+	
+	List<Integer> getNumberList() {
+		return numberList;
+	}
+
+	boolean isExistsWhich() {
+		return existsWhich;
+	}
+	
+	int getSelectNumber() {
+		return selectNumber;
 	}
 }

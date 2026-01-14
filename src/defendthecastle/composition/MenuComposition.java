@@ -197,9 +197,9 @@ public class MenuComposition extends JPanel implements MouseListener{
 	
 	void sortButtonAction(ActionEvent e) {
 		if(itemScroll.getViewport().getView() == CoreImagePanel) {
-			CoreImagePanel.updateList(DisplayListCreation.getCoreDisplayList());
+			CoreImagePanel.setDisplayList(DisplayListCreation.getCoreDisplayList());
 		}else {
-			WeaponImagePanel.updateList(DisplayListCreation.getWeaponDisplayList());
+			WeaponImagePanel.setDisplayList(DisplayListCreation.getWeaponDisplayList());
 		}
 	}
 	
