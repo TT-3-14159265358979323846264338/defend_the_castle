@@ -36,6 +36,10 @@ class ImagePanel extends JPanel implements MouseListener{
 		this.numberList = numberList;
 		this.existsWhich = existsWhich;
 	}
+
+	void setDisplayList(List<Integer> displayList) {
+		this.displayList = displayList;
+	}
 	
 	@Override
 	protected void paintComponent(Graphics g) {
@@ -54,7 +58,6 @@ class ImagePanel extends JPanel implements MouseListener{
 			g.drawString("" + numberList.get(displayList.get(i)), 80 + x, 80 + y);
 		});
 	}
-	
 	
 	void resetSelectNumber() {
 		selectNumber = -1;
@@ -77,14 +80,12 @@ class ImagePanel extends JPanel implements MouseListener{
 						new DisplayStatus().weapon(imageList.get(selectNumber), selectNumber);
 					}
 				}else {
-					selectNumber = displayList.get(i);
+					setSelectNumber(displayList.get(i));
 				}
-				break;
-			}
-			if(i == displayList.size() - 1) {
-				resetSelectNumber();
+				return;
 			}
 		}
+		resetSelectNumber();
 	}
 	@Override
 	public void mouseReleased(MouseEvent e) {
@@ -95,28 +96,12 @@ class ImagePanel extends JPanel implements MouseListener{
 	@Override
 	public void mouseExited(MouseEvent e) {
 	}
-
-	List<BufferedImage> getImageList() {
-		return imageList;
-	}
-
-	List<Integer> getDisplayList() {
-		return displayList;
-	}
-
-	void setDisplayList(List<Integer> displayList) {
-		this.displayList = displayList;
-	}
-	
-	List<Integer> getNumberList() {
-		return numberList;
-	}
-
-	boolean isExistsWhich() {
-		return existsWhich;
-	}
 	
 	int getSelectNumber() {
 		return selectNumber;
+	}
+	
+	void setSelectNumber(int number) {
+		selectNumber = number;
 	}
 }
