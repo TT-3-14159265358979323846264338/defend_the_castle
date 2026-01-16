@@ -24,17 +24,17 @@ class SaveData{
 	private List<Integer> nowWeaponNumberList = new ArrayList<>();
 	private boolean existsChange;
 	
-	protected SaveData() {
+	SaveData() {
 		load();
 	}
 	
-	private void load() {
+	void load() {
 		SaveHoldItem.load();
 		SaveComposition.load();
 		input();
 	}
 	
-	private void input() {
+	void input() {
 		coreNumberList = SaveHoldItem.getCoreNumberList();
 		weaponNumberList = SaveHoldItem.getWeaponNumberList();
 		allCompositionList = SaveComposition.getAllCompositionList();
@@ -42,11 +42,11 @@ class SaveData{
 		selectNumber = SaveComposition.getSelectNumber();
 	}
 	
-	private void save() {
+	void save() {
 		SaveComposition.save(allCompositionList, compositionNameList, selectNumber);
 	}
 	
-	protected void countNumber() {
+	void countNumber() {
 		int[] core = new int[coreNumberList.size()];
 		int[] weapon = new int[weaponNumberList.size()];
 		getActiveCompositionList().stream().forEach(i -> {
@@ -71,13 +71,13 @@ class SaveData{
 		nowWeaponNumberList.addAll(getNowNumber.apply(weaponNumberList, weapon));
 	}
 	
-	protected void addNewComposition() {
+	void addNewComposition() {
 		SaveComposition.newComposition();
 		input();
 		existsChange = true;
 	}
 	
-	protected void removeComposition(int[] number) {
+	void removeComposition(int[] number) {
 		if(1 < allCompositionList.size()) {
 			int select = showConfirmDialog(null, "選択中の編成を全て削除しますか", "編成削除確認", YES_NO_OPTION, QUESTION_MESSAGE);
 			switch(select) {
@@ -95,7 +95,7 @@ class SaveData{
 		}
 	}
 	
-	protected void swapComposition(int max, int min) {
+	void swapComposition(int max, int min) {
 		if(max == min) {
 			showMessageDialog(null, "入れ替える2つの編成を選択してください");
 			return;
@@ -118,7 +118,7 @@ class SaveData{
 		}
 	}
 	
-	protected String changeCompositionName() {
+	String changeCompositionName() {
 		String newName = showInputDialog(null, "変更後の編成名を入力してください", "名称変更", INFORMATION_MESSAGE);
 		if(newName != null && !newName.isEmpty()) {
 			if(!newName.startsWith(" ") && !newName.startsWith("　")) {
@@ -131,7 +131,7 @@ class SaveData{
 		return null;
 	}
 	
-	protected void saveProcessing() {
+	void saveProcessing() {
 		int select = showConfirmDialog(null, "現在の編成を保存しますか?", "保存確認", YES_NO_OPTION, QUESTION_MESSAGE);
 		switch(select) {
 		case 0:
@@ -142,7 +142,7 @@ class SaveData{
 		}
 	}
 	
-	protected void loadProcessing() {
+	void loadProcessing() {
 		int select = showConfirmDialog(null, "保存せずに元のデータをロードしますか?", "ロード確認", YES_NO_OPTION, QUESTION_MESSAGE);
 		switch(select) {
 		case 0:
@@ -153,7 +153,7 @@ class SaveData{
 		}
 	}
 	
-	protected void resetComposition() {
+	void resetComposition() {
 		int select = showConfirmDialog(null, "現在の編成をリセットしますか", "リセット確認", YES_NO_OPTION, QUESTION_MESSAGE);
 		switch(select) {
 		case 0:
@@ -164,7 +164,7 @@ class SaveData{
 		}
 	}
 	
-	protected boolean returnProcessing() {
+	boolean returnProcessing() {
 		if(!existsChange) {
 			return true;
 		}
@@ -181,16 +181,16 @@ class SaveData{
 		return false;
 	}
 	
-	protected void selectNumberUpdate(int indexNumber) {
+	void selectNumberUpdate(int indexNumber) {
 		selectNumber = indexNumber;
 	}
 	
-	protected void changeCore(int number, int selectCore) {
+	void changeCore(int number, int selectCore) {
 		getActiveUnit(number).set(1, selectCore);
 		existsChange = true;
 	}
 	
-	protected void changeWeapon(int number, int selectWeapon) {
+	void changeWeapon(int number, int selectWeapon) {
 		if(DefaultUnit.WEAPON_DATA_MAP.get(selectWeapon).getHandle() == DefaultUnit.BOTH) {
 			getActiveUnit(number).set(DefaultUnit.LEFT_WEAPON, selectWeapon);
 			getActiveUnit(number).set(DefaultUnit.RIGHT_WEAPON, DefaultUnit.NO_WEAPON);
@@ -213,7 +213,7 @@ class SaveData{
 		existsChange = true;
 	}
 	
-	private int change(int number, int selectWeapon) {
+	int change(int number, int selectWeapon) {
 		String[] menu = {"左", "右", "戻る"};
 		int select = showOptionDialog(null, "左右どちらの武器を変更しますか", "武器変更", OK_CANCEL_OPTION, PLAIN_MESSAGE, null, menu, menu[0]);
 		switch(select) {
@@ -229,35 +229,35 @@ class SaveData{
 		return select;
 	}
 	
-	protected List<Integer> getCoreNumberList(){
+	List<Integer> getCoreNumberList(){
 		return coreNumberList;
 	}
 	
-	protected List<Integer> getWeaponNumberList(){
+	List<Integer> getWeaponNumberList(){
 		return weaponNumberList;
 	}
 	
-	protected List<String> getCompositionNameList(){
+	List<String> getCompositionNameList(){
 		return compositionNameList;
 	}
 	
-	protected int getSelectNumber() {
+	int getSelectNumber() {
 		return selectNumber;
 	}
 	
-	protected List<List<Integer>> getActiveCompositionList(){
+	List<List<Integer>> getActiveCompositionList(){
 		return allCompositionList.get(selectNumber);
 	}
 	
-	protected List<Integer> getActiveUnit(int number){
+	List<Integer> getActiveUnit(int number){
 		return allCompositionList.get(selectNumber).get(number);
 	}
 	
-	protected List<Integer> getNowCoreNumberList(){
+	List<Integer> getNowCoreNumberList(){
 		return nowCoreNumberList;
 	}
 	
-	protected List<Integer> getNowWeaponNumberList(){
+	List<Integer> getNowWeaponNumberList(){
 		return nowWeaponNumberList;
 	}
 }
