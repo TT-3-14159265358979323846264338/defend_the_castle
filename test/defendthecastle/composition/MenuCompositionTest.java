@@ -3,7 +3,6 @@ package defendthecastle.composition;
 import static custommatcher.CustomMatcher.*;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.awt.Component;
@@ -324,7 +323,6 @@ class MenuCompositionTest {
 	 * コア表示時はコアの表示リストを変更をしたことを確認。
 	 * 武器表示時は武器の表示リストを変更をしたことを確認。
 	 */
-	@SuppressWarnings("unchecked")
 	@ParameterizedTest
 	@ValueSource(strings = {"core", "weapon"})
 	void testSortButtonAction(String name) {
@@ -336,7 +334,7 @@ class MenuCompositionTest {
 		}
 		createMockDisplayListCreation();
 		MenuComposition.sortButtonAction(createMockActionEvent());
-		verify(mockImagePanel).setDisplayList(Mockito.any(List.class));
+		verify(mockImagePanel).setDisplayList(anyList());
 	}
 	
 	ImagePanel creteMockImagePanel() {
@@ -456,7 +454,6 @@ class MenuCompositionTest {
 	 * コアが選択されていなければ、ステータス表示を行うことを確認。
 	 * ステータス表示には、武器とコア合計3個を表示可能であることを確認。
 	 */
-	@SuppressWarnings("unchecked")
 	@Test
 	void testUnitOperationCoreNotSelected() {
 		MockedConstruction<DisplayStatus> mockDisplayStatus = createMockDisplayStatus();
@@ -467,7 +464,7 @@ class MenuCompositionTest {
 		createMockUnitList(0);
 		creatBranckImage();
 		MenuComposition.unitOperation(0);
-		verify(mockDisplayStatus.constructed().get(0)).unit(Mockito.any(BufferedImage.class), Mockito.any(List.class));
+		verify(mockDisplayStatus.constructed().get(0)).unit(Mockito.any(BufferedImage.class), anyList());
 		mockDisplayStatus.close();
 	}
 	
@@ -490,7 +487,6 @@ class MenuCompositionTest {
 	 * 武器が選択されていなければ、ステータス表示を行うことを確認。
 	 * ステータス表示には、武器がない時(画像リストのindexが-1)、コアのみを表示可能であることを確認。
 	 */
-	@SuppressWarnings("unchecked")
 	@Test
 	void testUnitOperationWeaponNotSelected() {
 		MockedConstruction<DisplayStatus> mockDisplayStatus = createMockDisplayStatus();
@@ -501,13 +497,12 @@ class MenuCompositionTest {
 		createMockUnitList(-1);
 		creatBranckImage();
 		MenuComposition.unitOperation(0);
-		verify(mockDisplayStatus.constructed().get(0)).unit(Mockito.any(BufferedImage.class), Mockito.any(List.class));
+		verify(mockDisplayStatus.constructed().get(0)).unit(Mockito.any(BufferedImage.class), anyList());
 		mockDisplayStatus.close();
 	}
 	
-	@SuppressWarnings("unchecked")
 	MockedConstruction<DisplayStatus> createMockDisplayStatus(){
 		return mockConstruction(DisplayStatus.class,
-				(mock, context) -> doNothing().when(mock).unit(Mockito.any(BufferedImage.class), Mockito.any(List.class)));
+				(mock, context) -> doNothing().when(mock).unit(Mockito.any(BufferedImage.class), anyList()));
 	}
 }

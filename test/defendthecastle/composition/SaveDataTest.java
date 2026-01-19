@@ -1,12 +1,10 @@
 package defendthecastle.composition;
 
-import static custommatcher.CustomMatcher.*;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
@@ -17,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.MockedConstruction;
-import org.mockito.Mockito;
 
 import savedata.SaveComposition;
 import savedata.SaveHoldItem;
@@ -130,10 +127,9 @@ class SaveDataTest {
 	 * 編成のセーブが呼び出されたことを確認。
 	 */
 	@Test
-	@SuppressWarnings("unchecked")
 	void testSave() {
-		doNothing().when(getMockSaveComposition()).save(Mockito.any(List.class), Mockito.any(List.class), anyInt());
+		doNothing().when(getMockSaveComposition()).save(anyList(), anyList(), anyInt());
 		SaveData.save();
-		verify(getMockSaveComposition()).save(Mockito.any(List.class), Mockito.any(List.class), anyInt());
+		verify(getMockSaveComposition()).save(anyList(), anyList(), anyInt());
 	}
 }

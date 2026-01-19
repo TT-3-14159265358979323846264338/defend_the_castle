@@ -16,7 +16,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
-import org.mockito.Mockito;
 import org.mockito.exceptions.base.MockitoAssertionError;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -42,23 +41,21 @@ class DisplayListCreationTest {
 		mockDisplaySort.close();
 	}
 	
-	@SuppressWarnings("unchecked")
 	MockedConstruction<DisplaySort> createMockConstructionDisplaySort(){
 		return mockConstruction(DisplaySort.class,
 				(mock, context) -> {
-					doNothing().when(mock).core(Mockito.any(List.class));
-					doNothing().when(mock).weapon(Mockito.any(List.class));
+					doNothing().when(mock).core(anyList());
+					doNothing().when(mock).weapon(anyList());
 				});
 	}
 	
-	@SuppressWarnings("unchecked")
 	boolean canCallAtLeastOne(MockedConstruction<DisplaySort> mockDisplaySort, String name) {
 		for(DisplaySort DisplaySort: mockDisplaySort.constructed()) {
 			try{
 				if(name.equals("core")) {
-					verify(DisplaySort).core(Mockito.any(List.class));
+					verify(DisplaySort).core(anyList());
 				}else {
-					verify(DisplaySort).weapon(Mockito.any(List.class));
+					verify(DisplaySort).weapon(anyList());
 				}
 				return true;
 			}catch (MockitoAssertionError e) {
