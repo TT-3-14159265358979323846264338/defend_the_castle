@@ -260,4 +260,20 @@ class SaveData{
 	List<Integer> getNowWeaponNumberList(){
 		return nowWeaponNumberList;
 	}
+
+	
+	/*
+	 * ここからテスト用ゲッターセッター
+	 */
+	SaveHoldItem getSaveHoldItem() {
+		return SaveHoldItem;
+	}
+
+	SaveComposition getSaveComposition() {
+		return SaveComposition;
+	}
+
+	List<List<List<Integer>>> getAllCompositionList() {
+		return allCompositionList;
+	}
 }
