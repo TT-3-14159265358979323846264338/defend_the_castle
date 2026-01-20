@@ -276,4 +276,16 @@ class SaveData{
 	List<List<List<Integer>>> getAllCompositionList() {
 		return allCompositionList;
 	}
+
+	void setAllCompositionList(List<List<List<Integer>>> allCompositionList) {
+		this.allCompositionList = allCompositionList;
+	}
+
+	boolean isExistsChange() {
+		return existsChange;
+	}
+
+	void setExistsChange(boolean existsChange) {
+		this.existsChange = existsChange;
+	}
 }
