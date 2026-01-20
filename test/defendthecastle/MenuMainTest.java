@@ -63,16 +63,16 @@ class MenuMainTest {
 	 */
 	@Test
 	void testMenuMain() {
-		ScheduledExecutorService mockScheduler = mock(ScheduledExecutorService.class);
-		MockedStatic<Executors> mockExecutor = mockStatic(Executors.class);
-		mockExecutor.when(() -> Executors.newScheduledThreadPool(anyInt())).thenReturn(mockScheduler);
-		MenuMain = new MenuMain(MainFrame);
-		JButton[] allButton = buttonArray();
-		assertThat(MenuMain.getMainFrame(), is(MainFrame));
-		assertThat(MenuMain.getComponents(), hasAllItemInArray(allButton));
-		Stream.of(allButton).forEach(this::assertActionListeners);
-		verify(mockScheduler).scheduleAtFixedRate(Mockito.any(Runnable.class), anyLong(), anyLong(), Mockito.any(TimeUnit.class));
-		mockExecutor.close();
+		try(MockedStatic<Executors> mockExecutor = mockStatic(Executors.class)){
+			ScheduledExecutorService mockScheduler = mock(ScheduledExecutorService.class);
+			mockExecutor.when(() -> Executors.newScheduledThreadPool(anyInt())).thenReturn(mockScheduler);
+			MenuMain = new MenuMain(MainFrame);
+			JButton[] allButton = buttonArray();
+			assertThat(MenuMain.getMainFrame(), is(MainFrame));
+			assertThat(MenuMain.getComponents(), hasAllItemInArray(allButton));
+			Stream.of(allButton).forEach(this::assertActionListeners);
+			verify(mockScheduler).scheduleAtFixedRate(Mockito.any(Runnable.class), anyLong(), anyLong(), Mockito.any(TimeUnit.class));
+		}
 	}
 	
 	JButton[] buttonArray() {
@@ -151,11 +151,11 @@ class MenuMainTest {
 	 */
 	@Test
 	void testTestButtonAction() {
-		MockedConstruction<TestDataEdit> mockTestDataEdit = mockConstruction(TestDataEdit.class);
-		ActionEvent e = mock(ActionEvent.class);
-		MenuMain.testButtonAction(e);
-		assertThat(mockTestDataEdit.constructed(), hasSize(1));
-		mockTestDataEdit.close();
+		try(MockedConstruction<TestDataEdit> mockTestDataEdit = mockConstruction(TestDataEdit.class)){
+			ActionEvent e = mock(ActionEvent.class);
+			MenuMain.testButtonAction(e);
+			assertThat(mockTestDataEdit.constructed(), hasSize(1));
+		}
 	}
 	
 	/**

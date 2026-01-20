@@ -121,21 +121,20 @@ class ImagePanelTest {
 	@ParameterizedTest
 	@CsvSource({"false, true, 0", "true, true, 0", "true, true, 1", "true, false, 0", "true, false, 1"})
 	void testMousePressed(boolean canSelect, boolean exists, int selectNumber) {
-		MockedConstruction<ValueRange> mockValueRange = createMockValueRange(canSelect);
-		MockedConstruction<DisplayStatus> mockDisplayStatus = createMockDisplayStatus();
-		createImagePanelData(exists, selectNumber);
-		ImagePanel.mousePressed(createMockMouseEvent());
-		if(!canSelect) {
-			assertThat(ImagePanel.getSelectNumber(), is(-1));
-		}else if(selectNumber != createBrankDisplayList().get(0)){
-			assertThat(ImagePanel.getSelectNumber(), is(0));
-		}else if(exists) {
-			verify(mockDisplayStatus.constructed().get(0)).core(Mockito.any(BufferedImage.class), anyInt());
-		}else {
-			verify(mockDisplayStatus.constructed().get(0)).weapon(Mockito.any(BufferedImage.class), anyInt());
+		try(MockedConstruction<ValueRange> mockValueRange = createMockValueRange(canSelect);
+				MockedConstruction<DisplayStatus> mockDisplayStatus = createMockDisplayStatus()){
+			createImagePanelData(exists, selectNumber);
+			ImagePanel.mousePressed(createMockMouseEvent());
+			if(!canSelect) {
+				assertThat(ImagePanel.getSelectNumber(), is(-1));
+			}else if(selectNumber != createBrankDisplayList().get(0)){
+				assertThat(ImagePanel.getSelectNumber(), is(0));
+			}else if(exists) {
+				verify(mockDisplayStatus.constructed().get(0)).core(Mockito.any(BufferedImage.class), anyInt());
+			}else {
+				verify(mockDisplayStatus.constructed().get(0)).weapon(Mockito.any(BufferedImage.class), anyInt());
+			}
 		}
-		mockValueRange.close();
-		mockDisplayStatus.close();
 	}
 	
 	MockedConstruction<ValueRange> createMockValueRange(boolean canSelect){

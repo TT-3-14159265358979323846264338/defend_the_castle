@@ -5,10 +5,12 @@ import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.swing.JOptionPane;
@@ -82,13 +84,13 @@ class SaveDataTest {
 	
 	List<List<List<Integer>>> defaultComposition(){
 		Function<Integer, List<List<Integer>>> defaultUnits = number -> {
-			return IntStream.range(0, 8).mapToObj(i -> Arrays.asList(number - 1, number, number - 1)).toList();
+			return IntStream.range(0, 8).mapToObj(i -> Arrays.asList(number - 1, number, number - 1)).collect(Collectors.toList());
 		};
-		return IntStream.range(0, 2).mapToObj(i -> defaultUnits.apply(i)).toList();
+		return IntStream.range(0, 2).mapToObj(i -> defaultUnits.apply(i)).collect(Collectors.toList());
 	}
 	
 	List<String> defaultCompositionName(){
-		return Arrays.asList("test1", "test2");
+		return new ArrayList<>(Arrays.asList("test1", "test2"));
 	}
 	
 	int defaultSelectNumber() {
@@ -167,7 +169,11 @@ class SaveDataTest {
 		doNothing().when(getMockSaveComposition()).newComposition();
 		SaveData.addNewComposition();
 		verify(getMockSaveComposition()).newComposition();
-		assertThat(SaveData.isExistsChange(), is(true));
+		assertChange(true);
+	}
+	
+	void assertChange(boolean exists) {
+		assertThat(SaveData.isExistsChange(), is(exists));
 	}
 	
 	/**
@@ -178,34 +184,34 @@ class SaveDataTest {
 	@ParameterizedTest
 	@CsvSource({"1, -1", "2, -1", "2, 0"})
 	void testRemoveComposition(int size, int dialogCode) {
-		MockedStatic<JOptionPane> mockJOptionPane = createMockJOptionPane(dialogCode);
-		createMockAllCompositionList(size);
-		SaveData.setExistsChange(false);
-		ArgumentCaptor<Integer> capture = createRemoveCaptor();
-		int[] removeTarget = {1, 2, 4};
-		SaveData.removeComposition(removeTarget);
-		if(1 < size) {
-			if(dialogCode == 0) {
-				assertRemove(capture, removeTarget);
+		try(MockedStatic<JOptionPane> mockJOptionPane = createMockJOptionPane(dialogCode)){
+			createMockAllCompositionList(size);
+			SaveData.setExistsChange(false);
+			ArgumentCaptor<Integer> capture = createRemoveCaptor();
+			int[] removeTarget = {1, 2, 4};
+			SaveData.removeComposition(removeTarget);
+			if(1 < size) {
+				if(canSelectDialog(dialogCode)) {
+					assertRemove(capture, removeTarget);
+				}else {
+					assertNotRemove(capture);
+				}
 			}else {
+				mockJOptionPane.verify(() -> JOptionPane.showMessageDialog(any(), any()));
 				assertNotRemove(capture);
 			}
-		}else {
-			mockJOptionPane.verify(() -> JOptionPane.showMessageDialog(any(), any()));
-			assertNotRemove(capture);
 		}
-		mockJOptionPane.close();
 	}
 	
 	void assertRemove(ArgumentCaptor<Integer> capture, int[] removeTarget) {
 		List<Integer> reverseTarget = Arrays.stream(removeTarget).boxed().sorted(Collections.reverseOrder()).toList();
 		assertThat(capture.getAllValues(), is(reverseTarget));
-		assertThat(SaveData.isExistsChange(), is(true));
+		assertChange(true);
 	}
 	
 	void assertNotRemove(ArgumentCaptor<Integer> capture) {
 		assertThat(capture.getAllValues(), empty());
-		assertThat(SaveData.isExistsChange(), is(false));
+		assertChange(false);
 	}
 	
 	MockedStatic<JOptionPane> createMockJOptionPane(int dialogCode){
@@ -226,5 +232,42 @@ class SaveDataTest {
 		ArgumentCaptor<Integer> capture = ArgumentCaptor.forClass(Integer.class);
 		doNothing().when(getMockSaveComposition()).removeComposition(capture.capture());
 		return capture;
+	}
+	
+	boolean canSelectDialog(int dialogCode) {
+		return dialogCode == 0;
+	}
+	
+	/**
+	 * 1つしか選択されていない(max=min)の時はメッセージを表示編成変更は行わないことを確認。
+	 * 確認ダイアログで処理の実行を行わなければ、編成変更は行わないことを確認。
+	 * 確認ダイアログで処理を実行すれば、編成と名称の入れ替えたことを確認。
+	 */
+	@ParameterizedTest
+	@CsvSource({"0, 0, -1", "0, 1, 0", "0, 1, -1"})
+	void testSwapComposition(int max, int min, int dialogCode) {
+		try(MockedStatic<JOptionPane> mockJOptionPane = createMockJOptionPane(dialogCode)){
+			List<List<List<Integer>>> defaultComposition = defaultComposition();
+			List<String> defaultName = defaultCompositionName();
+			SaveData.swapComposition(max, min);
+			if(max == min) {
+				mockJOptionPane.verify(() -> JOptionPane.showMessageDialog(any(), any()));
+				assertChange(false);
+			}else {
+				if(canSelectDialog(dialogCode)) {
+					assertSwap(max, min, defaultComposition, defaultName);
+					assertChange(true);
+				}else {
+					assertChange(false);
+				}
+			}
+		}
+	}
+	
+	void assertSwap(int max, int min, List<List<List<Integer>>> defaultComposition, List<String> defaultName) {
+		assertThat(SaveData.getAllCompositionList().get(max), is(defaultComposition.get(min)));
+		assertThat(SaveData.getAllCompositionList().get(min), is(defaultComposition.get(max)));
+		assertThat(SaveData.getCompositionNameList().get(max), is(defaultName.get(min)));
+		assertThat(SaveData.getCompositionNameList().get(min), is(defaultName.get(max)));
 	}
 }

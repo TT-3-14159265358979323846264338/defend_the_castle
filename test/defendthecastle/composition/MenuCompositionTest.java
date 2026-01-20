@@ -418,12 +418,12 @@ class MenuCompositionTest {
 	@ParameterizedTest
 	@CsvSource({"true, 1", "false, 0"})
 	void testMousePressed(boolean exists, int times) {
-		MockedConstruction<ValueRange> mockValueRange = createMockValueRange(exists);
-		createMockUnitList(0);
-		doNothing().when(MenuComposition).unitOperation(anyInt());
-		MenuComposition.mousePressed(createMockMouseEvent());
-		verify(MenuComposition, times(times)).unitOperation(anyInt());
-		mockValueRange.close();
+		try(MockedConstruction<ValueRange> mockValueRange = createMockValueRange(exists)){
+			createMockUnitList(0);
+			doNothing().when(MenuComposition).unitOperation(anyInt());
+			MenuComposition.mousePressed(createMockMouseEvent());
+			verify(MenuComposition, times(times)).unitOperation(anyInt());
+		}
 	}
 	
 	MockedConstruction<ValueRange> createMockValueRange(boolean exists){
@@ -456,16 +456,16 @@ class MenuCompositionTest {
 	 */
 	@Test
 	void testUnitOperationCoreNotSelected() {
-		MockedConstruction<DisplayStatus> mockDisplayStatus = createMockDisplayStatus();
-		ImagePanel mockImagePanel = creteMockImagePanel();
-		doReturn(-1).when(mockImagePanel).getSelectNumber();
-		MenuComposition.setCoreImagePanel(mockImagePanel);
-		createMockSaveData();
-		createMockUnitList(0);
-		creatBranckImage();
-		MenuComposition.unitOperation(0);
-		verify(mockDisplayStatus.constructed().get(0)).unit(Mockito.any(BufferedImage.class), anyList());
-		mockDisplayStatus.close();
+		try(MockedConstruction<DisplayStatus> mockDisplayStatus = createMockDisplayStatus()){
+			ImagePanel mockImagePanel = creteMockImagePanel();
+			doReturn(-1).when(mockImagePanel).getSelectNumber();
+			MenuComposition.setCoreImagePanel(mockImagePanel);
+			createMockSaveData();
+			createMockUnitList(0);
+			creatBranckImage();
+			MenuComposition.unitOperation(0);
+			verify(mockDisplayStatus.constructed().get(0)).unit(Mockito.any(BufferedImage.class), anyList());
+		}
 	}
 	
 	/**
@@ -489,16 +489,16 @@ class MenuCompositionTest {
 	 */
 	@Test
 	void testUnitOperationWeaponNotSelected() {
-		MockedConstruction<DisplayStatus> mockDisplayStatus = createMockDisplayStatus();
-		ImagePanel mockImagePanel = creteMockImagePanel();
-		doReturn(-1).when(mockImagePanel).getSelectNumber();
-		MenuComposition.setWeaponImagePanel(mockImagePanel);
-		createMockSaveData();
-		createMockUnitList(-1);
-		creatBranckImage();
-		MenuComposition.unitOperation(0);
-		verify(mockDisplayStatus.constructed().get(0)).unit(Mockito.any(BufferedImage.class), anyList());
-		mockDisplayStatus.close();
+		try(MockedConstruction<DisplayStatus> mockDisplayStatus = createMockDisplayStatus()){
+			ImagePanel mockImagePanel = creteMockImagePanel();
+			doReturn(-1).when(mockImagePanel).getSelectNumber();
+			MenuComposition.setWeaponImagePanel(mockImagePanel);
+			createMockSaveData();
+			createMockUnitList(-1);
+			creatBranckImage();
+			MenuComposition.unitOperation(0);
+			verify(mockDisplayStatus.constructed().get(0)).unit(Mockito.any(BufferedImage.class), anyList());
+		}
 	}
 	
 	MockedConstruction<DisplayStatus> createMockDisplayStatus(){

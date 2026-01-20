@@ -17,13 +17,12 @@ class DefendTheCastleTest {
 	 */
 	@Test
 	void testDefendTheCastle() {
-		MockedConstruction<FileCheck> mockFileCheck = mockConstruction(FileCheck.class);
-		MockedConstruction<MainFrame> mockMainFrame = mockConstruction(MainFrame.class);
-		new DefendTheCastle();
-		assertThat(mockFileCheck.constructed(), hasSize(1));
-		assertThat(mockMainFrame.constructed(), hasSize(1));
-		verify(mockMainFrame.constructed().get(0), times(1)).mainMenuDraw();
-		mockFileCheck.close();
-		mockMainFrame.close();
+		try(MockedConstruction<FileCheck> mockFileCheck = mockConstruction(FileCheck.class);
+				MockedConstruction<MainFrame> mockMainFrame = mockConstruction(MainFrame.class)){
+			new DefendTheCastle();
+			assertThat(mockFileCheck.constructed(), hasSize(1));
+			assertThat(mockMainFrame.constructed(), hasSize(1));
+			verify(mockMainFrame.constructed().get(0), times(1)).mainMenuDraw();
+		}
 	}
 }

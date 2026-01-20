@@ -34,11 +34,11 @@ class DisplayListCreationTest {
 	 */
 	@Test
 	void testDisplayListCreation() {
-		MockedConstruction<DisplaySort> mockDisplaySort = createMockConstructionDisplaySort();
-		DisplayListCreation = new DisplayListCreation(SaveData);
-		assertThat(canCallAtLeastOne(mockDisplaySort, "core"), is(true));
-		assertThat(canCallAtLeastOne(mockDisplaySort, "weapon"), is(true));
-		mockDisplaySort.close();
+		try(MockedConstruction<DisplaySort> mockDisplaySort = createMockConstructionDisplaySort()){
+			DisplayListCreation = new DisplayListCreation(SaveData);
+			assertThat(canCallAtLeastOne(mockDisplaySort, "core"), is(true));
+			assertThat(canCallAtLeastOne(mockDisplaySort, "weapon"), is(true));
+		}
 	}
 	
 	MockedConstruction<DisplaySort> createMockConstructionDisplaySort(){
