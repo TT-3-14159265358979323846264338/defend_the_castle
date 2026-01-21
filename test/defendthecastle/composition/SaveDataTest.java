@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
@@ -43,6 +44,12 @@ class SaveDataTest {
 		mockSaveHoldItem = createMockSaveHoldItem();
 		mockSaveComposition = createmMockSaveComposition();
 		MockitoAnnotations.openMocks(this);
+	}
+
+	@AfterEach
+	void tearDown() throws Exception {
+		mockSaveHoldItem.close();
+		mockSaveComposition.close();
 	}
 	
 	MockedConstruction<SaveHoldItem> createMockSaveHoldItem(){
@@ -95,12 +102,6 @@ class SaveDataTest {
 	
 	int defaultSelectNumber() {
 		return 0;
-	}
-
-	@AfterEach
-	void tearDown() throws Exception {
-		mockSaveHoldItem.close();
-		mockSaveComposition.close();
 	}
 
 	/**
@@ -184,7 +185,7 @@ class SaveDataTest {
 	@ParameterizedTest
 	@CsvSource({"1, -1", "2, -1", "2, 0"})
 	void testRemoveComposition(int size, int dialogCode) {
-		try(MockedStatic<JOptionPane> mockJOptionPane = createMockJOptionPane(dialogCode)){
+		try(MockedStatic<JOptionPane> mockJOptionPane = createMockJOptionPaneOfConfirmDialog(dialogCode)){
 			createMockAllCompositionList(size);
 			SaveData.setExistsChange(false);
 			ArgumentCaptor<Integer> capture = createRemoveCaptor();
@@ -214,7 +215,7 @@ class SaveDataTest {
 		assertChange(false);
 	}
 	
-	MockedStatic<JOptionPane> createMockJOptionPane(int dialogCode){
+	MockedStatic<JOptionPane> createMockJOptionPaneOfConfirmDialog(int dialogCode){
 		MockedStatic<JOptionPane> mockJOptionPane = mockStatic(JOptionPane.class);
 		mockJOptionPane.when(() -> JOptionPane.showMessageDialog(any(), any())).thenAnswer(invocation -> null);
 		mockJOptionPane.when(() -> JOptionPane.showConfirmDialog(any(), any(), anyString(), anyInt(), anyInt())).thenReturn(dialogCode);
@@ -239,14 +240,14 @@ class SaveDataTest {
 	}
 	
 	/**
-	 * 1つしか選択されていない(max=min)の時はメッセージを表示編成変更は行わないことを確認。
+	 * 1つしか選択されていない(max=min)時は、メッセージを表示して編成変更は行わないことを確認。
 	 * 確認ダイアログで処理の実行を行わなければ、編成変更は行わないことを確認。
 	 * 確認ダイアログで処理を実行すれば、編成と名称の入れ替えたことを確認。
 	 */
 	@ParameterizedTest
 	@CsvSource({"0, 0, -1", "0, 1, 0", "0, 1, -1"})
 	void testSwapComposition(int max, int min, int dialogCode) {
-		try(MockedStatic<JOptionPane> mockJOptionPane = createMockJOptionPane(dialogCode)){
+		try(MockedStatic<JOptionPane> mockJOptionPane = createMockJOptionPaneOfConfirmDialog(dialogCode)){
 			List<List<List<Integer>>> defaultComposition = defaultComposition();
 			List<String> defaultName = defaultCompositionName();
 			SaveData.swapComposition(max, min);
@@ -269,5 +270,37 @@ class SaveDataTest {
 		assertThat(SaveData.getAllCompositionList().get(min), is(defaultComposition.get(max)));
 		assertThat(SaveData.getCompositionNameList().get(max), is(defaultName.get(min)));
 		assertThat(SaveData.getCompositionNameList().get(min), is(defaultName.get(max)));
+	}
+	
+	/**
+	 * 入力された編成名がnullやemptyなら、編成名の変更を行わないことを確認。
+	 * 編成名が空白文字であれば、メッセージを表示して変更を行わないことを確認。
+	 * 編成名が有効ならば編成名の変更を行うことを確認。
+	 */
+	@ParameterizedTest
+	@ValueSource(strings = {"", " ", "　", "name"})
+	@NullSource
+	void testChangeCompositionName(String inputName) {
+		try(MockedStatic<JOptionPane> mockJOptionPane = createMockJOptionPaneOfInputDialog(inputName)){
+			String name = SaveData.changeCompositionName();
+			if(inputName == null || inputName.isEmpty()) {
+				assertThat(name, nullValue());
+				assertChange(false);
+			}else if(inputName.isBlank()) {
+				mockJOptionPane.verify(() -> JOptionPane.showMessageDialog(any(), any()));
+				assertThat(name, nullValue());
+				assertChange(false);
+			}else {
+				assertThat(SaveData.getCompositionNameList().get(defaultSelectNumber()), is(inputName));
+				assertChange(true);
+			}
+		}
+	}
+	
+	MockedStatic<JOptionPane> createMockJOptionPaneOfInputDialog(String inputName){
+		MockedStatic<JOptionPane> mockJOptionPane = mockStatic(JOptionPane.class);
+		mockJOptionPane.when(() -> JOptionPane.showMessageDialog(any(), any())).thenAnswer(invocation -> null);
+		mockJOptionPane.when(() -> JOptionPane.showInputDialog(any(), any(), anyString(), anyInt())).thenReturn(inputName);
+		return mockJOptionPane;
 	}
 }
