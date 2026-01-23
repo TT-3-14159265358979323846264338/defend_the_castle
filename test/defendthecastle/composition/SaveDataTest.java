@@ -419,33 +419,37 @@ class SaveDataTest {
 	}
 	
 	/**
-	 * 
+	 * 選択された武器が両手武器なら、右武器をなしにして左武器を変更する。
+	 * 片手武器なら、現在のユニットの装備状況によって結果が異なる。<br>
+	 * 左手に武器を未所持なら、変更メソッドを呼び出してダイアログで指定した部位を変更する。
+	 * 左武器が片手武器なら、左手に武器を未所持と同様の対応をする。
+	 * 左武器が両手武器なら、右武器を変更(dialogCode = 1)すると、左武器をなしして右武器を変更する。
+	 * 左武器を変更(dialogCode = 0)すると、左武器のみ変更する。
+	 * 変更をキャンセルすれば、変更は行われない。
 	 */
 	@ParameterizedTest
 	@MethodSource("weaponChangeSource")
 	void testChangeWeapon(int selectWeapon, int leftWeapon, int dialogCode) {
 		try(MockedStatic<JOptionPane> mockJOptionPane = createMockJOptionPaneOfOptionDialog(dialogCode)){
-			
-
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
+			SaveData.setExistsChange(false);
+			SaveData.setAllCompositionList(weaponChangeComposition());
+			if(dialogCode != -1) {
+				SaveData.getActiveCompositionList().get(0).set(DefaultUnit.LEFT_WEAPON, leftWeapon);
+			}
+			SaveData.changeWeapon(0, selectWeapon);
+			assertOperation(selectWeapon, leftWeapon, dialogCode);
+			assertChange(true);
 		}
 	}
 	
 	static Stream<Arguments> weaponChangeSource(){
 		return Stream.of(
 				Arguments.of(DefaultUnit.BOW, DefaultUnit.NO_WEAPON, -1),
-				Arguments.of(DefaultUnit.SWORD, DefaultUnit.NO_WEAPON, -1),
-				Arguments.of(DefaultUnit.SWORD, DefaultUnit.SWORD, -1),
-				Arguments.of(DefaultUnit.SWORD, DefaultUnit.BOW, -1));
+				Arguments.of(DefaultUnit.SWORD, DefaultUnit.NO_WEAPON, 0),
+				Arguments.of(DefaultUnit.SWORD, DefaultUnit.SWORD, 0),
+				Arguments.of(DefaultUnit.SWORD, DefaultUnit.BOW, -1),
+				Arguments.of(DefaultUnit.SWORD, DefaultUnit.BOW, 0),
+				Arguments.of(DefaultUnit.SWORD, DefaultUnit.BOW, 1));
 	}
 	
 	MockedStatic<JOptionPane> createMockJOptionPaneOfOptionDialog(int dialogCode){
@@ -454,10 +458,82 @@ class SaveDataTest {
 		return mockJOptionPane;
 	}
 	
+	void assertOperation(int selectWeapon, int leftWeapon, int dialogCode) {
+		if(DefaultUnit.WEAPON_DATA_MAP.get(selectWeapon).getHandle() == DefaultUnit.BOTH) {
+			assertThat(SaveData.getAllCompositionList(), is(changeToBoth(selectWeapon)));
+			return;
+		}
+		if(leftWeapon == DefaultUnit.NO_WEAPON){
+			verify(SaveData).change(anyInt(), anyInt());
+			return;
+		}
+		if(DefaultUnit.WEAPON_DATA_MAP.get(leftWeapon).getHandle() == DefaultUnit.ONE) {
+			verify(SaveData).change(anyInt(), anyInt());
+			return;
+		}
+		if(dialogCode == 1) {
+			assertThat(SaveData.getAllCompositionList(), is(changeFromBothOnRight(selectWeapon)));
+			return;
+		}
+		if(dialogCode == 0){
+			assertThat(SaveData.getAllCompositionList(), is(changeFromBothOnLeft(selectWeapon)));
+			return;
+		}assertThat(SaveData.getAllCompositionList(), is(weaponChangeComposition()));
+	}
 	
+	List<List<List<Integer>>> changeToBoth(int selectWeapon){
+		List<List<List<Integer>>> expected = weaponChangeComposition();
+		expected.get(0).get(0).set(DefaultUnit.RIGHT_WEAPON, DefaultUnit.NO_WEAPON);
+		expected.get(0).get(0).set(DefaultUnit.LEFT_WEAPON, selectWeapon);
+		return expected;
+	}
 	
+	List<List<List<Integer>>> changeFromBothOnRight(int selectWeapon){
+		List<List<List<Integer>>> expected = weaponChangeComposition();
+		expected.get(0).get(0).set(DefaultUnit.RIGHT_WEAPON, selectWeapon);
+		expected.get(0).get(0).set(DefaultUnit.LEFT_WEAPON, DefaultUnit.NO_WEAPON);
+		return expected;
+	}
 	
+	List<List<List<Integer>>> changeFromBothOnLeft(int selectWeapon){
+		List<List<List<Integer>>> expected = weaponChangeComposition();
+		expected.get(0).get(0).set(DefaultUnit.LEFT_WEAPON, selectWeapon);
+		return expected;
+	}
 	
+	List<List<List<Integer>>> weaponChangeComposition(){
+		Function<Integer, List<List<Integer>>> defaultUnits = number -> {
+			return IntStream.range(0, 8).mapToObj(i -> Arrays.asList(5, 0, 5)).collect(Collectors.toList());
+		};
+		return IntStream.range(0, 2).mapToObj(i -> defaultUnits.apply(i)).collect(Collectors.toList());
+	}
+	
+	/**
+	 * 右武器を変更(dialogCode = 1)すると、右武器のみ変更する。
+	 * 左武器を変更(dialogCode = 0)すると、左武器のみ変更する。
+	 * キャンセル(dialogCode = -1)すると、変更を行わない。
+	 */
+	@ParameterizedTest
+	@ValueSource(ints = {-1, 0, 1})
+	void testChange(int dialogCode) {
+		try(MockedStatic<JOptionPane> mockJOptionPane = createMockJOptionPaneOfOptionDialog(dialogCode)){
+			SaveData.setAllCompositionList(weaponChangeComposition());
+			SaveData.change(0, 1);
+			if(dialogCode == 1) {
+				assertThat(SaveData.getAllCompositionList(), is(onlyOneSideChange(DefaultUnit.RIGHT_WEAPON)));
+			}else if(dialogCode == 0) {
+				assertThat(SaveData.getAllCompositionList(), is(onlyOneSideChange(DefaultUnit.LEFT_WEAPON)));
+			}else {
+				assertThat(SaveData.getAllCompositionList(), is(weaponChangeComposition()));
+			}
+		}
+	}
+	
+	List<List<List<Integer>>> onlyOneSideChange(int position){
+		List<List<List<Integer>>> expected = weaponChangeComposition();
+		expected.get(0).get(0).set(position, 1);
+		return expected;
+	}
 	
 	/**
 	 * 選択中の編成情報を返却することを確認。
