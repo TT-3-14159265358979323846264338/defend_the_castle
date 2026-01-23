@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.swing.JOptionPane;
 
@@ -19,7 +20,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
@@ -29,6 +32,7 @@ import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
+import defaultdata.DefaultUnit;
 import savedata.SaveComposition;
 import savedata.SaveHoldItem;
 
@@ -156,9 +160,11 @@ class SaveDataTest {
 	@ValueSource(ints = {0, 1})
 	void testCountNumber(int selectNumber) {
 		SaveData.selectNumberUpdate(selectNumber);
+		List<Integer> coreExpected = Arrays.asList(selectNumber * 8, 8 - selectNumber * 8);
+		List<Integer> weaponExpected = Arrays.asList(16 - selectNumber * 16, 16);
 		SaveData.countNumber();
-		assertThat(SaveData.getNowCoreNumberList(), is(Arrays.asList(selectNumber * 8, 8 - selectNumber * 8)));
-		assertThat(SaveData.getNowWeaponNumberList(), is(Arrays.asList(16 - selectNumber * 16, 16)));
+		assertThat(SaveData.getNowCoreNumberList(), is(coreExpected));
+		assertThat(SaveData.getNowWeaponNumberList(), is(weaponExpected));
 	}
 	
 	/**
@@ -205,8 +211,8 @@ class SaveDataTest {
 	}
 	
 	void assertRemove(ArgumentCaptor<Integer> capture, int[] removeTarget) {
-		List<Integer> reverseTarget = Arrays.stream(removeTarget).boxed().sorted(Collections.reverseOrder()).toList();
-		assertThat(capture.getAllValues(), is(reverseTarget));
+		List<Integer> expected = Arrays.stream(removeTarget).boxed().sorted(Collections.reverseOrder()).toList();
+		assertThat(capture.getAllValues(), is(expected));
 		assertChange(true);
 	}
 	
@@ -302,5 +308,174 @@ class SaveDataTest {
 		mockJOptionPane.when(() -> JOptionPane.showMessageDialog(any(), any())).thenAnswer(invocation -> null);
 		mockJOptionPane.when(() -> JOptionPane.showInputDialog(any(), any(), anyString(), anyInt())).thenReturn(inputName);
 		return mockJOptionPane;
+	}
+	
+	/**
+	 * 確認ダイアログで処理の実行を行わなければ、編成変更は行わないことを確認。
+	 * 確認ダイアログで処理を実行すれば、セーブメソッドが呼ばれて、編成変更状況がfalseに切り替わることを確認。
+	 */
+	@ParameterizedTest
+	@ValueSource(ints = {-1, 0})
+	void testSaveProcessing(int dialogCode) {
+		try(MockedStatic<JOptionPane> mockJOptionPane = createMockJOptionPaneOfConfirmDialog(dialogCode)){
+			SaveData.setExistsChange(true);
+			doNothing().when(getMockSaveComposition()).save(anyList(), anyList(), anyInt());
+			SaveData.saveProcessing();
+			if(dialogCode == 0) {
+				verify(SaveData).save();
+				assertChange(false);
+			}else {
+				assertChange(true);
+			}
+		}
+	}
+	
+	/**
+	 * 確認ダイアログで処理の実行を行わなければ、編成変更は行わないことを確認。
+	 * 確認ダイアログで処理を実行すれば、ロードメソッドが呼ばれて、編成変更状況がfalseに切り替わることを確認。
+	 */
+	@ParameterizedTest
+	@ValueSource(ints = {-1, 0})
+	void testLoadProcessing(int dialogCode) {
+		try(MockedStatic<JOptionPane> mockJOptionPane = createMockJOptionPaneOfConfirmDialog(dialogCode)){
+			SaveData.setExistsChange(true);
+			doNothing().when(getMockSaveComposition()).save(anyList(), anyList(), anyInt());
+			SaveData.loadProcessing();
+			if(dialogCode == 0) {
+				verify(SaveData).load();
+				assertChange(false);
+			}else {
+				assertChange(true);
+			}
+		}
+	}
+	
+	/**
+	 * 確認ダイアログで処理の実行を行わなければ、編成変更は行わないことを確認。
+	 * 確認ダイアログで処理を実行すれば、現在の編成が初期値に戻ることを確認。
+	 */
+	@ParameterizedTest
+	@ValueSource(ints = {-1, 0})
+	void testResetProcessing(int dialogCode) {
+		try(MockedStatic<JOptionPane> mockJOptionPane = createMockJOptionPaneOfConfirmDialog(dialogCode)){
+			SaveData.setExistsChange(false);
+			SaveData.selectNumberUpdate(1);
+			SaveData.resetComposition();
+			if(dialogCode == 0) {
+				assertThat(SaveData.getAllCompositionList(), is(resetComposition()));
+				assertChange(true);
+			}else {
+				assertChange(false);
+			}
+		}
+	}
+	
+	List<List<List<Integer>>> resetComposition(){
+		List<List<List<Integer>>> composition = defaultComposition();
+		composition.set(1, composition.get(0));
+		return composition;
+	}
+	
+	/**
+	 * 編成の変更が行われていなければ、trueを返却することを確認。
+	 * 確認ダイアログで処理のキャンセルすれば、falseを返却することを確認。
+	 * 確認ダイアログでセーブ実行しないならば、trueを返却することを確認。
+	 * 確認ダイアログでセーブ実行すれば、セーブが呼ばれてtrueを返却することを確認。
+	 */
+	@ParameterizedTest
+	@CsvSource({"false, -1", "true, -1", "true, 0", "true, 1"})
+	void testReturnProcessing(boolean existsChange, int dialogCode) {
+		try(MockedStatic<JOptionPane> mockJOptionPane = createMockJOptionPaneOfConfirmDialog(dialogCode)){
+			SaveData.setExistsChange(existsChange);
+			boolean canReturn = SaveData.returnProcessing();
+			if(!existsChange) {
+				assertThat(canReturn, is(true));
+			}else if(dialogCode == 0){
+				verify(SaveData).save();
+				assertThat(canReturn, is(true));
+			}else if(dialogCode == 1) {
+				assertThat(canReturn, is(true));
+			}else {
+				assertThat(canReturn, is(false));
+			}
+		}
+	}
+	
+	/**
+	 * 指定したコアが変更されたことを確認。
+	 */
+	@Test
+	void testChangeCore() {
+		List<List<List<Integer>>> expected = coreChange();
+		SaveData.changeCore(0, 5);
+		assertThat(SaveData.getAllCompositionList(), is(expected));
+		assertChange(true);
+	}
+	
+	List<List<List<Integer>>> coreChange(){
+		List<List<List<Integer>>> composition = defaultComposition();
+		composition.get(0).get(0).set(1, 5);
+		return composition;
+	}
+	
+	/**
+	 * 
+	 */
+	@ParameterizedTest
+	@MethodSource("weaponChangeSource")
+	void testChangeWeapon(int selectWeapon, int leftWeapon, int dialogCode) {
+		try(MockedStatic<JOptionPane> mockJOptionPane = createMockJOptionPaneOfOptionDialog(dialogCode)){
+			
+
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+		}
+	}
+	
+	static Stream<Arguments> weaponChangeSource(){
+		return Stream.of(
+				Arguments.of(DefaultUnit.BOW, DefaultUnit.NO_WEAPON, -1),
+				Arguments.of(DefaultUnit.SWORD, DefaultUnit.NO_WEAPON, -1),
+				Arguments.of(DefaultUnit.SWORD, DefaultUnit.SWORD, -1),
+				Arguments.of(DefaultUnit.SWORD, DefaultUnit.BOW, -1));
+	}
+	
+	MockedStatic<JOptionPane> createMockJOptionPaneOfOptionDialog(int dialogCode){
+		MockedStatic<JOptionPane> mockJOptionPane = mockStatic(JOptionPane.class);
+		mockJOptionPane.when(() -> JOptionPane.showOptionDialog(any(), any(), anyString(), anyInt(), anyInt(), any(), any(), any())).thenReturn(dialogCode);
+		return mockJOptionPane;
+	}
+	
+	
+	
+	
+	
+	
+	/**
+	 * 選択中の編成情報を返却することを確認。
+	 */
+	@Test
+	void testGetActiveCompositionList() {
+		List<List<Integer>> expected = defaultComposition().get(1);
+		SaveData.selectNumberUpdate(1);
+		assertThat(SaveData.getActiveCompositionList(), is(expected));
+	}
+	
+	/**
+	 * 選択中の編成のユニット情報を返却することを確認。
+	 */
+	@Test
+	void testGetActiveUnit() {
+		List<Integer> expected = defaultComposition().get(1).get(0);
+		SaveData.selectNumberUpdate(1);
+		assertThat(SaveData.getActiveUnit(0), is(expected));
 	}
 }
