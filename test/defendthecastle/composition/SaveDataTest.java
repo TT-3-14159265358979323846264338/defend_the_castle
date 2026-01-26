@@ -194,18 +194,18 @@ class SaveDataTest {
 		try(MockedStatic<JOptionPane> mockJOptionPane = createMockJOptionPaneOfConfirmDialog(dialogCode)){
 			createMockAllCompositionList(size);
 			SaveData.setExistsChange(false);
-			ArgumentCaptor<Integer> capture = createRemoveCaptor();
+			ArgumentCaptor<Integer> captor = createRemoveCaptor();
 			int[] removeTarget = {1, 2, 4};
 			SaveData.removeComposition(removeTarget);
 			if(1 < size) {
 				if(canSelectDialog(dialogCode)) {
-					assertRemove(capture, removeTarget);
+					assertRemove(captor, removeTarget);
 				}else {
-					assertNotRemove(capture);
+					assertNotRemove(captor);
 				}
 			}else {
 				mockJOptionPane.verify(() -> JOptionPane.showMessageDialog(any(), any()));
-				assertNotRemove(capture);
+				assertNotRemove(captor);
 			}
 		}
 	}
