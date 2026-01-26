@@ -13,20 +13,20 @@ class CreateDisplayList{
 	private DisplaySort weaponDisplaySort = new DisplaySort();
 	private OperateData OperateData;
 	
-	protected CreateDisplayList(OperateData OperateData) {
+	CreateDisplayList(OperateData OperateData) {
 		this.OperateData = OperateData;
 		coreDisplaySort.core(getInitialCoreDisplayList());
 		weaponDisplaySort.weapon(getInitialWeaponDisplayList());
 	}
 	
-	protected List<Integer> getInitialCoreDisplayList(){
+	List<Integer> getInitialCoreDisplayList(){
 		List<Integer> displayList = getDisplayList(OperateData.getCoreNumberList());
 		//初期コアはリサイクル禁止
 		displayList.remove(DefaultUnit.NORMAL_CORE);
 		return displayList;
 	}
 	
-	protected List<Integer> getInitialWeaponDisplayList(){
+	List<Integer> getInitialWeaponDisplayList(){
 		return getDisplayList(OperateData.getWeaponNumberList());
 	}
 	
@@ -34,11 +34,15 @@ class CreateDisplayList{
 		return IntStream.range(0, list.size()).mapToObj(i -> (list.get(i) == 0)? -1: i).filter(i -> i != -1).collect(Collectors.toList());
 	}
 	
-	protected List<Integer> getCoreDisplayList() {
+	List<Integer> getCoreDisplayList() {
 		return coreDisplaySort.getDisplayList();
 	}
 	
-	protected List<Integer> getWeaponDisplayList() {
+	List<Integer> getWeaponDisplayList() {
 		return weaponDisplaySort.getDisplayList();
+	}
+
+	OperateData getOperateData() {
+		return OperateData;
 	}
 }
