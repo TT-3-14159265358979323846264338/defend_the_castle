@@ -1,12 +1,16 @@
 package savedata;
 
-import static savedata.SaveComposition.*;
 import static savedata.SaveGameProgress.*;
 import static savedata.SaveHoldItem.*;
 
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.List;
+import java.util.Properties;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -17,6 +21,26 @@ import defaultdata.stage.StageData;
 
 //データ保存用ファイルの確認
 public class FileCheck{
+	/**
+	 * MySQLのデータベース接続情報用ファイルの名称。
+	 */
+	private static final String MYSQL_FILE = "db.properties";
+	
+	/**
+	 * MYSQL_FILEでのデータベースURL名保存先
+	 */
+	private static final String URL = "url";
+	
+	/**
+	 * MYSQL_FILEでのユーザー名保存先
+	 */
+	private static final String USER = "user";
+	
+	/**
+	 * MYSQL_FILEでのパスワード保存先
+	 */
+	private static final String PASS = "pass";
+	
 	private SaveHoldItem SaveHoldItem = new SaveHoldItem();
 	private SaveGameProgress SaveGameProgress = new SaveGameProgress();
 	
@@ -28,7 +52,7 @@ public class FileCheck{
 	
 	//ファイルの存在確認
 	private void fileExistenceCheck() {
-		if(Files.notExists(Paths.get(HOLD_FILE)) || Files.notExists(Paths.get(COMPOSITION_FILE)) || Files.notExists(Paths.get(PROGRESS_FILE))) {
+		if(Files.notExists(Paths.get(HOLD_FILE)) || Files.notExists(Paths.get(MYSQL_FILE)) || Files.notExists(Paths.get(PROGRESS_FILE))) {
 			SaveHoldItem.save();
 			SaveGameProgress.save();
 			new SaveComposition().save();
@@ -78,5 +102,18 @@ public class FileCheck{
 	
 	private boolean checkSize(int size1, int size2) {
 		return size2 < size1;
+	}
+	
+	public static Connection connectMysql() {
+		Connection mysql = null;
+		try {
+			ObjectInputStream selectData = new ObjectInputStream(new FileInputStream(MYSQL_FILE));
+			Properties mysqlData = new Properties();
+			mysqlData.load(selectData);
+			mysql = DriverManager.getConnection(mysqlData.getProperty(URL), mysqlData.getProperty(USER), mysqlData.getProperty(PASS));
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return mysql;
 	}
 }
