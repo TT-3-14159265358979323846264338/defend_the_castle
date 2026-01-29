@@ -54,9 +54,9 @@ public class SaveSelect {
 	
 	public void load(){
 		selectList.clear();
-		try {
-			String selectLoad = "SELECT * FROM " + SELECT_NAME;
-			ResultSet selectTable = mysql.prepareStatement(selectLoad).executeQuery();
+		String selectLoad = "SELECT * FROM " + SELECT_NAME;
+		try(PreparedStatement selectPrepared = mysql.prepareStatement(selectLoad);
+				ResultSet selectTable = selectPrepared.executeQuery()) {
 			while (selectTable.next()) {
 				selectList.add(selectTable.getInt(SELECT_COLUMN));
 			}
@@ -66,9 +66,8 @@ public class SaveSelect {
 	}
 	
 	public void save() {
-		try {
-			String selectSave = String.format("UPDATE %s SET %s = ? WHERE %s = ?", SELECT_NAME, SELECT_COLUMN, TARGET_COLUMN);
-			PreparedStatement selectPrepared = mysql.prepareStatement(selectSave);
+		String selectSave = String.format("UPDATE %s SET %s = ? WHERE %s = ?", SELECT_NAME, SELECT_COLUMN, TARGET_COLUMN);
+		try(PreparedStatement selectPrepared = mysql.prepareStatement(selectSave)) {
 			IntStream.range(0, selectList.size()).forEach(i -> {
 				try {
 					selectPrepared.setInt(1, selectList.get(i));

@@ -3,6 +3,7 @@ package savedata;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -16,12 +17,12 @@ public class OneCompositionData {
 	/**
 	 * 元々の編成を格納したテーブル名を格納したカラム名
 	 */
-	private String oldComposionName;
+	private String oldCompositionName;
 	
 	/**
 	 * 変更後の編成を格納したテーブル名を格納したカラム名
 	 */
-	private String newComposionName;
+	private String newCompositionName;
 	
 	/**
 	 * composionNameのテーブルの要素<br>
@@ -55,15 +56,15 @@ public class OneCompositionData {
 	
 	OneCompositionData(Connection mysql, String oldComposionName) {
 		this.mysql = mysql;
-		this.oldComposionName = oldComposionName;
+		this.oldCompositionName = oldComposionName;
 	}
 	
 	void load() {
-		newComposionName = oldComposionName;
+		newCompositionName = oldCompositionName;
 		unitData.clear();
-		try {
-			String compositionLoad = "SELECT * FROM " + oldComposionName;
-			ResultSet compositionTable = mysql.prepareStatement(compositionLoad).executeQuery();
+		String compositionLoad = "SELECT * FROM " + oldCompositionName;
+		try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionLoad);
+				ResultSet compositionTable = compositionPrepared.executeQuery()) {
 			while (compositionTable.next()) {
 				unitData.add(new OneUnitData(compositionTable.getInt(RIGHT_COLUMN), compositionTable.getInt(CENTER_COLUMN), compositionTable.getInt(LEFT_COLUMN)));
 			}
@@ -73,12 +74,14 @@ public class OneCompositionData {
 	}
 	
 	void save() {
-		try {
-			String renameSave = String.format("RENAME TABLE %s TO %s", oldComposionName, newComposionName);
-			mysql.createStatement().executeUpdate(renameSave);
-			oldComposionName = newComposionName;
-			String compositionSave = String.format("UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?", newComposionName, RIGHT_COLUMN, CENTER_COLUMN, LEFT_COLUMN, NUMBER_COLUMN);
-			PreparedStatement compositionPrepared = mysql.prepareStatement(compositionSave);
+		String renameSave = String.format("RENAME TABLE %s TO %s", oldCompositionName, newCompositionName);
+		try(Statement renameStatement = mysql.createStatement()) {
+			renameStatement.executeUpdate(renameSave);
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		String compositionSave = String.format("UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?", newCompositionName, RIGHT_COLUMN, CENTER_COLUMN, LEFT_COLUMN, NUMBER_COLUMN);
+		try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionSave)) {
 			IntStream.range(0, unitData.size()).forEach(i -> {
 				IntStream.range(0, unitData.get(i).getUnitData().size()).forEach(j -> {
 					try {
@@ -98,26 +101,28 @@ public class OneCompositionData {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
+		oldCompositionName = newCompositionName;
 	}
 	
 	boolean canCreateComposition(String name) {
-		newComposionName = oldComposionName;
-		try {
-			mysql.createStatement().executeUpdate(createTableCode(name));
-			String addDefault = String.format("INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)", name, RIGHT_COLUMN, CENTER_COLUMN, LEFT_COLUMN);
-			PreparedStatement newPrepared = mysql.prepareStatement(addDefault);
+		newCompositionName = oldCompositionName;
+		try(Statement newTableStatement = mysql.createStatement()) {
+			newTableStatement.executeUpdate(createTableCode(name));
+		}catch (Exception e) {
+			return false;
+		}
+		String addDefault = String.format("INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)", name, RIGHT_COLUMN, CENTER_COLUMN, LEFT_COLUMN);
+		try(PreparedStatement newPrepared = mysql.prepareStatement(addDefault)) {
 			IntStream.range(0, 8).forEach(i -> {
 				try {
 					OneUnitData newUnitData = new OneUnitData();
 					unitData.add(newUnitData);
 					IntStream.range(0, newUnitData.getUnitData().size()).forEach(j -> {
-						
-						
-						
-						
-						
-						
-						
+						try {
+							newPrepared.setInt(j + 1, newUnitData.getUnitData().get(j));
+						}catch (Exception e) {
+							e.printStackTrace();
+						}
 					});
 					newPrepared.addBatch();
 				}catch (Exception e) {
@@ -133,10 +138,10 @@ public class OneCompositionData {
 	
 	String createTableCode(String name) {
 		return String.format("CREATE TABLE %s ("
-				+ "%s TYNYINT AUTO_INCREMENT NOT NULL PRIMARY KEY,"
-				+ "%s TYNYINT NOT NULL"
-				+ "%s TYNYINT NOT NULL"
-				+ "%s TYNYINT NOT NULL"
+				+ "%s TINYINT AUTO_INCREMENT NOT NULL PRIMARY KEY,"
+				+ "%s TINYINT NOT NULL,"
+				+ "%s TINYINT NOT NULL,"
+				+ "%s TINYINT NOT NULL"
 				+ ")",
 				name,
 				NUMBER_COLUMN,
@@ -146,10 +151,10 @@ public class OneCompositionData {
 	}
 	
 	String getNewComposionName() {
-		return newComposionName;
+		return newCompositionName;
 	}
 
 	void setNewComposionName(String newComposionName) {
-		this.newComposionName = newComposionName;
+		this.newCompositionName = newComposionName;
 	}
 }

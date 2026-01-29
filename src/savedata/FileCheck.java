@@ -105,15 +105,13 @@ public class FileCheck{
 	}
 	
 	public static Connection connectMysql() {
-		Connection mysql = null;
-		try {
-			ObjectInputStream selectData = new ObjectInputStream(new FileInputStream(MYSQL_FILE));
+		try(ObjectInputStream selectData = new ObjectInputStream(new FileInputStream(MYSQL_FILE))) {
 			Properties mysqlData = new Properties();
 			mysqlData.load(selectData);
-			mysql = DriverManager.getConnection(mysqlData.getProperty(URL), mysqlData.getProperty(USER), mysqlData.getProperty(PASS));
+			return DriverManager.getConnection(mysqlData.getProperty(URL), mysqlData.getProperty(USER), mysqlData.getProperty(PASS));
 		}catch (Exception e) {
 			e.printStackTrace();
+			return null;
 		}
-		return mysql;
 	}
 }

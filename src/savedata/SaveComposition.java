@@ -55,9 +55,9 @@ public class SaveComposition{
 	
 	public void load() {
 		allCompositionList.clear();
-		try {
-			String compositionLoad = "SELECT * FROM " + COMPOSITION_NAME;
-			ResultSet compositionTable = mysql.prepareStatement(compositionLoad).executeQuery();
+		String compositionLoad = "SELECT * FROM " + COMPOSITION_NAME;
+		try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionLoad);
+				ResultSet compositionTable = compositionPrepared.executeQuery()) {
 			while (compositionTable.next()) {
 				OneCompositionData newCompositionData = new OneCompositionData(mysql, compositionTable.getString(NAME_COLUMN));
 				allCompositionList.add(newCompositionData);
@@ -69,9 +69,8 @@ public class SaveComposition{
 	}
 	
 	public void save() {
-		try {
-			String compositionSave = String.format("UPDATE %s SET %s = ? WHERE %s = ?", COMPOSITION_NAME, NAME_COLUMN, NUMBER_COLUMN);
-			PreparedStatement compositionPrepared = mysql.prepareStatement(compositionSave);
+		String compositionSave = String.format("UPDATE %s SET %s = ? WHERE %s = ?", COMPOSITION_NAME, NAME_COLUMN, NUMBER_COLUMN);
+		try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionSave)) {
 			IntStream.range(0, allCompositionList.size()).forEach(i -> {
 				try {
 					compositionPrepared.setString(1, allCompositionList.get(i).getNewComposionName());
@@ -92,7 +91,13 @@ public class SaveComposition{
 		OneCompositionData newComposition = new OneCompositionData(mysql, name);
 		if(newComposition.canCreateComposition(name)) {
 			allCompositionList.add(newComposition);
-			save
+			String addComposition = String.format("INSERT INTO %s (%s) VALUES (?)", COMPOSITION_NAME, NAME_COLUMN);
+			try(PreparedStatement addPrepareed = mysql.prepareStatement(addComposition)) {
+				addPrepareed.setString(1, name);
+				addPrepareed.executeUpdate();
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
 			return;
 		}
 		showMessageDialog(null, "編成名は無効です。");
