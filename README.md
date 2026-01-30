@@ -8,6 +8,12 @@ image: ゲームで使用する画像フォルダ。srcと同階層にimageフ�
 test: 単体テスト用ソースフォルダ。srcと同階層にtestソースフォルダを作成し、中身を保存すること。現在作成中。  
 other: その他ゲーム作成で使用するファイル。無くてもゲームに影響はない。  
 pom.xml: Mavenプロジェクトの構成内容。  
+
+♦MySQL設定♦  
+db.propertiesファイルをsrcと同階層に作成し、url, user, passを設定する。  
+db.propertiesをsavedata.FileCheckで取り込む。  
+あくまでも勉強用なのでプログラム上ではDROP TABLE, CREATE TABLEを使っている。  
+そのため、ユーザーの権限はALLにしておく。  
   
 ♦制作背景♦  
 元々ゲームが好きであるため、Javaを学ぶ上での課題としてタワーディフェンスゲームを作成した。  
