@@ -78,8 +78,8 @@ public class SaveComposition{
 		showMessageDialog(null, "編成名は無効です。");
 	}
 	
-	public void removeComposition(int number) {
-		String dropTable = String.format("DROP TABLE %s", getCompositionName(number));
+	public void removeComposition(int index) {
+		String dropTable = String.format("DROP TABLE %s", getCompositionName(index));
 		try(Statement dropStatement = mysql.createStatement()){
 			dropStatement.executeUpdate(dropTable);
 		}catch (Exception e) {
@@ -88,66 +88,66 @@ public class SaveComposition{
 		}
 		String remove = String.format("DELETE FROM %s WHERE %s = ?", COMPOSITION_NAME, NUMBER_COLUMN);
 		try(PreparedStatement removePrepared = mysql.prepareStatement(remove)){
-			removePrepared.setInt(1, getNumber(number));
+			removePrepared.setInt(1, getNumber(index));
 			removePrepared.executeUpdate();
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		allCompositionList.remove(number);
+		allCompositionList.remove(index);
 	}
 	
-	public void rename(int number, String name) {
-		String rename = String.format("RENAME TABLE %s TO %s", getCompositionName(number), name);
+	public void rename(int index, String name) {
+		String rename = String.format("RENAME TABLE %s TO %s", getCompositionName(index), name);
 		try(Statement renameStatement = mysql.createStatement()) {
 			renameStatement.executeUpdate(rename);
 		}catch (Exception e) {
-			e.printStackTrace();
+			showMessageDialog(null, "編成名は無効です。");
 			return;
 		}
-		setCompositionName(number, name);
+		setCompositionName(index, name);
 	}
 	
-	public void swap(int select, int target) {
+	public void swap(int selectIndex, int targetIndex) {
 		String swap = String.format("UPDATE %s SET %s = ? WHERE %s = ?", COMPOSITION_NAME, NAME_COLUMN, NUMBER_COLUMN);
 		try(PreparedStatement swapPrepared = mysql.prepareStatement(swap)) {
-			String selectName = getCompositionName(select);
-			String targetName = getCompositionName(target);
+			String selectName = getCompositionName(selectIndex);
+			String targetName = getCompositionName(targetIndex);
 			swapPrepared.setString(1, targetName);
-			swapPrepared.setInt(2, getNumber(select));
+			swapPrepared.setInt(2, getNumber(selectIndex));
 			swapPrepared.addBatch();
 			swapPrepared.setString(1, selectName);
-			swapPrepared.setInt(2, getNumber(target));
+			swapPrepared.setInt(2, getNumber(targetIndex));
 			swapPrepared.addBatch();
 			swapPrepared.executeBatch();
-			setCompositionName(getNumber(select), targetName);
-			setCompositionName(getNumber(target), selectName);
+			setCompositionName(getNumber(selectIndex), targetName);
+			setCompositionName(getNumber(targetIndex), selectName);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public List<OneCompositionData> getAllCompositionList(){
-		return allCompositionList;
 	}
 	
 	public List<String> getCompositionNameList(){
 		return allCompositionList.stream().map(i -> i.getComposionName()).toList();
 	}
-	
-	OneCompositionData getOneCompositionData(int number) {
-		return allCompositionList.get(number);
+
+	public List<OneCompositionData> getAllCompositionList() {
+		return allCompositionList;
 	}
 	
-	String getCompositionName(int number) {
-		return getOneCompositionData(number).getComposionName();
+	public OneCompositionData getOneCompositionData(int index) {
+		return allCompositionList.get(index);
 	}
 	
-	void setCompositionName(int number, String name) {
-		getOneCompositionData(number).setComposionName(name);
+	String getCompositionName(int index) {
+		return getOneCompositionData(index).getComposionName();
 	}
 	
-	int getNumber(int number) {
-		return getOneCompositionData(number).getNumber();
+	void setCompositionName(int index, String name) {
+		getOneCompositionData(index).setComposionName(name);
+	}
+	
+	int getNumber(int index) {
+		return getOneCompositionData(index).getNumber();
 	}
 	
 	int getNextNumber() {

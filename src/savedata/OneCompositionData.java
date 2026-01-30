@@ -77,9 +77,9 @@ public class OneCompositionData {
 		String compositionSave = String.format("UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?", compositionName, RIGHT_COLUMN, CENTER_COLUMN, LEFT_COLUMN, NUMBER_COLUMN);
 		try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionSave)) {
 			IntStream.range(0, unitData.size()).forEach(i -> {
-				IntStream.range(0, unitData.get(i).getUnitData().size()).forEach(j -> {
+				IntStream.range(0, unitData.get(i).getUnitDataList().size()).forEach(j -> {
 					try {
-						compositionPrepared.setInt(j + 1, unitData.get(i).getUnitData().get(j));
+						compositionPrepared.setInt(j + 1, unitData.get(i).getUnitDataList().get(j));
 					}catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -109,9 +109,9 @@ public class OneCompositionData {
 				try {
 					OneUnitData newUnitData = new OneUnitData();
 					unitData.add(newUnitData);
-					IntStream.range(0, newUnitData.getUnitData().size()).forEach(j -> {
+					IntStream.range(0, newUnitData.getUnitDataList().size()).forEach(j -> {
 						try {
-							newPrepared.setInt(j + 1, newUnitData.getUnitData().get(j));
+							newPrepared.setInt(j + 1, newUnitData.getUnitDataList().get(j));
 						}catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -132,7 +132,7 @@ public class OneCompositionData {
 		return String.format("CREATE TABLE %s ("
 				+ "%s TINYINT AUTO_INCREMENT NOT NULL PRIMARY KEY,"
 				+ "%s TINYINT NOT NULL,"
-				+ "%s TINYINT NOT NULL,"
+				+ "%s TINYINT UNSIGNED NOT NULL,"
 				+ "%s TINYINT NOT NULL"
 				+ ")",
 				name,
@@ -152,5 +152,13 @@ public class OneCompositionData {
 
 	void setComposionName(String newComposionName) {
 		this.compositionName = newComposionName;
+	}
+
+	public List<OneUnitData> getOneUnitDataList() {
+		return unitData;
+	}
+	
+	public OneUnitData getOneUnitData(int index) {
+		return unitData.get(index);
 	}
 }

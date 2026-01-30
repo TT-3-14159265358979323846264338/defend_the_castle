@@ -21,7 +21,6 @@ class OperateData{
 	private SaveGameProgress SaveGameProgress = new SaveGameProgress();
 	private List<Integer> coreNumberList;
 	private List<Integer> weaponNumberList;
-	private List<List<List<Integer>>> allCompositionList;
 	private int medal;
 	private int[] usedCoreNumber;
 	private int[] usedWeaponNumber;
@@ -37,7 +36,6 @@ class OperateData{
 		SaveGameProgress.load();
 		coreNumberList = SaveHoldItem.getCoreNumberList();
 		weaponNumberList = SaveHoldItem.getWeaponNumberList();
-		allCompositionList = SaveComposition.getAllCompositionList();
 		medal = SaveGameProgress.getMedal();
 	}
 	
@@ -59,19 +57,19 @@ class OperateData{
 		};
 		int[] coreMax = new int[coreNumberList.size()];
 		int[] weaponMax = new int[weaponNumberList.size()];
-		IntStream.range(0, allCompositionList.size()).forEach(i -> {
+		IntStream.range(0, SaveComposition.getAllCompositionList().size()).forEach(i -> {
 			int[] coreCount = new int[coreNumberList.size()];
 			int[] weaponCount = new int[weaponNumberList.size()];
-			IntStream.range(0, allCompositionList.get(i).size()).forEach(j -> {
+			SaveComposition.getOneCompositionData(i).getOneUnitDataList().stream().forEach(j -> {
 				try {
-					weaponCount[allCompositionList.get(i).get(j).get(DefaultUnit.RIGHT_WEAPON)]++;
-	    		}catch(Exception ignore) {
+					weaponCount[j.getUnit(DefaultUnit.RIGHT_WEAPON)]++;
+				}catch(Exception ignore) {
 					//右武器を装備していないので、無視する
 				}
-				coreCount[allCompositionList.get(i).get(j).get(DefaultUnit.CORE)]++;
-	    		try {
-	    			weaponCount[allCompositionList.get(i).get(j).get(DefaultUnit.LEFT_WEAPON)]++;
-	    		}catch(Exception ignore) {
+				coreCount[j.getUnit(DefaultUnit.CORE)]++;
+				try {
+					weaponCount[j.getUnit(DefaultUnit.LEFT_WEAPON)]++;
+				}catch(Exception ignore) {
 					//左武器を装備していないので、無視する
 				}
 			});

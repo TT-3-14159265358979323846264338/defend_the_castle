@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 import defaultdata.DefaultAtackPattern;
 import defaultdata.DefaultUnit;
 import defaultdata.EditImage;
+import savedata.OneUnitData;
 import screendisplay.StatusCalculation;
 
 //ユニットのバトル情報
@@ -54,8 +55,9 @@ public class BattleUnit extends BattleData{
 	private long beforeRelocationTime;
 	
 	//右武器/コア用　攻撃・被弾などの判定はこちらで行う
-	BattleUnit(Battle Battle, List<Integer> composition, int positionX, int positionY, ScheduledExecutorService scheduler) {
+	BattleUnit(Battle Battle, OneUnitData OneUnitData, int positionX, int positionY, ScheduledExecutorService scheduler) {
 		this.Battle = Battle;
+		composition = OneUnitData.getUnitDataList();
 		StatusCalculation StatusCalculation = new StatusCalculation(composition);
 		try {
 			rightActionImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.RIGHT_WEAPON)).getRightActionImage(IMAGE_RATIO);
@@ -64,7 +66,6 @@ public class BattleUnit extends BattleData{
 		}catch(Exception e) {
 			rightActionImage = Arrays.asList(getBlankImage());
 		}
-		this.composition = composition;
 		rightCoreImage = DefaultUnit.CORE_DATA_MAP.get(composition.get(DefaultUnit.CORE)).getActionImage(IMAGE_RATIO);
 		leftCoreImage = EditImage.mirrorImage(rightCoreImage);
 		skillImage = DefaultUnit.CORE_DATA_MAP.get(composition.get(DefaultUnit.CORE)).getSkillImage(IMAGE_RATIO);
@@ -83,8 +84,9 @@ public class BattleUnit extends BattleData{
 	}
 	
 	//左武器用
-	BattleUnit(Battle Battle, List<Integer> composition, ScheduledExecutorService scheduler) {
+	BattleUnit(Battle Battle, OneUnitData OneUnitData, ScheduledExecutorService scheduler) {
 		this.Battle = Battle;
+		composition = OneUnitData.getUnitDataList();
 		StatusCalculation StatusCalculation = new StatusCalculation(composition);
 		try {
 			rightActionImage = DefaultUnit.WEAPON_DATA_MAP.get(composition.get(DefaultUnit.LEFT_WEAPON)).getLeftActionImage(IMAGE_RATIO);

@@ -33,7 +33,9 @@ import defaultdata.DefaultStage;
 import defaultdata.DefaultUnit;
 import defaultdata.stage.StageData;
 import defendthecastle.MainFrame;
+import savedata.OneCompositionData;
 import savedata.SaveComposition;
+import savedata.SaveSelect;
 import screendisplay.DisplayStatus;
 
 //バトル画面制御
@@ -146,9 +148,11 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		placementList = StageData.getPlacementPoint();
 		SaveComposition SaveComposition = new SaveComposition();
 		SaveComposition.load();
-		List<List<Integer>> composition = SaveComposition.getAllCompositionList().get(SaveComposition.getSelectNumber());
-		UnitMainData = IntStream.range(0, composition.size()).mapToObj(i -> new BattleUnit(this, composition.get(i), initialX(i), initialY(i), scheduler)).toArray(BattleUnit[]::new);
-		UnitLeftData = IntStream.range(0, composition.size()).mapToObj(i -> new BattleUnit(this, composition.get(i), scheduler)).toArray(BattleUnit[]::new);;
+		SaveSelect SaveSelect = new SaveSelect();
+		SaveSelect.load();
+		OneCompositionData composition = SaveComposition.getOneCompositionData(SaveSelect.getCompositionSelectNumber());
+		UnitMainData = IntStream.range(0, composition.getOneUnitDataList().size()).mapToObj(i -> new BattleUnit(this, composition.getOneUnitData(i), initialX(i), initialY(i), scheduler)).toArray(BattleUnit[]::new);
+		UnitLeftData = IntStream.range(0, composition.getOneUnitDataList().size()).mapToObj(i -> new BattleUnit(this, composition.getOneUnitData(i), scheduler)).toArray(BattleUnit[]::new);;
 		FacilityData = IntStream.range(0, StageData.getFacility().size()).mapToObj(i -> new BattleFacility(this, StageData, i, scheduler)).toArray(BattleFacility[]::new);
 		EnemyData = IntStream.range(0, StageData.getEnemy().size()).mapToObj(i -> new BattleEnemy(this, StageData, i, difficultyCorrection, scheduler)).toArray(BattleEnemy[]::new);
 		IntStream.range(0, UnitMainData.length).forEach(i -> UnitMainData[i].install(GameData, UnitLeftData[i], UnitMainData, FacilityData, EnemyData));

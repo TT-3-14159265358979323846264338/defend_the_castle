@@ -3,23 +3,24 @@ package defendthecastle.composition;
 import static javax.swing.JOptionPane.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 
 import defaultdata.DefaultUnit;
+import savedata.OneUnitData;
 import savedata.SaveComposition;
 import savedata.SaveHoldItem;
+import savedata.SaveSelect;
 
 //セーブデータ処理
 class SaveData{
 	private SaveHoldItem SaveHoldItem = new SaveHoldItem();
 	private SaveComposition SaveComposition = new SaveComposition();
+	private SaveSelect SaveSelect = new SaveSelect();
 	private List<Integer> coreNumberList = new ArrayList<>();
 	private List<Integer> weaponNumberList = new ArrayList<>();
-	private List<List<List<Integer>>> allCompositionList = new ArrayList<>();
-	private List<String> compositionNameList = new ArrayList<>();
-	private int selectNumber;
 	private List<Integer> nowCoreNumberList = new ArrayList<>();
 	private List<Integer> nowWeaponNumberList = new ArrayList<>();
 	private boolean existsChange;
@@ -31,33 +32,32 @@ class SaveData{
 	void load() {
 		SaveHoldItem.load();
 		SaveComposition.load();
+		SaveSelect.load();
 		input();
 	}
 	
 	void input() {
 		coreNumberList = SaveHoldItem.getCoreNumberList();
 		weaponNumberList = SaveHoldItem.getWeaponNumberList();
-		allCompositionList = SaveComposition.getAllCompositionList();
-		compositionNameList = SaveComposition.getCompositionNameList();
-		selectNumber = SaveComposition.getSelectNumber();
 	}
 	
 	void save() {
-		SaveComposition.save(allCompositionList, compositionNameList, selectNumber);
+		SaveComposition.save();
+		SaveSelect.save();
 	}
 	
 	void countNumber() {
 		int[] core = new int[coreNumberList.size()];
 		int[] weapon = new int[weaponNumberList.size()];
 		getActiveCompositionList().stream().forEach(i -> {
-			core[i.get(1)]++;
+			core[i.getUnit(DefaultUnit.CORE)]++;
 			try {
-				weapon[i.get(DefaultUnit.RIGHT_WEAPON)]++;
+				weapon[i.getUnit(DefaultUnit.RIGHT_WEAPON)]++;
 			}catch(Exception ignore) {
 				//右武器を装備していないので、無視する
 			}
 			try {
-				weapon[i.get(DefaultUnit.LEFT_WEAPON)]++;
+				weapon[i.getUnit(DefaultUnit.LEFT_WEAPON)]++;
 			}catch(Exception ignore) {
 				//左武器を装備していないので、無視する
 			}
@@ -72,46 +72,33 @@ class SaveData{
 	}
 	
 	void addNewComposition() {
-		SaveComposition.newComposition();
-		input();
-		existsChange = true;
+		String newName = showInputDialog(null, "新規編成名を入力してください", "名称入力", INFORMATION_MESSAGE);
+		SaveComposition.newComposition(newName);
 	}
 	
-	void removeComposition(int[] number) {
-		if(1 < allCompositionList.size()) {
+	void removeComposition(int[] indexes) {
+		if(1 < SaveComposition.getAllCompositionList().size()) {
 			int select = showConfirmDialog(null, "選択中の編成を全て削除しますか", "編成削除確認", YES_NO_OPTION, QUESTION_MESSAGE);
 			switch(select) {
 			case 0:
-				for(int i = number.length - 1; 0 <= i; i--) {
-					SaveComposition.removeComposition(number[i]);
-				}
-				input();
-				existsChange = true;
+				Arrays.stream(indexes).boxed().forEach(SaveComposition::removeComposition);
 			default:
 				break;
 			}
 		}else {
-			showMessageDialog(null, "全ての編成を削除できません");
+			showMessageDialog(null, "全てのは編成を削除できません");
 		}
 	}
 	
-	void swapComposition(int max, int min) {
-		if(max == min) {
+	void swapComposition(int selectIndex, int targetIndex) {
+		if(selectIndex == targetIndex) {
 			showMessageDialog(null, "入れ替える2つの編成を選択してください");
 			return;
 		}
 		int select = showConfirmDialog(null, "選択中の編成を入れ替えますか", "入替確認", YES_NO_OPTION, QUESTION_MESSAGE);
 		switch(select) {
 		case 0:
-			List<List<Integer>> maxList = allCompositionList.get(max);
-			List<List<Integer>> minList = allCompositionList.get(min);
-			String maxName = compositionNameList.get(max);
-			String minName = compositionNameList.get(min);
-			allCompositionList.set(max, minList);
-			allCompositionList.set(min, maxList);
-			compositionNameList.set(max, minName);
-			compositionNameList.set(min, maxName);
-			existsChange = true;
+			SaveComposition.swap(selectIndex, targetIndex);
 			break;
 		default:
 			break;
@@ -120,14 +107,7 @@ class SaveData{
 	
 	String changeCompositionName() {
 		String newName = showInputDialog(null, "変更後の編成名を入力してください", "名称変更", INFORMATION_MESSAGE);
-		if(newName != null && !newName.isEmpty()) {
-			if(!newName.startsWith(" ") && !newName.startsWith("　")) {
-				compositionNameList.set(selectNumber, newName);
-				existsChange = true;
-				return newName;
-			}
-			showMessageDialog(null, "スペースで始まる名称は使用できません");
-		}
+		SaveComposition.rename(getSelectNumber(), newName);
 		return null;
 	}
 	
@@ -157,7 +137,7 @@ class SaveData{
 		int select = showConfirmDialog(null, "現在の編成をリセットしますか", "リセット確認", YES_NO_OPTION, QUESTION_MESSAGE);
 		switch(select) {
 		case 0:
-			allCompositionList.set(selectNumber, new ArrayList<>(IntStream.range(0, 8).mapToObj(i -> new ArrayList<>(savedata.SaveComposition.DEFAULT)).toList()));
+			getActiveCompositionList().stream().forEach(i -> i.reset());
 			existsChange = true;
 		default:
 			break;
@@ -182,7 +162,7 @@ class SaveData{
 	}
 	
 	void selectNumberUpdate(int indexNumber) {
-		selectNumber = indexNumber;
+		SaveSelect.setCompositionSelectNumber(indexNumber);
 	}
 	
 	void changeCore(int number, int selectCore) {
@@ -238,19 +218,19 @@ class SaveData{
 	}
 	
 	List<String> getCompositionNameList(){
-		return compositionNameList;
+		return SaveComposition.getCompositionNameList();
 	}
 	
 	int getSelectNumber() {
-		return selectNumber;
+		return SaveSelect.getCompositionSelectNumber();
 	}
 	
-	List<List<Integer>> getActiveCompositionList(){
-		return allCompositionList.get(selectNumber);
+	List<OneUnitData> getActiveCompositionList(){
+		return SaveComposition.getOneCompositionData(getSelectNumber()).getOneUnitDataList();
 	}
 	
 	List<Integer> getActiveUnit(int number){
-		return allCompositionList.get(selectNumber).get(number);
+		return SaveComposition.getOneCompositionData(getSelectNumber()).getOneUnitData(number).getUnitDataList();
 	}
 	
 	List<Integer> getNowCoreNumberList(){
@@ -271,14 +251,6 @@ class SaveData{
 
 	SaveComposition getSaveComposition() {
 		return SaveComposition;
-	}
-
-	List<List<List<Integer>>> getAllCompositionList() {
-		return allCompositionList;
-	}
-
-	void setAllCompositionList(List<List<List<Integer>>> allCompositionList) {
-		this.allCompositionList = allCompositionList;
 	}
 
 	boolean isExistsChange() {

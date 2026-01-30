@@ -8,17 +8,12 @@ import defaultdata.DefaultUnit;
 
 public class OneUnitData {
 	/**
-	 * 新規に作成された編成のデフォルト設定。
-	 */
-	public static final List<Integer> DEFAULT = Arrays.asList(DefaultUnit.NO_WEAPON, DefaultUnit.NORMAL_CORE, DefaultUnit.NO_WEAPON);
-	
-	/**
 	 * 右武器・コア・左武器の順に格納したList
 	 */
 	private List<Integer> unitData = new ArrayList<>();
 	
 	OneUnitData(){
-		DEFAULT.stream().forEach(i -> unitData.add(i));
+		reset();
 	}
 	
 	OneUnitData(int rightNumber, int centerNUmber, int leftNumber){
@@ -27,11 +22,20 @@ public class OneUnitData {
 		unitData.add(leftNumber);
 	}
 	
-	List<Integer> getUnitData(){
+	public void reset() {
+		unitData.clear();
+		unitData = new ArrayList<>(Arrays.asList(DefaultUnit.NO_WEAPON, DefaultUnit.NORMAL_CORE, DefaultUnit.NO_WEAPON));
+	}
+	
+	public List<Integer> getUnitDataList(){
 		return unitData;
 	}
 	
-	void setUnitData(int number, int value){
-		unitData.set(number, value);
+	public int getUnit(int index) {
+		return unitData.get(index);
+	}
+	
+	public void setUnitData(int index, int value){
+		unitData.set(index, value);
 	}
 }
