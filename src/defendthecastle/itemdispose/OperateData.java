@@ -13,15 +13,14 @@ import defaultdata.DefaultUnit;
 import savedata.SaveComposition;
 import savedata.SaveGameProgress;
 import savedata.SaveHoldItem;
+import savedata.SaveItem;
 
 //セーブデータの確認
 class OperateData{
 	private SaveHoldItem SaveHoldItem = new SaveHoldItem();
 	private SaveComposition SaveComposition = new SaveComposition();
 	private SaveGameProgress SaveGameProgress = new SaveGameProgress();
-	private List<Integer> coreNumberList;
-	private List<Integer> weaponNumberList;
-	private int medal;
+	private SaveItem SaveItem = new SaveItem();;
 	private int[] usedCoreNumber;
 	private int[] usedWeaponNumber;
 	
@@ -34,14 +33,12 @@ class OperateData{
 		SaveHoldItem.load();
 		SaveComposition.load();
 		SaveGameProgress.load();
-		coreNumberList = SaveHoldItem.getCoreNumberList();
-		weaponNumberList = SaveHoldItem.getWeaponNumberList();
-		medal = SaveGameProgress.getMedal();
+		SaveItem.load();
 	}
 	
 	private void save() {
-		SaveHoldItem.save(coreNumberList, weaponNumberList);
-		SaveGameProgress.save(SaveGameProgress.getClearStatus(), SaveGameProgress.getMeritStatus(), medal, SaveGameProgress.getSelectStage());
+		SaveHoldItem.save();
+		SaveGameProgress.save();
 	}
 	
 	private void itemCount() {
@@ -55,11 +52,11 @@ class OperateData{
 		Function<Integer, Integer> initialWeaponProtection = (number) -> {
 			return (2 <= number)? number: 2;
 		};
-		int[] coreMax = new int[coreNumberList.size()];
-		int[] weaponMax = new int[weaponNumberList.size()];
+		int[] coreMax = new int[getCoreNumberList().size()];
+		int[] weaponMax = new int[getWeaponNumberList().size()];
 		IntStream.range(0, SaveComposition.getAllCompositionList().size()).forEach(i -> {
-			int[] coreCount = new int[coreNumberList.size()];
-			int[] weaponCount = new int[weaponNumberList.size()];
+			int[] coreCount = new int[getCoreNumberList().size()];
+			int[] weaponCount = new int[getWeaponNumberList().size()];
 			SaveComposition.getOneCompositionData(i).getOneUnitDataList().stream().forEach(j -> {
 				try {
 					weaponCount[j.getUnit(DefaultUnit.RIGHT_WEAPON)]++;
@@ -105,7 +102,7 @@ class OperateData{
 				RecyclePanel RecyclePanel = new RecyclePanel(imageList.get(select), max, rarityList.get(select));
 				if(RecyclePanel.canDispose()) {
 					numberList.set(select, numberList.get(select) - RecyclePanel.getQuantity());
-					medal += RecyclePanel.getMedal();
+					SaveItem.addMedal(RecyclePanel.getMedal());
 					save();
 				}
 			}
@@ -113,11 +110,11 @@ class OperateData{
 	}
 	
 	protected List<Integer> getCoreNumberList(){
-		return coreNumberList;
+		return SaveHoldItem.getCoreNumberList();
 	}
 	
 	protected List<Integer> getWeaponNumberList(){
-		return weaponNumberList;
+		return SaveHoldItem.getWeaponNumberList();
 	}
 	
 	protected int[] getUsedCoreNumber() {

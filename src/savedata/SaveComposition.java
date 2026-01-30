@@ -21,7 +21,7 @@ public class SaveComposition{
 	 * 編成番号を格納したカラム名<br>
 	 * PRIMARY KEY
 	 */
-	private final String NUMBER_COLUMN = "number";
+	private final String ID_COLUMN = "id";
 	
 	/**
 	 * COMPOSITION_NAMEのテーブルの要素<br>
@@ -45,11 +45,11 @@ public class SaveComposition{
 	
 	public void load() {
 		allCompositionList.clear();
-		String compositionLoad = "SELECT * FROM " + COMPOSITION_NAME;
+		String compositionLoad = String.format("SELECT * FROM %s", COMPOSITION_NAME);
 		try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionLoad);
 				ResultSet compositionTable = compositionPrepared.executeQuery()) {
 			while (compositionTable.next()) {
-				OneCompositionData newCompositionData = new OneCompositionData(mysql, compositionTable.getInt(NUMBER_COLUMN), compositionTable.getString(NAME_COLUMN));
+				OneCompositionData newCompositionData = new OneCompositionData(mysql, compositionTable.getInt(ID_COLUMN), compositionTable.getString(NAME_COLUMN));
 				allCompositionList.add(newCompositionData);
 				newCompositionData.load();
 			}
@@ -86,7 +86,7 @@ public class SaveComposition{
 			e.printStackTrace();
 			return;
 		}
-		String remove = String.format("DELETE FROM %s WHERE %s = ?", COMPOSITION_NAME, NUMBER_COLUMN);
+		String remove = String.format("DELETE FROM %s WHERE %s = ?", COMPOSITION_NAME, ID_COLUMN);
 		try(PreparedStatement removePrepared = mysql.prepareStatement(remove)){
 			removePrepared.setInt(1, getNumber(index));
 			removePrepared.executeUpdate();
@@ -108,7 +108,7 @@ public class SaveComposition{
 	}
 	
 	public void swap(int selectIndex, int targetIndex) {
-		String swap = String.format("UPDATE %s SET %s = ? WHERE %s = ?", COMPOSITION_NAME, NAME_COLUMN, NUMBER_COLUMN);
+		String swap = String.format("UPDATE %s SET %s = ? WHERE %s = ?", COMPOSITION_NAME, NAME_COLUMN, ID_COLUMN);
 		try(PreparedStatement swapPrepared = mysql.prepareStatement(swap)) {
 			String selectName = getCompositionName(selectIndex);
 			String targetName = getCompositionName(targetIndex);
@@ -147,10 +147,10 @@ public class SaveComposition{
 	}
 	
 	int getNumber(int index) {
-		return getOneCompositionData(index).getNumber();
+		return getOneCompositionData(index).getID();
 	}
 	
 	int getNextNumber() {
-		return allCompositionList.stream().mapToInt(i -> i.getNumber()).max().getAsInt() + 1;
+		return allCompositionList.stream().mapToInt(i -> i.getID()).max().getAsInt() + 1;
 	}
 }

@@ -18,7 +18,7 @@ public class SaveSelect {
 	 * どの項目に対する選択なのかを格納したカラム名<br>
 	 * PRIMARY KEY
 	 */
-	private final String TARGET_COLUMN = "target";
+	private final String ID_COLUMN = "id";
 	
 	/**
 	 * SELECT_NAMEのテーブルの要素<br>
@@ -28,7 +28,7 @@ public class SaveSelect {
 	
 	/**
 	 * 編成選択用項目<br>
-	 * TARGET_COLUMNで定義
+	 * ID_COLUMNで定義
 	 */
 	private final int COMPOSITION_SELECT = 0;
 	
@@ -66,7 +66,7 @@ public class SaveSelect {
 	}
 	
 	public void save() {
-		String selectSave = String.format("UPDATE %s SET %s = ? WHERE %s = ?", SELECT_NAME, SELECT_COLUMN, TARGET_COLUMN);
+		String selectSave = String.format("UPDATE %s SET %s = ? WHERE %s = ?", SELECT_NAME, SELECT_COLUMN, ID_COLUMN);
 		try(PreparedStatement selectPrepared = mysql.prepareStatement(selectSave)) {
 			IntStream.range(0, selectList.size()).forEach(i -> {
 				try {

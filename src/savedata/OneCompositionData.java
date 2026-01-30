@@ -14,7 +14,7 @@ public class OneCompositionData {
 	 * 編成番号を格納したカラム名<br>
 	 * PRIMARY KEY
 	 */
-	private final String NUMBER_COLUMN = "number";
+	private final String ID_COLUMN = "id";
 	
 	/**
 	 * composionNameのテーブルの要素<br>
@@ -42,7 +42,7 @@ public class OneCompositionData {
 	/**
 	 * テーブルの番号
 	 */
-	private int number;
+	private int id;
 	
 	/**
 	 * テーブル名
@@ -54,9 +54,9 @@ public class OneCompositionData {
 	 */
 	private List<OneUnitData> unitData = new ArrayList<>();
 	
-	OneCompositionData(Connection mysql, int number, String compositionName) {
+	OneCompositionData(Connection mysql, int id, String compositionName) {
 		this.mysql = mysql;
-		this.number = number;
+		this.id = id;
 		this.compositionName = compositionName;
 	}
 	
@@ -74,7 +74,7 @@ public class OneCompositionData {
 	}
 	
 	void save() {
-		String compositionSave = String.format("UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?", compositionName, RIGHT_COLUMN, CENTER_COLUMN, LEFT_COLUMN, NUMBER_COLUMN);
+		String compositionSave = String.format("UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?", compositionName, RIGHT_COLUMN, CENTER_COLUMN, LEFT_COLUMN, ID_COLUMN);
 		try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionSave)) {
 			IntStream.range(0, unitData.size()).forEach(i -> {
 				IntStream.range(0, unitData.get(i).getUnitDataList().size()).forEach(j -> {
@@ -136,14 +136,14 @@ public class OneCompositionData {
 				+ "%s TINYINT NOT NULL"
 				+ ")",
 				name,
-				NUMBER_COLUMN,
+				ID_COLUMN,
 				RIGHT_COLUMN,
 				CENTER_COLUMN,
 				LEFT_COLUMN);
 	}
 	
-	int getNumber() {
-		return number;
+	int getID() {
+		return id;
 	}
 	
 	String getComposionName() {

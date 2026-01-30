@@ -82,7 +82,9 @@ class DrawResult extends JPanel implements MouseListener{
 		//保有アイテムの更新
 		SaveHoldItem SaveHoldItem = new SaveHoldItem();
 		SaveHoldItem.load();
-		SaveHoldItem.save(getItemList(SaveHoldItem.getCoreNumberList(), getCore), getItemList(SaveHoldItem.getWeaponNumberList(), getWeapon));
+		SaveHoldItem.setCoreNumberList(getItemList(SaveHoldItem.getCoreNumberList(), getCore));
+		SaveHoldItem.setWeaponNumberList(getItemList(SaveHoldItem.getWeaponNumberList(), getWeapon));
+		SaveHoldItem.save();
 		//保有メダルの更新
 		HoldMedal.recountMedal();
 		HoldMedal.save();

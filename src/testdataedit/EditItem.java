@@ -29,12 +29,10 @@ class EditItem extends JPanel{
 	private List<BufferedImage> coreImage = IntStream.range(0, DefaultUnit.CORE_DATA_MAP.size()).mapToObj(i -> DefaultUnit.CORE_DATA_MAP.get(i).getImage(4)).toList();
 	private List<BufferedImage> weaponImage = IntStream.range(0, DefaultUnit.WEAPON_DATA_MAP.size()).mapToObj(i -> DefaultUnit.WEAPON_DATA_MAP.get(i).getImage(4)).toList();
 	private SaveHoldItem SaveHoldItem = new SaveHoldItem();
-	private List<Integer> coreNumberList;
-	private List<Integer> weaponNumberList;
 	private int size = 50;
 	
 	protected EditItem() {
-		load();
+		SaveHoldItem.load();
 		addLabel();
 		addSpinner();
 		setPreferredSize(new Dimension(100, size * (weaponImage.size() < coreImage.size()? coreImage.size(): weaponImage.size())));
@@ -47,19 +45,13 @@ class EditItem extends JPanel{
 		setSpinner();
 	}
 	
-	private void load() {
-		SaveHoldItem.load();
-		coreNumberList = SaveHoldItem.getCoreNumberList();
-		weaponNumberList = SaveHoldItem.getWeaponNumberList();
-	}
-	
 	protected void save() {
 		Function<JSpinner[], List<Integer>> input = (spinner) -> {
 			return Stream.of(spinner).map(i ->  (int) i.getValue()).collect(Collectors.toList());
 		};
-		coreNumberList = input.apply(coreSpinner);
-		weaponNumberList = input.apply(weaponSpinner);
-		SaveHoldItem.save(coreNumberList, weaponNumberList);
+		SaveHoldItem.setCoreNumberList(input.apply(coreSpinner));
+		SaveHoldItem.setWeaponNumberList(input.apply(weaponSpinner));
+		SaveHoldItem.save();
 	}
 	
 	private void addLabel() {
@@ -103,8 +95,8 @@ class EditItem extends JPanel{
 		};
 		coreSpinner = initialize.apply(coreImage.size());
 		weaponSpinner = initialize.apply(weaponImage.size());
-		set.accept(coreSpinner, coreNumberList);
-		set.accept(weaponSpinner, weaponNumberList);
+		set.accept(coreSpinner, SaveHoldItem.getCoreNumberList());
+		set.accept(weaponSpinner, SaveHoldItem.getWeaponNumberList());
 	}
 	
 	private void setSpinner() {

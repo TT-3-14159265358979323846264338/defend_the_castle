@@ -19,8 +19,6 @@ class SaveData{
 	private SaveHoldItem SaveHoldItem = new SaveHoldItem();
 	private SaveComposition SaveComposition = new SaveComposition();
 	private SaveSelect SaveSelect = new SaveSelect();
-	private List<Integer> coreNumberList = new ArrayList<>();
-	private List<Integer> weaponNumberList = new ArrayList<>();
 	private List<Integer> nowCoreNumberList = new ArrayList<>();
 	private List<Integer> nowWeaponNumberList = new ArrayList<>();
 	private boolean existsChange;
@@ -33,12 +31,6 @@ class SaveData{
 		SaveHoldItem.load();
 		SaveComposition.load();
 		SaveSelect.load();
-		input();
-	}
-	
-	void input() {
-		coreNumberList = SaveHoldItem.getCoreNumberList();
-		weaponNumberList = SaveHoldItem.getWeaponNumberList();
 	}
 	
 	void save() {
@@ -47,8 +39,8 @@ class SaveData{
 	}
 	
 	void countNumber() {
-		int[] core = new int[coreNumberList.size()];
-		int[] weapon = new int[weaponNumberList.size()];
+		int[] core = new int[getCoreNumberList().size()];
+		int[] weapon = new int[getWeaponNumberList().size()];
 		getActiveCompositionList().stream().forEach(i -> {
 			core[i.getUnit(DefaultUnit.CORE)]++;
 			try {
@@ -66,9 +58,9 @@ class SaveData{
 			return IntStream.range(0, list.size()).mapToObj(i -> list.get(i) - count[i]).toList();
 		};
 		nowCoreNumberList.clear();
-		nowCoreNumberList.addAll(getNowNumber.apply(coreNumberList, core));
+		nowCoreNumberList.addAll(getNowNumber.apply(getCoreNumberList(), core));
 		nowWeaponNumberList.clear();
-		nowWeaponNumberList.addAll(getNowNumber.apply(weaponNumberList, weapon));
+		nowWeaponNumberList.addAll(getNowNumber.apply(getWeaponNumberList(), weapon));
 	}
 	
 	void addNewComposition() {
@@ -166,24 +158,24 @@ class SaveData{
 	}
 	
 	void changeCore(int number, int selectCore) {
-		getActiveUnit(number).set(1, selectCore);
+		getUnitData(number).setUnitData(DefaultUnit.CORE, selectCore);
 		existsChange = true;
 	}
 	
 	void changeWeapon(int number, int selectWeapon) {
 		if(DefaultUnit.WEAPON_DATA_MAP.get(selectWeapon).getHandle() == DefaultUnit.BOTH) {
-			getActiveUnit(number).set(DefaultUnit.LEFT_WEAPON, selectWeapon);
-			getActiveUnit(number).set(DefaultUnit.RIGHT_WEAPON, DefaultUnit.NO_WEAPON);
-		}else if(getActiveUnit(number).get(DefaultUnit.LEFT_WEAPON) == DefaultUnit.NO_WEAPON) {
+			getUnitData(number).setUnitData(DefaultUnit.LEFT_WEAPON, selectWeapon);
+			getUnitData(number).setUnitData(DefaultUnit.RIGHT_WEAPON, DefaultUnit.NO_WEAPON);
+		}else if(getUnitData(number).getUnitDataList().get(DefaultUnit.LEFT_WEAPON) == DefaultUnit.NO_WEAPON) {
 			change(number, selectWeapon);
 		}else {
-			switch(DefaultUnit.WEAPON_DATA_MAP.get(getActiveUnit(number).get(DefaultUnit.LEFT_WEAPON)).getHandle()) {
+			switch(DefaultUnit.WEAPON_DATA_MAP.get(getUnitData(number).getUnitDataList().get(DefaultUnit.LEFT_WEAPON)).getHandle()) {
 			case DefaultUnit.ONE:
 				change(number, selectWeapon);
 				break;
 			case DefaultUnit.BOTH:
 				if(change(number, selectWeapon) == 1) {
-					getActiveUnit(number).set(DefaultUnit.LEFT_WEAPON, DefaultUnit.NO_WEAPON);
+					getUnitData(number).setUnitData(DefaultUnit.LEFT_WEAPON, DefaultUnit.NO_WEAPON);
 				}
 				break;
 			default:
@@ -198,10 +190,10 @@ class SaveData{
 		int select = showOptionDialog(null, "左右どちらの武器を変更しますか", "武器変更", OK_CANCEL_OPTION, PLAIN_MESSAGE, null, menu, menu[0]);
 		switch(select) {
 		case 0:
-			getActiveUnit(number).set(DefaultUnit.LEFT_WEAPON, selectWeapon);
+			getUnitData(number).setUnitData(DefaultUnit.LEFT_WEAPON, selectWeapon);
 			break;
 		case 1:
-			getActiveUnit(number).set(DefaultUnit.RIGHT_WEAPON, selectWeapon);
+			getUnitData(number).setUnitData(DefaultUnit.RIGHT_WEAPON, selectWeapon);
 			break;
 		default:
 			break;
@@ -210,11 +202,11 @@ class SaveData{
 	}
 	
 	List<Integer> getCoreNumberList(){
-		return coreNumberList;
+		return SaveHoldItem.getCoreNumberList();
 	}
 	
 	List<Integer> getWeaponNumberList(){
-		return weaponNumberList;
+		return SaveHoldItem.getWeaponNumberList();
 	}
 	
 	List<String> getCompositionNameList(){
@@ -229,8 +221,8 @@ class SaveData{
 		return SaveComposition.getOneCompositionData(getSelectNumber()).getOneUnitDataList();
 	}
 	
-	List<Integer> getActiveUnit(int number){
-		return SaveComposition.getOneCompositionData(getSelectNumber()).getOneUnitData(number).getUnitDataList();
+	OneUnitData getUnitData(int index) {
+		return getActiveCompositionList().get(index);
 	}
 	
 	List<Integer> getNowCoreNumberList(){

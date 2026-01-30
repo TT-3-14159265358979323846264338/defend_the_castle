@@ -1,17 +1,18 @@
 package defendthecastle.itemget;
 
 import savedata.SaveGameProgress;
+import savedata.SaveItem;
 
 //保有メダル
 class HoldMedal{
 	private SaveGameProgress SaveGameProgress = new SaveGameProgress();
-	private GachaInformation GachaInformation;;
-	private int medal;
+	private SaveItem SaveItem = new SaveItem();
+	private GachaInformation GachaInformation;
 	private final static int USE = 100;
 	
 	protected HoldMedal() {
 		SaveGameProgress.load();
-		medal = SaveGameProgress.getMedal();
+		SaveItem.load();
 	}
 	
 	protected void install(GachaInformation GachaInformation) {
@@ -19,7 +20,7 @@ class HoldMedal{
 	}
 	
 	protected void save() {
-		SaveGameProgress.save(SaveGameProgress.getClearStatus(), SaveGameProgress.getMeritStatus(), medal, SaveGameProgress.getSelectStage());
+		SaveGameProgress.save(SaveGameProgress.getClearStatus(), SaveGameProgress.getMeritStatus(), getMedal(), SaveGameProgress.getSelectStage());
 	}
 	
 	protected SaveGameProgress getSaveData() {
@@ -27,15 +28,15 @@ class HoldMedal{
 	}
 	
 	protected int getMedal() {
-		return medal;
+		return SaveItem.getMedalNumber();
 	}
 	
 	protected void recountMedal() {
-		medal -= useMedal();
+		SaveItem.reduceMedal(useMedal());
 	}
 	
 	protected boolean canPossessMedal() {
-		return useMedal() <= medal;
+		return useMedal() <= getMedal();
 	}
 	
 	protected int useMedal() {
