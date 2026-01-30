@@ -10,21 +10,6 @@ import java.util.stream.IntStream;
 
 public class OneCompositionData {
 	/**
-	 * MySQLへの接続
-	 */
-	private Connection mysql;
-	
-	/**
-	 * 元々の編成を格納したテーブル名を格納したカラム名
-	 */
-	private String oldCompositionName;
-	
-	/**
-	 * 変更後の編成を格納したテーブル名を格納したカラム名
-	 */
-	private String newCompositionName;
-	
-	/**
 	 * composionNameのテーブルの要素<br>
 	 * 編成番号を格納したカラム名<br>
 	 * PRIMARY KEY
@@ -50,19 +35,34 @@ public class OneCompositionData {
 	private final String LEFT_COLUMN = "left";
 	
 	/**
+	 * MySQLへの接続
+	 */
+	private Connection mysql;
+	
+	/**
+	 * テーブルの番号
+	 */
+	private int number;
+	
+	/**
+	 * テーブル名
+	 */
+	private String compositionName;
+	
+	/**
 	 * 各ユニットのカスタマイズ情報
 	 */
 	private List<OneUnitData> unitData = new ArrayList<>();
 	
-	OneCompositionData(Connection mysql, String oldComposionName) {
+	OneCompositionData(Connection mysql, int number, String compositionName) {
 		this.mysql = mysql;
-		this.oldCompositionName = oldComposionName;
+		this.number = number;
+		this.compositionName = compositionName;
 	}
 	
 	void load() {
-		newCompositionName = oldCompositionName;
 		unitData.clear();
-		String compositionLoad = "SELECT * FROM " + oldCompositionName;
+		String compositionLoad = "SELECT * FROM " + compositionName;
 		try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionLoad);
 				ResultSet compositionTable = compositionPrepared.executeQuery()) {
 			while (compositionTable.next()) {
@@ -74,13 +74,7 @@ public class OneCompositionData {
 	}
 	
 	void save() {
-		String renameSave = String.format("RENAME TABLE %s TO %s", oldCompositionName, newCompositionName);
-		try(Statement renameStatement = mysql.createStatement()) {
-			renameStatement.executeUpdate(renameSave);
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-		String compositionSave = String.format("UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?", newCompositionName, RIGHT_COLUMN, CENTER_COLUMN, LEFT_COLUMN, NUMBER_COLUMN);
+		String compositionSave = String.format("UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?", compositionName, RIGHT_COLUMN, CENTER_COLUMN, LEFT_COLUMN, NUMBER_COLUMN);
 		try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionSave)) {
 			IntStream.range(0, unitData.size()).forEach(i -> {
 				IntStream.range(0, unitData.get(i).getUnitData().size()).forEach(j -> {
@@ -101,11 +95,9 @@ public class OneCompositionData {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		oldCompositionName = newCompositionName;
 	}
 	
 	boolean canCreateComposition(String name) {
-		newCompositionName = oldCompositionName;
 		try(Statement newTableStatement = mysql.createStatement()) {
 			newTableStatement.executeUpdate(createTableCode(name));
 		}catch (Exception e) {
@@ -150,11 +142,15 @@ public class OneCompositionData {
 				LEFT_COLUMN);
 	}
 	
-	String getNewComposionName() {
-		return newCompositionName;
+	int getNumber() {
+		return number;
+	}
+	
+	String getComposionName() {
+		return compositionName;
 	}
 
-	void setNewComposionName(String newComposionName) {
-		this.newCompositionName = newComposionName;
+	void setComposionName(String newComposionName) {
+		this.compositionName = newComposionName;
 	}
 }

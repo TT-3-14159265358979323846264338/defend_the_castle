@@ -2,22 +2,12 @@ package savedata;
 
 import static javax.swing.JOptionPane.*;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
-import java.util.stream.IntStream;
-
-import defaultdata.DefaultUnit;
 
 //現在の編成状況の保存用
 public class SaveComposition{
@@ -59,7 +49,7 @@ public class SaveComposition{
 		try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionLoad);
 				ResultSet compositionTable = compositionPrepared.executeQuery()) {
 			while (compositionTable.next()) {
-				OneCompositionData newCompositionData = new OneCompositionData(mysql, compositionTable.getString(NAME_COLUMN));
+				OneCompositionData newCompositionData = new OneCompositionData(mysql, compositionTable.getInt(NUMBER_COLUMN), compositionTable.getString(NAME_COLUMN));
 				allCompositionList.add(newCompositionData);
 				newCompositionData.load();
 			}
@@ -69,26 +59,11 @@ public class SaveComposition{
 	}
 	
 	public void save() {
-		String compositionSave = String.format("UPDATE %s SET %s = ? WHERE %s = ?", COMPOSITION_NAME, NAME_COLUMN, NUMBER_COLUMN);
-		try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionSave)) {
-			IntStream.range(0, allCompositionList.size()).forEach(i -> {
-				try {
-					compositionPrepared.setString(1, allCompositionList.get(i).getNewComposionName());
-					compositionPrepared.setInt(2, i + 1);
-					compositionPrepared.addBatch();
-					allCompositionList.get(i).save();
-				}catch (Exception e) {
-					e.printStackTrace();
-				}
-			});
-			compositionPrepared.executeBatch();
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
+		allCompositionList.stream().forEach(i -> i.save());
 	}
 	
 	public void newComposition(String name) {
-		OneCompositionData newComposition = new OneCompositionData(mysql, name);
+		OneCompositionData newComposition = new OneCompositionData(mysql, getNextNumber(), name);
 		if(newComposition.canCreateComposition(name)) {
 			allCompositionList.add(newComposition);
 			String addComposition = String.format("INSERT INTO %s (%s) VALUES (?)", COMPOSITION_NAME, NAME_COLUMN);
@@ -104,8 +79,51 @@ public class SaveComposition{
 	}
 	
 	public void removeComposition(int number) {
+		String dropTable = String.format("DROP TABLE %s", getCompositionName(number));
+		try(Statement dropStatement = mysql.createStatement()){
+			dropStatement.executeUpdate(dropTable);
+		}catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+		String remove = String.format("DELETE FROM %s WHERE %s = ?", COMPOSITION_NAME, NUMBER_COLUMN);
+		try(PreparedStatement removePrepared = mysql.prepareStatement(remove)){
+			removePrepared.setInt(1, getNumber(number));
+			removePrepared.executeUpdate();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
 		allCompositionList.remove(number);
-		compositionNameList.remove(number);
+	}
+	
+	public void rename(int number, String name) {
+		String rename = String.format("RENAME TABLE %s TO %s", getCompositionName(number), name);
+		try(Statement renameStatement = mysql.createStatement()) {
+			renameStatement.executeUpdate(rename);
+		}catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+		setCompositionName(number, name);
+	}
+	
+	public void swap(int select, int target) {
+		String swap = String.format("UPDATE %s SET %s = ? WHERE %s = ?", COMPOSITION_NAME, NAME_COLUMN, NUMBER_COLUMN);
+		try(PreparedStatement swapPrepared = mysql.prepareStatement(swap)) {
+			String selectName = getCompositionName(select);
+			String targetName = getCompositionName(target);
+			swapPrepared.setString(1, targetName);
+			swapPrepared.setInt(2, getNumber(select));
+			swapPrepared.addBatch();
+			swapPrepared.setString(1, selectName);
+			swapPrepared.setInt(2, getNumber(target));
+			swapPrepared.addBatch();
+			swapPrepared.executeBatch();
+			setCompositionName(getNumber(select), targetName);
+			setCompositionName(getNumber(target), selectName);
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public List<OneCompositionData> getAllCompositionList(){
@@ -113,6 +131,26 @@ public class SaveComposition{
 	}
 	
 	public List<String> getCompositionNameList(){
-		return allCompositionList.stream().map(i -> i.getNewComposionName()).toList();
+		return allCompositionList.stream().map(i -> i.getComposionName()).toList();
+	}
+	
+	OneCompositionData getOneCompositionData(int number) {
+		return allCompositionList.get(number);
+	}
+	
+	String getCompositionName(int number) {
+		return getOneCompositionData(number).getComposionName();
+	}
+	
+	void setCompositionName(int number, String name) {
+		getOneCompositionData(number).setComposionName(name);
+	}
+	
+	int getNumber(int number) {
+		return getOneCompositionData(number).getNumber();
+	}
+	
+	int getNextNumber() {
+		return allCompositionList.stream().mapToInt(i -> i.getNumber()).max().getAsInt() + 1;
 	}
 }
