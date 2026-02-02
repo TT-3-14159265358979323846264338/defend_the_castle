@@ -1,30 +1,31 @@
 package savedata;
 
+import static savedata.OperationSQL.*;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 public class SaveSelect {
 	/**
 	 * データベース上で選択している編成番号を格納したテーブル名
 	 */
-	private final String SELECT_NAME = "select_target";
+	public static final String SELECT_NAME = "select_target";
 	
 	/**
 	 * SELECT_NAMEのテーブルの要素<br>
 	 * どの項目に対する選択なのかを格納したカラム名<br>
 	 * PRIMARY KEY
 	 */
-	private final String ID_COLUMN = "id";
+	public static final String ID_COLUMN = "id";
 	
 	/**
 	 * SELECT_NAMEのテーブルの要素<br>
 	 * 現在選択されている編成番号を格納したカラム名
 	 */
-	private final String SELECT_COLUMN = "select";
+	public static final String SELECT_COLUMN = "select_code";
 	
 	/**
 	 * 編成選択用項目<br>
@@ -48,39 +49,42 @@ public class SaveSelect {
 	 */
 	private List<Integer> selectList = new ArrayList<>();
 	
+	/**
+	 * このインスタンスを作成した場合、終了時に必ず{@link #close}を呼び出すこと。
+	 */
 	public SaveSelect() {
-		mysql = FileCheck.connectMysql();
+		mysql = OperationSQL.connectMysql();
+	}
+	
+	public void close() {
+		closeConnection(mysql);
 	}
 	
 	public void load(){
-		selectList.clear();
-		String selectLoad = "SELECT * FROM " + SELECT_NAME;
-		try(PreparedStatement selectPrepared = mysql.prepareStatement(selectLoad);
-				ResultSet selectTable = selectPrepared.executeQuery()) {
-			while (selectTable.next()) {
-				selectList.add(selectTable.getInt(SELECT_COLUMN));
+		executeSQL(mysql, () -> {
+			selectList.clear();
+			String selectLoad = "SELECT * FROM " + SELECT_NAME;
+			try(PreparedStatement selectPrepared = mysql.prepareStatement(selectLoad);
+					ResultSet selectTable = selectPrepared.executeQuery()) {
+				while (selectTable.next()) {
+					selectList.add(selectTable.getInt(SELECT_COLUMN));
+				}
 			}
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
+		});
 	}
 	
 	public void save() {
-		String selectSave = String.format("UPDATE %s SET %s = ? WHERE %s = ?", SELECT_NAME, SELECT_COLUMN, ID_COLUMN);
-		try(PreparedStatement selectPrepared = mysql.prepareStatement(selectSave)) {
-			IntStream.range(0, selectList.size()).forEach(i -> {
-				try {
+		executeSQL(mysql, () -> {
+			String selectSave = String.format("UPDATE %s SET %s = ? WHERE %s = ?", SELECT_NAME, SELECT_COLUMN, ID_COLUMN);
+			try(PreparedStatement selectPrepared = mysql.prepareStatement(selectSave)) {
+				for(int i = 0; i < selectList.size(); i++) {
 					selectPrepared.setInt(1, selectList.get(i));
 					selectPrepared.setInt(2, i + 1);
 					selectPrepared.addBatch();
-				}catch (Exception e) {
-					e.printStackTrace();
 				}
-			});
-			selectPrepared.executeBatch();
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
+				selectPrepared.executeBatch();
+			}
+		});
 	}
 	
 	public int getCompositionSelectNumber() {

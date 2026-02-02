@@ -1,37 +1,38 @@
 package savedata;
 
+import static savedata.OperationSQL.*;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 //現在保有しているアイテムの保存用
 public class SaveHoldItem{
 	/**
 	 * データベース上で武器保有数を格納したテーブル名
 	 */
-	private final String CORE_NAME = "core";
+	public static final String CORE_NAME = "core";
 	
 	/**
 	 * データベース上で武器保有数を格納したテーブル名
 	 */
-	private final String WEAPON_NAME = "weapon";
+	public static final String WEAPON_NAME = "weapon";
 	
 	/**
 	 * 両テーブルの要素<br>
 	 * 番号を格納したカラム名<br>
 	 * PRIMARY KEY
 	 */
-	private final String ID_COLUMN = "id";
+	public static final String ID_COLUMN = "id";
 	
 	/**
 	 * 両テーブルの要素<br>
 	 * 保有数を格納したカラム名<br>
 	 * PRIMARY KEY
 	 */
-	private final String NUMBER_COLUMN = "number";
+	public static final String NUMBER_COLUMN = "number";
 	
 	/**
 	 * MySQLへの接続
@@ -52,49 +53,52 @@ public class SaveHoldItem{
 	 */
 	private List<Integer> weaponNumberList = new ArrayList<>();
 	
+	/**
+	 * このインスタンスを作成した場合、終了時に必ず{@link #close}を呼び出すこと。
+	 */
 	public SaveHoldItem() {
-		mysql = FileCheck.connectMysql();
+		mysql = connectMysql();
+	}
+	
+	public void close() {
+		closeConnection(mysql);
 	}
 	
 	public void load() {
-		coreNumberList.clear();
-		loadData(CORE_NAME, coreNumberList);
-		weaponNumberList.clear();
-		loadData(WEAPON_NAME, weaponNumberList);
+		executeSQL(mysql, () -> {
+			coreNumberList.clear();
+			loadData(CORE_NAME, coreNumberList);
+			weaponNumberList.clear();
+			loadData(WEAPON_NAME, weaponNumberList);
+		});
 	}
 	
-	void loadData(String tableName, List<Integer> numberList) {
+	void loadData(String tableName, List<Integer> numberList) throws Exception {
 		String dataLoad = String.format("SELECT * FROM %s", tableName);
 		try(PreparedStatement prepared = mysql.prepareStatement(dataLoad);
 				ResultSet table = prepared.executeQuery()){
 			while(table.next()) {
 				numberList.add(table.getInt(NUMBER_COLUMN));
 			}
-		}catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	
 	public void save() {
-		saveData(CORE_NAME, coreNumberList);
-		saveData(WEAPON_NAME, weaponNumberList);
+		executeSQL(mysql, () -> {
+			dataSave(CORE_NAME, coreNumberList);
+			dataSave(WEAPON_NAME, weaponNumberList);
+		});
 	}
 	
-	void saveData(String tableName, List<Integer> numberList) {
+	void dataSave(String tableName, List<Integer> numberList) throws Exception{
 		String dataSave = String.format("UPDATE %s SET %s = ? WHERE %s = ?", tableName, NUMBER_COLUMN, ID_COLUMN);
 		try(PreparedStatement dataPrepared = mysql.prepareStatement(dataSave)) {
-			IntStream.range(0, numberList.size()).forEach(i -> {
-				try {
-					dataPrepared.setInt(1, numberList.get(i));
-					dataPrepared.setInt(2, i);
-					dataPrepared.addBatch();
-				}catch (Exception e) {
-					e.printStackTrace();
-				}
-			});
+			for(int i = 0; i < numberList.size(); i++) {
+				dataPrepared.setInt(1, numberList.get(i));
+				dataPrepared.setInt(2, i + 1);
+				dataPrepared.addBatch();
+			}
 			dataPrepared.executeBatch();
-		}catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	

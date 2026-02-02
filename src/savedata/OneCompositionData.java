@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 public class OneCompositionData {
 	/**
@@ -20,19 +19,19 @@ public class OneCompositionData {
 	 * composionNameのテーブルの要素<br>
 	 * 右武器番号を格納したカラム名
 	 */
-	private final String RIGHT_COLUMN = "right";
+	private final String RIGHT_COLUMN = "right_weapon";
 	
 	/**
 	 * composionNameのテーブルの要素<br>
 	 * コア番号を格納したカラム名
 	 */
-	private final String CENTER_COLUMN = "center";
+	private final String CENTER_COLUMN = "center_core";
 	
 	/**
 	 * composionNameのテーブルの要素<br>
 	 * 左武器番号を格納したカラム名
 	 */
-	private final String LEFT_COLUMN = "left";
+	private final String LEFT_COLUMN = "left_weapon";
 	
 	/**
 	 * MySQLへの接続
@@ -60,7 +59,7 @@ public class OneCompositionData {
 		this.compositionName = compositionName;
 	}
 	
-	void load() {
+	void load() throws Exception{
 		unitData.clear();
 		String compositionLoad = "SELECT * FROM " + compositionName;
 		try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionLoad);
@@ -68,64 +67,43 @@ public class OneCompositionData {
 			while (compositionTable.next()) {
 				unitData.add(new OneUnitData(compositionTable.getInt(RIGHT_COLUMN), compositionTable.getInt(CENTER_COLUMN), compositionTable.getInt(LEFT_COLUMN)));
 			}
-		}catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	
-	void save() {
+	void save() throws Exception{
 		String compositionSave = String.format("UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?", compositionName, RIGHT_COLUMN, CENTER_COLUMN, LEFT_COLUMN, ID_COLUMN);
 		try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionSave)) {
-			IntStream.range(0, unitData.size()).forEach(i -> {
-				IntStream.range(0, unitData.get(i).getUnitDataList().size()).forEach(j -> {
-					try {
-						compositionPrepared.setInt(j + 1, unitData.get(i).getUnitDataList().get(j));
-					}catch (Exception e) {
-						e.printStackTrace();
-					}
-				});
-				try {
-					compositionPrepared.setInt(4, i + 1);
-					compositionPrepared.addBatch();
-				}catch (Exception e) {
-					e.printStackTrace();
+			for(int i = 0; i < unitData.size(); i++) {
+				for(int j = 0; j < unitData.get(i).getUnitDataList().size(); j++) {
+					compositionPrepared.setInt(j + 1, unitData.get(i).getUnitDataList().get(j));
 				}
-			});
+				compositionPrepared.setInt(4, i + 1);
+				compositionPrepared.addBatch();
+			}
 			compositionPrepared.executeBatch();
-		}catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	
-	boolean canCreateComposition(String name) {
+	void canCreateComposition(String name) throws Exception {
 		try(Statement newTableStatement = mysql.createStatement()) {
 			newTableStatement.executeUpdate(createTableCode(name));
 		}catch (Exception e) {
-			return false;
+			throw e;
 		}
 		String addDefault = String.format("INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)", name, RIGHT_COLUMN, CENTER_COLUMN, LEFT_COLUMN);
 		try(PreparedStatement newPrepared = mysql.prepareStatement(addDefault)) {
-			IntStream.range(0, 8).forEach(i -> {
-				try {
-					OneUnitData newUnitData = new OneUnitData();
-					unitData.add(newUnitData);
-					IntStream.range(0, newUnitData.getUnitDataList().size()).forEach(j -> {
-						try {
-							newPrepared.setInt(j + 1, newUnitData.getUnitDataList().get(j));
-						}catch (Exception e) {
-							e.printStackTrace();
-						}
-					});
-					newPrepared.addBatch();
-				}catch (Exception e) {
-					e.printStackTrace();
+			for(int i = 0; i < 8; i++) {
+				OneUnitData newUnitData = new OneUnitData();
+				unitData.add(newUnitData);
+				for(int j = 0; j < newUnitData.getUnitDataList().size(); j++) {
+					newPrepared.setInt(j + 1, newUnitData.getUnitDataList().get(j));
 				}
-			});
+				newPrepared.addBatch();
+			}
 			newPrepared.executeBatch();
 		}catch (Exception e) {
-			return false;
+			throw e;
 		}
-		return true;
 	}
 	
 	String createTableCode(String name) {
