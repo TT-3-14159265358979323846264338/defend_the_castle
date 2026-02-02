@@ -44,7 +44,7 @@ public class FileCheck{
 	private final int HAVE_NO_ITEM = 0;
 	
 	/**
-	 * MySQLへの接続
+	 * データベース接続
 	 */
 	private Connection mysql;
 	

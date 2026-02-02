@@ -46,7 +46,7 @@ public class OperationSQL {
 	static void closeConnection(Connection mysql) {
 		try {
 			mysql.close();
-		} catch (Exception e) {
+		}catch(Exception e) {
 			e.printStackTrace();
 		}
 	}

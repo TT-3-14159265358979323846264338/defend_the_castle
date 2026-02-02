@@ -40,27 +40,12 @@ public class SaveSelect {
 	private final int STAGE_SELECT = 1;
 	
 	/**
-	 * MySQLへの接続
-	 */
-	private Connection mysql;
-	
-	/**
 	 * 全ての選択情報を保存
 	 */
 	private List<Integer> selectList = new ArrayList<>();
 	
-	/**
-	 * このインスタンスを作成した場合、終了時に必ず{@link #close}を呼び出すこと。
-	 */
-	public SaveSelect() {
-		mysql = OperationSQL.connectMysql();
-	}
-	
-	public void close() {
-		closeConnection(mysql);
-	}
-	
 	public void load(){
+		Connection mysql = connectMysql();
 		executeSQL(mysql, () -> {
 			selectList.clear();
 			String selectLoad = "SELECT * FROM " + SELECT_NAME;
@@ -71,9 +56,11 @@ public class SaveSelect {
 				}
 			}
 		});
+		closeConnection(mysql);
 	}
 	
 	public void save() {
+		Connection mysql = connectMysql();
 		executeSQL(mysql, () -> {
 			String selectSave = String.format("UPDATE %s SET %s = ? WHERE %s = ?", SELECT_NAME, SELECT_COLUMN, ID_COLUMN);
 			try(PreparedStatement selectPrepared = mysql.prepareStatement(selectSave)) {
@@ -85,6 +72,7 @@ public class SaveSelect {
 				selectPrepared.executeBatch();
 			}
 		});
+		closeConnection(mysql);
 	}
 	
 	public int getCompositionSelectNumber() {

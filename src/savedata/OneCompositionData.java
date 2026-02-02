@@ -34,11 +34,6 @@ public class OneCompositionData {
 	private final String LEFT_COLUMN = "left_weapon";
 	
 	/**
-	 * MySQLへの接続
-	 */
-	private Connection mysql;
-	
-	/**
 	 * テーブルの番号
 	 */
 	private int id;
@@ -53,13 +48,12 @@ public class OneCompositionData {
 	 */
 	private List<OneUnitData> unitData = new ArrayList<>();
 	
-	OneCompositionData(Connection mysql, int id, String compositionName) {
-		this.mysql = mysql;
+	OneCompositionData(int id, String compositionName) {
 		this.id = id;
 		this.compositionName = compositionName;
 	}
 	
-	void load() throws Exception{
+	void load(Connection mysql) throws Exception{
 		unitData.clear();
 		String compositionLoad = "SELECT * FROM " + compositionName;
 		try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionLoad);
@@ -70,7 +64,7 @@ public class OneCompositionData {
 		}
 	}
 	
-	void save() throws Exception{
+	void save(Connection mysql) throws Exception{
 		String compositionSave = String.format("UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?", compositionName, RIGHT_COLUMN, CENTER_COLUMN, LEFT_COLUMN, ID_COLUMN);
 		try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionSave)) {
 			for(int i = 0; i < unitData.size(); i++) {
@@ -84,7 +78,7 @@ public class OneCompositionData {
 		}
 	}
 	
-	void canCreateComposition(String name) throws Exception {
+	void canCreateComposition(Connection mysql, String name) throws Exception {
 		try(Statement newTableStatement = mysql.createStatement()) {
 			newTableStatement.executeUpdate(createTableCode(name));
 		}catch (Exception e) {

@@ -31,54 +31,43 @@ public class SaveComposition{
 	public static final String NAME_COLUMN = "name";
 	
 	/**
-	 * MySQLへの接続
-	 */
-	private Connection mysql;
-	
-	/**
 	 * 全ての編成情報を保存。
 	 * */
 	private List<OneCompositionData> allCompositionList = new ArrayList<>();
 	
-	/**
-	 * このインスタンスを作成した場合、終了時に必ず{@link #close}を呼び出すこと。
-	 */
-	public SaveComposition() {
-		mysql = connectMysql();
-	}
-	
-	public void close() {
-		closeConnection(mysql);
-	}
-	
 	public void load() {
+		Connection mysql = connectMysql();
 		executeSQL(mysql, () -> {
 			allCompositionList.clear();
 			String compositionLoad = String.format("SELECT * FROM %s", COMPOSITION_NAME);
 			try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionLoad);
 					ResultSet compositionTable = compositionPrepared.executeQuery()) {
 				while (compositionTable.next()) {
-					OneCompositionData newCompositionData = new OneCompositionData(mysql, compositionTable.getInt(ID_COLUMN), compositionTable.getString(NAME_COLUMN));
+					OneCompositionData newCompositionData = new OneCompositionData(compositionTable.getInt(ID_COLUMN), compositionTable.getString(NAME_COLUMN));
 					allCompositionList.add(newCompositionData);
-					newCompositionData.load();
+					newCompositionData.load(mysql);
 				}
 			}
 		});
+		closeConnection(mysql);
 	}
 	
 	public void save() {
+		Connection mysql = connectMysql();
 		executeSQL(mysql, () -> {
 			for(OneCompositionData i: allCompositionList) {
-				i.save();
+				i.save(mysql);
 			}
 		});
+		closeConnection(mysql);
 	}
 	
 	public void newComposition(String name) {
+		Connection mysql = connectMysql();
 		executeSQL(mysql, () -> {
 			try{
-				OneCompositionData newComposition = new OneCompositionData(mysql, getNextNumber(), name);
-				newComposition.canCreateComposition(name);
+				OneCompositionData newComposition = new OneCompositionData(getNextNumber(), name);
+				newComposition.canCreateComposition(mysql, name);
 				String addComposition = String.format("INSERT INTO %s (%s) VALUES (?)", COMPOSITION_NAME, NAME_COLUMN);
 				try(PreparedStatement addPrepareed = mysql.prepareStatement(addComposition)) {
 					addPrepareed.setString(1, name);
@@ -90,9 +79,11 @@ public class SaveComposition{
 				throw e;
 			}
 		});
+		closeConnection(mysql);
 	}
 	
 	public void removeComposition(int index) {
+		Connection mysql = connectMysql();
 		executeSQL(mysql, () -> {
 			String dropTable = String.format("DROP TABLE %s", getCompositionName(index));
 			try(Statement dropStatement = mysql.createStatement()){
@@ -105,20 +96,26 @@ public class SaveComposition{
 			}
 			allCompositionList.remove(index);
 		});
+		closeConnection(mysql);
 	}
 	
 	public void rename(int index, String name) {
-		String rename = String.format("RENAME TABLE %s TO %s", getCompositionName(index), name);
-		try(Statement renameStatement = mysql.createStatement()) {
-			renameStatement.executeUpdate(rename);
-		}catch (Exception e) {
-			showMessageDialog(null, "編成名は無効です。");
-			return;
-		}
-		setCompositionName(index, name);
+		Connection mysql = connectMysql();
+		executeSQL(mysql, () -> {
+			String rename = String.format("RENAME TABLE %s TO %s", getCompositionName(index), name);
+			try(Statement renameStatement = mysql.createStatement()) {
+				renameStatement.executeUpdate(rename);
+			}catch (Exception e) {
+				showMessageDialog(null, "編成名は無効です。");
+				throw e;
+			}
+			setCompositionName(index, name);
+		});
+		closeConnection(mysql);
 	}
 	
 	public void swap(int selectIndex, int targetIndex) {
+		Connection mysql = connectMysql();
 		executeSQL(mysql, () -> {
 			String swap = String.format("UPDATE %s SET %s = ? WHERE %s = ?", COMPOSITION_NAME, NAME_COLUMN, ID_COLUMN);
 			try(PreparedStatement swapPrepared = mysql.prepareStatement(swap)) {
@@ -131,10 +128,11 @@ public class SaveComposition{
 				swapPrepared.setInt(2, getNumber(targetIndex));
 				swapPrepared.addBatch();
 				swapPrepared.executeBatch();
-				setCompositionName(getNumber(selectIndex), targetName);
-				setCompositionName(getNumber(targetIndex), selectName);
+				setCompositionName(selectIndex, targetName);
+				setCompositionName(targetIndex, selectName);
 			}
 		});
+		closeConnection(mysql);
 	}
 	
 	public List<String> getCompositionNameList(){

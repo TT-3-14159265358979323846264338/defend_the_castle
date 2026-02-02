@@ -35,11 +35,6 @@ public class SaveHoldItem{
 	public static final String NUMBER_COLUMN = "number";
 	
 	/**
-	 * MySQLへの接続
-	 */
-	private Connection mysql;
-	
-	/**
 	 * 各コアの所持数。<br>
 	 * {@link defaultdata.DefaultUnit#NORMAL_CORE コアコード変換}の順にリスト化。<br>
 	 * このListのsizeは、{@link defaultdata.DefaultUnit#CORE_DATA_MAP CORE_DATA_MAP}に新規追加されると、{@link savedata.FileCheck FileCheck}で自動的に追加される。
@@ -53,27 +48,18 @@ public class SaveHoldItem{
 	 */
 	private List<Integer> weaponNumberList = new ArrayList<>();
 	
-	/**
-	 * このインスタンスを作成した場合、終了時に必ず{@link #close}を呼び出すこと。
-	 */
-	public SaveHoldItem() {
-		mysql = connectMysql();
-	}
-	
-	public void close() {
+	public void load() {
+		Connection mysql = connectMysql();
+		executeSQL(mysql, () -> {
+			coreNumberList.clear();
+			loadData(mysql, CORE_NAME, coreNumberList);
+			weaponNumberList.clear();
+			loadData(mysql, WEAPON_NAME, weaponNumberList);
+		});
 		closeConnection(mysql);
 	}
 	
-	public void load() {
-		executeSQL(mysql, () -> {
-			coreNumberList.clear();
-			loadData(CORE_NAME, coreNumberList);
-			weaponNumberList.clear();
-			loadData(WEAPON_NAME, weaponNumberList);
-		});
-	}
-	
-	void loadData(String tableName, List<Integer> numberList) throws Exception {
+	void loadData(Connection mysql, String tableName, List<Integer> numberList) throws Exception {
 		String dataLoad = String.format("SELECT * FROM %s", tableName);
 		try(PreparedStatement prepared = mysql.prepareStatement(dataLoad);
 				ResultSet table = prepared.executeQuery()){
@@ -84,13 +70,15 @@ public class SaveHoldItem{
 	}
 	
 	public void save() {
+		Connection mysql = connectMysql();
 		executeSQL(mysql, () -> {
-			dataSave(CORE_NAME, coreNumberList);
-			dataSave(WEAPON_NAME, weaponNumberList);
+			dataSave(mysql, CORE_NAME, coreNumberList);
+			dataSave(mysql, WEAPON_NAME, weaponNumberList);
 		});
+		closeConnection(mysql);
 	}
 	
-	void dataSave(String tableName, List<Integer> numberList) throws Exception{
+	void dataSave(Connection mysql, String tableName, List<Integer> numberList) throws Exception{
 		String dataSave = String.format("UPDATE %s SET %s = ? WHERE %s = ?", tableName, NUMBER_COLUMN, ID_COLUMN);
 		try(PreparedStatement dataPrepared = mysql.prepareStatement(dataSave)) {
 			for(int i = 0; i < numberList.size(); i++) {

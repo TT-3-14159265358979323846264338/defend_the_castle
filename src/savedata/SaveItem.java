@@ -34,27 +34,12 @@ public class SaveItem {
 	private final int MEDAL = 0;
 	
 	/**
-	 * MySQLへの接続
-	 */
-	private Connection mysql;
-	
-	/**
 	 * 全てのアイテム数を保存
 	 */
 	private List<Integer> itemList = new ArrayList<>();
 	
-	/**
-	 * このインスタンスを作成した場合、終了時に必ず{@link #close}を呼び出すこと。
-	 */
-	public SaveItem() {
-		mysql = OperationSQL.connectMysql();
-	}
-	
-	public void close() {
-		closeConnection(mysql);
-	}
-	
 	public void load() {
+		Connection mysql = connectMysql();
 		executeSQL(mysql, () -> {
 			itemList.clear();
 			String itemLoad = "SELECT * FROM " + ITEM_NAME;
@@ -65,9 +50,11 @@ public class SaveItem {
 				}
 			}
 		});
+		closeConnection(mysql);
 	}
 	
 	public void save() {
+		Connection mysql = connectMysql();
 		executeSQL(mysql, () -> {
 			String itemSave = String.format("UPDATE %s SET %s = ? WHERE %s = ?", ITEM_NAME, ITEM_COLUMN, ID_COLUMN);
 			try(PreparedStatement itemPrepared = mysql.prepareStatement(itemSave)) {
@@ -79,6 +66,7 @@ public class SaveItem {
 				itemPrepared.executeBatch();
 			}
 		});
+		closeConnection(mysql);
 	}
 	
 	public int getMedalNumber() {
