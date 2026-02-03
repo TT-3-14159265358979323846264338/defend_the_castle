@@ -15,6 +15,7 @@ import battle.BattleUnit;
 import battle.GameData;
 import defaultdata.EditImage;
 import savedata.SaveGameProgress;
+import savedata.SaveItem;
 
 public abstract class StageData {
 	/**
@@ -247,7 +248,7 @@ public abstract class StageData {
 	boolean hasClearedMerit(SaveGameProgress SaveGameProgress, int minStageNumber, int maxStageNumber, int clearCount) {
 		List<List<Boolean>> meritStatus = IntStream.range(0, SaveGameProgress.getMeritStatus().size())
 											.filter(i -> minStageNumber <= i && i <= maxStageNumber)
-											.mapToObj(i -> SaveGameProgress.getMeritStatus().get(i))
+											.mapToObj(i -> SaveGameProgress.getMeritData(i).getMeritClearList())
 											.toList();
 		if(clearCount == -1) {
 			clearCount = (1 + meritStatus.stream().mapToInt(i -> i.size()).sum()) / 2;
@@ -265,7 +266,7 @@ public abstract class StageData {
 	boolean hasClearedStage(SaveGameProgress SaveGameProgress, int minStageNumber, int maxStageNumber) {
 		return 0 == IntStream.range(0, SaveGameProgress.getMeritStatus().size())
 						.filter(i -> minStageNumber <= i && i <= maxStageNumber)
-						.mapToObj(i -> SaveGameProgress.getClearStatus().get(i))
+						.mapToObj(i -> SaveGameProgress.getStageStatus().get(i))
 						.filter(i -> !i)
 						.count();
 	}
@@ -516,8 +517,9 @@ public abstract class StageData {
 	 * @param number - 獲得するメダル枚数。
 	 */
 	void giveMedal(int number) {
-		SaveGameProgress SaveGameProgress = new SaveGameProgress();
-		SaveGameProgress.load();
-		SaveGameProgress.save(SaveGameProgress.getClearStatus(), SaveGameProgress.getMeritStatus(), SaveGameProgress.getMedal() + number, SaveGameProgress.getSelectStage());
+		SaveItem SaveItem = new SaveItem();
+		SaveItem.load();
+		SaveItem.addMedal(number);
+		SaveItem.save();
 	}
 }

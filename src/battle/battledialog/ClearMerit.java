@@ -20,6 +20,7 @@ import battle.BattleUnit;
 import battle.GameData;
 import defaultdata.DefaultStage;
 import defaultdata.stage.StageData;
+import savedata.OneStageMeritData;
 import savedata.SaveGameProgress;
 
 class ClearMerit extends JPanel{
@@ -72,21 +73,19 @@ class ClearMerit extends JPanel{
 	}
 	
 	void updateClearData(StageData StageData) {
-		List<Boolean> clearStatus = SaveGameProgress.getClearStatus();
-		List<List<Boolean>> meritStatus = SaveGameProgress.getMeritStatus();
 		List<Boolean> newClearList = new ArrayList<>();
 		for(int i = 0; i < thisClearList.size(); i++){
-			if(thisClearList.get(i) && !meritStatus.get(stageNumber).get(i)){
-				meritStatus.get(stageNumber).set(i, true);
+			if(thisClearList.get(i) && !hasCleared(i)){
+				getMeritData().setMeritClear(i, true);
 				newClearList.add(true);
 				continue;
 			}
 			newClearList.add(false);
 		}
-		if(meritStatus.get(stageNumber).stream().allMatch(i -> i)) {
-			clearStatus.set(stageNumber, true);
+		if(getMeritData().getMeritClearList().stream().allMatch(i -> i)) {
+			SaveGameProgress.setStage(stageNumber, true);
 		}
-		SaveGameProgress.save(clearStatus, meritStatus, SaveGameProgress.getMedal(), SaveGameProgress.getSelectStage());
+		SaveGameProgress.save();
 		StageData.giveClearReward(newClearList);
 	}
 	
@@ -112,8 +111,12 @@ class ClearMerit extends JPanel{
 		return hasCleared(number)? "済": "";
 	}
 	
+	OneStageMeritData getMeritData() {
+		return SaveGameProgress.getMeritData(stageNumber);
+	}
+	
 	boolean hasCleared(int number) {
-		return SaveGameProgress.getMeritStatus().get(stageNumber).get(number);
+		return getMeritData().getMeritClear(number);
 	}
 	
 	String clearComment(int number) {
