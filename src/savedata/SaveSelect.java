@@ -1,14 +1,9 @@
 package savedata;
 
-import static savedata.OperationSQL.*;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SaveSelect {
+public class SaveSelect extends SQLOperation{
 	/**
 	 * データベース上で選択している編成番号を格納したテーブル名
 	 */
@@ -45,34 +40,15 @@ public class SaveSelect {
 	private List<Integer> selectList = new ArrayList<>();
 	
 	public void load(){
-		Connection mysql = connectMysql();
-		executeSQL(mysql, () -> {
-			selectList.clear();
-			String selectLoad = "SELECT * FROM " + SELECT_NAME;
-			try(PreparedStatement selectPrepared = mysql.prepareStatement(selectLoad);
-					ResultSet selectTable = selectPrepared.executeQuery()) {
-				while (selectTable.next()) {
-					selectList.add(selectTable.getInt(SELECT_COLUMN));
-				}
-			}
+		operateSQL(() -> {
+			dataLoad(SELECT_NAME, SELECT_COLUMN, selectList);
 		});
-		closeConnection(mysql);
 	}
 	
 	public void save() {
-		Connection mysql = connectMysql();
-		executeSQL(mysql, () -> {
-			String selectSave = String.format("UPDATE %s SET %s = ? WHERE %s = ?", SELECT_NAME, SELECT_COLUMN, ID_COLUMN);
-			try(PreparedStatement selectPrepared = mysql.prepareStatement(selectSave)) {
-				for(int i = 0; i < selectList.size(); i++) {
-					selectPrepared.setInt(1, selectList.get(i));
-					selectPrepared.setInt(2, i + 1);
-					selectPrepared.addBatch();
-				}
-				selectPrepared.executeBatch();
-			}
+		operateSQL(() -> {
+			dataSave(SELECT_NAME, SELECT_COLUMN, ID_COLUMN, selectList);
 		});
-		closeConnection(mysql);
 	}
 	
 	public int getCompositionSelectNumber() {

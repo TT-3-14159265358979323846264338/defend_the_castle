@@ -1,7 +1,5 @@
 package savedata;
 
-import static savedata.OperationSQL.*;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,7 +10,7 @@ import java.util.List;
 import defaultdata.DefaultUnit;
 
 //データ保存用ファイルの確認
-public class FileCheck{
+public class FileCheck extends SQLOperation{
 	/**
 	 * ゲーム初回起動時に設定される編成名
 	 */
@@ -49,24 +47,30 @@ public class FileCheck{
 	private Connection mysql;
 	
 	public FileCheck() {
-		mysql = connectMysql();
-		executeSQL(mysql, () -> {
+		operateSQL(() -> {
 			if(hasPlayedGame()) {
-				addNewUnit();
-				//ステージクリアデータは後で記載
+				everyTimeCheck();
 				return;
 			}
-			newCompositionTable();
-			initializeComposition();
-			newSelectTable();
-			initializeSelect();
-			newUnitTable();
-			initializeUnit();
-			newItemTable();
-			initializeItem();
-			//ステージクリアデータは後で記載
+			firstTimeCheck();
 		});
-		closeConnection(mysql);
+	}
+	
+	void everyTimeCheck() throws Exception{
+		addNewUnit();
+		//ステージクリアデータは後で記載
+	}
+	
+	void firstTimeCheck() throws Exception{
+		newCompositionTable();
+		initializeComposition();
+		newSelectTable();
+		initializeSelect();
+		newUnitTable();
+		initializeUnit();
+		newItemTable();
+		initializeItem();
+		//ステージクリアデータは後で記載
 	}
 	
 	boolean hasPlayedGame() throws Exception{
@@ -95,7 +99,7 @@ public class FileCheck{
 	String createCompositionTableCode() {
 		return String .format("CREATE TABLE %s ("
 				+ "%s INT AUTO_INCREMENT NOT NULL PRIMARY KEY,"
-				+ "%s VARCHAR"
+				+ "%s VARCHAR　NOT NULL"
 				+ ")",
 				SaveComposition.COMPOSITION_NAME,
 				SaveComposition.ID_COLUMN,

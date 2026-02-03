@@ -1,9 +1,7 @@
 package savedata;
 
 import static javax.swing.JOptionPane.*;
-import static savedata.OperationSQL.*;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -11,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 //現在の編成状況の保存用
-public class SaveComposition{
+public class SaveComposition extends SQLOperation{
 	/**
 	 * データベース上で全編成を格納したテーブル名
 	 */
@@ -36,12 +34,11 @@ public class SaveComposition{
 	private List<OneCompositionData> allCompositionList = new ArrayList<>();
 	
 	public void load() {
-		Connection mysql = connectMysql();
-		executeSQL(mysql, () -> {
-			allCompositionList.clear();
+		operateSQL(() -> {
 			String compositionLoad = String.format("SELECT * FROM %s", COMPOSITION_NAME);
 			try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionLoad);
 					ResultSet compositionTable = compositionPrepared.executeQuery()) {
+				allCompositionList.clear();
 				while (compositionTable.next()) {
 					OneCompositionData newCompositionData = new OneCompositionData(compositionTable.getInt(ID_COLUMN), compositionTable.getString(NAME_COLUMN));
 					allCompositionList.add(newCompositionData);
@@ -49,22 +46,18 @@ public class SaveComposition{
 				}
 			}
 		});
-		closeConnection(mysql);
 	}
 	
 	public void save() {
-		Connection mysql = connectMysql();
-		executeSQL(mysql, () -> {
+		operateSQL(() -> {
 			for(OneCompositionData i: allCompositionList) {
 				i.save(mysql);
 			}
 		});
-		closeConnection(mysql);
 	}
 	
 	public void newComposition(String name) {
-		Connection mysql = connectMysql();
-		executeSQL(mysql, () -> {
+		operateSQL(() -> {
 			try{
 				OneCompositionData newComposition = new OneCompositionData(getNextNumber(), name);
 				newComposition.canCreateComposition(mysql, name);
@@ -79,12 +72,10 @@ public class SaveComposition{
 				throw e;
 			}
 		});
-		closeConnection(mysql);
 	}
 	
 	public void removeComposition(int index) {
-		Connection mysql = connectMysql();
-		executeSQL(mysql, () -> {
+		operateSQL(() -> {
 			String dropTable = String.format("DROP TABLE %s", getCompositionName(index));
 			try(Statement dropStatement = mysql.createStatement()){
 				dropStatement.executeUpdate(dropTable);
@@ -96,12 +87,10 @@ public class SaveComposition{
 			}
 			allCompositionList.remove(index);
 		});
-		closeConnection(mysql);
 	}
 	
 	public void rename(int index, String name) {
-		Connection mysql = connectMysql();
-		executeSQL(mysql, () -> {
+		operateSQL(() -> {
 			String rename = String.format("RENAME TABLE %s TO %s", getCompositionName(index), name);
 			try(Statement renameStatement = mysql.createStatement()) {
 				renameStatement.executeUpdate(rename);
@@ -111,12 +100,10 @@ public class SaveComposition{
 			}
 			setCompositionName(index, name);
 		});
-		closeConnection(mysql);
 	}
 	
 	public void swap(int selectIndex, int targetIndex) {
-		Connection mysql = connectMysql();
-		executeSQL(mysql, () -> {
+		operateSQL(() -> {
 			String swap = String.format("UPDATE %s SET %s = ? WHERE %s = ?", COMPOSITION_NAME, NAME_COLUMN, ID_COLUMN);
 			try(PreparedStatement swapPrepared = mysql.prepareStatement(swap)) {
 				String selectName = getCompositionName(selectIndex);
@@ -132,7 +119,6 @@ public class SaveComposition{
 				setCompositionName(targetIndex, selectName);
 			}
 		});
-		closeConnection(mysql);
 	}
 	
 	public List<String> getCompositionNameList(){

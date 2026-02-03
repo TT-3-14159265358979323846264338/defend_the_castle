@@ -7,7 +7,6 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -20,6 +19,7 @@ import javax.swing.SpinnerNumberModel;
 
 import defaultdata.DefaultStage;
 import savedata.SaveGameProgress;
+import savedata.SaveItem;
 
 //クリア状況編集
 class EditProgress extends JPanel{
@@ -30,9 +30,7 @@ class EditProgress extends JPanel{
 	private List<JRadioButton[]> merit;
 	private List<BufferedImage> stageImage = DefaultStage.STAGE_DATA.stream().map(i -> i.getImage(20)).toList();
 	private SaveGameProgress SaveGameProgress = new SaveGameProgress();
-	private List<Boolean> clearStatus;
-	private List<List<Boolean>> meritStatus;
-	private int medal;
+	private SaveItem SaveItem= new SaveItem();
 	private int sizeX = 110;
 	private int sizeY = 70;
 	
@@ -54,16 +52,19 @@ class EditProgress extends JPanel{
 	
 	private void load() {
 		SaveGameProgress.load();
-		clearStatus = SaveGameProgress.getClearStatus();
-		meritStatus = SaveGameProgress.getMeritStatus();
-		medal = SaveGameProgress.getMedal();
+		SaveItem.load();
 	}
 	
 	protected void save() {
-		clearStatus = Stream.of(stage).map(i -> i.isSelected()).collect(Collectors.toList());
-		meritStatus = merit.stream().map(i -> Stream.of(i).map(j -> j.isSelected()).collect(Collectors.toList())).collect(Collectors.toList());
-		medal = (int) medalSpinner.getValue();
-		SaveGameProgress.save(clearStatus, meritStatus, medal, 0);
+		IntStream.range(0, stage.length).forEach(i -> {
+			SaveGameProgress.setStage(i, stage[i].isSelected());
+			IntStream.range(0, merit.get(i).length).forEach(j -> {
+				SaveGameProgress.getMeritData(i).setMeritClear(j, merit.get(i)[j].isSelected());
+			});
+		});
+		SaveItem.setMedalNumber((int) medalSpinner.getValue());
+		SaveGameProgress.save();
+		SaveItem.save();
 	}
 	
 	private void addLabel() {
@@ -89,7 +90,7 @@ class EditProgress extends JPanel{
 	private void addSpinner() {
 		medalSpinner = new JSpinner();
 		add(medalSpinner);
-		medalSpinner.setModel(new SpinnerNumberModel(medal, 0, 100000, 100));
+		medalSpinner.setModel(new SpinnerNumberModel(SaveItem.getMedalNumber(), 0, 100000, 100));
 		JSpinner.NumberEditor editor = new JSpinner.NumberEditor(medalSpinner);
 		editor.getTextField().setEditable(false);
 		editor.getTextField().setHorizontalAlignment(JTextField.CENTER);
@@ -117,11 +118,11 @@ class EditProgress extends JPanel{
 			});
 		};
 		stage = initialize.apply(stageImage.size());
-		set.accept(stage, clearStatus);
+		set.accept(stage, SaveGameProgress.getStageStatus());
 		Stream.of(stage).forEach(i -> i.setText("ステージクリア"));
 		merit = DefaultStage.STAGE_DATA.stream().map(i -> initialize.apply(i.getMerit().size())).toList();
 		IntStream.range(0, merit.size()).forEach(i -> {
-			set.accept(merit.get(i), meritStatus.get(i));
+			set.accept(merit.get(i), SaveGameProgress.getMeritData(i).getMeritClearList());
 			IntStream.range(0, merit.get(i).length).forEach(j -> merit.get(i)[j].setText("戦功" + (j + 1) + "クリア"));
 		});
 	}

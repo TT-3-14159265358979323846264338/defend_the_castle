@@ -20,7 +20,7 @@ class HoldMedal{
 	}
 	
 	protected void save() {
-		SaveGameProgress.save(SaveGameProgress.getClearStatus(), SaveGameProgress.getMeritStatus(), getMedal(), SaveGameProgress.getSelectStage());
+		SaveItem.save();
 	}
 	
 	protected SaveGameProgress getSaveData() {

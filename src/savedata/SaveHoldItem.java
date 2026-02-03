@@ -1,15 +1,10 @@
 package savedata;
 
-import static savedata.OperationSQL.*;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
 //現在保有しているアイテムの保存用
-public class SaveHoldItem{
+public class SaveHoldItem extends SQLOperation{
 	/**
 	 * データベース上で武器保有数を格納したテーブル名
 	 */
@@ -49,45 +44,17 @@ public class SaveHoldItem{
 	private List<Integer> weaponNumberList = new ArrayList<>();
 	
 	public void load() {
-		Connection mysql = connectMysql();
-		executeSQL(mysql, () -> {
-			coreNumberList.clear();
-			loadData(mysql, CORE_NAME, coreNumberList);
-			weaponNumberList.clear();
-			loadData(mysql, WEAPON_NAME, weaponNumberList);
+		operateSQL(() -> {
+			dataLoad(CORE_NAME, NUMBER_COLUMN, coreNumberList);
+			dataLoad(WEAPON_NAME, NUMBER_COLUMN, weaponNumberList);
 		});
-		closeConnection(mysql);
-	}
-	
-	void loadData(Connection mysql, String tableName, List<Integer> numberList) throws Exception {
-		String dataLoad = String.format("SELECT * FROM %s", tableName);
-		try(PreparedStatement prepared = mysql.prepareStatement(dataLoad);
-				ResultSet table = prepared.executeQuery()){
-			while(table.next()) {
-				numberList.add(table.getInt(NUMBER_COLUMN));
-			}
-		}
 	}
 	
 	public void save() {
-		Connection mysql = connectMysql();
-		executeSQL(mysql, () -> {
-			dataSave(mysql, CORE_NAME, coreNumberList);
-			dataSave(mysql, WEAPON_NAME, weaponNumberList);
+		operateSQL(() -> {
+			dataSave(CORE_NAME, NUMBER_COLUMN, ID_COLUMN, coreNumberList);
+			dataSave(WEAPON_NAME, NUMBER_COLUMN, ID_COLUMN, weaponNumberList);
 		});
-		closeConnection(mysql);
-	}
-	
-	void dataSave(Connection mysql, String tableName, List<Integer> numberList) throws Exception{
-		String dataSave = String.format("UPDATE %s SET %s = ? WHERE %s = ?", tableName, NUMBER_COLUMN, ID_COLUMN);
-		try(PreparedStatement dataPrepared = mysql.prepareStatement(dataSave)) {
-			for(int i = 0; i < numberList.size(); i++) {
-				dataPrepared.setInt(1, numberList.get(i));
-				dataPrepared.setInt(2, i + 1);
-				dataPrepared.addBatch();
-			}
-			dataPrepared.executeBatch();
-		}
 	}
 	
 	public List<Integer> getCoreNumberList(){

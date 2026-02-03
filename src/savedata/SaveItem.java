@@ -1,14 +1,9 @@
 package savedata;
 
-import static savedata.OperationSQL.*;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SaveItem {
+public class SaveItem extends SQLOperation{
 	/**
 	 * データベース上で保有しているアイテムを格納したテーブル名
 	 */
@@ -39,38 +34,23 @@ public class SaveItem {
 	private List<Integer> itemList = new ArrayList<>();
 	
 	public void load() {
-		Connection mysql = connectMysql();
-		executeSQL(mysql, () -> {
-			itemList.clear();
-			String itemLoad = "SELECT * FROM " + ITEM_NAME;
-			try(PreparedStatement itemPrepared = mysql.prepareStatement(itemLoad);
-					ResultSet itemTable = itemPrepared.executeQuery()) {
-				while (itemTable.next()) {
-					itemList.add(itemTable.getInt(ITEM_COLUMN));
-				}
-			}
+		operateSQL(() -> {
+			dataLoad(ITEM_NAME, ITEM_COLUMN, itemList);
 		});
-		closeConnection(mysql);
 	}
 	
 	public void save() {
-		Connection mysql = connectMysql();
-		executeSQL(mysql, () -> {
-			String itemSave = String.format("UPDATE %s SET %s = ? WHERE %s = ?", ITEM_NAME, ITEM_COLUMN, ID_COLUMN);
-			try(PreparedStatement itemPrepared = mysql.prepareStatement(itemSave)) {
-				for(int i = 0; i < itemList.size(); i++) {
-					itemPrepared.setInt(1, itemList.get(i));
-					itemPrepared.setInt(2, i + 1);
-					itemPrepared.addBatch();
-				}
-				itemPrepared.executeBatch();
-			}
+		operateSQL(() -> {
+			dataSave(ITEM_NAME, ITEM_COLUMN, ID_COLUMN, itemList);
 		});
-		closeConnection(mysql);
 	}
 	
 	public int getMedalNumber() {
 		return itemList.get(MEDAL);
+	}
+	
+	public void setMedalNumber(int number) {
+		itemList.set(MEDAL, number);
 	}
 	
 	public void addMedal(int number) {
