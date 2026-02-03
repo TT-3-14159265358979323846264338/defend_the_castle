@@ -14,12 +14,6 @@ public class OneStageMeritData {
 	
 	private int activeMerit;
 	
-	OneStageMeritData(){
-		for(int i = 0; i < SaveGameProgress.MERIT_MAX_NUMBER; i++) {
-			meritClearList.add(false);
-		}
-	}
-	
 	OneStageMeritData(ResultSet clearResult, int index) throws Exception{
 		activeMerit = DefaultStage.STAGE_DATA.get(index).getReward().size();
 		for(int i = 0; i < SaveGameProgress.MERIT_MAX_NUMBER; i++) {

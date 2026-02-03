@@ -79,7 +79,7 @@ public class SaveGameProgress extends SQLOperation{
 					}
 					savePrepared.addBatch();
 				}
-				savePrepared.executeUpdate();
+				savePrepared.executeBatch();
 			}
 		});
 	}

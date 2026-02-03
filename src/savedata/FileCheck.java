@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 
+import defaultdata.DefaultStage;
 import defaultdata.DefaultUnit;
 
 //データ保存用ファイルの確認
@@ -58,7 +59,7 @@ public class FileCheck extends SQLOperation{
 	
 	void everyTimeCheck() throws Exception{
 		addNewUnit();
-		//ステージクリアデータは後で記載
+		initializeProgress();
 	}
 	
 	void firstTimeCheck() throws Exception{
@@ -70,7 +71,8 @@ public class FileCheck extends SQLOperation{
 		initializeUnit();
 		newItemTable();
 		initializeItem();
-		//ステージクリアデータは後で記載
+		newProgress();
+		initializeProgress();
 	}
 	
 	boolean hasPlayedGame() throws Exception{
@@ -99,7 +101,7 @@ public class FileCheck extends SQLOperation{
 	String createCompositionTableCode() {
 		return String .format("CREATE TABLE %s ("
 				+ "%s INT AUTO_INCREMENT NOT NULL PRIMARY KEY,"
-				+ "%s VARCHAR　NOT NULL"
+				+ "%s VARCHAR(20) NOT NULL"
 				+ ")",
 				SaveComposition.COMPOSITION_NAME,
 				SaveComposition.ID_COLUMN,
@@ -196,9 +198,9 @@ public class FileCheck extends SQLOperation{
 		try(PreparedStatement unitPrepared = mysql.prepareStatement(unitLoad);
 				ResultSet unitResult = unitPrepared.executeQuery()){
 			unitResult.next();
-			int addCount = unitResult.getInt(1);
-			if(addCount < size) {
-				return size - addCount;
+			int count = unitResult.getInt(1);
+			if(count < size) {
+				return size - count;
 			}
 		}
 		return 0;
@@ -226,50 +228,59 @@ public class FileCheck extends SQLOperation{
 		}
 	}
 	
-	
-	/*
-	//item dataのデータ数確認して、足りなければ追加
-	private void itemDataCheck() {
-		/*
-		BiConsumer<Integer, List<Integer>> addList = (count, list) -> {
-			IntStream.range(0, count).forEach(i -> list.add(0));
-		};
-		SaveHoldItem.load();
-		List<Integer> coreNumberList = SaveHoldItem.getCoreNumberList();
-		if(checkSize(DefaultUnit.CORE_DATA_MAP.size(), coreNumberList.size())) {
-			addList.accept(DefaultUnit.CORE_DATA_MAP.size() - coreNumberList.size(), coreNumberList);
+	void newProgress() throws Exception{
+		try(Statement progressStatement = mysql.createStatement()){
+			progressStatement.executeUpdate(createProgressTableCode());
 		}
-		List<Integer> weaponNumberList = SaveHoldItem.getWeaponNumberList();
-		if(checkSize(DefaultUnit.WEAPON_DATA_MAP.size(), weaponNumberList.size())) {
-			addList.accept(DefaultUnit.WEAPON_DATA_MAP.size() - weaponNumberList.size(), weaponNumberList);
-		}
-		SaveHoldItem.save(coreNumberList, weaponNumberList);
-		
 	}
 	
-	//progress dataのデータ数確認して、足りなければ追加
-	private void progressDataCheck() {
-		SaveGameProgress.load();
-		List<Boolean> clearStatus = SaveGameProgress.getClearStatus();
-		if(checkSize(DefaultStage.STAGE_DATA.size(), clearStatus.size())) {
-			IntStream.range(0, DefaultStage.STAGE_DATA.size() - clearStatus.size()).forEach(i -> clearStatus.add(false));
+	String createProgressTableCode() {
+		StringBuilder builder = new StringBuilder();
+		builder.append(String.format("CREATE TABLE %s ("
+				+ "%s TINYINT AUTO_INCREMENT NOT NULL PRIMARY KEY,",
+				SaveGameProgress.STAGE_NAME,
+				SaveGameProgress.ID_COLUMN));
+		for(int i = 0; i < SaveGameProgress.MERIT_MAX_NUMBER; i++){
+			builder.append(String.format(" %s%d BOOLEAN NOT NULL,",
+					SaveGameProgress.MERIT_COLUMN,
+					i));
 		}
-		List<List<Boolean>> meritStatus = SaveGameProgress.getMeritStatus();
-		IntStream.range(0, DefaultStage.STAGE_DATA.size()).forEach(i -> {
-			StageData StageData = DefaultStage.STAGE_DATA.get(i);
-			try {
-				//meritStatusの内側のListのデータ数を確認し、足りなければ追加
-				if(checkSize(StageData.getMerit().size(), meritStatus.get(i).size())) {
-					IntStream.range(0, StageData.getMerit().size() - meritStatus.get(i).size()).forEach(j -> meritStatus.get(i).add(false));
+		builder.delete(builder.length() - 1, builder.length());
+		builder.append(")");
+		return builder.toString();
+	}
+	
+	void initializeProgress() throws Exception{
+		int addCount = changeCount(SaveGameProgress.STAGE_NAME, DefaultStage.STAGE_DATA.size());
+		if(addCount == 0) {
+			return;
+		}
+		try(PreparedStatement progressPrepared = mysql.prepareStatement(createNewProgressCode())){
+			for(int i = 0; i < addCount; i++) {
+				for(int j = 1; j <= SaveGameProgress.MERIT_MAX_NUMBER; j++) {
+					progressPrepared.setBoolean(j, false);
 				}
-			}catch(Exception e) {
-				//エラーが起こる時はList<Boolean>の数が足りない時である
-				//その時はList<Boolean>を追加
-				meritStatus.add(StageData.getMerit().stream().map(j -> false).collect(Collectors.toList()));
+				progressPrepared.addBatch();
 			}
-		});
-		SaveGameProgress.save(clearStatus, meritStatus, SaveGameProgress.getMedal(), SaveGameProgress.getSelectStage());
-		
+			progressPrepared.executeBatch();
+		}
 	}
-	*/
+	
+	String createNewProgressCode() {
+		StringBuilder builder = new StringBuilder();
+		builder.append(String.format("INSERT INTO %S (", SaveGameProgress.STAGE_NAME));
+		for(int i = 0; i < SaveGameProgress.MERIT_MAX_NUMBER; i++){
+			builder.append(String.format(" %s%d,",
+					SaveGameProgress.MERIT_COLUMN,
+					i));
+		}
+		builder.delete(builder.length() - 1, builder.length());
+		builder.append(") VALUES (");
+		for(int i = 0; i < SaveGameProgress.MERIT_MAX_NUMBER; i++){
+			builder.append(" ?,");
+		}
+		builder.delete(builder.length() - 1, builder.length());
+		builder.append(")");
+		return builder.toString();
+	}
 }

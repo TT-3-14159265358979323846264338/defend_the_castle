@@ -40,7 +40,7 @@ abstract class SQLOperation {
 	 * 例外は全て{@link #operateSQL}で呼び出すメソッドで処理するため、スローできるメソッドとして定義
 	 */
 	@FunctionalInterface
-	interface Task {
+	protected interface Task {
 	    void run() throws Exception;
 	}
 	
