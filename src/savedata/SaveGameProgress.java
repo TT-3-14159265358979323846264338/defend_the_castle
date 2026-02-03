@@ -53,7 +53,7 @@ public class SaveGameProgress extends SQLOperation{
 	private List<OneStageMeritData> meritStatus = new ArrayList<>();
 	
 	public void load() {
-		operateSQL(() -> {
+		operateSQL(mysql -> {
 			String clearLoad = String.format("SELECT * FROM %s ", STAGE_NAME);
 			try(PreparedStatement clearPrepared = mysql.prepareStatement(clearLoad);
 					ResultSet clearResult = clearPrepared.executeQuery()){
@@ -71,7 +71,7 @@ public class SaveGameProgress extends SQLOperation{
 	}
 	
 	public void save() {
-		operateSQL(() -> {
+		operateSQL(mysql -> {
 			try(PreparedStatement savePrepared = mysql.prepareStatement(createSaveCode())){
 				for(OneStageMeritData i: meritStatus){
 					for(int j = 0; j < MERIT_MAX_NUMBER; j++) {

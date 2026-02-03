@@ -40,14 +40,14 @@ public class SaveSelect extends SQLOperation{
 	private List<Integer> selectList = new ArrayList<>();
 	
 	public void load(){
-		operateSQL(() -> {
-			dataLoad(SELECT_NAME, SELECT_COLUMN, selectList);
+		operateSQL(mysql -> {
+			dataLoad(mysql, SELECT_NAME, SELECT_COLUMN, selectList);
 		});
 	}
 	
 	public void save() {
-		operateSQL(() -> {
-			dataSave(SELECT_NAME, SELECT_COLUMN, ID_COLUMN, selectList);
+		operateSQL(mysql -> {
+			dataSave(mysql, SELECT_NAME, SELECT_COLUMN, ID_COLUMN, selectList);
 		});
 	}
 	

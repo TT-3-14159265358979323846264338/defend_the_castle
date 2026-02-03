@@ -34,14 +34,14 @@ public class SaveItem extends SQLOperation{
 	private List<Integer> itemList = new ArrayList<>();
 	
 	public void load() {
-		operateSQL(() -> {
-			dataLoad(ITEM_NAME, ITEM_COLUMN, itemList);
+		operateSQL(mysql -> {
+			dataLoad(mysql, ITEM_NAME, ITEM_COLUMN, itemList);
 		});
 	}
 	
 	public void save() {
-		operateSQL(() -> {
-			dataSave(ITEM_NAME, ITEM_COLUMN, ID_COLUMN, itemList);
+		operateSQL(mysql -> {
+			dataSave(mysql, ITEM_NAME, ITEM_COLUMN, ID_COLUMN, itemList);
 		});
 	}
 	

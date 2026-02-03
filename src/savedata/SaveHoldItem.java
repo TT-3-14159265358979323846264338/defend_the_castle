@@ -44,16 +44,16 @@ public class SaveHoldItem extends SQLOperation{
 	private List<Integer> weaponNumberList = new ArrayList<>();
 	
 	public void load() {
-		operateSQL(() -> {
-			dataLoad(CORE_NAME, NUMBER_COLUMN, coreNumberList);
-			dataLoad(WEAPON_NAME, NUMBER_COLUMN, weaponNumberList);
+		operateSQL(mysql -> {
+			dataLoad(mysql, CORE_NAME, NUMBER_COLUMN, coreNumberList);
+			dataLoad(mysql, WEAPON_NAME, NUMBER_COLUMN, weaponNumberList);
 		});
 	}
 	
 	public void save() {
-		operateSQL(() -> {
-			dataSave(CORE_NAME, NUMBER_COLUMN, ID_COLUMN, coreNumberList);
-			dataSave(WEAPON_NAME, NUMBER_COLUMN, ID_COLUMN, weaponNumberList);
+		operateSQL(mysql -> {
+			dataSave(mysql, CORE_NAME, NUMBER_COLUMN, ID_COLUMN, coreNumberList);
+			dataSave(mysql, WEAPON_NAME, NUMBER_COLUMN, ID_COLUMN, weaponNumberList);
 		});
 	}
 	

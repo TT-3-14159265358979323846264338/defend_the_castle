@@ -48,7 +48,7 @@ public class FileCheck extends SQLOperation{
 	private Connection mysql;
 	
 	public FileCheck() {
-		operateSQL(() -> {
+		operateSQL(mysql -> {
 			if(hasPlayedGame()) {
 				everyTimeCheck();
 				return;

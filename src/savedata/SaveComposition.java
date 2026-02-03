@@ -34,7 +34,7 @@ public class SaveComposition extends SQLOperation{
 	private List<OneCompositionData> allCompositionList = new ArrayList<>();
 	
 	public void load() {
-		operateSQL(() -> {
+		operateSQL(mysql -> {
 			String compositionLoad = String.format("SELECT * FROM %s", COMPOSITION_NAME);
 			try(PreparedStatement compositionPrepared = mysql.prepareStatement(compositionLoad);
 					ResultSet compositionTable = compositionPrepared.executeQuery()) {
@@ -49,7 +49,7 @@ public class SaveComposition extends SQLOperation{
 	}
 	
 	public void save() {
-		operateSQL(() -> {
+		operateSQL(mysql -> {
 			for(OneCompositionData i: allCompositionList) {
 				i.save(mysql);
 			}
@@ -57,7 +57,7 @@ public class SaveComposition extends SQLOperation{
 	}
 	
 	public void newComposition(String name) {
-		operateSQL(() -> {
+		operateSQL(mysql -> {
 			try{
 				OneCompositionData newComposition = new OneCompositionData(getNextNumber(), name);
 				newComposition.canCreateComposition(mysql, name);
@@ -75,7 +75,7 @@ public class SaveComposition extends SQLOperation{
 	}
 	
 	public void removeComposition(int index) {
-		operateSQL(() -> {
+		operateSQL(mysql -> {
 			String dropTable = String.format("DROP TABLE %s", getCompositionName(index));
 			try(Statement dropStatement = mysql.createStatement()){
 				dropStatement.executeUpdate(dropTable);
@@ -90,7 +90,7 @@ public class SaveComposition extends SQLOperation{
 	}
 	
 	public void rename(int index, String name) {
-		operateSQL(() -> {
+		operateSQL(mysql -> {
 			String rename = String.format("RENAME TABLE %s TO %s", getCompositionName(index), name);
 			try(Statement renameStatement = mysql.createStatement()) {
 				renameStatement.executeUpdate(rename);
@@ -103,7 +103,7 @@ public class SaveComposition extends SQLOperation{
 	}
 	
 	public void swap(int selectIndex, int targetIndex) {
-		operateSQL(() -> {
+		operateSQL(mysql -> {
 			String swap = String.format("UPDATE %s SET %s = ? WHERE %s = ?", COMPOSITION_NAME, NAME_COLUMN, ID_COLUMN);
 			try(PreparedStatement swapPrepared = mysql.prepareStatement(swap)) {
 				String selectName = getCompositionName(selectIndex);
