@@ -32,7 +32,7 @@ ExecutorとFutureで使用するスレッド数はThreadPoolで事前に作成�
 
 ゲームの保存先をMySQLへ変更した。  
 データの関連度の高い項目を各1つのテーブルにまとめて保存し、管理できるようにした。  
-rollbackやPreparedStatementなどのよく使用するメソッドを1つのabstractクラスで定義することで、コードの簡略化を行った。  
+rollbackやPreparedStatementなどのよく使用するメソッドを1つのabstractクラスで定義することで、コードの簡略化を行った。(パッケージ: savedata)  
   
 ♦過去に作成した練習用プログラム♦  
 https://github.com/TT-3-14159265358979323846264338/practice-code  
