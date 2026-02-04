@@ -91,12 +91,17 @@ public class SaveComposition extends SQLOperation{
 	
 	public void rename(int index, String name) {
 		operateSQL(mysql -> {
-			String rename = String.format("RENAME TABLE %s TO %s", getCompositionName(index), name);
+			String renameTable = String.format("RENAME TABLE %s TO %s", getCompositionName(index), name);
 			try(Statement renameStatement = mysql.createStatement()) {
-				renameStatement.executeUpdate(rename);
+				renameStatement.executeUpdate(renameTable);
 			}catch (Exception e) {
 				showMessageDialog(null, "編成名は無効です。");
 				throw e;
+			}
+			try(PreparedStatement renamePrepared = mysql.prepareStatement(createRenemaCore())){
+				renamePrepared.setString(1, name);
+				renamePrepared.setInt(2, getNumber(index));
+				renamePrepared.executeUpdate();
 			}
 			setCompositionName(index, name);
 		});
@@ -104,8 +109,7 @@ public class SaveComposition extends SQLOperation{
 	
 	public void swap(int selectIndex, int targetIndex) {
 		operateSQL(mysql -> {
-			String swap = String.format("UPDATE %s SET %s = ? WHERE %s = ?", COMPOSITION_NAME, NAME_COLUMN, ID_COLUMN);
-			try(PreparedStatement swapPrepared = mysql.prepareStatement(swap)) {
+			try(PreparedStatement swapPrepared = mysql.prepareStatement(createRenemaCore())) {
 				String selectName = getCompositionName(selectIndex);
 				String targetName = getCompositionName(targetIndex);
 				swapPrepared.setString(1, targetName);
@@ -119,6 +123,10 @@ public class SaveComposition extends SQLOperation{
 				setCompositionName(targetIndex, selectName);
 			}
 		});
+	}
+	
+	String createRenemaCore() {
+		return String.format("UPDATE %s SET %s = ? WHERE %s = ?", COMPOSITION_NAME, NAME_COLUMN, ID_COLUMN);
 	}
 	
 	public List<String> getCompositionNameList(){
@@ -146,6 +154,10 @@ public class SaveComposition extends SQLOperation{
 	}
 	
 	int getNextNumber() {
-		return allCompositionList.stream().mapToInt(i -> i.getID()).max().getAsInt() + 1;
+		try {
+			return allCompositionList.stream().mapToInt(i -> i.getID()).max().getAsInt() + 1;
+		}catch(Exception e) {
+			return 1;
+		}
 	}
 }

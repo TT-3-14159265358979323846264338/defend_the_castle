@@ -36,7 +36,7 @@ abstract class SQLOperation {
 	 * Connection mysqlを渡して記述する。
 	 */
 	@FunctionalInterface
-	interface Task {
+	interface SQLTask {
 	    void run(Connection mysql) throws Exception;
 	}
 	
@@ -47,7 +47,7 @@ abstract class SQLOperation {
 	 * そのため、メソッド中で例外処理を記載する時は、必ずスローも記載する。
 	 * @param task - MySQLでの操作メソッド。Connection mysqlを渡して記述する。
 	 */
-	void operateSQL(Task task) {
+	void operateSQL(SQLTask task) {
 		CompletableFuture.runAsync(() -> {
 			try(Connection mysql = connectMysql()){
 				executeSQL(mysql, task);
@@ -65,7 +65,7 @@ abstract class SQLOperation {
 		}
 	}
 	
-	void executeSQL(Connection mysql, Task task) throws Exception{
+	void executeSQL(Connection mysql, SQLTask task) throws Exception{
 		try {
 			mysql.setAutoCommit(false);
 			task.run(mysql);
@@ -83,6 +83,28 @@ abstract class SQLOperation {
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	@FunctionalInterface
+	interface ResultTask {
+	    void run(ResultSet result) throws Exception;
+	}
+	
+	/**
+	 * 
+	 * @param mysql
+	 * @param code
+	 * @param task
+	 * @throws Exception
+	 */
+	void GetResult(Connection mysql, String code, ResultTask task) throws Exception{
+		try(PreparedStatement prepared = mysql.prepareStatement(code);
+				ResultSet result = prepared.executeQuery()) {
+			task.run(result);
 		}
 	}
 	

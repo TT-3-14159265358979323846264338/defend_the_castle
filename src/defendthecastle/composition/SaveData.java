@@ -97,10 +97,9 @@ class SaveData{
 		}
 	}
 	
-	String changeCompositionName() {
+	void changeCompositionName() {
 		String newName = showInputDialog(null, "変更後の編成名を入力してください", "名称変更", INFORMATION_MESSAGE);
 		SaveComposition.rename(getSelectNumber(), newName);
-		return null;
 	}
 	
 	void saveProcessing() {

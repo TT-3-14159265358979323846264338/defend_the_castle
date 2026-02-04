@@ -42,57 +42,52 @@ public class FileCheck extends SQLOperation{
 	 */
 	private final int HAVE_NO_ITEM = 0;
 	
-	/**
-	 * データベース接続
-	 */
-	private Connection mysql;
-	
 	public FileCheck() {
 		operateSQL(mysql -> {
-			if(hasPlayedGame()) {
-				everyTimeCheck();
+			if(hasPlayedGame(mysql)) {
+				everyTimeCheck(mysql);
 				return;
 			}
-			firstTimeCheck();
+			firstTimeCheck(mysql);
 		});
 	}
 	
-	void everyTimeCheck() throws Exception{
-		addNewUnit();
-		initializeProgress();
+	void everyTimeCheck(Connection mysql) throws Exception{
+		addNewUnit(mysql);
+		initializeProgress(mysql);
 	}
 	
-	void firstTimeCheck() throws Exception{
-		newCompositionTable();
+	void firstTimeCheck(Connection mysql) throws Exception{
+		newCompositionTable(mysql);
 		initializeComposition();
-		newSelectTable();
-		initializeSelect();
-		newUnitTable();
-		initializeUnit();
-		newItemTable();
-		initializeItem();
-		newProgress();
-		initializeProgress();
+		newSelectTable(mysql);
+		initializeSelect(mysql);
+		newUnitTable(mysql);
+		initializeUnit(mysql);
+		newItemTable(mysql);
+		initializeItem(mysql);
+		newProgress(mysql);
+		initializeProgress(mysql);
 	}
 	
-	boolean hasPlayedGame() throws Exception{
-		try(PreparedStatement gemaPrepared = mysql.prepareStatement(createGameConditionCode());
+	boolean hasPlayedGame(Connection mysql) throws Exception{
+		try(PreparedStatement gemaPrepared = mysql.prepareStatement(createGameConditionCode(mysql));
 				ResultSet gameResult = gemaPrepared.executeQuery()){
 			gameResult.next();
 			return 0 < gameResult.getInt(1);
 		}
 	}
 	
-	String createGameConditionCode() throws Exception{
+	String createGameConditionCode(Connection mysql) throws Exception{
 		return String.format("SELECT COUNT(*) FROM "
 				+ "information_schema.TABLES "
-				+ "WHERE table_schema = %s "
-				+ "AND table_name = %s",
+				+ "WHERE table_schema = '%s' "
+				+ "AND table_name = '%s'",
 				mysql.getCatalog(),
 				SaveComposition.COMPOSITION_NAME);
 	}
 	
-	void newCompositionTable() throws Exception{
+	void newCompositionTable(Connection mysql) throws Exception{
 		try(Statement compositionStatement = mysql.createStatement()){
 			compositionStatement.executeUpdate(createCompositionTableCode());
 		}
@@ -112,7 +107,7 @@ public class FileCheck extends SQLOperation{
 		new SaveComposition().newComposition(DEFAULT_NEW_NAME);
 	}
 	
-	void newSelectTable() throws Exception{
+	void newSelectTable(Connection mysql) throws Exception{
 		try(Statement selectStatement = mysql.createStatement()){
 			selectStatement.executeUpdate(createSelectTableCode());
 		}
@@ -128,7 +123,7 @@ public class FileCheck extends SQLOperation{
 				SaveSelect.SELECT_COLUMN);
 	}
 	
-	void initializeSelect() throws Exception{
+	void initializeSelect(Connection mysql) throws Exception{
 		String newSelect = String.format("INSERT INTO %s (%s) VALUES (?) ", SaveSelect.SELECT_NAME, SaveSelect.SELECT_COLUMN);
 		try(PreparedStatement selectPrepared = mysql.prepareStatement(newSelect)){
 			for(int i = 0; i < 2; i++) {
@@ -139,7 +134,7 @@ public class FileCheck extends SQLOperation{
 		}
 	}
 	
-	void newUnitTable() throws Exception{
+	void newUnitTable(Connection mysql) throws Exception{
 		try(Statement itemStatement = mysql.createStatement()){
 			itemStatement.executeUpdate(createUnitTableCode(SaveHoldItem.CORE_NAME));
 			itemStatement.executeUpdate(createUnitTableCode(SaveHoldItem.WEAPON_NAME));
@@ -156,13 +151,13 @@ public class FileCheck extends SQLOperation{
 				SaveHoldItem.NUMBER_COLUMN);
 	}
 	
-	void initializeUnit() throws Exception{
-		initialUnit(SaveHoldItem.CORE_NAME, DEFAULT_CORE_NUMBER);
-		initialUnit(SaveHoldItem.WEAPON_NAME, DEFAULT_WEAPON_NUMBER);
-		addNewUnit();
+	void initializeUnit(Connection mysql) throws Exception{
+		initialUnit(mysql, SaveHoldItem.CORE_NAME, DEFAULT_CORE_NUMBER);
+		initialUnit(mysql, SaveHoldItem.WEAPON_NAME, DEFAULT_WEAPON_NUMBER);
+		addNewUnit(mysql);
 	}
 	
-	void initialUnit(String tableName, List<Integer> initial) throws Exception{
+	void initialUnit(Connection mysql, String tableName, List<Integer> initial) throws Exception{
 		String newUnit = String.format("INSERT INTO %s (%s) VALUES (?)", tableName, SaveHoldItem.NUMBER_COLUMN);
 		try(PreparedStatement unitPrepared = mysql.prepareStatement(newUnit)){
 			for(int i = 0; i < initial.size(); i++) {
@@ -173,13 +168,13 @@ public class FileCheck extends SQLOperation{
 		}
 	}
 	
-	void addNewUnit() throws Exception{
-		addNewUnitData(SaveHoldItem.CORE_NAME, DefaultUnit.CORE_DATA_MAP.size());
-		addNewUnitData(SaveHoldItem.WEAPON_NAME, DefaultUnit.WEAPON_DATA_MAP.size());
+	void addNewUnit(Connection mysql) throws Exception{
+		addNewUnitData(mysql, SaveHoldItem.CORE_NAME, DefaultUnit.CORE_DATA_MAP.size());
+		addNewUnitData(mysql, SaveHoldItem.WEAPON_NAME, DefaultUnit.WEAPON_DATA_MAP.size());
 	}
 	
-	void addNewUnitData(String tableName, int size) throws Exception{
-		int addCount = changeCount(tableName, size);
+	void addNewUnitData(Connection mysql, String tableName, int size) throws Exception{
+		int addCount = changeCount(mysql, tableName, size);
 		if(addCount == 0) {
 			return;
 		}
@@ -193,7 +188,7 @@ public class FileCheck extends SQLOperation{
 		}
 	}
 	
-	int changeCount(String tableName, int size) throws Exception{
+	int changeCount(Connection mysql, String tableName, int size) throws Exception{
 		String unitLoad = String.format("SELECT COUNT(*) FROM %s", tableName);
 		try(PreparedStatement unitPrepared = mysql.prepareStatement(unitLoad);
 				ResultSet unitResult = unitPrepared.executeQuery()){
@@ -206,7 +201,7 @@ public class FileCheck extends SQLOperation{
 		return 0;
 	}
 	
-	void newItemTable() throws Exception{
+	void newItemTable(Connection mysql) throws Exception{
 		try(Statement itemStatement = mysql.createStatement()){
 			itemStatement.executeUpdate(createItemTableCode());
 		}
@@ -217,10 +212,12 @@ public class FileCheck extends SQLOperation{
 				+ "%s TINYINT AUTO_INCREMENT NOT NULL PRIMARY KEY,"
 				+ "%s INT UNSIGNED NOT NULL"
 				+ ")",
-				SaveItem.ITEM_NAME);
+				SaveItem.ITEM_NAME,
+				SaveItem.ID_COLUMN,
+				SaveItem.ITEM_COLUMN);
 	}
 	
-	void initializeItem() throws Exception{
+	void initializeItem(Connection mysql) throws Exception{
 		String newItem = String.format("INSERT INTO %S (%s) VALUES (?)", SaveItem.ITEM_NAME, SaveItem.ITEM_COLUMN);
 		try(PreparedStatement itemPrepared = mysql.prepareStatement(newItem)){
 			itemPrepared.setInt(1, DEFAULT_MEDAL);
@@ -228,7 +225,7 @@ public class FileCheck extends SQLOperation{
 		}
 	}
 	
-	void newProgress() throws Exception{
+	void newProgress(Connection mysql) throws Exception{
 		try(Statement progressStatement = mysql.createStatement()){
 			progressStatement.executeUpdate(createProgressTableCode());
 		}
@@ -237,9 +234,11 @@ public class FileCheck extends SQLOperation{
 	String createProgressTableCode() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(String.format("CREATE TABLE %s ("
-				+ "%s TINYINT AUTO_INCREMENT NOT NULL PRIMARY KEY,",
+				+ "%s TINYINT AUTO_INCREMENT NOT NULL PRIMARY KEY,"
+				+ "%s BOOLEAN NOT NULL,",
 				SaveGameProgress.STAGE_NAME,
-				SaveGameProgress.ID_COLUMN));
+				SaveGameProgress.ID_COLUMN,
+				SaveGameProgress.STAGE_COLUMN));
 		for(int i = 0; i < SaveGameProgress.MERIT_MAX_NUMBER; i++){
 			builder.append(String.format(" %s%d BOOLEAN NOT NULL,",
 					SaveGameProgress.MERIT_COLUMN,
@@ -250,15 +249,16 @@ public class FileCheck extends SQLOperation{
 		return builder.toString();
 	}
 	
-	void initializeProgress() throws Exception{
-		int addCount = changeCount(SaveGameProgress.STAGE_NAME, DefaultStage.STAGE_DATA.size());
+	void initializeProgress(Connection mysql) throws Exception{
+		int addCount = changeCount(mysql, SaveGameProgress.STAGE_NAME, DefaultStage.STAGE_DATA.size());
 		if(addCount == 0) {
 			return;
 		}
 		try(PreparedStatement progressPrepared = mysql.prepareStatement(createNewProgressCode())){
 			for(int i = 0; i < addCount; i++) {
-				for(int j = 1; j <= SaveGameProgress.MERIT_MAX_NUMBER; j++) {
-					progressPrepared.setBoolean(j, false);
+				progressPrepared.setBoolean(1, false);
+				for(int j = 0; j < SaveGameProgress.MERIT_MAX_NUMBER; j++) {
+					progressPrepared.setBoolean(j + 2, false);
 				}
 				progressPrepared.addBatch();
 			}
@@ -268,7 +268,7 @@ public class FileCheck extends SQLOperation{
 	
 	String createNewProgressCode() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(String.format("INSERT INTO %S (", SaveGameProgress.STAGE_NAME));
+		builder.append(String.format("INSERT INTO %S (%s,", SaveGameProgress.STAGE_NAME, SaveGameProgress.STAGE_COLUMN));
 		for(int i = 0; i < SaveGameProgress.MERIT_MAX_NUMBER; i++){
 			builder.append(String.format(" %s%d,",
 					SaveGameProgress.MERIT_COLUMN,
@@ -276,7 +276,7 @@ public class FileCheck extends SQLOperation{
 		}
 		builder.delete(builder.length() - 1, builder.length());
 		builder.append(") VALUES (");
-		for(int i = 0; i < SaveGameProgress.MERIT_MAX_NUMBER; i++){
+		for(int i = 0; i < SaveGameProgress.MERIT_MAX_NUMBER + 1; i++){
 			builder.append(" ?,");
 		}
 		builder.delete(builder.length() - 1, builder.length());
