@@ -38,7 +38,7 @@ class OperateData{
 	
 	private void save() {
 		SaveHoldItem.save();
-		SaveGameProgress.save();
+		SaveItem.save();
 	}
 	
 	private void itemCount() {

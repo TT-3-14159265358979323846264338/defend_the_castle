@@ -69,10 +69,12 @@ public class SaveGameProgress extends SQLOperation{
 	public void save() {
 		operateSQL(mysql -> {
 			operatePrepared(mysql, createSaveCode(), prepared -> {
-				for(OneStageMeritData i: meritStatus){
+				for(int i = 0; i < meritStatus.size(); i++){
+					prepared.setBoolean(1, stageStatus.get(i));
 					for(int j = 0; j < MERIT_MAX_NUMBER; j++) {
-						prepared.setBoolean(j, i.getMeritClear(j));
+						prepared.setBoolean(j + 2, meritStatus.get(i).getMeritClear(j));
 					}
+					prepared.setInt(12, i + 1);
 					prepared.addBatch();
 				}
 				prepared.executeBatch();
@@ -82,7 +84,7 @@ public class SaveGameProgress extends SQLOperation{
 	
 	String createSaveCode() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(String.format("UPDATE %s SET ", STAGE_NAME));
+		builder.append(String.format("UPDATE %s SET %s = ?,", STAGE_NAME, STAGE_COLUMN));
 		for(int i = 0; i < MERIT_MAX_NUMBER; i++){
 			builder.append(String.format(" %s%d = ?,", MERIT_COLUMN, i));
 		}
