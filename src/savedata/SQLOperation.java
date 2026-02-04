@@ -6,9 +6,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
 
 abstract class SQLOperation {
 	/**
@@ -31,10 +31,6 @@ abstract class SQLOperation {
 	 */
 	private final String PASS = "pass";
 	
-	/**
-	 * 例外は全て{@link #operateSQL}で呼び出すメソッドで処理するため、スローできるメソッドとして定義。
-	 * Connection mysqlを渡して記述する。
-	 */
 	@FunctionalInterface
 	interface SQLTask {
 	    void run(Connection mysql) throws Exception;
@@ -45,16 +41,14 @@ abstract class SQLOperation {
 	 * メソッド終了後、接続を破棄する。
 	 * メソッドで例外が発生した場合、rollbackが行われる。
 	 * そのため、メソッド中で例外処理を記載する時は、必ずスローも記載する。
-	 * @param task - MySQLでの操作メソッド。Connection mysqlを渡して記述する。
+	 * @param task - MySQLでの操作メソッド。ラムダ式で{@link Connection} mysqlを渡して記述する。
 	 */
-	void operateSQL(SQLTask task) {
-		CompletableFuture.runAsync(() -> {
-			try(Connection mysql = connectMysql()){
-				executeSQL(mysql, task);
-			}catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
+	protected void operateSQL(SQLTask task) {
+		try(Connection mysql = connectMysql()){
+			executeSQL(mysql, task);
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	Connection connectMysql() throws Exception{
@@ -86,48 +80,92 @@ abstract class SQLOperation {
 		}
 	}
 	
-	/**
-	 * 
-	 */
 	@FunctionalInterface
 	interface ResultTask {
 	    void run(ResultSet result) throws Exception;
 	}
 	
 	/**
-	 * 
-	 * @param mysql
-	 * @param code
-	 * @param task
+	 * 与えられた接続情報とテーブル名からデータを取り込む。
+	 * その後、記述されたメソッドを実行する。
+	 * @param mysql - 使用する接続。
+	 * @param tableName - 取り込むテーブル名。
+	 * @param task - テーブルの内部データを取り込むメソッド。ラムダ式で{@link ResultSet} resultを渡して記述する。
 	 * @throws Exception
 	 */
-	void GetResult(Connection mysql, String code, ResultTask task) throws Exception{
+	protected void operateResultSet(Connection mysql, String tableName, ResultTask task) throws Exception{
+		String code = String.format("SELECT * FROM %s", tableName);
 		try(PreparedStatement prepared = mysql.prepareStatement(code);
 				ResultSet result = prepared.executeQuery()) {
 			task.run(result);
 		}
 	}
 	
-	void dataLoad(Connection mysql, String tableName, String column, List<Integer> numberList) throws Exception {
-		String dataLoad = String.format("SELECT * FROM %s", tableName);
-		try(PreparedStatement prepared = mysql.prepareStatement(dataLoad);
-				ResultSet table = prepared.executeQuery()){
+	/**
+	 * 指定のリストにテーブルのデータを全て取り込む。
+	 * @param mysql - 使用する接続。
+	 * @param tableName - 取り込むテーブル名。
+	 * @param column - 取り込むカラム名。
+	 * @param numberList - 取り込み先のリスト。
+	 * @throws Exception
+	 */
+	protected void dataLoad(Connection mysql, String tableName, String column, List<Integer> numberList) throws Exception {
+		operateResultSet(mysql, tableName, result -> {
 			numberList.clear();
-			while(table.next()) {
-				numberList.add(table.getInt(column));
+			while(result.next()) {
+				numberList.add(result.getInt(column));
 			}
+		});
+	}
+	
+	@FunctionalInterface
+	interface PreparedTask {
+	    void run(PreparedStatement prepared) throws Exception;
+	}
+	
+	/**
+	 * 与えられたコードを元にテーブルのデータを上書きする。
+	 * @param mysql - 使用する接続。
+	 * @param code - 上書きで使用するUPDATEのコード。
+	 * @param task - テーブルに上書きするメソッド。ラムダ式で{@link PreparedStatement} preparedを渡して記述する。
+	 * @throws Exception
+	 */
+	protected void operatePrepared(Connection mysql, String code, PreparedTask task) throws Exception{
+		try(PreparedStatement prepared = mysql.prepareStatement(code)) {
+			task.run(prepared);
 		}
 	}
 	
-	void dataSave(Connection mysql, String tableName, String numberColumn, String idColumn, List<Integer> numberList) throws Exception{
+	/**
+	 * 指定のリストのデータをテーブルに上書きする。
+	 * @param mysql - 使用する接続。
+	 * @param tableName - 更新するテーブル名。
+	 * @param numberColumn - 更新する数量カラム名。
+	 * @param idColumn - 更新するIDカラム名。
+	 * @param numberList - 取り込むデータが格納したリスト。
+	 * @throws Exception
+	 */
+	protected void dataSave(Connection mysql, String tableName, String numberColumn, String idColumn, List<Integer> numberList) throws Exception{
 		String dataSave = String.format("UPDATE %s SET %s = ? WHERE %s = ?", tableName, numberColumn, idColumn);
-		try(PreparedStatement dataPrepared = mysql.prepareStatement(dataSave)) {
+		operatePrepared(mysql, dataSave, prepared -> {
 			for(int i = 0; i < numberList.size(); i++) {
-				dataPrepared.setInt(1, numberList.get(i));
-				dataPrepared.setInt(2, i + 1);
-				dataPrepared.addBatch();
+				prepared.setInt(1, numberList.get(i));
+				prepared.setInt(2, i + 1);
+				prepared.addBatch();
 			}
-			dataPrepared.executeBatch();
+			prepared.executeBatch();
+		});
+	}
+	
+	/**
+	 * 与えられたコードを元に単発のテーブルの構成に関する操作を実行する。
+	 * @param mysql - 使用する接続。
+	 * @param code - CREATE, DROP, RENAMEのコード。
+	 * @throws Exception
+	 */
+	protected void operateStatement(Connection mysql, String code) throws Exception{
+		try(Statement dropStatement = mysql.createStatement()){
+			dropStatement.executeUpdate(code);
 		}
 	}
 }

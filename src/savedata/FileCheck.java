@@ -88,9 +88,7 @@ public class FileCheck extends SQLOperation{
 	}
 	
 	void newCompositionTable(Connection mysql) throws Exception{
-		try(Statement compositionStatement = mysql.createStatement()){
-			compositionStatement.executeUpdate(createCompositionTableCode());
-		}
+		operateStatement(mysql, createCompositionTableCode());
 	}
 	
 	String createCompositionTableCode() {
@@ -108,9 +106,7 @@ public class FileCheck extends SQLOperation{
 	}
 	
 	void newSelectTable(Connection mysql) throws Exception{
-		try(Statement selectStatement = mysql.createStatement()){
-			selectStatement.executeUpdate(createSelectTableCode());
-		}
+		operateStatement(mysql, createSelectTableCode());
 	}
 	
 	String createSelectTableCode() {
@@ -125,13 +121,13 @@ public class FileCheck extends SQLOperation{
 	
 	void initializeSelect(Connection mysql) throws Exception{
 		String newSelect = String.format("INSERT INTO %s (%s) VALUES (?) ", SaveSelect.SELECT_NAME, SaveSelect.SELECT_COLUMN);
-		try(PreparedStatement selectPrepared = mysql.prepareStatement(newSelect)){
+		operatePrepared(mysql, newSelect, prepared -> {
 			for(int i = 0; i < 2; i++) {
-				selectPrepared.setInt(1, DEFAULT_SELECT);
-				selectPrepared.addBatch();
+				prepared.setInt(1, DEFAULT_SELECT);
+				prepared.addBatch();
 			}
-			selectPrepared.executeBatch();
-		}
+			prepared.executeBatch();
+		});
 	}
 	
 	void newUnitTable(Connection mysql) throws Exception{
@@ -159,13 +155,13 @@ public class FileCheck extends SQLOperation{
 	
 	void initialUnit(Connection mysql, String tableName, List<Integer> initial) throws Exception{
 		String newUnit = String.format("INSERT INTO %s (%s) VALUES (?)", tableName, SaveHoldItem.NUMBER_COLUMN);
-		try(PreparedStatement unitPrepared = mysql.prepareStatement(newUnit)){
+		operatePrepared(mysql, newUnit, prepared ->{
 			for(int i = 0; i < initial.size(); i++) {
-				unitPrepared.setInt(1, initial.get(i));
-				unitPrepared.addBatch();
+				prepared.setInt(1, initial.get(i));
+				prepared.addBatch();
 			}
-			unitPrepared.executeBatch();
-		}
+			prepared.executeBatch();
+		});
 	}
 	
 	void addNewUnit(Connection mysql) throws Exception{
@@ -179,13 +175,13 @@ public class FileCheck extends SQLOperation{
 			return;
 		}
 		String addNewUnit = String.format("INSERT INTO %s (%s) VALUES (?)", tableName, SaveHoldItem.NUMBER_COLUMN);
-		try(PreparedStatement addPrepared = mysql.prepareStatement(addNewUnit)){
+		operatePrepared(mysql, addNewUnit, prepared ->{
 			for(int i = 0; i < addCount; i++) {
-				addPrepared.setInt(1, HAVE_NO_ITEM);
-				addPrepared.addBatch();
+				prepared.setInt(1, HAVE_NO_ITEM);
+				prepared.addBatch();
 			}
-			addPrepared.executeBatch();
-		}
+			prepared.executeBatch();
+		});
 	}
 	
 	int changeCount(Connection mysql, String tableName, int size) throws Exception{
@@ -202,9 +198,7 @@ public class FileCheck extends SQLOperation{
 	}
 	
 	void newItemTable(Connection mysql) throws Exception{
-		try(Statement itemStatement = mysql.createStatement()){
-			itemStatement.executeUpdate(createItemTableCode());
-		}
+		operateStatement(mysql, createItemTableCode());
 	}
 	
 	String createItemTableCode() {
@@ -219,16 +213,14 @@ public class FileCheck extends SQLOperation{
 	
 	void initializeItem(Connection mysql) throws Exception{
 		String newItem = String.format("INSERT INTO %S (%s) VALUES (?)", SaveItem.ITEM_NAME, SaveItem.ITEM_COLUMN);
-		try(PreparedStatement itemPrepared = mysql.prepareStatement(newItem)){
-			itemPrepared.setInt(1, DEFAULT_MEDAL);
-			itemPrepared.executeUpdate();
-		}
+		operatePrepared(mysql, newItem, prepared ->{
+			prepared.setInt(1, DEFAULT_MEDAL);
+			prepared.executeUpdate();
+		});
 	}
 	
 	void newProgress(Connection mysql) throws Exception{
-		try(Statement progressStatement = mysql.createStatement()){
-			progressStatement.executeUpdate(createProgressTableCode());
-		}
+		operateStatement(mysql, createProgressTableCode());
 	}
 	
 	String createProgressTableCode() {
@@ -254,16 +246,16 @@ public class FileCheck extends SQLOperation{
 		if(addCount == 0) {
 			return;
 		}
-		try(PreparedStatement progressPrepared = mysql.prepareStatement(createNewProgressCode())){
+		operatePrepared(mysql, createNewProgressCode(), prepared ->{
 			for(int i = 0; i < addCount; i++) {
-				progressPrepared.setBoolean(1, false);
+				prepared.setBoolean(1, false);
 				for(int j = 0; j < SaveGameProgress.MERIT_MAX_NUMBER; j++) {
-					progressPrepared.setBoolean(j + 2, false);
+					prepared.setBoolean(j + 2, false);
 				}
-				progressPrepared.addBatch();
+				prepared.addBatch();
 			}
-			progressPrepared.executeBatch();
-		}
+			prepared.executeBatch();
+		});
 	}
 	
 	String createNewProgressCode() {

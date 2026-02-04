@@ -1,7 +1,5 @@
 package savedata;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,33 +52,31 @@ public class SaveGameProgress extends SQLOperation{
 	
 	public void load() {
 		operateSQL(mysql -> {
-			String clearLoad = String.format("SELECT * FROM %s ", STAGE_NAME);
-			try(PreparedStatement clearPrepared = mysql.prepareStatement(clearLoad);
-					ResultSet clearResult = clearPrepared.executeQuery()){
+			operateResultSet(mysql, STAGE_NAME, result -> {
 				stageStatus.clear();
 				meritStatus.clear();
 				int index = 0;
-				while(clearResult.next()) {
-					OneStageMeritData OneStageMeritData = new OneStageMeritData(clearResult, index);
-					stageStatus.add(clearResult.getBoolean(STAGE_COLUMN));
+				while(result.next()) {
+					OneStageMeritData OneStageMeritData = new OneStageMeritData(result, index);
+					stageStatus.add(result.getBoolean(STAGE_COLUMN));
 					meritStatus.add(OneStageMeritData);
 					index++;
 				}
-			}
+			});
 		});
 	}
 	
 	public void save() {
 		operateSQL(mysql -> {
-			try(PreparedStatement savePrepared = mysql.prepareStatement(createSaveCode())){
+			operatePrepared(mysql, createSaveCode(), prepared -> {
 				for(OneStageMeritData i: meritStatus){
 					for(int j = 0; j < MERIT_MAX_NUMBER; j++) {
-						savePrepared.setBoolean(j, i.getMeritClear(j));
+						prepared.setBoolean(j, i.getMeritClear(j));
 					}
-					savePrepared.addBatch();
+					prepared.addBatch();
 				}
-				savePrepared.executeBatch();
-			}
+				prepared.executeBatch();
+			});
 		});
 	}
 	
