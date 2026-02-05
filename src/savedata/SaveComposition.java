@@ -89,6 +89,7 @@ public class SaveComposition extends SQLOperation{
 				operateStatement(mysql, renameTable);
 			}catch (Exception e) {
 				showMessageDialog(null, String.format("【%s】という編成名は既にあるか無効です。", name));
+				throw e;
 			}
 			operatePrepared(mysql, createRenemaCore(), prepared -> {
 				prepared.setString(1, name);
