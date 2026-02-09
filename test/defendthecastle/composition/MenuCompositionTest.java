@@ -27,6 +27,7 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,6 +41,7 @@ import org.mockito.Mockito;
 
 import defaultdata.DefaultUnit;
 import defendthecastle.MainFrame;
+import savedata.OneUnitData;
 import screendisplay.DisplayStatus;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -52,10 +54,31 @@ class MenuCompositionTest {
 	private MainFrame MainFrame;
 	
 	private MenuComposition MenuComposition;
+	
+	private MockedConstruction<SaveData> mockSaveData;
 
 	@BeforeEach
 	void setUp() throws Exception {
+		mockSaveData = createMockSaveData();
 		MenuComposition = spy(new MenuComposition(MainFrame));
+	}
+	
+	@AfterEach
+	void tearDown() throws Exception {
+		mockSaveData.close();
+	}
+	
+	MockedConstruction<SaveData> createMockSaveData(){
+		return mockConstruction(SaveData.class,
+									(mock, context) -> {
+										doReturn(Arrays.asList("test")).when(mock).getCompositionNameList();
+										doReturn(Arrays.asList(0, 1)).when(mock).getCoreNumberList();
+										doReturn(Arrays.asList(0, 1)).when(mock).getWeaponNumberList();
+									});
+	}
+	
+	SaveData mockSaveData() {
+		return mockSaveData.constructed().get(0);
 	}
 
 	/**
@@ -95,9 +118,7 @@ class MenuCompositionTest {
 	}
 	
 	JButton[] buttonArray() {
-		return new JButton[] {MenuComposition.getNewButton(),
-				MenuComposition.getRemoveButton(),
-				MenuComposition.getSwapButton(),
+		return new JButton[] {MenuComposition.getSwapButton(),
 				MenuComposition.getNameChangeButton(),
 				MenuComposition.getSaveButton(),
 				MenuComposition.getLoadButton(),
@@ -138,21 +159,11 @@ class MenuCompositionTest {
 	 */
 	@Test
 	void testPaintComponent() {
-		SaveData mockSaveData = createMockSaveData();
 		MenuComposition.paintComponent(brankGraphics());
 		Stream.of(labelArray()).forEach(this::assertText);
 		Stream.of(buttonArray()).forEach(this::assertText);
-		verify(mockSaveData).selectNumberUpdate(anyInt());
-		verify(mockSaveData).countNumber();
-	}
-	
-	SaveData createMockSaveData() {
-		SaveData mockSaveData = mock(SaveData.class);
-		doReturn(Arrays.asList("test")).when(mockSaveData).getCompositionNameList();
-		doReturn(Arrays.asList(0, 1)).when(mockSaveData).getCoreNumberList();
-		doReturn(Arrays.asList(0, 1)).when(mockSaveData).getWeaponNumberList();
-		MenuComposition.setSaveData(mockSaveData);
-		return mockSaveData;
+		verify(mockSaveData()).selectNumberUpdate(anyInt());
+		verify(mockSaveData()).countNumber();
 	}
 	
 	BufferedImage brankBufferedImage() {
@@ -186,13 +197,14 @@ class MenuCompositionTest {
 	}
 	
 	void createMockUnitList(int index) {
-		SaveData mockSaveData = createMockSaveData();
 		List<?> mockList = mock(List.class);
-		doReturn(mockList).when(mockSaveData).getActiveCompositionList();
+		OneUnitData mockOneUnitData = mock(OneUnitData.class);
+		doReturn(mockList).when(mockSaveData()).getActiveCompositionList();
 		doReturn(1).when(mockList).size();
-		doReturn(mockList).when(mockSaveData).getActiveUnit(anyInt());
-		doReturn(index).when(mockList).get(anyInt());
-		doReturn(0).when(mockList).get(DefaultUnit.CORE);
+		doReturn(mockOneUnitData).when(mockSaveData()).getUnitData(anyInt());
+		doReturn(index).when(mockOneUnitData).getUnit(anyInt());
+		doReturn(0).when(mockOneUnitData).getUnit(DefaultUnit.CORE);
+		doReturn(Arrays.asList(index, 0, index)).when(mockOneUnitData).getUnitDataList();
 	}
 	
 	void creatBranckImage() {
@@ -203,38 +215,13 @@ class MenuCompositionTest {
 	}
 	
 	/**
-	 * 新たな編成を追加した後、Scrollを更新したことを確認。
-	 */
-	@Test
-	void testNewButtonAction() {
-		SaveData mockcSaveData = createMockSaveData();
-		InOrder InOrder = inOrder(mockcSaveData, MenuComposition); 
-		MenuComposition.newButtonAction(createMockActionEvent());
-		InOrder.verify(mockcSaveData).addNewComposition();
-		InOrder.verify(MenuComposition).modelUpdate();
-	}
-	
-	/**
-	 * 編成削除をした後に、Scrollを更新したことを確認。
-	 */
-	@Test
-	void testRemoveButtonAction() {
-		SaveData mockcSaveData = createMockSaveData();
-		InOrder InOrder = inOrder(mockcSaveData, MenuComposition); 
-		MenuComposition.removeButtonAction(createMockActionEvent());
-		InOrder.verify(mockcSaveData).removeComposition(Mockito.any(int[].class));
-		InOrder.verify(MenuComposition).modelUpdate();
-	}
-	
-	/**
 	 * 編成を入れ替えた後に、Scrollを更新したことを確認。
 	 */
 	@Test
 	void testSwapButtonAction() {
-		SaveData mockcSaveData = createMockSaveData();
-		InOrder InOrder = inOrder(mockcSaveData, MenuComposition); 
+		InOrder InOrder = inOrder(mockSaveData(), MenuComposition); 
 		MenuComposition.swapButtonAction(createMockActionEvent());
-		InOrder.verify(mockcSaveData).swapComposition(anyInt(), anyInt());
+		InOrder.verify(mockSaveData()).swapComposition(anyInt(), anyInt());
 		InOrder.verify(MenuComposition).modelUpdate();
 	}
 	
@@ -243,11 +230,9 @@ class MenuCompositionTest {
 	 */
 	@Test
 	void testNameChangeButtonActionValidName() {
-		SaveData mockcSaveData = createMockSaveData();
-		doReturn("test").when(mockcSaveData).changeCompositionName();
-		InOrder InOrder = inOrder(mockcSaveData, MenuComposition); 
+		InOrder InOrder = inOrder(mockSaveData(), MenuComposition); 
 		MenuComposition.nameChangeButtonAction(createMockActionEvent());
-		InOrder.verify(mockcSaveData).changeCompositionName();
+		InOrder.verify(mockSaveData()).changeCompositionName();
 		InOrder.verify(MenuComposition).modelUpdate();
 	}
 	
@@ -256,9 +241,8 @@ class MenuCompositionTest {
 	 */
 	@Test
 	void testSaveButtonAction() {
-		SaveData mockcSaveData = createMockSaveData();
 		MenuComposition.saveButtonAction(createMockActionEvent());
-		verify(mockcSaveData).saveProcessing();
+		verify(mockSaveData()).saveProcessing();
 	}
 	
 	/**
@@ -266,10 +250,9 @@ class MenuCompositionTest {
 	 */
 	@Test
 	void testLoadButtonAction() {
-		SaveData mockcSaveData = createMockSaveData();
-		InOrder InOrder = inOrder(mockcSaveData, MenuComposition); 
+		InOrder InOrder = inOrder(mockSaveData(), MenuComposition); 
 		MenuComposition.loadButtonAction(createMockActionEvent());
-		InOrder.verify(mockcSaveData).loadProcessing();
+		InOrder.verify(mockSaveData()).loadProcessing();
 		InOrder.verify(MenuComposition).modelUpdate();
 	}
 	
@@ -278,9 +261,8 @@ class MenuCompositionTest {
 	 */
 	@Test
 	void testResetButtonAction() {
-		SaveData mockcSaveData = createMockSaveData();
 		MenuComposition.resetButtonAction(createMockActionEvent());
-		verify(mockcSaveData).resetComposition();
+		verify(mockSaveData()).resetComposition();
 	}
 	
 	/**
@@ -288,8 +270,7 @@ class MenuCompositionTest {
 	 */
 	@Test
 	void testReturnButtonActionExecution() {
-		SaveData mockcSaveData = createMockSaveData();
-		doReturn(true).when(mockcSaveData).returnProcessing();
+		doReturn(true).when(mockSaveData()).returnProcessing();
 		MenuComposition.returnButtonAction(createMockActionEvent());
 		verify(MainFrame).mainMenuDraw();
 	}
@@ -299,8 +280,7 @@ class MenuCompositionTest {
 	 */
 	@Test
 	void testReturnButtonActionUnexecuted() {
-		SaveData mockcSaveData = createMockSaveData();
-		doReturn(false).when(mockcSaveData).returnProcessing();
+		doReturn(false).when(mockSaveData()).returnProcessing();
 		MenuComposition.returnButtonAction(createMockActionEvent());
 		verify(MainFrame, never()).mainMenuDraw();
 	}
@@ -370,7 +350,6 @@ class MenuCompositionTest {
 		DefaultListModel<String> mockModel = createMockModel();
 		JList<String> mockJList = createMockJList();
 		InOrder InOrder = inOrder(mockModel, mockJList);
-		createMockSaveData();
 		MenuComposition.modelUpdate();
 		InOrder.verify(mockModel).clear();
 		InOrder.verify(mockModel).addElement(anyString());
@@ -445,9 +424,8 @@ class MenuCompositionTest {
 		ImagePanel mockImagePanel = creteMockImagePanel();
 		doReturn(number).when(mockImagePanel).getSelectNumber();
 		MenuComposition.setCoreImagePanel(mockImagePanel);
-		SaveData mockSaveData = createMockSaveData();
 		MenuComposition.unitOperation(0);
-		verify(mockSaveData, times(number)).changeCore(anyInt(), anyInt());
+		verify(mockSaveData(), times(number)).changeCore(anyInt(), anyInt());
 	}
 	
 	/**
@@ -460,7 +438,6 @@ class MenuCompositionTest {
 			ImagePanel mockImagePanel = creteMockImagePanel();
 			doReturn(-1).when(mockImagePanel).getSelectNumber();
 			MenuComposition.setCoreImagePanel(mockImagePanel);
-			createMockSaveData();
 			createMockUnitList(0);
 			creatBranckImage();
 			MenuComposition.unitOperation(0);
@@ -478,9 +455,8 @@ class MenuCompositionTest {
 		ImagePanel mockImagePanel = creteMockImagePanel();
 		doReturn(number).when(mockImagePanel).getSelectNumber();
 		MenuComposition.setWeaponImagePanel(mockImagePanel);
-		SaveData mockSaveData = createMockSaveData();
 		MenuComposition.unitOperation(0);
-		verify(mockSaveData, times(number)).changeWeapon(anyInt(), anyInt());
+		verify(mockSaveData(), times(number)).changeWeapon(anyInt(), anyInt());
 	}
 	
 	/**
@@ -493,7 +469,6 @@ class MenuCompositionTest {
 			ImagePanel mockImagePanel = creteMockImagePanel();
 			doReturn(-1).when(mockImagePanel).getSelectNumber();
 			MenuComposition.setWeaponImagePanel(mockImagePanel);
-			createMockSaveData();
 			createMockUnitList(-1);
 			creatBranckImage();
 			MenuComposition.unitOperation(0);
