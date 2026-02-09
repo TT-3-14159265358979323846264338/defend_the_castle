@@ -3,7 +3,6 @@ package defendthecastle.composition;
 import static javax.swing.JOptionPane.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.IntStream;
@@ -63,25 +62,6 @@ class SaveData{
 		nowWeaponNumberList.addAll(getNowNumber.apply(getWeaponNumberList(), weapon));
 	}
 	
-	void addNewComposition() {
-		String newName = showInputDialog(null, "新規編成名を入力してください", "名称入力", INFORMATION_MESSAGE);
-		SaveComposition.newComposition(newName);
-	}
-	
-	void removeComposition(int[] indexes) {
-		if(1 < SaveComposition.getAllCompositionList().size()) {
-			int select = showConfirmDialog(null, "選択中の編成を全て削除しますか", "編成削除確認", YES_NO_OPTION, QUESTION_MESSAGE);
-			switch(select) {
-			case 0:
-				Arrays.stream(indexes).boxed().forEach(SaveComposition::removeComposition);
-			default:
-				break;
-			}
-		}else {
-			showMessageDialog(null, "全てのは編成を削除できません");
-		}
-	}
-	
 	void swapComposition(int selectIndex, int targetIndex) {
 		if(selectIndex == targetIndex) {
 			showMessageDialog(null, "入れ替える2つの編成を選択してください");
@@ -91,6 +71,7 @@ class SaveData{
 		switch(select) {
 		case 0:
 			SaveComposition.swap(selectIndex, targetIndex);
+			existsChange = true;
 			break;
 		default:
 			break;
@@ -99,7 +80,9 @@ class SaveData{
 	
 	void changeCompositionName() {
 		String newName = showInputDialog(null, "変更後の編成名を入力してください", "名称変更", INFORMATION_MESSAGE);
-		SaveComposition.rename(getSelectNumber(), newName);
+		if(SaveComposition.rename(getSelectNumber(), newName)){
+			existsChange = true;
+		}
 	}
 	
 	void saveProcessing() {

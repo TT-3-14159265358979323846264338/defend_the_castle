@@ -15,7 +15,17 @@ public class FileCheck extends SQLOperation{
 	/**
 	 * ゲーム初回起動時に設定される編成名
 	 */
-	private final String DEFAULT_NEW_NAME = "基本編成";
+	private final String DEFAULT_NEW_NAME = "編成";
+	
+	/**
+	 * ゲーム初回起動時に設定される編成数
+	 */
+	private final int COMPOSITION_NUMBRE = 20;
+	
+	/**
+	 * 初期のユニット装備
+	 */
+	public static final List<Integer> INITIAL_UNIT = Arrays.asList(DefaultUnit.NO_WEAPON, DefaultUnit.NORMAL_CORE, DefaultUnit.NO_WEAPON);
 	
 	/**
 	 * ゲーム初回起動時に設定される選択箇所
@@ -59,7 +69,7 @@ public class FileCheck extends SQLOperation{
 	
 	void firstTimeCheck(Connection mysql) throws Exception{
 		newCompositionTable(mysql);
-		initializeComposition();
+		initializeComposition(mysql);
 		newSelectTable(mysql);
 		initializeSelect(mysql);
 		newUnitTable(mysql);
@@ -92,17 +102,61 @@ public class FileCheck extends SQLOperation{
 	}
 	
 	String createCompositionTableCode() {
-		return String .format("CREATE TABLE %s ("
+		StringBuilder builder = new StringBuilder();
+		List<String> columnList = new SaveComposition().getColumnList();
+		builder.append(String.format("CREATE TABLE %s ("
 				+ "%s INT AUTO_INCREMENT NOT NULL PRIMARY KEY,"
-				+ "%s VARCHAR(20) NOT NULL"
-				+ ")",
+				+ "%s VARCHAR(%d) NOT NULL,",
 				SaveComposition.COMPOSITION_NAME,
-				SaveComposition.ID_COLUMN,
-				SaveComposition.NAME_COLUMN);
+				columnList.get(0),
+				columnList.get(1),
+				SaveComposition.MAX_WORD));
+		for(int i = 2; i < columnList.size(); i += 3) {
+			builder.append(String.format("%s TINYINT NOT NULL,"
+					+ "%s TINYINT UNSIGNED NOT NULL,"
+					+ "%s TINYINT NOT NULL,",
+					columnList.get(i),
+					columnList.get(i + 1),
+					columnList.get(i + 2)));
+		}
+		builder.delete(builder.length() - 1, builder.length());
+		builder.append(")");
+		return builder.toString();
 	}
 	
-	void initializeComposition() {
-		new SaveComposition().newComposition(DEFAULT_NEW_NAME);
+	void initializeComposition(Connection mysql) throws Exception{
+		operatePrepared(mysql, createNewCompositionCode(), prepared -> {
+			for(int i = 0; i < COMPOSITION_NUMBRE; i++) {
+				int count = 1;
+				prepared.setString(count, String.format("%s%d", DEFAULT_NEW_NAME, i + 1));
+				count++;
+				for(int j = 0; j < SaveComposition.UNIT_NUMBER; j++) {
+					for(int k: INITIAL_UNIT) {
+						prepared.setInt(count, k);
+						count++;
+					}
+				}
+				prepared.addBatch();
+			}
+			prepared.executeBatch();
+		});
+	}
+	
+	String createNewCompositionCode() {
+		StringBuilder builder = new StringBuilder();
+		List<String> columnList = new SaveComposition().getColumnList();
+		builder.append(String.format("INSERT INTO %s (%s,", SaveComposition.COMPOSITION_NAME, columnList.get(1)));
+		for(int i = 2; i < columnList.size(); i++) {
+			builder.append(String.format("%s,", columnList.get(i)));
+		}
+		builder.delete(builder.length() - 1, builder.length());
+		builder.append(") VALUES (");
+		for(int i = 1; i < columnList.size(); i++) {
+			builder.append("?,");
+		}
+		builder.delete(builder.length() - 1, builder.length());
+		builder.append(")");
+		return builder.toString();
 	}
 	
 	void newSelectTable(Connection mysql) throws Exception{
@@ -120,7 +174,7 @@ public class FileCheck extends SQLOperation{
 	}
 	
 	void initializeSelect(Connection mysql) throws Exception{
-		String newSelect = String.format("INSERT INTO %s (%s) VALUES (?) ", SaveSelect.SELECT_NAME, SaveSelect.SELECT_COLUMN);
+		String newSelect = String.format("INSERT INTO %s (%s) VALUES (?)", SaveSelect.SELECT_NAME, SaveSelect.SELECT_COLUMN);
 		operatePrepared(mysql, newSelect, prepared -> {
 			for(int i = 0; i < 2; i++) {
 				prepared.setInt(1, DEFAULT_SELECT);

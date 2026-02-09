@@ -1,10 +1,7 @@
 package savedata;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import defaultdata.DefaultUnit;
 
 public class OneUnitData {
 	/**
@@ -24,7 +21,7 @@ public class OneUnitData {
 	
 	public void reset() {
 		unitData.clear();
-		unitData = new ArrayList<>(Arrays.asList(DefaultUnit.NO_WEAPON, DefaultUnit.NORMAL_CORE, DefaultUnit.NO_WEAPON));
+		unitData = new ArrayList<>(FileCheck.INITIAL_UNIT);
 	}
 	
 	public List<Integer> getUnitDataList(){

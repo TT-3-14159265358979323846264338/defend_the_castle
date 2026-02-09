@@ -25,7 +25,7 @@ public class SaveGameProgress extends SQLOperation{
 	/**
 	 * STAGE_NAMEのテーブルの要素<br>
 	 * 戦功のクリア状況を格納したカラム名<br>
-	 * この後ろに番号を振る
+	 * この後ろにMERIT_MAX_NUMBER番号を振る
 	 */
 	public static final String MERIT_COLUMN = "merit_clear_";
 	

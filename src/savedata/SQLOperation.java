@@ -126,7 +126,7 @@ abstract class SQLOperation {
 	/**
 	 * 与えられたコードを元にテーブルのデータを上書きする。
 	 * @param mysql - 使用する接続。
-	 * @param code - 上書きで使用するUPDATEのコード。
+	 * @param code - 上書きで使用するコード。
 	 * @param task - テーブルに上書きするメソッド。ラムダ式で{@link PreparedStatement} preparedを渡して記述する。
 	 * @throws Exception
 	 */

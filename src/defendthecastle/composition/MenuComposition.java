@@ -32,8 +32,6 @@ public class MenuComposition extends JPanel implements MouseListener{
 	private JLabel compositionNameLabel = new JLabel();
 	private JLabel compositionLabel = new JLabel();
 	private JLabel typeLabel = new JLabel();
-	private JButton newButton = new JButton();
-	private JButton removeButton = new JButton();
 	private JButton swapButton = new JButton();
 	private JButton nameChangeButton = new JButton();
 	private JButton saveButton = new JButton();
@@ -61,8 +59,6 @@ public class MenuComposition extends JPanel implements MouseListener{
 		add(compositionNameLabel);
 		add(compositionLabel);
 		add(typeLabel);
-		addNewButton();
-		addRemoveButton();
 		addSwapButton();
 		addNameChangeButton();
 		addSaveButton();
@@ -81,8 +77,6 @@ public class MenuComposition extends JPanel implements MouseListener{
 		setLabel(compositionNameLabel, "編成名", 10, 10, 130, 30);
 		setLabel(compositionLabel, "ユニット編成", 230, 10, 130, 30);
 		setLabel(typeLabel, (itemScroll.getViewport().getView() == CoreImagePanel)? "コアリスト": "武器リスト", 570, 10, 130, 30);
-		setButton(newButton, "編成追加", 10, 250, 101, 60);
-		setButton(removeButton, "編成削除", 120, 250, 101, 60);
 		setButton(swapButton, "編成入替", 10, 320, 101, 60);
 		setButton(nameChangeButton, "名称変更", 120, 320, 101, 60);
 		setButton(saveButton, "セーブ", 10, 390, 101, 60);
@@ -92,32 +86,12 @@ public class MenuComposition extends JPanel implements MouseListener{
 		setButton(switchButton, "表示切替", 570, 460, 185, 60);
 		setButton(sortButton, "ソート", 765, 460, 185, 60);
 		compositionJList.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
-		setScroll(compositionScroll, 10, 40, 210, 200);
+		setScroll(compositionScroll, 10, 40, 210, 270);
 		setScroll(itemScroll, 570, 40, 380, 410);
 		drawComposition(g);
 		SaveData.selectNumberUpdate(compositionJList.getSelectedIndex());
 		SaveData.countNumber();
 		requestFocus();
-	}
-	
-	private void addNewButton(){
-		add(newButton);
-		newButton.addActionListener(this::newButtonAction);
-	}
-	
-	void newButtonAction(ActionEvent e) {
-		SaveData.addNewComposition();
-		modelUpdate();
-	}
-	
-	private void addRemoveButton() {
-		add(removeButton);
-		removeButton.addActionListener(this::removeButtonAction);
-	}
-	
-	void removeButtonAction(ActionEvent e) {
-		SaveData.removeComposition(compositionJList.getSelectedIndices());
-		modelUpdate();
 	}
 	
 	private void addSwapButton(){
@@ -344,14 +318,6 @@ public class MenuComposition extends JPanel implements MouseListener{
 
 	JLabel getTypeLabel() {
 		return typeLabel;
-	}
-
-	JButton getNewButton() {
-		return newButton;
-	}
-
-	JButton getRemoveButton() {
-		return removeButton;
 	}
 
 	JButton getSwapButton() {
