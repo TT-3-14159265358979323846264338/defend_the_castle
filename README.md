@@ -9,7 +9,7 @@ pom.xml: Mavenプロジェクトの構成内容。
 
 ♦MySQL関連設定♦  
 環境: ver → MySQL 9.6, lib → mysql-connector-j-9.6.0  
-権限: ユーザーの権限はALL (あくまでも勉強用なのでプログラム上ではDROP TABLE, CREATE TABLEを使っているため)  
+権限: ユーザーの権限はSELECT, INSERT, UPDATE, CREATE (CREATEは初回起動時のみ必要)  
 その他: db.propertiesの作成 (ファイルをsrcと同階層に作成し、url, user, passを設定する。savedata.SQLOperationで取り込む。)  
   
 ♦制作背景♦  
