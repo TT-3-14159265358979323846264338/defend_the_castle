@@ -47,7 +47,7 @@ class DrawResult extends JPanel implements MouseListener{
 		default:
 			break;
 		}
-		IntStream.range(0, GachaInformation.getRepeatNumber()).forEach(i -> gacha(GachaInformation));
+		IntStream.range(0, GachaInformation.getRepeatNumber()).forEach(_ -> gacha(GachaInformation));
 		save(HoldMedal);
 	}
 	

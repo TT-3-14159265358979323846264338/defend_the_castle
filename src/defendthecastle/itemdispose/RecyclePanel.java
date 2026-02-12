@@ -50,7 +50,7 @@ class RecyclePanel extends JPanel{
 	
 	private void addSpinner(int max) {
 		add(countSpinner);
-		countSpinner.addChangeListener(e->{
+		countSpinner.addChangeListener(_ ->{
 			importQuantity();
 		});
 		countSpinner.setModel(new SpinnerNumberModel(1, 1, max, 1));
@@ -63,7 +63,7 @@ class RecyclePanel extends JPanel{
 	
 	private void addRecycleButton() {
 		add(recycleButton);
-		recycleButton.addActionListener(e->{
+		recycleButton.addActionListener(_ ->{
 			if(YES_OPTION == showConfirmDialog(null, quantity + "個をリサイクルしますか","リサイクル確認",YES_NO_OPTION , QUESTION_MESSAGE)) {
 				canDispose = true;
 				RecycleDialog.disposeDialog();
@@ -73,7 +73,7 @@ class RecyclePanel extends JPanel{
 	
 	private void addReturnButton() {
 		add(returnButton);
-		returnButton.addActionListener(e->{
+		returnButton.addActionListener(_ ->{
 			RecycleDialog.disposeDialog();
 		});
 	}

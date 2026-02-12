@@ -90,11 +90,15 @@ public class SaveComposition extends SQLOperation{
 					for(String i: unitColumnList) {
 						unitList.add(result.getInt(i));
 					}
-					OneCompositionData newCompositionData = new OneCompositionData(result.getInt(ID_COLUMN), result.getString(NAME_COLUMN), unitList);
-					allCompositionList.add(newCompositionData);
+					addComposition(result.getInt(ID_COLUMN), result.getString(NAME_COLUMN), unitList);
 				}
 			});
 		});
+	}
+	
+	public void addComposition(int id, String compositionName, List<Integer> unitList) {
+		OneCompositionData newCompositionData = new OneCompositionData(id, compositionName, unitList);
+		allCompositionList.add(newCompositionData);
 	}
 	
 	public void save() {

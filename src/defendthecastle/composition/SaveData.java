@@ -214,7 +214,6 @@ class SaveData{
 	List<Integer> getNowWeaponNumberList(){
 		return nowWeaponNumberList;
 	}
-
 	
 	/*
 	 * ここからテスト用ゲッターセッター
@@ -223,8 +222,24 @@ class SaveData{
 		return SaveHoldItem;
 	}
 
+	public void setSaveHoldItem(SaveHoldItem saveHoldItem) {
+		SaveHoldItem = saveHoldItem;
+	}
+
 	SaveComposition getSaveComposition() {
 		return SaveComposition;
+	}
+
+	public void setSaveComposition(SaveComposition saveComposition) {
+		SaveComposition = saveComposition;
+	}
+
+	public SaveSelect getSaveSelect() {
+		return SaveSelect;
+	}
+
+	public void setSaveSelect(SaveSelect saveSelect) {
+		SaveSelect = saveSelect;
 	}
 
 	boolean isExistsChange() {

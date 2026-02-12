@@ -105,7 +105,7 @@ public class FileCheck extends SQLOperation{
 		StringBuilder builder = new StringBuilder();
 		List<String> columnList = new SaveComposition().getColumnList();
 		builder.append(String.format("CREATE TABLE %s ("
-				+ "%s INT AUTO_INCREMENT NOT NULL PRIMARY KEY,"
+				+ "%s TINYINT AUTO_INCREMENT NOT NULL PRIMARY KEY,"
 				+ "%s VARCHAR(%d) NOT NULL,",
 				SaveComposition.COMPOSITION_NAME,
 				columnList.get(0),

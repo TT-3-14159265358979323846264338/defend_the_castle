@@ -33,9 +33,9 @@ class MeritPanel extends JPanel{
 	protected MeritPanel(ProgressData ProgressData, SelectPanel SelectPanel) {
 		this.SelectPanel = SelectPanel;
 		meritStatus = ProgressData.getMeritStatus();
-		meritLabel = IntStream.range(0, labelNumber(ProgressData)).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
-		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
-		rewardLabel = IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
+		meritLabel = IntStream.range(0, labelNumber(ProgressData)).mapToObj(_ -> new JLabel()).toArray(JLabel[]::new);
+		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(_ -> new JLabel()).toArray(JLabel[]::new);
+		rewardLabel = IntStream.range(0, meritLabel.length).mapToObj(_ -> new JLabel()).toArray(JLabel[]::new);
 		meritInformation = ProgressData.getActivateStage().stream().map(i -> informationList(i)).toList();
 		rewardInformation = ProgressData.getActivateStage().stream().map(i -> DefaultStage.STAGE_DATA.get(i).getReward()).toList();
 		addLabel();

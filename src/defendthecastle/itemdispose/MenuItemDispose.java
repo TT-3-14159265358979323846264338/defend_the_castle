@@ -53,14 +53,14 @@ public class MenuItemDispose extends JPanel{
 	
 	private void addSwitchButton() {
 		add(switchButton);
-		switchButton.addActionListener(e->{
+		switchButton.addActionListener(_ ->{
 			itemScroll.getViewport().setView((itemScroll.getViewport().getView() == CoreImagePanel)? WeaponImagePanel: CoreImagePanel);
 		});
 	}
 	
 	private void addSortButton() {
 		add(sortButton);
-		sortButton.addActionListener(e->{
+		sortButton.addActionListener(_ ->{
 			if(itemScroll.getViewport().getView() == CoreImagePanel) {
 				CoreImagePanel.updateList(DisplayListCreation.getCoreDisplayList());
 			}else {
@@ -71,7 +71,7 @@ public class MenuItemDispose extends JPanel{
 	
 	private void addDisposeButton() {
 		add(disposeButton);
-		disposeButton.addActionListener(e->{
+		disposeButton.addActionListener(_ ->{
 			if(itemScroll.getViewport().getView() == CoreImagePanel) {
 				OperateData.recycle(CoreImagePanel, OperateData.getCoreNumberList(), OperateData.getUsedCoreNumber(), coreImageList, IntStream.range(0, defaultdata.DefaultUnit.CORE_DATA_MAP.size()).mapToObj(i -> DefaultUnit.CORE_DATA_MAP.get(i).getRarity()).toList());
 			}else {
@@ -82,7 +82,7 @@ public class MenuItemDispose extends JPanel{
 	
 	private void addReturnButton(MainFrame MainFrame) {
 		add(returnButton);
-		returnButton.addActionListener(e->{
+		returnButton.addActionListener(_ ->{
 			MainFrame.mainMenuDraw();
 		});
 	}

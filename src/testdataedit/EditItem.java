@@ -56,7 +56,7 @@ class EditItem extends JPanel{
 	
 	private void addLabel() {
 		Function<Integer, JLabel[]> initialize = count -> {
-			return IntStream.range(0, count).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
+			return IntStream.range(0, count).mapToObj(_ -> new JLabel()).toArray(JLabel[]::new);
 		};
 		BiConsumer<JLabel[], List<String>> set = (label, name) -> {
 			IntStream.range(0, label.length).forEach(i -> {
@@ -81,7 +81,7 @@ class EditItem extends JPanel{
 	
 	private void addSpinner() {
 		Function<Integer, JSpinner[]> initialize = count -> {
-			return IntStream.range(0, count).mapToObj(i -> new JSpinner()).toArray(JSpinner[]::new);
+			return IntStream.range(0, count).mapToObj(_ -> new JSpinner()).toArray(JSpinner[]::new);
 		};
 		BiConsumer<JSpinner[], List<Integer>> set = (spinner, number) -> {
 			IntStream.range(0, spinner.length).forEach(i -> {

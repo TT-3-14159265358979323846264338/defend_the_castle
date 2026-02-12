@@ -28,7 +28,7 @@ public class MenuMain extends JPanel{
 	private ScheduledFuture<?> mainFuture;
 	private final static int NUMBER = 20;
 	private MainFrame MainFrame;
-	private FallMotion[] FallMotion = IntStream.range(0, NUMBER).mapToObj(i -> new FallMotion()).toArray(FallMotion[]::new);
+	private FallMotion[] FallMotion = IntStream.range(0, NUMBER).mapToObj(_ -> new FallMotion()).toArray(FallMotion[]::new);
 	private FinalMotion[] FinalMotion = IntStream.range(0, NUMBER).mapToObj(i -> new FinalMotion(i)).toArray(FinalMotion[]::new);
 	private JButton itemGetButton = new JButton();
 	private JButton itemDisposeButton = new JButton();
@@ -36,7 +36,7 @@ public class MenuMain extends JPanel{
 	private JButton selectStageButton = new JButton();
 	private BufferedImage titleImage = new DefaultOther().getTitleImage(2);
 	private List<BufferedImage> coreImage = IntStream.range(0, DefaultUnit.CORE_DATA_MAP.size()).mapToObj(i -> DefaultUnit.CORE_DATA_MAP.get(i).getImage(1)).toList();
-	private List<Integer> randamList = IntStream.range(0, NUMBER).mapToObj(i -> new Random().nextInt(coreImage.size())).toList();
+	private List<Integer> randamList = IntStream.range(0, NUMBER).mapToObj(_ -> new Random().nextInt(coreImage.size())).toList();
 	private int count;
 	
 	//テスト用

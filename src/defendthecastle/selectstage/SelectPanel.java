@@ -34,9 +34,9 @@ class SelectPanel extends JPanel implements MouseListener{
 		clearStatus = ProgressData.getClearStatus();
 		stageNameList = ProgressData.getStageName();
 		select = ProgressData.getSelectStage();
-		nameLabel = IntStream.range(0, ProgressData.getActivateStage().size()).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
+		nameLabel = IntStream.range(0, ProgressData.getActivateStage().size()).mapToObj(_ -> new JLabel()).toArray(JLabel[]::new);
 		IntStream.range(0, nameLabel.length).forEach(i -> addNameLabel(i));
-		clearLabel = IntStream.range(0, nameLabel.length).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
+		clearLabel = IntStream.range(0, nameLabel.length).mapToObj(_ -> new JLabel()).toArray(JLabel[]::new);
 		IntStream.range(0, clearLabel.length).forEach(i -> addClearLabel(i));
 		addOtherLabel(ProgressData);
 		addMouseListener(this);

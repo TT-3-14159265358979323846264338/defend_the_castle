@@ -50,7 +50,7 @@ class TestPanel extends JPanel{
 	
 	private void addSwitchButton() {
 		add(switchButton);
-		switchButton.addActionListener(e->{
+		switchButton.addActionListener(_ ->{
 			itemScroll.getViewport().setView((itemScroll.getViewport().getView() == EditItem)? EditProgress: EditItem);
 		});
 	}
@@ -63,7 +63,7 @@ class TestPanel extends JPanel{
 	
 	private void addSaveButton() {
 		add(saveButton);
-		saveButton.addActionListener(e->{
+		saveButton.addActionListener(_ ->{
 			if(itemScroll.getViewport().getView() == EditItem) {
 				EditItem.save();
 			}else {
@@ -81,7 +81,7 @@ class TestPanel extends JPanel{
 	
 	private void addReturnButton() {
 		add(returnButton);
-		returnButton.addActionListener(e->{
+		returnButton.addActionListener(_ ->{
 			TestDataEdit.disposeDialog();
 		});
 	}

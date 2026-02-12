@@ -75,21 +75,21 @@ public class MenuItemGet extends JPanel{
 	
 	private void addGachaDetailButton() {
 		add(gachaDetailButton);
-		gachaDetailButton.addActionListener(e->{
+		gachaDetailButton.addActionListener(_ ->{
 			new GachaLineup(GachaInformation);
 		});
 	}
 	
 	private void addRepeatButton() {
 		add(repeatButton);
-		repeatButton.addActionListener(e->{
+		repeatButton.addActionListener(_ ->{
 			GachaInformation.changeRepeatNumber();
 		});
 	}
 	
 	private void addReturnButton(MainFrame MainFrame) {
 		add(returnButton);
-		returnButton.addActionListener(e->{
+		returnButton.addActionListener(_ ->{
 			MainFrame.mainMenuDraw();
 		});
 	}

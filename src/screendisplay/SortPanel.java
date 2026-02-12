@@ -32,7 +32,7 @@ import defaultdata.DefaultUnit;
 class SortPanel extends JPanel {
 	private JLabel sortLabel = new JLabel();
 	private JLabel filterLabel = new JLabel();
-	private JLabel[] commentLabel = IntStream.range(0, 9).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
+	private JLabel[] commentLabel = IntStream.range(0, 9).mapToObj(_ -> new JLabel()).toArray(JLabel[]::new);
 	private JButton sortButton = new JButton();
 	private JButton resetButton = new JButton();
 	private JButton returnButton = new JButton();
@@ -117,7 +117,7 @@ class SortPanel extends JPanel {
 		sortButton.setText("ソート");
 		setButton(sortButton);
 		add(sortButton);
-		sortButton.addActionListener(e->{
+		sortButton.addActionListener(_ ->{
 			canSort = true;
 			SortDialog.dispose();
 		});
@@ -127,7 +127,7 @@ class SortPanel extends JPanel {
 		resetButton.setText("リセット");
 		setButton(resetButton);
 		add(resetButton);
-		resetButton.addActionListener(e->{
+		resetButton.addActionListener(_ ->{
 			Consumer<JRadioButton[]> initialize = (radio) -> {
 				Stream.of(radio).forEach(i -> i.setSelected(false));
 			};
@@ -146,7 +146,7 @@ class SortPanel extends JPanel {
 		returnButton.setText("戻る");
 		setButton(returnButton);
 		add(returnButton);
-		returnButton.addActionListener(e->{
+		returnButton.addActionListener(_ ->{
 			SortDialog.dispose();
 		});
 	}
@@ -157,7 +157,7 @@ class SortPanel extends JPanel {
 	
 	private void initializeRadioButton() {
 		Function<Integer, JRadioButton[]> initialize = (size) -> {
-			JRadioButton[] radio = IntStream.range(0, size).mapToObj(i -> new JRadioButton()).toArray(JRadioButton[]::new);
+			JRadioButton[] radio = IntStream.range(0, size).mapToObj(_ -> new JRadioButton()).toArray(JRadioButton[]::new);
 			Stream.of(radio).forEach(i -> {
 				i.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 15));
 				i.setOpaque(false);

@@ -69,7 +69,7 @@ class EditProgress extends JPanel{
 	
 	private void addLabel() {
 		Function<Integer, JLabel[]> initialize = count -> {
-			return IntStream.range(0, count).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
+			return IntStream.range(0, count).mapToObj(_ -> new JLabel()).toArray(JLabel[]::new);
 		};
 		BiConsumer<JLabel, String> set = (label, name) -> {
 			add(label);
@@ -105,7 +105,7 @@ class EditProgress extends JPanel{
 	
 	private void addRadio() {
 		Function<Integer, JRadioButton[]> initialize = count -> {
-			return IntStream.range(0, count).mapToObj(i -> new JRadioButton()).toArray(JRadioButton[]::new);
+			return IntStream.range(0, count).mapToObj(_ -> new JRadioButton()).toArray(JRadioButton[]::new);
 		};
 		BiConsumer<JRadioButton[], List<Boolean>> set = (radio, clear) -> {
 			IntStream.range(0, radio.length).forEach(i -> {

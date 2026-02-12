@@ -20,7 +20,7 @@ import javax.swing.JPanel;
 class StatusPanel extends JPanel{
 	private JLabel imageLabel;
 	private Function<Integer, JLabel[]> initialize = (size) -> {
-		return IntStream.range(0, size).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
+		return IntStream.range(0, size).mapToObj(_ -> new JLabel()).toArray(JLabel[]::new);
 	};
 	protected JLabel[] item = initialize.apply(3);
 	protected JLabel[] unitName = initialize.apply(3);
