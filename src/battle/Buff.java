@@ -245,7 +245,7 @@ public class Buff {
 			return;
 		}
 		if(existsRangeCode(ALL)) {
-			multipleBuff(i -> true);
+			multipleBuff(_ -> true);
 			return;
 		}
 		if(existsRangeCode(WITHIN_RANGE)) {

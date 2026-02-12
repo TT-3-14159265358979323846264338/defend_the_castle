@@ -46,7 +46,7 @@ class ClearMerit extends JPanel{
 	
 	ClearMerit(StageData StageData) {
 		beforeSet(StageData);
-		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel()).toArray(JLabel[]::new);
+		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(_ -> new JLabel()).toArray(JLabel[]::new);
 		afterSet();
 	}
 	

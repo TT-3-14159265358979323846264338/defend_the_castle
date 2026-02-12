@@ -159,7 +159,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		IntStream.range(0, UnitLeftData.length).forEach(i -> UnitLeftData[i].install(GameData, UnitMainData[i], UnitMainData, FacilityData, EnemyData));
 		Stream.of(FacilityData).forEach(i -> i.install(GameData, UnitMainData, FacilityData, EnemyData));
 		Stream.of(EnemyData).forEach(i -> i.install(GameData, UnitMainData, FacilityData, EnemyData));
-		awakeLabel = IntStream.range(0, UnitMainData.length).mapToObj(i -> new AwakeLabel()).toArray(JLabel[]::new);
+		awakeLabel = IntStream.range(0, UnitMainData.length).mapToObj(_ -> new AwakeLabel()).toArray(JLabel[]::new);
 	}
 	
 	void addCostLabel() {
@@ -171,14 +171,14 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	void addRangeDrawButton() {
 		add(rangeDrawButton);
-		rangeDrawButton.addActionListener(e->{
+		rangeDrawButton.addActionListener(_ ->{
 			canRangeDraw = canRangeDraw? false: true;
 		});
 	}
 	
 	void addAutoAwakeningButton() {
 		add(autoAwakeningButton);
-		autoAwakeningButton.addActionListener(e->{
+		autoAwakeningButton.addActionListener(_ ->{
 			canAutoAwake = canAutoAwake? false: true;
 			if(canAutoAwake) {
 				autoAwake(NONE_DELAY);
@@ -205,7 +205,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	void addStageReturnButton(MainFrame MainFrame, double difficultyCorrection) {
 		add(stageReturnButton);
-		stageReturnButton.addActionListener(e->{
+		stageReturnButton.addActionListener(_ ->{
 			timerStop();
 			new PauseDialog(this, MainFrame, StageData, difficultyCorrection);
 		});
@@ -542,7 +542,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	void addStatusButton(int number) {
 		add(statusButton);
-		statusButton.addActionListener(e->{
+		statusButton.addActionListener(_ ->{
 			actionInitialize();
 			new DisplayStatus().unit(UnitMainData[number], UnitLeftData[number]);
 			timerRestart();
@@ -551,7 +551,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	void addRetreatButton(int number) {
 		add(retreatButton);
-		retreatButton.addActionListener(e->{
+		retreatButton.addActionListener(_ ->{
 			actionInitialize();
 			GameData.addCost((int) Math.ceil(UnitMainData[number].getCost() / 2));
 			UnitMainData[number].retreat();
@@ -562,7 +562,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	void addAwakeningButton(int number) {
 		if(canAwake(number)) {
 			add(awakeningButton);
-			awakeningButton.addActionListener(e->{
+			awakeningButton.addActionListener(_ ->{
 				actionInitialize();
 				awake(number);
 				timerRestart();
@@ -590,7 +590,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	
 	void addUnitReturnButton() {
 		add(unitReturnButton);
-		unitReturnButton.addActionListener(e->{
+		unitReturnButton.addActionListener(_ ->{
 			actionInitialize();
 			timerRestart();
 		});

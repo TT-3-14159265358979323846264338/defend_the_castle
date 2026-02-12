@@ -32,7 +32,7 @@ public class BattleFacility extends BattleData{
 		element = FacilityData.getElement().stream().toList();
 		AtackPattern = new DefaultAtackPattern().getAtackPattern(FacilityData.getAtackPattern());
 		if(FacilityData.getWeaponStatus() == null || FacilityData.getWeaponStatus().isEmpty()) {
-			defaultWeaponStatus = IntStream.range(0, DefaultStage.WEAPON_MAP.size()).mapToObj(i -> 0).toList();
+			defaultWeaponStatus = IntStream.range(0, DefaultStage.WEAPON_MAP.size()).mapToObj(_ -> 0).toList();
 		}else {
 			defaultWeaponStatus = FacilityData.getWeaponStatus().stream().toList();
 		}

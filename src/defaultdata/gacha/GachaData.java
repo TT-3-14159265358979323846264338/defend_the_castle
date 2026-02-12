@@ -89,7 +89,7 @@ public abstract class GachaData {
 	 * @return 合計排出確率を要素数で割った値を格納した要素数sizeのリストを返却する。
 	 */
 	List<Double> getRatioList(int size, double totalRatio){
-		return IntStream.range(0, size).mapToObj(i -> (double) (totalRatio / size)).toList();
+		return IntStream.range(0, size).mapToObj(_ -> (double) (totalRatio / size)).toList();
 	}
 	
 	/**

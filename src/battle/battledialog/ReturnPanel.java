@@ -62,7 +62,7 @@ class ReturnPanel extends JPanel{
 	
 	void addRestartButton(PauseDialog PauseDialog) {
 		add(restartButton);
-		restartButton.addActionListener(e->{
+		restartButton.addActionListener(_ ->{
 			PauseDialog.disposeDialog();
 		});
 		restartButton.setText("再開");
@@ -71,7 +71,7 @@ class ReturnPanel extends JPanel{
 	
 	void addReturnButton(PauseDialog PauseDialog, Battle Battle, MainFrame MainFrame) {
 		add(returnButton);
-		returnButton.addActionListener(e->{
+		returnButton.addActionListener(_ ->{
 			Battle.gameEnd();
 			PauseDialog.disposeDialog();
 			MainFrame.selectStageDraw();
@@ -82,7 +82,7 @@ class ReturnPanel extends JPanel{
 	
 	void addRetryButton(PauseDialog PauseDialog, Battle Battle, MainFrame MainFrame, StageData StageData, double difficultyCorrection) {
 		add(retryButton);
-		retryButton.addActionListener(e->{
+		retryButton.addActionListener(_ ->{
 			Battle.gameEnd();
 			PauseDialog.disposeDialog();
 			MainFrame.battleDraw(StageData, difficultyCorrection);

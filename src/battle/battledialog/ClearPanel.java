@@ -39,7 +39,7 @@ class ClearPanel extends JPanel{
 	
 	void addOKButton(PauseDialog PauseDialog) {
 		add(OKButton);
-		OKButton.addActionListener(e->{
+		OKButton.addActionListener(_ ->{
 			PauseDialog.disposeDialog();
 		});
 		OKButton.setText("OK");
