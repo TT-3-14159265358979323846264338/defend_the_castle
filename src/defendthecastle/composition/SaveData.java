@@ -15,26 +15,42 @@ import savedata.SaveSelect;
 
 //セーブデータ処理
 class SaveData{
-	private SaveHoldItem SaveHoldItem = new SaveHoldItem();
-	private SaveComposition SaveComposition = new SaveComposition();
-	private SaveSelect SaveSelect = new SaveSelect();
+	private final SaveHoldItem saveHoldItem;
+	private final SaveComposition saveComposition;
+	private final SaveSelect saveSelect;
 	private List<Integer> nowCoreNumberList = new ArrayList<>();
 	private List<Integer> nowWeaponNumberList = new ArrayList<>();
 	private boolean existsChange;
 	
 	SaveData() {
+		saveHoldItem = createSaveHoldItem();
+		saveComposition = createSaveComposition();
+		saveSelect = createSaveSelect();
 		load();
+		countNumber();
+	}
+	
+	SaveHoldItem createSaveHoldItem() {
+		return new SaveHoldItem();
+	}
+	
+	SaveComposition createSaveComposition() {
+		return new SaveComposition();
+	}
+	
+	SaveSelect createSaveSelect() {
+		return new SaveSelect();
 	}
 	
 	void load() {
-		SaveHoldItem.load();
-		SaveComposition.load();
-		SaveSelect.load();
+		saveHoldItem.load();
+		saveComposition.load();
+		saveSelect.load();
 	}
 	
 	void save() {
-		SaveComposition.save();
-		SaveSelect.save();
+		saveComposition.save();
+		saveSelect.save();
 	}
 	
 	void countNumber() {
@@ -70,7 +86,7 @@ class SaveData{
 		int select = showConfirmDialog(null, "選択中の編成を入れ替えますか", "入替確認", YES_NO_OPTION, QUESTION_MESSAGE);
 		switch(select) {
 		case 0:
-			SaveComposition.swap(selectIndex, targetIndex);
+			saveComposition.swap(selectIndex, targetIndex);
 			existsChange = true;
 			break;
 		default:
@@ -80,7 +96,7 @@ class SaveData{
 	
 	void changeCompositionName() {
 		String newName = showInputDialog(null, "変更後の編成名を入力してください", "名称変更", INFORMATION_MESSAGE);
-		if(SaveComposition.rename(getSelectNumber(), newName)){
+		if(saveComposition.rename(getSelectNumber(), newName)){
 			existsChange = true;
 		}
 	}
@@ -136,11 +152,13 @@ class SaveData{
 	}
 	
 	void selectNumberUpdate(int indexNumber) {
-		SaveSelect.setCompositionSelectNumber(indexNumber);
+		saveSelect.setCompositionSelectNumber(indexNumber);
+		countNumber();
 	}
 	
 	void changeCore(int number, int selectCore) {
 		getUnitData(number).setUnitData(DefaultUnit.CORE, selectCore);
+		countNumber();
 		existsChange = true;
 	}
 	
@@ -164,6 +182,7 @@ class SaveData{
 				break;
 			}
 		}
+		countNumber();
 		existsChange = true;
 	}
 	
@@ -184,23 +203,23 @@ class SaveData{
 	}
 	
 	List<Integer> getCoreNumberList(){
-		return SaveHoldItem.getCoreNumberList();
+		return saveHoldItem.getCoreNumberList();
 	}
 	
 	List<Integer> getWeaponNumberList(){
-		return SaveHoldItem.getWeaponNumberList();
+		return saveHoldItem.getWeaponNumberList();
 	}
 	
 	List<String> getCompositionNameList(){
-		return SaveComposition.getCompositionNameList();
+		return saveComposition.getCompositionNameList();
 	}
 	
 	int getSelectNumber() {
-		return SaveSelect.getCompositionSelectNumber();
+		return saveSelect.getCompositionSelectNumber();
 	}
 	
 	List<OneUnitData> getActiveCompositionList(){
-		return SaveComposition.getOneCompositionData(getSelectNumber()).getOneUnitDataList();
+		return saveComposition.getOneCompositionData(getSelectNumber()).getOneUnitDataList();
 	}
 	
 	OneUnitData getUnitData(int index) {
@@ -213,40 +232,5 @@ class SaveData{
 	
 	List<Integer> getNowWeaponNumberList(){
 		return nowWeaponNumberList;
-	}
-	
-	/*
-	 * ここからテスト用ゲッターセッター
-	 */
-	SaveHoldItem getSaveHoldItem() {
-		return SaveHoldItem;
-	}
-
-	public void setSaveHoldItem(SaveHoldItem saveHoldItem) {
-		SaveHoldItem = saveHoldItem;
-	}
-
-	SaveComposition getSaveComposition() {
-		return SaveComposition;
-	}
-
-	public void setSaveComposition(SaveComposition saveComposition) {
-		SaveComposition = saveComposition;
-	}
-
-	public SaveSelect getSaveSelect() {
-		return SaveSelect;
-	}
-
-	public void setSaveSelect(SaveSelect saveSelect) {
-		SaveSelect = saveSelect;
-	}
-
-	boolean isExistsChange() {
-		return existsChange;
-	}
-
-	void setExistsChange(boolean existsChange) {
-		this.existsChange = existsChange;
 	}
 }

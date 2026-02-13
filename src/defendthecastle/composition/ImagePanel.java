@@ -9,42 +9,53 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.time.temporal.ValueRange;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.IntStream;
 
-import javax.swing.JPanel;
-
+import commoninheritance.CommonJPanel;
 import screendisplay.DisplayStatus;
 
 //ユニット表示パネル
-class ImagePanel extends JPanel implements MouseListener{
-	private List<BufferedImage> imageList;
+class ImagePanel extends CommonJPanel implements MouseListener{
+	private final Dimension dimension;
+	private final List<BufferedImage> imageList;
 	private List<Integer> displayList;
-	private List<Integer> numberList;
-	private boolean existsWhich;
+	private final List<Integer> numberList;
+	private final boolean existsWhich;
 	private int selectNumber;
 	private final int DRAW_SIZE = 120;
 	private final int COLUMN = 3;
+	private final int PANEL_SIZE = 100;
 	
-	ImagePanel() {
-		resetSelectNumber();
-		addMouseListener(this);
-	}
-	
-	void setImagePanel(List<BufferedImage> imageList, List<Integer> displayList, List<Integer> numberList, boolean existsWhich) {
+	ImagePanel(ScheduledExecutorService scheduler, List<BufferedImage> imageList, List<Integer> displayList, List<Integer> numberList, boolean exists) {
 		this.imageList = imageList;
 		this.displayList = displayList;
 		this.numberList = numberList;
-		this.existsWhich = existsWhich;
+		this.existsWhich = exists;
+		dimension = createDimension();
+		resetSelectNumber();
+		addMouseListener(this);
+		setPreferredSize(dimension);
+		repaintTimer(scheduler, defaultWhite());
+	}
+	
+	Dimension createDimension() {
+		return new Dimension(PANEL_SIZE, dimensionHeight());
+	}
+	
+	int dimensionHeight() {
+		return (displayList.size() / COLUMN + 1) * DRAW_SIZE;
 	}
 
 	void setDisplayList(List<Integer> displayList) {
 		this.displayList = displayList;
+		dimension.setSize(PANEL_SIZE, dimensionHeight());
+		revalidate();
 	}
 	
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		setPreferredSize(new Dimension(100, (displayList.size() / COLUMN + 1) * DRAW_SIZE));
 		IntStream.range(0, displayList.size()).forEach(i -> {
 			int x = i % COLUMN * DRAW_SIZE;
 			int y = i / COLUMN * DRAW_SIZE;
@@ -75,9 +86,9 @@ class ImagePanel extends JPanel implements MouseListener{
 					&& ValueRange.of(y, y + MenuComposition.SIZE).isValidIntValue(e.getY())){
 				if(selectNumber == displayList.get(i)) {
 					if(existsWhich) {
-						new DisplayStatus().core(imageList.get(selectNumber), selectNumber);
+						displayCore();
 					}else {
-						new DisplayStatus().weapon(imageList.get(selectNumber), selectNumber);
+						displayWeapon();
 					}
 				}else {
 					setSelectNumber(displayList.get(i));
@@ -95,6 +106,14 @@ class ImagePanel extends JPanel implements MouseListener{
 	}
 	@Override
 	public void mouseExited(MouseEvent e) {
+	}
+	
+	void displayCore() {
+		new DisplayStatus().core(imageList.get(selectNumber), selectNumber);
+	}
+	
+	void displayWeapon() {
+		new DisplayStatus().weapon(imageList.get(selectNumber), selectNumber);
 	}
 	
 	int getSelectNumber() {

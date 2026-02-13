@@ -7,8 +7,8 @@ import java.util.concurrent.TimeUnit;
 //最終画面の位置調整
 class FinalMotion{
 	private ScheduledFuture<?> finalFuture;
-	private int number;
-	private int x;
+	private final int number;
+	private final int x;
 	private int y;
 	private int count;
 	
@@ -19,7 +19,11 @@ class FinalMotion{
 	}
 	
 	void finalTimerStart(ScheduledExecutorService scheduler) {
-		finalFuture = scheduler.scheduleAtFixedRate(this::finalTimerProcess, 0, 50, TimeUnit.MILLISECONDS);
+		finalFuture = createFinalFuture(scheduler);
+	}
+	
+	ScheduledFuture<?> createFinalFuture(ScheduledExecutorService scheduler){
+		return scheduler.scheduleAtFixedRate(this::finalTimerProcess, 0, 50, TimeUnit.MILLISECONDS);
 	}
 	
 	void finalTimerProcess() {
@@ -38,23 +42,11 @@ class FinalMotion{
 		}
 	}
 	
-	void setFinalFuture(ScheduledFuture<?> future){
-		finalFuture = future;
-	}
-	
 	int getX() {
 		return x;
 	}
 	
 	int getY() {
 		return y;
-	}
-	
-	int getCount() {
-		return count;
-	}
-	
-	void setCount(int value) {
-		count = value;
 	}
 }

@@ -1,223 +1,134 @@
 package defendthecastle;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
-import java.awt.image.BufferedImage;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import javax.swing.JButton;
-import javax.swing.JPanel;
 
-import defaultdata.DefaultOther;
-import defaultdata.DefaultUnit;
+import commoninheritance.CommonJPanel;
 import defaultdata.EditImage;
 import testdataedit.TestDataEdit;
 
 //トップメニュー画面
-public class MenuMain extends JPanel{
-	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
-	private ScheduledFuture<?> mainFuture;
-	private final static int NUMBER = 20;
-	private MainFrame MainFrame;
-	private FallMotion[] FallMotion = IntStream.range(0, NUMBER).mapToObj(_ -> new FallMotion()).toArray(FallMotion[]::new);
-	private FinalMotion[] FinalMotion = IntStream.range(0, NUMBER).mapToObj(i -> new FinalMotion(i)).toArray(FinalMotion[]::new);
-	private JButton itemGetButton = new JButton();
-	private JButton itemDisposeButton = new JButton();
-	private JButton compositionButton = new JButton();
-	private JButton selectStageButton = new JButton();
-	private BufferedImage titleImage = new DefaultOther().getTitleImage(2);
-	private List<BufferedImage> coreImage = IntStream.range(0, DefaultUnit.CORE_DATA_MAP.size()).mapToObj(i -> DefaultUnit.CORE_DATA_MAP.get(i).getImage(1)).toList();
-	private List<Integer> randamList = IntStream.range(0, NUMBER).mapToObj(_ -> new Random().nextInt(coreImage.size())).toList();
-	private int count;
+public class MenuMain extends CommonJPanel{
+	private final int NUMBER = 20;
+	private final MainFrame mainFrame;
+	private final FallMotion[] fallMotion;
+	private final FinalMotion[] finalMotion;
+	private final MainImage mainImage;
+	private final MainTimer mainTimer;
+	private final Font font;
+	private final JButton itemGetButton = new JButton();
+	private final JButton itemDisposeButton = new JButton();
+	private final JButton compositionButton = new JButton();
+	private final JButton selectStageButton = new JButton();
 	
 	//テスト用
 	private JButton testButton = new JButton();
 	
-	MenuMain(MainFrame MainFrame) {
-		this.MainFrame = MainFrame;
-		setBackground(new Color(240, 170, 80));
+	MenuMain(MainFrame MainFrame, ScheduledExecutorService scheduler) {
+		this.mainFrame = MainFrame;
+		fallMotion = createFallMotion();
+		finalMotion = createFinalMotion();
+		mainImage = createmainImage();
+		mainTimer = createMainTimer(scheduler);
+		font = createFont();
+		repaintTimer(scheduler, brown());
 		addItemGetButton();
 		addItemDisposeButton();
 		addCompositionButton();
 		addBattleButton();
 		addTestButton();
-		effectTimer();
 	}
 	
-	@Override
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		setButton(itemGetButton, "ガチャ", 10, 400, 130, 60);
-		setButton(itemDisposeButton, "リサイクル", 150, 400, 130, 60);
-		setButton(compositionButton, "ユニット編成", 290, 400, 130, 60);
-		setButton(selectStageButton, "ステージ選択", 430, 400, 130, 60);
-		setButton(testButton, "セーブデータ編集", 410, 0, 160, 40);
-		drawImage(g);
-		requestFocus();
+	FallMotion[] createFallMotion(){
+		return IntStream.range(0, NUMBER).mapToObj(_ -> new FallMotion()).toArray(FallMotion[]::new);
+	}
+	
+	FinalMotion[] createFinalMotion() {
+		return IntStream.range(0, NUMBER).mapToObj(i -> new FinalMotion(i)).toArray(FinalMotion[]::new);
+	}
+	
+	MainImage createmainImage() {
+		return new MainImage(NUMBER);
+	}
+	
+	Font createFont() {
+		return new Font("ＭＳ ゴシック", Font.BOLD, 15);
+	}
+	
+	MainTimer createMainTimer(ScheduledExecutorService scheduler){
+		return new MainTimer(scheduler, fallMotion, finalMotion);
 	}
 	
 	private void addItemGetButton() {
-		add(itemGetButton);
+		setButton(itemGetButton, "ガチャ", 10, 400, 130, 60);
 		itemGetButton.addActionListener(this::itemGetButtonAction);
 	}
 	
 	void itemGetButtonAction(ActionEvent e) {
-		MainFrame.itemGetMenuDraw();
+		mainFrame.itemGetMenuDraw();
 	}
 	
 	private void addItemDisposeButton() {
-		add(itemDisposeButton);
+		setButton(itemDisposeButton, "リサイクル", 150, 400, 130, 60);
 		itemDisposeButton.addActionListener(this::itemDisposeButtonAction);
 	}
 	
 	void itemDisposeButtonAction(ActionEvent e) {
-		MainFrame.itemDisposeMenuDraw();
+		mainFrame.itemDisposeMenuDraw();
 	}
 	
 	private void addCompositionButton() {
-		add(compositionButton);
+		setButton(compositionButton, "ユニット編成", 290, 400, 130, 60);
 		compositionButton.addActionListener(this::compositionButtonAction);
 	}
 	
 	void compositionButtonAction(ActionEvent e) {
-		MainFrame.compositionDraw();
+		mainFrame.compositionDraw();
 	}
 	
 	private void addBattleButton() {
-		add(selectStageButton);
+		setButton(selectStageButton, "ステージ選択", 430, 400, 130, 60);
 		selectStageButton.addActionListener(this::battleButtonAction);
 	}
 	
 	void battleButtonAction(ActionEvent e) {
-		MainFrame.selectStageDraw();
+		mainFrame.selectStageDraw();
 	}
 	
 	private void setButton(JButton button, String name, int x, int y, int width, int height) {
 		button.setText(name);
 		button.setBounds(x, y, width, height);
-		button.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 15));
+		button.setFont(font);
+		add(button);
+	}
+	
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		drawImage(g);
 	}
 	
 	void drawImage(Graphics g) {
-		if(mainFuture.isCancelled()) {
-			IntStream.range(0, NUMBER).forEach(i -> g.drawImage(coreImage.get(randamList.get(i)), FinalMotion[i].getX(), FinalMotion[i].getY(), this));
-			g.drawImage(titleImage, 40, 100, this);
+		if(mainTimer.isEnd()) {
+			IntStream.range(0, NUMBER).forEach(i -> g.drawImage(mainImage.getCoreImage(i), finalMotion[i].getX(), finalMotion[i].getY(), this));
+			g.drawImage(mainImage.getTitleImage(), 40, 100, this);
 			return;
 		}
-		IntStream.range(0, NUMBER).filter(i -> FallMotion[i].canStart()).forEach(i -> g.drawImage(EditImage.rotateImage(coreImage.get(randamList.get(i)), FallMotion[i].getAngle()), FallMotion[i].getX(), FallMotion[i].getY(), this));
-	}
-
-	private void effectTimer() {
-		mainFuture = scheduler.scheduleAtFixedRate(this::effectTimerProcess, 0, 300, TimeUnit.MILLISECONDS);
-	}
-	
-	void effectTimerProcess() {
-		try {
-			FallMotion[count].fallTimerStart(scheduler);
-		}catch(Exception ignore) {
-		}
-		count++;
-		if(Stream.of(FallMotion).noneMatch(i -> i.canStart())) {
-			Stream.of(FinalMotion).forEach(i -> i.finalTimerStart(scheduler));
-			scheduler.scheduleAtFixedRate(this::schedulerEndProcess, 2, 1, TimeUnit.SECONDS);
-			mainFuture.cancel(true);
-		}
-	}
-	
-	void schedulerEndProcess() {
-		if(Stream.of(FinalMotion).allMatch(i -> i.canEnd())) {
-			scheduler.shutdown();
-		}
+		IntStream.range(0, NUMBER).filter(i -> fallMotion[i].canStart()).forEach(i -> g.drawImage(EditImage.rotateImage(mainImage.getCoreImage(i), fallMotion[i].getAngle()), fallMotion[i].getX(), fallMotion[i].getY(), this));
 	}
 	
 	//テスト用
 	private void addTestButton() {
-		add(testButton);
+		setButton(testButton, "セーブデータ編集", 410, 0, 160, 40);
 		testButton.addActionListener(this::testButtonAction);
 	}
 	
 	void testButtonAction(ActionEvent e) {
 		new TestDataEdit();
-	}
-
-	ScheduledFuture<?> getMainFuture() {
-		return mainFuture;
-	}
-
-	void setMainFuture(ScheduledFuture<?> mainFuture) {
-		this.mainFuture = mainFuture;
-	}
-
-	MainFrame getMainFrame() {
-		return MainFrame;
-	}
-
-	JButton getItemGetButton() {
-		return itemGetButton;
-	}
-
-	JButton getItemDisposeButton() {
-		return itemDisposeButton;
-	}
-
-	JButton getCompositionButton() {
-		return compositionButton;
-	}
-
-	JButton getSelectStageButton() {
-		return selectStageButton;
-	}
-
-	JButton getTestButton() {
-		return testButton;
-	}
-
-	ScheduledExecutorService getScheduler() {
-		return scheduler;
-	}
-	
-	FinalMotion[] getFinalMotion() {
-		return FinalMotion;
-	}
-
-	void setFinalMotion(FinalMotion[] finalMotion) {
-		FinalMotion = finalMotion;
-	}
-
-	FallMotion[] getFallMotion() {
-		return FallMotion;
-	}
-
-	void setFallMotion(FallMotion[] fallMotion) {
-		FallMotion = fallMotion;
-	}
-
-	int getCount() {
-		return count;
-	}
-
-	void setCount(int count) {
-		this.count = count;
-	}
-
-	BufferedImage getTitleImage() {
-		return titleImage;
-	}
-
-	List<BufferedImage> getCoreImage() {
-		return coreImage;
-	}
-
-	List<Integer> getRandamList() {
-		return randamList;
 	}
 }

@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -33,7 +34,7 @@ public class MenuSelectStage extends JPanel{
 	private EnemyPanel EnemyPanel = new EnemyPanel(ProgressData, SelectPanel);
 	private GameCondition GameCondition = new GameCondition(ProgressData, SelectPanel);
 	
-	public MenuSelectStage(MainFrame MainFrame) {
+	public MenuSelectStage(MainFrame MainFrame, ScheduledExecutorService scheduler) {
 		setBackground(new Color(240, 170, 80));
 		add(stageLabel);
 		add(informationLabel);

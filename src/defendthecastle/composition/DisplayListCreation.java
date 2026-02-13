@@ -8,12 +8,18 @@ import screendisplay.DisplaySort;
 
 //表示リスト作成
 class DisplayListCreation{
-	private DisplaySort coreDisplaySort = new DisplaySort();
-	private DisplaySort weaponDisplaySort = new DisplaySort();
+	private final DisplaySort coreDisplaySort;
+	private final DisplaySort weaponDisplaySort;
 	
 	DisplayListCreation(SaveData SaveData) {
+		coreDisplaySort = createDisplaySort();
+		weaponDisplaySort = createDisplaySort();
 		coreDisplaySort.core(getDisplayList(SaveData.getCoreNumberList()));
 		weaponDisplaySort.weapon(getDisplayList(SaveData.getWeaponNumberList()));
+	}
+	
+	DisplaySort createDisplaySort() {
+		return new DisplaySort();
 	}
 	
 	List<Integer> getDisplayList(List<Integer> list){
@@ -26,13 +32,5 @@ class DisplayListCreation{
 	
 	List<Integer> getWeaponDisplayList() {
 		return weaponDisplaySort.getDisplayList();
-	}
-
-	void setCoreDisplaySort(DisplaySort coreDisplaySort) {
-		this.coreDisplaySort = coreDisplaySort;
-	}
-
-	void setWeaponDisplaySort(DisplaySort weaponDisplaySort) {
-		this.weaponDisplaySort = weaponDisplaySort;
 	}
 }

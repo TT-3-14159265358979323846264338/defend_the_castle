@@ -8,17 +8,38 @@ import java.util.concurrent.TimeUnit;
 //落下コアの位置調整
 class FallMotion{
 	private ScheduledFuture<?> fallFuture;
-	private double angle = randomAngle();
-	private int x = randomX();
+	private double angle;
+	private final int x;
 	private int y = -100;
 	private boolean canStart;
 	private final double ANGLE_CHANGE = 0.1;
 	private final int COODINATE_CHANGE = 10;
 	private final int FINAL_COODINATE = 450;
 	
+	FallMotion(){
+		angle = randomAngle();
+		x = randomX();
+	}
+	
+	double randomAngle() {
+		return createRandom().nextInt((int) (Math.PI * 2 * 100)) / 100.0;
+	}
+	
+	int randomX() {
+		return createRandom().nextInt(400);
+	}
+	
+	Random createRandom() {
+		return new Random();
+	}
+	
 	void fallTimerStart(ScheduledExecutorService scheduler) {
-		setStart(true);
-		setFallFuture(scheduler.scheduleAtFixedRate(this::fallTimerProcess, 0, 20, TimeUnit.MILLISECONDS));
+		fallFuture = createFallFuture(scheduler);
+		canStart = true;
+	}
+	
+	ScheduledFuture<?> createFallFuture(ScheduledExecutorService scheduler){
+		return scheduler.scheduleAtFixedRate(this::fallTimerProcess, 0, 20, TimeUnit.MILLISECONDS);
 	}
 	
 	void fallTimerProcess() {
@@ -29,25 +50,9 @@ class FallMotion{
 	
 	void timerStop() {
 		if(FINAL_COODINATE < y) {
-			setStart(false);
+			canStart = false;
 			fallFuture.cancel(true);
 		}
-	}
-	
-	void setFallFuture(ScheduledFuture<?> future){
-		fallFuture = future;
-	}
-	
-	double randomAngle() {
-		return new Random().nextInt((int) (Math.PI * 2 * 100)) / 100.0;
-	}
-	
-	int randomX() {
-		return new Random().nextInt(400);
-	}
-	
-	void setStart(boolean exists) {
-		canStart = exists;
 	}
 	
 	boolean canStart() {
@@ -60,10 +65,6 @@ class FallMotion{
 	
 	int getX() {
 		return x;
-	}
-	
-	void setY(int value) {
-		y = value;
 	}
 	
 	int getY() {

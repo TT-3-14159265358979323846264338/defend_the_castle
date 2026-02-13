@@ -7,7 +7,6 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -15,20 +14,20 @@ import java.util.function.Consumer;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import commoninheritance.CommonJPanel;
 import defaultdata.DefaultOther;
 import defaultdata.EditImage;
 import defendthecastle.MainFrame;
 
 //ガチャ本体
-public class MenuItemGet extends JPanel{
+public class MenuItemGet extends CommonJPanel{
 	private JLabel medalLabel = new JLabel();
 	private JButton gachaDetailButton = new JButton();
 	private JButton repeatButton = new JButton();
 	private JButton returnButton = new JButton();
-	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+	private ScheduledExecutorService scheduler;
 	private HoldMedal HoldMedal = new HoldMedal();
 	private GachaInformation GachaInformation = new GachaInformation(HoldMedal.getSaveData());
 	private OpenBallMotion OpenBallMotion = new OpenBallMotion(this, HoldMedal, GachaInformation, scheduler);
@@ -45,7 +44,8 @@ public class MenuItemGet extends JPanel{
 	private double angle;
 	private boolean canPlay = true;
 	
-	public MenuItemGet(MainFrame MainFrame) {
+	public MenuItemGet(MainFrame MainFrame, ScheduledExecutorService scheduler) {
+		this.scheduler = scheduler;
 		HoldMedal.install(GachaInformation);
 		addMedalLabel();
 		addGachaDetailButton();
@@ -55,49 +55,9 @@ public class MenuItemGet extends JPanel{
 		mainTimer();
 	}
 	
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		setLabel(medalLabel, "メダル: " + HoldMedal.getMedal() + "枚", 350, 20, 200, 30);
-		setButton(gachaDetailButton, "<html>ガチャ詳細", 350, 330, 210, 60);
-		setButton(repeatButton, "<html>&nbsp;" + GachaInformation.getRepeatNumber() + "連<br>" + HoldMedal.useMedal() + "枚", 350, 400, 100, 60);
-		setButton(returnButton, "<html>戻る", 460, 400, 100, 60);
-		selectGachaJList.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
-		setScroll(selectGachaScroll, 350, 60, 210, 260);
-		drawGachaImage(g);
-		GachaInformation.changeGachaMode(selectGachaJList.getSelectedIndex());
-		requestFocus();
-	}
-	
 	private void addMedalLabel() {
-		add(medalLabel);
+		setLabel(medalLabel, "メダル: " + HoldMedal.getMedal() + "枚", 350, 20, 200, 30);
 		medalLabel.setHorizontalAlignment(JLabel.CENTER);
-	}
-	
-	private void addGachaDetailButton() {
-		add(gachaDetailButton);
-		gachaDetailButton.addActionListener(_ ->{
-			new GachaLineup(GachaInformation);
-		});
-	}
-	
-	private void addRepeatButton() {
-		add(repeatButton);
-		repeatButton.addActionListener(_ ->{
-			GachaInformation.changeRepeatNumber();
-		});
-	}
-	
-	private void addReturnButton(MainFrame MainFrame) {
-		add(returnButton);
-		returnButton.addActionListener(_ ->{
-			MainFrame.mainMenuDraw();
-		});
-	}
-	
-	private void addGachaScroll() {
-		selectGachaScroll.getViewport().setView(selectGachaJList);
-		add(selectGachaScroll);
-		selectGachaJList.setSelectedIndex(0);
 	}
 	
 	private void setLabel(JLabel label, String name, int x, int y, int width, int height) {
@@ -105,33 +65,64 @@ public class MenuItemGet extends JPanel{
 		label.setBounds(0, 0, 200, 30);
 		label.setBounds(x, y, width, height);
 		label.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
+		add(label);
+	}
+	
+	private void addGachaDetailButton() {
+		gachaDetailButton.addActionListener(_ ->{
+			new GachaLineup(GachaInformation);
+		});
+		setButton(gachaDetailButton, "<html>ガチャ詳細", 350, 330, 210, 60);
+	}
+	
+	private void addRepeatButton() {
+		repeatButton.addActionListener(_ ->{
+			GachaInformation.changeRepeatNumber();
+		});
+		setButton(repeatButton, "<html>&nbsp;" + GachaInformation.getRepeatNumber() + "連<br>" + HoldMedal.useMedal() + "枚", 350, 400, 100, 60);
+	}
+	
+	private void addReturnButton(MainFrame MainFrame) {
+		returnButton.addActionListener(_ ->{
+			MainFrame.mainMenuDraw();
+		});
+		setButton(returnButton, "<html>戻る", 460, 400, 100, 60);
+	}
+	
+	private void addGachaScroll() {
+		selectGachaScroll.getViewport().setView(selectGachaJList);
+		selectGachaJList.setSelectedIndex(0);
+		selectGachaJList.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
+		setScroll(selectGachaScroll, 350, 60, 210, 260);
 	}
 	
 	private void setButton(JButton button, String name, int x, int y, int width, int height) {
 		button.setText(name);
 		button.setBounds(x, y, width, height);
 		button.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 18));
+		add(button);
 	}
 	
 	private void setScroll(JScrollPane scroll, int x, int y, int width, int height) {
 		scroll.setBounds(x, y, width, height);
 		scroll.setPreferredSize(scroll.getSize());
+		add(scroll);
+	}
+	
+	private void mainTimer() {
+		scheduler.scheduleAtFixedRate(() -> {
+			angle += 0.03;
+			if(Math.PI * 10000 < angle) {
+				angle = 0;
+			}
+		}, 0, 50, TimeUnit.MILLISECONDS);
 	}
 
-	protected void activatePanel() {
-		setPanel(true);
-	}
-	
-	protected void deactivatePanel() {
-		setPanel(false);
-	}
-	
-	private void setPanel(boolean canActivate) {
-		returnButton.setEnabled(canActivate);
-		gachaDetailButton.setEnabled(canActivate);
-		repeatButton.setEnabled(canActivate);
-		selectGachaJList.setEnabled(canActivate);
-		canPlay = canActivate;
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		drawGachaImage(g);
+		GachaInformation.changeGachaMode(selectGachaJList.getSelectedIndex());
 	}
 	
 	private void drawGachaImage(Graphics g) {
@@ -157,12 +148,19 @@ public class MenuItemGet extends JPanel{
 		}
 	}
 	
-	private void mainTimer() {
-		scheduler.scheduleAtFixedRate(() -> {
-			angle += 0.03;
-			if(Math.PI * 10000 < angle) {
-				angle = 0;
-			}
-		}, 0, 50, TimeUnit.MILLISECONDS);
+	protected void activatePanel() {
+		setPanel(true);
+	}
+	
+	protected void deactivatePanel() {
+		setPanel(false);
+	}
+	
+	private void setPanel(boolean canActivate) {
+		returnButton.setEnabled(canActivate);
+		gachaDetailButton.setEnabled(canActivate);
+		repeatButton.setEnabled(canActivate);
+		selectGachaJList.setEnabled(canActivate);
+		canPlay = canActivate;
 	}
 }

@@ -45,14 +45,14 @@ public class FileCheck extends SQLOperation{
 	/**
 	 * ゲーム初回起動時に設定されるメダル枚数
 	 */
-	private int DEFAULT_MEDAL = 1000;
+	private final int DEFAULT_MEDAL = 1000;
 	
 	/**
 	 * 新規追加された際の初期保有数
 	 */
 	private final int HAVE_NO_ITEM = 0;
 	
-	public FileCheck() {
+	public void createSQL() {
 		operateSQL(mysql -> {
 			if(hasPlayedGame(mysql)) {
 				everyTimeCheck(mysql);

@@ -1,5 +1,7 @@
 package defendthecastle;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 import javax.swing.JFrame;
 
 import battle.Battle;
@@ -11,57 +13,84 @@ import defendthecastle.selectstage.MenuSelectStage;
 
 //メイン画面切り替え
 public class MainFrame extends JFrame{
-	MainFrame() {
+	private ScheduledExecutorService scheduler;
+	
+	MainFrame(ScheduledExecutorService scheduler) {
+		this.scheduler = scheduler;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setResizable(false);
 	}
 	
 	public void mainMenuDraw() {
 		getContentPane().removeAll();
-		add(new MenuMain(this));
+		add(createMenuMain());
 		setTitle("メインメニュー");
 		setSize(585, 510);
 		setLocationRelativeTo(null);
 		setVisible(true);
 	}
 	
+	MenuMain createMenuMain() {
+		return new MenuMain(this, scheduler);
+	}
+	
 	void itemGetMenuDraw() {
 		getContentPane().removeAll();
-		add(new MenuItemGet(this));
+		add(createMenuItemGet());
 		setTitle("ガチャ");
 		setSize(585, 510);
 		setLocationRelativeTo(null);
 	}
 	
+	MenuItemGet createMenuItemGet() {
+		return new MenuItemGet(this, scheduler);
+	}
+	
 	void itemDisposeMenuDraw() {
 		getContentPane().removeAll();
-		add(new MenuItemDispose(this));
+		add(createMenuItemDispose());
 		setTitle("リサイクル");
 		setSize(715, 640);
 		setLocationRelativeTo(null);
 	}
 	
+	MenuItemDispose createMenuItemDispose() {
+		return new MenuItemDispose(this, scheduler);
+	}
+	
 	void compositionDraw() {
 		getContentPane().removeAll();
-		add(new MenuComposition(this));
+		add(createMenuComposition());
 		setTitle("ユニット編成");
 		setSize(975, 570);
 		setLocationRelativeTo(null);
 	}
 	
+	MenuComposition createMenuComposition() {
+		return new MenuComposition(this, scheduler);
+	}
+	
 	public void selectStageDraw() {
 		getContentPane().removeAll();
-		add(new MenuSelectStage(this));
+		add(createMenuSelectStage());
 		setTitle("ステージ選択");
 		setSize(925, 570);
 		setLocationRelativeTo(null);
 	}
 	
+	MenuSelectStage createMenuSelectStage() {
+		return new MenuSelectStage(this, scheduler);
+	}
+	
 	public void battleDraw(StageData StageData, double difficultyCorrection) {
 		getContentPane().removeAll();
-		add(new Battle(this, StageData, difficultyCorrection));
+		add(createBattle(StageData, difficultyCorrection));
 		setTitle(StageData.getName());
 		setSize(1235, 600);
 		setLocationRelativeTo(null);
+	}
+	
+	Battle createBattle(StageData StageData, double difficultyCorrection) {
+		return new Battle(this, scheduler, StageData, difficultyCorrection);
 	}
 }

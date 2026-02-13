@@ -22,7 +22,7 @@ class OpenBallMotion{
 	private ScheduledExecutorService scheduler;
 	private ScheduledFuture<?> openFuture;
 	
-	protected OpenBallMotion(MenuItemGet MenuItemGet, HoldMedal HoldMedal, GachaInformation GachaInformation, ScheduledExecutorService scheduler) {
+	OpenBallMotion(MenuItemGet MenuItemGet, HoldMedal HoldMedal, GachaInformation GachaInformation, ScheduledExecutorService scheduler) {
 		this.MenuItemGet = MenuItemGet;
 		this.HoldMedal = HoldMedal;
 		this.GachaInformation = GachaInformation;
@@ -31,7 +31,7 @@ class OpenBallMotion{
 		reset();
 	}
 	
-	protected void timerStart(HandleMotion HandleMotion) {
+	void timerStart(HandleMotion HandleMotion) {
 		this.HandleMotion = HandleMotion;
 		openTimer();
 	}
@@ -52,7 +52,7 @@ class OpenBallMotion{
 		}, 0, 40, TimeUnit.MILLISECONDS);
 	}
 	
-	private void timerStop() {
+	void timerStop() {
 		reset();
 		HandleMotion.addListener();
 		MenuItemGet.activatePanel();
@@ -60,27 +60,27 @@ class OpenBallMotion{
 		openFuture.cancel(true);
 	}
 	
-	protected boolean canRunTimer() {
+	boolean canRunTimer() {
 		return !openFuture.isDone();
 	}
 	
-	protected List<Double> getBallAngle(){
+	List<Double> getBallAngle(){
 		return Arrays.asList(bottomAngle, topAngle);
 	}
 	
-	protected List<Point> getBallPosition(){
+	List<Point> getBallPosition(){
 		return Arrays.asList(bottomPoint, topPoint);
 	}
 	
-	protected int getColor() {
+	int getColor() {
 		return color;
 	}
 	
-	protected int getExpansion() {
+	int getExpansion() {
 		return expansion;
 	}
 	
-	private void reset() {
+	void reset() {
 		bottomAngle = 0;
 		topAngle = 0;
 		bottomPoint = new Point(160, 345);

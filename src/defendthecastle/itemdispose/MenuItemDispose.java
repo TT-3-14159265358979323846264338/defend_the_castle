@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.IntStream;
 
 import javax.swing.JButton;
@@ -30,7 +31,7 @@ public class MenuItemDispose extends JPanel{
 	private List<BufferedImage> coreImageList = IntStream.range(0, DefaultUnit.CORE_DATA_MAP.size()).mapToObj(i -> DefaultUnit.CORE_DATA_MAP.get(i).getImage(2)).toList();
 	private List<BufferedImage> weaponImageList = IntStream.range(0, DefaultUnit.WEAPON_DATA_MAP.size()).mapToObj(i -> DefaultUnit.WEAPON_DATA_MAP.get(i).getImage(2)).toList();
 	
-	public MenuItemDispose(MainFrame MainFrame) {
+	public MenuItemDispose(MainFrame MainFrame, ScheduledExecutorService scheduler) {
 		setBackground(new Color(240, 170, 80));
 		add(typeLabel);
 		addSwitchButton();
