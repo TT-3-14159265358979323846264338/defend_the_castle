@@ -58,12 +58,30 @@ public abstract class WeaponData {
 	}
 	
 	/**
+	 * 初期状態の武器画像(右手ver)。
+	 * @param ratio - 元の画像を何倍の縮尺で取り込むか指定。
+	 * @return 戦闘時の初期状態の武器画像を返却する。
+	 */
+	public BufferedImage defaultRightActionImage(double ratio) {
+		return EditImage.input(getRightActionImageName().get(0), ratio);
+	}
+	
+	/**
 	 * 攻撃時の武器画像(左手ver)。
 	 * @param ratio - 元の画像を何倍の縮尺で取り込むか指定。
 	 * @return コアと共に表示する際の画像を返却する。
 	 */
 	public List<BufferedImage> getLeftActionImage(double ratio) {
 		return EditImage.input(getLeftActionImageName(), ratio);
+	}
+	
+	/**
+	 * 初期状態の武器画像(左手ver)。
+	 * @param ratio - 元の画像を何倍の縮尺で取り込むか指定。
+	 * @return 戦闘時の初期状態の武器画像を返却する。
+	 */
+	public BufferedImage defaultLeftActionImage(double ratio) {
+		return EditImage.input(getLeftActionImageName().get(0), ratio);
 	}
 	
 	/**

@@ -17,8 +17,6 @@ public class DefaultOther {
 	public static final String TURN = "image/gacha/turn.png";
 	public static final String EFFECT = "image/gacha/effect.png";
 	
-	
-	
 	//画像取込み
 	public BufferedImage getTitleImage(double ratio) {
 		return EditImage.input(TITLE, ratio);

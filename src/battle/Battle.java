@@ -14,7 +14,6 @@ import java.time.temporal.ValueRange;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -88,7 +87,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private final int NONE_DELAY = 0;
 	
 	//システム関連
-	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(100);
+	private ScheduledExecutorService scheduler;
 	private ScheduledFuture<?> mainFuture;
 	private long beforeMainTime;
 	private ScheduledFuture<?> autoFuture;
@@ -97,7 +96,8 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	private Object awakeLock = new Object();
 	
 	//メイン画面制御
-	public Battle(MainFrame MainFrame, StageData StageData, double difficultyCorrection) {
+	public Battle(MainFrame MainFrame, ScheduledExecutorService scheduler, StageData StageData, double difficultyCorrection) {
+		this.scheduler = scheduler;
 		this.StageData = StageData;
 		addMouseListener(this);
 		addMouseMotionListener(this);
@@ -724,20 +724,14 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	void clearTimer(MainFrame MainFrame, double difficultyCorrection) {
 		scheduler.scheduleAtFixedRate(() -> {
 			if(StageData.canClear(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData)) {
-				gameEnd();
 				new PauseDialog(StageData, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
 				MainFrame.selectStageDraw();
 				return;
 			}
 			if(StageData.existsGameOver(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData)) {
-				gameEnd();
 				new PauseDialog();
 				MainFrame.selectStageDraw();
 			}
 		}, 0, 1, TimeUnit.SECONDS);
-	}
-	
-	public void gameEnd() {
-		scheduler.shutdown();
 	}
 }

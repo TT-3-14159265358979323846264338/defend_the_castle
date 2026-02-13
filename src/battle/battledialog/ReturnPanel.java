@@ -72,7 +72,6 @@ class ReturnPanel extends JPanel{
 	void addReturnButton(PauseDialog PauseDialog, Battle Battle, MainFrame MainFrame) {
 		add(returnButton);
 		returnButton.addActionListener(_ ->{
-			Battle.gameEnd();
 			PauseDialog.disposeDialog();
 			MainFrame.selectStageDraw();
 		});
@@ -83,7 +82,6 @@ class ReturnPanel extends JPanel{
 	void addRetryButton(PauseDialog PauseDialog, Battle Battle, MainFrame MainFrame, StageData StageData, double difficultyCorrection) {
 		add(retryButton);
 		retryButton.addActionListener(_ ->{
-			Battle.gameEnd();
 			PauseDialog.disposeDialog();
 			MainFrame.battleDraw(StageData, difficultyCorrection);
 		});
