@@ -9,44 +9,59 @@ import savedata.SaveSelect;
 
 //クリアデータ取込み
 class ProgressData{
-	private SaveGameProgress SaveGameProgress = new SaveGameProgress();
-	private SaveSelect SaveSelect = new SaveSelect();
-	private List<Integer> stageNumberList;
+	private final SaveGameProgress saveGameProgress;
+	private final SaveSelect saveSelect;
+	private final List<Integer> activeStageList;
 	
-	protected ProgressData() {
-		SaveGameProgress.load();
-		SaveSelect.load();
-		stageNumberList = IntStream.range(0, DefaultStage.STAGE_DATA.size())
-				.filter(i -> DefaultStage.STAGE_DATA.get(i).canActivate(SaveGameProgress))
+	ProgressData() {
+		saveGameProgress = createSaveGameProgress();
+		saveSelect = createSaveSelect();
+		saveGameProgress.load();
+		saveSelect.load();
+		activeStageList = activeStageIndex();
+	}
+	
+	SaveGameProgress createSaveGameProgress() {
+		return new SaveGameProgress();
+	}
+	
+	SaveSelect createSaveSelect() {
+		return new SaveSelect();
+	}
+	
+	List<Integer> activeStageIndex(){
+		return IntStream.range(0, DefaultStage.STAGE_DATA.size())
+				.filter(i -> DefaultStage.STAGE_DATA.get(i).canActivate(saveGameProgress))
 				.boxed()
 				.toList();
 	}
 	
-	protected void save(int select) {
-		SaveGameProgress.save();
+	void save(int select) {
+		saveSelect.setStageSelectNumber(select);
+		saveSelect.save();
 	}
 	
-	protected List<Integer> getActivateStage(){
-		return stageNumberList;
+	List<Integer> getActivateStage(){
+		return activeStageList;
 	}
 	
-	protected List<Boolean> getClearStatus(){
-		return stageNumberList.stream().map(i -> SaveGameProgress.getStageStatus().get(i)).toList();
+	List<Boolean> getClearStatus(){
+		return activeStageList.stream().map(i -> saveGameProgress.getStageStatus().get(i)).toList();
 	}
 	
-	protected List<List<Boolean>> getMeritStatus(){
-		return stageNumberList.stream().map(i -> SaveGameProgress.getMeritData(i).getMeritClearList()).toList();
+	List<List<Boolean>> getMeritStatus(){
+		return activeStageList.stream().map(i -> saveGameProgress.getMeritData(i).getMeritClearList()).toList();
 	}
 	
-	protected int getSelectStage() {
-		return stageNumberList.indexOf(SaveSelect.getStageSelectNumber());
+	int getSelectStage() {
+		return activeStageList.indexOf(saveSelect.getStageSelectNumber());
 	}
 	
-	protected List<String> getStageName(){
-		return stageNumberList.stream().map(i -> DefaultStage.STAGE_DATA.get(i).getName()).toList();
+	List<String> getStageName(){
+		return activeStageList.stream().map(i -> DefaultStage.STAGE_DATA.get(i).getName()).toList();
 	}
 	
-	protected boolean canAllActivate() {
-		return stageNumberList.size() == DefaultStage.STAGE_DATA.size();
+	boolean canAllActivate() {
+		return activeStageList.size() == DefaultStage.STAGE_DATA.size();
 	}
 }

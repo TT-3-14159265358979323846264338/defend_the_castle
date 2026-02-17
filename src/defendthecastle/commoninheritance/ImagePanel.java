@@ -17,16 +17,16 @@ import defendthecastle.screendisplay.DisplayStatus;
 //ユニット表示パネル
 public class ImagePanel extends CommonJPanel implements MouseListener{
 	public static final int UNIT_SIZE = 60;
-	private final Dimension dimension;
 	private final List<BufferedImage> imageList;
 	private final List<Integer> numberList;
 	private List<Integer> displayList;
 	private final boolean existsWhich;
 	private final int columns;
-	private final int DRAW_SIZE = 120;
-	private final int PANEL_SIZE = 100;
 	private int selectNumber;
 	private final Font font = new Font("Arial", Font.BOLD, 30);
+	private final Dimension dimension;
+	private final int DRAW_SIZE = 120;
+	private final int PANEL_SIZE = 100;
 	
 	public ImagePanel(ScheduledExecutorService scheduler, List<BufferedImage> imageList, List<Integer> displayList, List<Integer> numberList, boolean exists, int columns) {
 		this.imageList = imageList;

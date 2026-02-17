@@ -1,119 +1,137 @@
 package defendthecastle.selectstage;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.util.List;
+import java.awt.event.ActionEvent;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import defaultdata.DefaultStage;
-import defaultdata.EditImage;
 import defendthecastle.MainFrame;
 import defendthecastle.battle.BattleEnemy;
+import defendthecastle.commoninheritance.CommonJPanel;
 
 //ステージ選択画面
-public class MenuSelectStage extends JPanel{
-	private JLabel stageLabel = new JLabel();
-	private JLabel informationLabel = new JLabel();
-	private JButton returnButton = new JButton();
-	private JButton normalModeButton = new JButton();
-	private JButton hardModeButton = new JButton();
-	private JScrollPane stageScroll = new JScrollPane();
-	private JScrollPane enemyScroll = new JScrollPane();
-	private JScrollPane meritScroll = new JScrollPane();
-	private ProgressData ProgressData = new ProgressData();
-	private List<BufferedImage> stageImage = ProgressData.getActivateStage().stream().map(i -> EditImage.stageImage(DefaultStage.STAGE_DATA.get(i), 5)).toList();
-	private SelectPanel SelectPanel = new SelectPanel(ProgressData, stageImage);
-	private MeritPanel MeritPanel = new MeritPanel(ProgressData, SelectPanel);
-	private EnemyPanel EnemyPanel = new EnemyPanel(ProgressData, SelectPanel);
-	private GameCondition GameCondition = new GameCondition(ProgressData, SelectPanel);
+public class MenuSelectStage extends CommonJPanel{
+	private final MainFrame mainFrame;
+	private final ProgressData progressData;
+	private final StageImage stageImage;
+	private final SelectPanel selectPanel;
+	private final MeritPanel meritPanel;
+	private final EnemyPanel enemyPanel;
+	private final GameCondition gameCondition;
+	private final JLabel stageLabel = new JLabel();
+	private final JLabel informationLabel = new JLabel();
+	private final JButton returnButton = new JButton();
+	private final JButton normalModeButton = new JButton();
+	private final JButton hardModeButton = new JButton();
+	private final JScrollPane stageScroll = new JScrollPane();
+	private final JScrollPane enemyScroll = new JScrollPane();
+	private final JScrollPane meritScroll = new JScrollPane();
+	private final Font font = new Font("ＭＳ ゴシック", Font.BOLD, 20);
 	
-	public MenuSelectStage(MainFrame MainFrame, ScheduledExecutorService scheduler) {
-		setBackground(new Color(240, 170, 80));
-		add(stageLabel);
-		add(informationLabel);
-		addReturnButton(MainFrame);
-		addNormalModeButton(MainFrame);
-		addHardModeButton(MainFrame);
+	public MenuSelectStage(MainFrame mainFrame, ScheduledExecutorService scheduler) {
+		this.mainFrame = mainFrame;
+		progressData = createProgressData();
+		stageImage = createStageImage();
+		meritPanel = createMeritPanel(scheduler);
+		enemyPanel = createEnemyPanel(scheduler);
+		gameCondition = createGameCondition(scheduler);
+		selectPanel = createSelectPanel(scheduler);
+		repaintTimer(scheduler, brown());
+		setLabel(stageLabel, "ステージ選択", 10, 10, 200, 30, font);
+		setLabel(informationLabel, "ステージ情報", 170, 10, 200, 30, font);
+		addReturnButton();
+		addNormalModeButton();
+		addHardModeButton();
 		addStageScroll();
 		addMeritScroll();
 		addEnemyScroll();
-		add(GameCondition);
+		addGameCondition();
 	}
 	
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		setLabel(stageLabel, "ステージ選択", 10, 10, 200, 30);
-		setLabel(informationLabel, "ステージ情報", 170, 10, 200, 30);
-		setButton(returnButton, "戻る", 10, 460, 150, 60);
-		setButton(normalModeButton, "normal", 580, 460, 155, 60);
-		setButton(hardModeButton, "hard", 745, 460, 155, 60);
-		setScroll(stageScroll, 10, 40, 150, 410);
-		setScroll(meritScroll, 170, 275, 400, 245);
-		setScroll(enemyScroll, 580, 40, 320, 295);
-		GameCondition.setBounds(580, 345, 320, 105);
-		g.drawImage(stageImage.get(SelectPanel.getSelelct()), 170, 40, this);
-		requestFocus();
+	ProgressData createProgressData() {
+		return new ProgressData();
 	}
 	
-	private void addReturnButton(MainFrame MainFrame) {
-		add(returnButton);
-		returnButton.addActionListener(_ ->{
-			MainFrame.mainMenuDraw();
-		});
+	StageImage createStageImage() {
+		return new StageImage(progressData);
 	}
 	
-	private void addNormalModeButton(MainFrame MainFrame) {
-		add(normalModeButton);
-		normalModeButton.addActionListener(_ ->{
-			ProgressData.save(SelectPanel.getSelelct());
-			MainFrame.battleDraw(DefaultStage.STAGE_DATA.get(SelectPanel.getSelelct()), BattleEnemy.NORMAL_MODE);
-		});
+	MeritPanel createMeritPanel(ScheduledExecutorService scheduler) {
+		return new MeritPanel(scheduler, progressData);
 	}
 	
-	private void addHardModeButton(MainFrame MainFrame) {
-		add(hardModeButton);
-		hardModeButton.addActionListener(_ ->{
-			ProgressData.save(SelectPanel.getSelelct());
-			MainFrame.battleDraw(DefaultStage.STAGE_DATA.get(SelectPanel.getSelelct()), BattleEnemy.HARD_MODE);
-		});
+	EnemyPanel createEnemyPanel(ScheduledExecutorService scheduler) {
+		return new EnemyPanel(scheduler, progressData);
+	}
+	
+	GameCondition createGameCondition(ScheduledExecutorService scheduler) {
+		return new GameCondition(scheduler, progressData);
+	}
+	
+	SelectPanel createSelectPanel(ScheduledExecutorService scheduler) {
+		return new SelectPanel(scheduler, progressData, stageImage, meritPanel, gameCondition, enemyPanel);
+	}
+	
+	private void addReturnButton() {
+		setButton(returnButton, "戻る", 10, 460, 150, 60, font);
+		returnButton.addActionListener(this::returnButtonAction);
+	}
+	
+	void returnButtonAction(ActionEvent e) {
+		mainFrame.mainMenuDraw();
+	}
+	
+	private void addNormalModeButton() {
+		setButton(normalModeButton, "normal", 580, 460, 155, 60, font);
+		normalModeButton.addActionListener(this::normalModeButtonAction);
+	}
+	
+	void normalModeButtonAction(ActionEvent e) {
+		battleStart(BattleEnemy.NORMAL_MODE);
+	}
+	
+	private void addHardModeButton() {
+		setButton(hardModeButton, "hard", 745, 460, 155, 60, font);
+		hardModeButton.addActionListener(this::hardModeButtonAction);
+	}
+	
+	void hardModeButtonAction(ActionEvent e) {
+		battleStart(BattleEnemy.HARD_MODE);
+	}
+	
+	private void battleStart(double mode) {
+		progressData.save(selectPanel.getSelelct());
+		mainFrame.battleDraw(DefaultStage.STAGE_DATA.get(selectPanel.getSelelct()), mode);
 	}
 	
 	private void addStageScroll() {
-		stageScroll.getViewport().setView(SelectPanel);
-		add(stageScroll);
+		stageScroll.getViewport().setView(selectPanel);
+		setScroll(stageScroll, 10, 40, 150, 410);
 	}
 	
 	private void addMeritScroll() {
-		meritScroll.getViewport().setView(MeritPanel);
-		add(meritScroll);
+		meritScroll.getViewport().setView(meritPanel);
+		setScroll(meritScroll, 170, 275, 400, 245);
 	}
 	
 	private void addEnemyScroll() {
-		enemyScroll.getViewport().setView(EnemyPanel);
-		add(enemyScroll);
+		enemyScroll.getViewport().setView(enemyPanel);
+		setScroll(enemyScroll, 580, 40, 320, 295);
 	}
 	
-	private void setLabel(JLabel label, String name, int x, int y, int width, int height) {
-		label.setText(name);
-		label.setBounds(x, y, width, height);
-		label.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
+	private void addGameCondition() {
+		gameCondition.setBounds(580, 345, 320, 105);
+		add(gameCondition);
 	}
 	
-	private void setButton(JButton button, String name, int x, int y, int width, int height) {
-		button.setText(name);
-		button.setBounds(x, y, width, height);
-		button.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
-	}
-	
-	private void setScroll(JScrollPane scroll, int x, int y, int width, int height) {
-		scroll.setBounds(x, y, width, height);
-		scroll.setPreferredSize(scroll.getSize());
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		g.drawImage(stageImage.getDetailImage(selectPanel.getSelelct()), 170, 40, this);
 	}
 }

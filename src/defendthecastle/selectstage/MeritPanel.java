@@ -9,50 +9,52 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import defaultdata.DefaultStage;
+import defendthecastle.commoninheritance.CommonJPanel;
 
 //戦功情報
-class MeritPanel extends JPanel{
-	private JLabel[] meritLabel;
-	private JLabel[] clearLabel;
-	private JLabel[] rewardLabel;
-	private SelectPanel SelectPanel;
-	private List<List<Boolean>> meritStatus;
-	private List<List<String>> meritInformation;
-	private List<List<String>> rewardInformation;
-	private Font meritFont = new Font("ＭＳ ゴシック", Font.BOLD, 15);
-	private Font clearFont = new Font("Arail", Font.BOLD, 30);
-	private Font rewardFont = meritFont;
+class MeritPanel extends CommonJPanel{
+	private final List<List<Boolean>> meritStatus;
+	private final List<List<String>> meritInformation;
+	private final List<List<String>> rewardInformation;
+	private final JLabel[] meritLabel;
+	private final JLabel[] clearLabel;
+	private final JLabel[] rewardLabel;
+	private final Font meritFont = new Font("ＭＳ ゴシック", Font.BOLD, 15);
+	private final Font clearFont = new Font("Arail", Font.BOLD, 30);
+	private final Font rewardFont = meritFont;
+	private final Dimension dimension = new Dimension();
+	private final int PANEL_SIZE =  200;
+	private final BasicStroke stroke = new BasicStroke(1);
 	
-	protected MeritPanel(ProgressData ProgressData, SelectPanel SelectPanel) {
-		this.SelectPanel = SelectPanel;
-		meritStatus = ProgressData.getMeritStatus();
-		meritLabel = IntStream.range(0, labelNumber(ProgressData)).mapToObj(_ -> new JLabel()).toArray(JLabel[]::new);
-		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(_ -> new JLabel()).toArray(JLabel[]::new);
-		rewardLabel = IntStream.range(0, meritLabel.length).mapToObj(_ -> new JLabel()).toArray(JLabel[]::new);
-		meritInformation = ProgressData.getActivateStage().stream().map(i -> informationList(i)).toList();
-		rewardInformation = ProgressData.getActivateStage().stream().map(i -> DefaultStage.STAGE_DATA.get(i).getReward()).toList();
-		addLabel();
+	MeritPanel(ScheduledExecutorService scheduler, ProgressData progressData) {
+		meritStatus = progressData.getMeritStatus();
+		meritInformation = progressData.getActivateStage().stream().map(i -> informationList(i)).toList();
+		rewardInformation = progressData.getActivateStage().stream().map(i -> DefaultStage.STAGE_DATA.get(i).getReward()).toList();
+		repaintTimer(scheduler, defaultWhite());
+		meritLabel = IntStream.range(0, labelNumber(progressData)).mapToObj(this::addMeritLabel).toArray(JLabel[]::new);
+		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(this::addClearLabel).toArray(JLabel[]::new);
+		rewardLabel = IntStream.range(0, meritLabel.length).mapToObj(this::addRewardLabel).toArray(JLabel[]::new);
+		setPreferredSize(dimension);
 	}
 	
-	private int labelNumber(ProgressData ProgressData) {
-		return ProgressData.getActivateStage().stream()
+	int labelNumber(ProgressData progressData) {
+		return progressData.getActivateStage().stream()
 				.mapToInt(i -> DefaultStage.STAGE_DATA.get(i).getMerit().size())
 				.max()
 				.getAsInt();
 	}
 	
-	private List<String> informationList(int number){
+	List<String> informationList(int number){
 		return DefaultStage.STAGE_DATA.get(number).getMerit().stream().map(j -> wrap(j)).toList();
 	}
 	
-	private String wrap(String comment) {
+	String wrap(String comment) {
 		int lastPosition = 0;
 		List<Integer> wrapPosition = new ArrayList<>();
 		for(int i = 0; i < comment.length(); i++) {
@@ -69,41 +71,54 @@ class MeritPanel extends JPanel{
 		return wrapComment.insert(0, "<html>").toString();
 	}
 	
+	JLabel addMeritLabel(int number) {
+		var label = new JLabel();
+		setLabel(label, "", 5, number * 70, 400, 70, meritFont);
+		return label;
+	}
+	
+	JLabel addClearLabel(int number) {
+		var label = new JLabel();
+		setLabel(label, "", 290, number * 70, 100, 70, clearFont);
+		label.setHorizontalAlignment(JLabel.CENTER);
+		label.setForeground(Color.RED);
+		return label;
+	}
+	
+	JLabel addRewardLabel(int number) {
+		var label = new JLabel();
+		setLabel(label, "", 290, number * 70, 100, 70, rewardFont);
+		label.setHorizontalAlignment(JLabel.CENTER);
+		return label;
+	}
+	
+	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		setPreferredSize(new Dimension(200, 70 * meritInformation.get(SelectPanel.getSelelct()).size()));
-		IntStream.range(0, meritLabel.length).forEach(i -> setLabel(i));
 		Graphics2D g2 = (Graphics2D)g;
-		g2.setStroke(new BasicStroke(1));
+		g2.setStroke(stroke);
 		IntStream.range(0, meritLabel.length).forEach(i -> g.drawLine(0, 70 * i, 400, 70 * i));
 	}
 	
-	private void addLabel() {
-		Stream.of(meritLabel).forEach(i -> {
-			add(i);
-			i.setFont(meritFont);
-		});
-		Stream.of(clearLabel).forEach(i -> {
-			add(i);
-			i.setHorizontalAlignment(JLabel.CENTER);
-			i.setForeground(Color.RED);
-			i.setFont(clearFont);
-		});
-		Stream.of(rewardLabel).forEach(i -> {
-			add(i);
-			i.setHorizontalAlignment(JLabel.CENTER);
-			i.setFont(rewardFont);
-		});
+	void changeSelect(int select) {
+		dimension.setSize(PANEL_SIZE, dimensionHeight(select));
+		changeLabelText(select);
+		revalidate();
 	}
 	
-	private void setLabel(int number) {
+	int dimensionHeight(int select) {
+		return 70 * meritInformation.get(select).size();
+	}
+	
+	void changeLabelText(int select) {
+		IntStream.range(0, meritLabel.length).forEach(i -> setLabel(i, select));
+	}
+	
+	void setLabel(int number, int select) {
 		try{
-			meritLabel[number].setText(meritInformation.get(SelectPanel.getSelelct()).get(number));
-			meritLabel[number].setBounds(5, number * 70, 400, 70);
-			clearLabel[number].setText(meritStatus.get(SelectPanel.getSelelct()).get(number)? "clear": "");
-			clearLabel[number].setBounds(290, number * 70, 100, 70);
-			rewardLabel[number].setText(rewardInformation.get(SelectPanel.getSelelct()).get(number));
-			rewardLabel[number].setBounds(290, number * 70, 100, 70);
+			meritLabel[number].setText(meritInformation.get(select).get(number));
+			clearLabel[number].setText(meritStatus.get(select).get(number)? "clear": "");
+			rewardLabel[number].setText(rewardInformation.get(select).get(number));
 		}catch (Exception e) {
 			meritLabel[number].setText("");
 			clearLabel[number].setText("");

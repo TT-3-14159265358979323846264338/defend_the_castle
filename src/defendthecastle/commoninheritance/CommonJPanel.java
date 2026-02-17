@@ -22,6 +22,7 @@ public abstract class CommonJPanel extends JPanel implements AncestorListener{
 	 * JPanelが表示されると約60fpsで画面の更新を行う。
 	 * 表示が終了すると更新は停止される。
 	 * @param scheduler - futureで使用するscheduler。
+	 * @param color - JPanelの背景色。
 	 */
 	protected void repaintTimer(ScheduledExecutorService scheduler, Color color) {
 		commonScheduler = scheduler;
@@ -51,7 +52,9 @@ public abstract class CommonJPanel extends JPanel implements AncestorListener{
 	
 	@Override
     public void ancestorAdded(AncestorEvent event){
-		commonFuture = repaintFuture();
+		if(commonScheduler != null) {
+			commonFuture = repaintFuture();
+		}
 	}
 	@Override
     public void ancestorMoved(AncestorEvent event) {

@@ -1,46 +1,45 @@
 package defendthecastle.selectstage;
 
 import java.awt.Font;
-import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import defaultdata.DefaultStage;
+import defendthecastle.commoninheritance.CommonJPanel;
 
-class GameCondition extends JPanel{
-	private SelectPanel SelectPanel;
-	private JLabel clearCommentLabel = new JLabel();
-	private JLabel clearConditionLabel = new JLabel();
-	private JLabel gameOverCommentLabel = new JLabel();
-	private JLabel gameOverConditionLabel = new JLabel();
-	private Font font = new Font("ＭＳ ゴシック", Font.BOLD, 15);
-	private List<List<String>> condition;
+class GameCondition extends CommonJPanel{
+	private final JLabel clearCommentLabel = new JLabel();
+	private final JLabel clearConditionLabel = new JLabel();
+	private final JLabel gameOverCommentLabel = new JLabel();
+	private final JLabel gameOverConditionLabel = new JLabel();
+	private final Font font = new Font("ＭＳ ゴシック", Font.BOLD, 15);
+	private final List<List<String>> condition;
 	
-	protected GameCondition(ProgressData ProgressData, SelectPanel SelectPanel) {
-		this.SelectPanel = SelectPanel;
-		add(clearCommentLabel);
-		clearCommentLabel.setFont(font);
-		add(clearConditionLabel);
-		clearConditionLabel.setFont(font);
-		add(gameOverCommentLabel);
-		gameOverCommentLabel.setFont(font);
-		add(gameOverConditionLabel);
-		gameOverConditionLabel.setFont(font);
-		condition = ProgressData.getActivateStage().stream().map(i -> condition(i)).toList();
+	GameCondition(ScheduledExecutorService scheduler, ProgressData progressData) {
+		condition = conditionData(progressData);
+		repaintTimer(scheduler, defaultWhite());
+		setLabel(clearCommentLabel, "勝利条件: ", 5, 5, 80, 40, font);
+		setLabel(clearConditionLabel, "", 80, 5, 240, 40, font);
+		setLabel(gameOverCommentLabel, "敗北条件: ", 5, 60, 100, 40, font);
+		setLabel(gameOverConditionLabel, "", 80, 60, 240, 40, font);
 	}
 	
-	private List<String> condition(int number){
+	List<List<String>> conditionData(ProgressData progressData){
+		return progressData.getActivateStage().stream().map(i -> condition(i)).toList();
+	}
+	
+	List<String> condition(int number){
 		List<String> stageCondition = new ArrayList<>();
 		stageCondition.add(conditionComment(DefaultStage.STAGE_DATA.get(number).getClearCondition()));
 		stageCondition.add(conditionComment(DefaultStage.STAGE_DATA.get(number).getGameOverCondition()));
 		return stageCondition;
 	}
 	
-	private String conditionComment(String comment) {
+	String conditionComment(String comment) {
 		int lastPosition = 0;
 		List<Integer> wrapPosition = new ArrayList<>();
 		for(int i = 0; i < comment.length(); i++) {
@@ -57,15 +56,8 @@ class GameCondition extends JPanel{
 		return wrapComment.insert(0, "<html>").toString();
 	}
 	
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		clearCommentLabel.setText("勝利条件: ");
-		clearCommentLabel.setBounds(5, 5, 80, 40);
-		clearConditionLabel.setText(condition.get(SelectPanel.getSelelct()).get(0));
-		clearConditionLabel.setBounds(80, 5, 240, 40);
-		gameOverCommentLabel.setText("敗北条件: ");
-		gameOverCommentLabel.setBounds(5, 60, 100, 40);
-		gameOverConditionLabel.setText(condition.get(SelectPanel.getSelelct()).get(1));
-		gameOverConditionLabel.setBounds(80, 60, 240, 40);
+	void changeSelect(int select) {
+		clearConditionLabel.setText(condition.get(select).get(0));
+		gameOverConditionLabel.setText(condition.get(select).get(1));
 	}
 }
