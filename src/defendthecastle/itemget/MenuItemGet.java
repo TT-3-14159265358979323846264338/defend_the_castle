@@ -49,7 +49,7 @@ public class MenuItemGet extends CommonJPanel{
 		openBallMotion = createOpenBallMotion(scheduler);
 		ballMotion = createBallMotion(scheduler);
 		handleMotion = createHandleMotion(scheduler);
-		repaintTimer(scheduler, brown());
+		repaintTimer(scheduler, defaultWhite());
 		addMedalLabel();
 		addGachaDetailButton();
 		addRepeatButton();
@@ -131,7 +131,8 @@ public class MenuItemGet extends CommonJPanel{
 		selectGachaScroll.getViewport().setView(selectGachaJList);
 		selectGachaJList.setSelectedIndex(0);
 		selectGachaJList.addListSelectionListener(this::selectAction);
-		setScroll(selectGachaScroll, 350, 60, 210, 260, largeFont);
+		selectGachaJList.setFont(largeFont);
+		setScroll(selectGachaScroll, 350, 60, 210, 260);
 	}
 	
 	void selectAction(ListSelectionEvent e) {

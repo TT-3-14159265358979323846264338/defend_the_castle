@@ -192,7 +192,8 @@ public class MenuComposition extends CommonJPanel implements MouseListener{
 		modelUpdate();
 		compositionJList.addListSelectionListener(this::selectAction);
 		compositionScroll.getViewport().setView(compositionJList);
-		setScroll(compositionScroll, 10, 40, 210, 270, largeFont);
+		compositionJList.setFont(largeFont);
+		setScroll(compositionScroll, 10, 40, 210, 270);
 		CompletableFuture.runAsync(this::delaySelect);
 	}
 	

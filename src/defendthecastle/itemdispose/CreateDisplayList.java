@@ -7,7 +7,7 @@ import defendthecastle.commoninheritance.DisplayList;
 
 //表示リスト作成
 class CreateDisplayList extends DisplayList{
-	private OperateData operateData;
+	private final OperateData operateData;
 	
 	CreateDisplayList(OperateData operateData){
 		this.operateData = operateData;

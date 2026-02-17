@@ -22,11 +22,11 @@ public class MainFrame extends JFrame{
 	}
 	
 	public void mainMenuDraw() {
-		getContentPane().removeAll();
-		add(createMenuMain());
 		setTitle("メインメニュー");
 		setSize(585, 510);
-		setLocationRelativeTo(null);
+		getContentPane().removeAll();
+		add(createMenuMain());
+		postProcessing();
 		setVisible(true);
 	}
 	
@@ -35,11 +35,11 @@ public class MainFrame extends JFrame{
 	}
 	
 	void itemGetMenuDraw() {
-		getContentPane().removeAll();
-		add(createMenuItemGet());
 		setTitle("ガチャ");
 		setSize(585, 510);
-		setLocationRelativeTo(null);
+		getContentPane().removeAll();
+		add(createMenuItemGet());
+		postProcessing();
 	}
 	
 	MenuItemGet createMenuItemGet() {
@@ -47,11 +47,11 @@ public class MainFrame extends JFrame{
 	}
 	
 	void itemDisposeMenuDraw() {
-		getContentPane().removeAll();
-		add(createMenuItemDispose());
 		setTitle("リサイクル");
 		setSize(715, 640);
-		setLocationRelativeTo(null);
+		getContentPane().removeAll();
+		add(createMenuItemDispose());
+		postProcessing();
 	}
 	
 	MenuItemDispose createMenuItemDispose() {
@@ -59,11 +59,11 @@ public class MainFrame extends JFrame{
 	}
 	
 	void compositionDraw() {
-		getContentPane().removeAll();
-		add(createMenuComposition());
 		setTitle("ユニット編成");
 		setSize(975, 570);
-		setLocationRelativeTo(null);
+		getContentPane().removeAll();
+		add(createMenuComposition());
+		postProcessing();
 	}
 	
 	MenuComposition createMenuComposition() {
@@ -71,11 +71,11 @@ public class MainFrame extends JFrame{
 	}
 	
 	public void selectStageDraw() {
-		getContentPane().removeAll();
-		add(createMenuSelectStage());
 		setTitle("ステージ選択");
 		setSize(925, 570);
-		setLocationRelativeTo(null);
+		getContentPane().removeAll();
+		add(createMenuSelectStage());
+		postProcessing();
 	}
 	
 	MenuSelectStage createMenuSelectStage() {
@@ -83,14 +83,20 @@ public class MainFrame extends JFrame{
 	}
 	
 	public void battleDraw(StageData StageData, double difficultyCorrection) {
-		getContentPane().removeAll();
-		add(createBattle(StageData, difficultyCorrection));
 		setTitle(StageData.getName());
 		setSize(1235, 600);
-		setLocationRelativeTo(null);
+		getContentPane().removeAll();
+		add(createBattle(StageData, difficultyCorrection));
+		postProcessing();
 	}
 	
 	Battle createBattle(StageData StageData, double difficultyCorrection) {
 		return new Battle(this, scheduler, StageData, difficultyCorrection);
+	}
+	
+	void postProcessing() {
+		setLocationRelativeTo(null);
+		revalidate();
+		repaint();
 	}
 }

@@ -59,7 +59,7 @@ class GachaLineup extends JDialog{
 		lineup.addElement(" ");
 		IntStream.range(0, weaponLineup.size()).forEach(i -> {
 			var weaponData = DefaultUnit.WEAPON_DATA_MAP.get(weaponLineup.get(i));
-			var weaponName = String.format("%s%s", weaponData.getRarity(), weaponData.getName());
+			var weaponName = String.format("%s%s", rarityName(weaponData.getRarity()), weaponData.getName());
 			lineup.addElement(String.format("%s%s", unitName(weaponName), ratioName(weaponRatio.get(i))));
 		});
 	}

@@ -28,7 +28,7 @@ public abstract class CommonJPanel extends JPanel implements AncestorListener{
 		setBackground(color);
 		addAncestorListener(this);
 		setLayout(null);
-		requestFocus();
+		setFocusable(true);
 	}
 	
 	/**
@@ -54,7 +54,7 @@ public abstract class CommonJPanel extends JPanel implements AncestorListener{
 		commonFuture = repaintFuture();
 	}
 	@Override
-    public void 	ancestorMoved(AncestorEvent event) {
+    public void ancestorMoved(AncestorEvent event) {
 	}
 	@Override
     public void ancestorRemoved(AncestorEvent event) {
@@ -102,23 +102,8 @@ public abstract class CommonJPanel extends JPanel implements AncestorListener{
 		button.setText(name);
 		button.setBounds(x, y, width, height);
 		button.setFont(font);
+		button.setFocusable(false);
 		add(button);
-	}
-	
-	/**
-	 * JScrollPaneの設定を行い、JPanelに追加する。
-	 * @param scroll - 設定するJScrollPane
-	 * @param x - 配置するx座標
-	 * @param y - 配置するy座標
-	 * @param width - 横幅
-	 * @param height - 高さ
-	 * @param font - フォント
-	 */
-	protected void setScroll(JScrollPane scroll, int x, int y, int width, int height, Font font) {
-		scroll.setBounds(x, y, width, height);
-		scroll.setPreferredSize(scroll.getSize());
-		scroll.setFont(font);
-		add(scroll);
 	}
 	
 	/**
@@ -132,6 +117,7 @@ public abstract class CommonJPanel extends JPanel implements AncestorListener{
 	protected void setScroll(JScrollPane scroll, int x, int y, int width, int height) {
 		scroll.setBounds(x, y, width, height);
 		scroll.setPreferredSize(scroll.getSize());
+		scroll.setFocusable(false);
 		add(scroll);
 	}
 }

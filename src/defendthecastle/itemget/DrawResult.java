@@ -19,7 +19,7 @@ import savedata.SaveHoldItem;
 
 //ガチャ結果表示
 class DrawResult extends CommonJPanel implements MouseListener{
-	private ItemGetImage itemGetImage;
+	private final ItemGetImage itemGetImage;
 	private List<Integer> getCore = new ArrayList<>();
 	private List<Point> corePosition = new ArrayList<>();
 	private List<Integer> getWeapon = new ArrayList<>();

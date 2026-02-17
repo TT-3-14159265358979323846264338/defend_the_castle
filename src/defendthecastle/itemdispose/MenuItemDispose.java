@@ -1,7 +1,6 @@
 package defendthecastle.itemdispose;
 
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -17,24 +16,24 @@ import defendthecastle.commoninheritance.ImagePanel;
 
 //アイテムのリサイクル
 public class MenuItemDispose extends CommonJPanel{
-	private MainFrame mainFrame;
-	private OperateData operateData;
-	private CreateDisplayList createDisplayList;
-	private DefaultDisposeData defaultDisposeData;
-	private ImagePanel coreImagePanel;
-	private ImagePanel weaponImagePanel;
-	private JLabel typeLabel = new JLabel();
-	private JButton switchButton = new JButton();
-	private JButton sortButton = new JButton();
-	private JButton disposeButton = new JButton();
-	private JButton returnButton = new JButton();
-	private JScrollPane itemScroll = new JScrollPane();
+	private final MainFrame mainFrame;
+	private final OperateData operateData;
+	private final CreateDisplayList createDisplayList;
+	private final DefaultDisposeData defaultDisposeData;
+	private final ImagePanel coreImagePanel;
+	private final ImagePanel weaponImagePanel;
+	private final JLabel typeLabel = new JLabel();
+	private final JButton switchButton = new JButton();
+	private final JButton sortButton = new JButton();
+	private final JButton disposeButton = new JButton();
+	private final JButton returnButton = new JButton();
+	private final JScrollPane itemScroll = new JScrollPane();
 	private final Font largeFont = new Font("ＭＳ ゴシック", Font.BOLD, 25);
 	private final Font smallFont = new Font("ＭＳ ゴシック", Font.BOLD, 20);
 	
 	public MenuItemDispose(MainFrame mainFrame, ScheduledExecutorService scheduler) {
 		this.mainFrame = mainFrame;
-		operateData = createOperateData();
+		operateData = createOperateData(scheduler);
 		createDisplayList = createDisplayList();
 		defaultDisposeData = createDefaultDisposeData();
 		coreImagePanel = createImagePanel(scheduler, defaultDisposeData.getCoreImageList(), createDisplayList.initialCoreDisplayList(), operateData.getCoreNumberList(), true);
@@ -48,8 +47,8 @@ public class MenuItemDispose extends CommonJPanel{
 		addScroll();
 	}
 	
-	OperateData createOperateData() {
-		return new OperateData();
+	OperateData createOperateData(ScheduledExecutorService scheduler) {
+		return new OperateData(scheduler);
 	}
 	
 	CreateDisplayList createDisplayList() {
@@ -124,10 +123,5 @@ public class MenuItemDispose extends CommonJPanel{
 	private void addScroll() {
 		itemScroll.getViewport().setView(coreImagePanel);
 		setScroll(itemScroll, 20, 50, 660, 470);
-	}
-	
-	@Override
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
 	}
 }

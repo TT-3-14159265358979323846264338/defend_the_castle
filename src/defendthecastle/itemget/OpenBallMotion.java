@@ -55,16 +55,17 @@ class OpenBallMotion{
 		topPoint.y -= 2;
 		color += 5;
 		expansion += 20;
+		IO.println(true);
 		if(1 < bottomAngle) {
 			timerStop();
 		}
 	}
 	
 	void timerStop() {
+		gacha();
 		reset();
 		handleMotion.addListener();
 		menuItemGet.activatePanel();
-		gacha();
 		openFuture.cancel(true);
 	}
 	
