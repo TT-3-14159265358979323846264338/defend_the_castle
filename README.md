@@ -5,10 +5,9 @@ src: ゲームで使用するソースフォルダ。
 image: ゲームで使用する画像フォルダ。srcと同階層にimageフォルダを作成し、中身を保存すること。defaultは下書きのため、無くてもゲームに影響はない。  
 test: 単体テスト用ソースフォルダ。srcと同階層にtestソースフォルダを作成し、中身を保存すること。♦現在作成中♦  
 other: その他ゲーム作成で使用するファイル。無くてもゲームに影響はない。  
-pom.xml: Mavenプロジェクトの構成内容。  
+pom.xml: Mavenプロジェクトの構成内容。JavaやMySQLなどのバージョンはこちらを参照。  
 
 ♦MySQL関連設定♦  
-環境: ver → MySQL 9.6, lib → mysql-connector-j-9.6.0  
 権限: ユーザーの権限はSELECT, INSERT, UPDATE, CREATE (CREATEは初回起動時のみ必要)  
 その他: db.propertiesの作成 (ファイルをsrcと同階層に作成し、url, user, passを設定する。savedata.SQLOperationで取り込む。)  
   
