@@ -5,37 +5,48 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import defaultdata.DefaultAtackPattern;
 import defaultdata.DefaultUnit;
+import defendthecastle.commoninheritance.CommonJPanel;
 
 //ソート画面
-class SortPanel extends JPanel {
-	private JLabel sortLabel = new JLabel();
-	private JLabel filterLabel = new JLabel();
-	private JLabel[] commentLabel = IntStream.range(0, 9).mapToObj(_ -> new JLabel()).toArray(JLabel[]::new);
-	private JButton sortButton = new JButton();
-	private JButton resetButton = new JButton();
-	private JButton returnButton = new JButton();
+abstract class SortPanel extends CommonJPanel {
+	private final SortDialog sortDialog;
+	private final List<Integer> rarityList;
+	private final List<List<Double>> weaponStatusList;
+	private final List<List<Double>> unitStatusList;
+	private final List<List<Integer>> cutList;
+	private final List<Integer> distanceList;
+	private final List<Integer> handleList;
+	private final List<List<Integer>> elementList;
+	private final List<Integer> targetList;
+	private final List<Integer> defaultDisplayList;
+	private final JLabel sortLabel = new JLabel();
+	private final JLabel filterLabel = new JLabel();
+	private final JLabel[] commentLabel = IntStream.range(0, 9).mapToObj(_ -> new JLabel()).toArray(JLabel[]::new);
+	private final JButton sortButton = new JButton();
+	private final JButton resetButton = new JButton();
+	private final JButton returnButton = new JButton();
 	private JRadioButton[] mode;
 	private JRadioButton[] raritySort;
 	private JRadioButton[] weapon;
@@ -46,195 +57,70 @@ class SortPanel extends JPanel {
 	private JRadioButton[] handle;
 	private JRadioButton[] element;
 	private JRadioButton[] target;
-	private ButtonGroup sortGroup = new ButtonGroup();
-	private ButtonGroup itemGroup = new ButtonGroup();
-	private SortDialog SortDialog = new SortDialog();
-	protected List<Integer> rarityList;
-	protected List<List<Double>> weaponStatusList;
-	protected List<List<Double>> unitStatusList;
-	protected List<List<Integer>> cutList;
-	protected List<Integer> distanceList;
-	protected List<Integer> handleList;
-	protected List<List<Integer>> elementList;
-	protected List<Integer> targetList;
-	private List<Integer> defaultDisplayList;
+	private final ButtonGroup sortGroup = new ButtonGroup();
+	private final ButtonGroup itemGroup = new ButtonGroup();
+	private final Font largeFont = new Font("ＭＳ ゴシック", Font.BOLD, 20);
+	private final Font smallFont = new Font("ＭＳ ゴシック", Font.BOLD, 15);
 	private boolean canSort;
 	
-	protected void setSortPanel(List<Integer> defaultList) {
-		setBackground(new Color(240, 170, 80));
+	SortPanel(ScheduledExecutorService scheduler, List<Integer> defaultList) {
 		this.defaultDisplayList = defaultList;
-		speedInversion();
+		sortDialog = createSortDialog();
+		rarityList = createRarityList();
+		weaponStatusList =  speedInversion(createWeaponStatusList());
+		unitStatusList = createUnitStatusList();
+		cutList = createCutList();
+		distanceList = createDistanceList();
+		handleList = createHandleList();
+		elementList = createElementList();
+		targetList = createTargetList();
+		repaintTimer(scheduler, brown());
 		addLabel();
 		addSortButton();
 		addResetButton();
 		addReturnButton();
-		initializeRadioButton();
-		setRadioButtonAction();
-		setRadioButtonName();
+		addRadioButton();
 	}
 	
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		drawField(g);
-		setLabel();
-		setButton();
-		setRadioButton();
+	SortDialog createSortDialog() {
+		return new SortDialog();
 	}
 	
-	private void speedInversion(){//攻撃速度のみは昇降順が逆になっている
-		weaponStatusList = weaponStatusList.stream().map(i -> IntStream.range(0, i.size()).mapToObj(j -> (j == 2)? 1 / i.get(j): i.get(j)).toList()).toList();
+	abstract List<Integer> createRarityList();
+	
+	abstract List<List<Double>> createWeaponStatusList();
+	
+	abstract List<List<Double>> createUnitStatusList();
+	
+	abstract List<List<Integer>> createCutList();
+	
+	abstract List<Integer> createDistanceList();
+	
+	abstract List<Integer> createHandleList();
+	
+	abstract List<List<Integer>> createElementList();
+	
+	abstract List<Integer> createTargetList();
+	
+	//攻撃速度のみは昇降順が逆になっている
+	List<List<Double>> speedInversion(List<List<Double>> statusList){
+		return statusList.stream().map(i -> IntStream.range(0, i.size()).mapToObj(j -> (j == 2)? 1 / i.get(j): i.get(j)).toList()).toList();
 	}
 	
 	private void addLabel(){
-		sortLabel.setText("並び替え");
-		setLabel(sortLabel);
-		add(sortLabel);
-		filterLabel.setText("絞り込み");
-		setLabel(filterLabel);
-		add(filterLabel);
-		commentLabel[0].setText("レアリティ");
-		commentLabel[1].setText("武器ステータス");
-		commentLabel[2].setText("ユニットステータス");
-		commentLabel[3].setText("属性耐性");
-		commentLabel[4].setText("レアリティ");
+		setLabel(sortLabel, "並び替え", 10, 10, 300, 40, largeFont);
+		setLabel(filterLabel, "絞り込み", 10, 240, 300, 40, largeFont);
+		setLabel(commentLabel[0], "レアリティ", smallFont);
+		setLabel(commentLabel[1], "武器ステータス", smallFont);
+		setLabel(commentLabel[2], "ユニットステータス", smallFont);
+		setLabel(commentLabel[3], "属性耐性", smallFont);
+		setLabel(commentLabel[4], "レアリティ", smallFont);
 		if(Objects.nonNull(distanceList)) {
-			commentLabel[5].setText("距離タイプ");
-			commentLabel[6].setText("装備タイプ");
-			commentLabel[7].setText("属性");
-			commentLabel[8].setText("ターゲット");
+			setLabel(commentLabel[5], "距離タイプ", smallFont);
+			setLabel(commentLabel[6], "装備タイプ", smallFont);
+			setLabel(commentLabel[7], "属性", smallFont);
+			setLabel(commentLabel[8], "ターゲット", smallFont);
 		}
-		Stream.of(commentLabel).forEach(i -> {
-			i.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 15));
-			add(i);
-		});
-	}
-	
-	private void setLabel(JLabel label) {
-		label.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
-	}
-	
-	private void addSortButton() {
-		sortButton.setText("ソート");
-		setButton(sortButton);
-		add(sortButton);
-		sortButton.addActionListener(_ ->{
-			canSort = true;
-			SortDialog.dispose();
-		});
-	}
-	
-	private void addResetButton() {
-		resetButton.setText("リセット");
-		setButton(resetButton);
-		add(resetButton);
-		resetButton.addActionListener(_ ->{
-			Consumer<JRadioButton[]> initialize = (radio) -> {
-				Stream.of(radio).forEach(i -> i.setSelected(false));
-			};
-			mode[0].setSelected(true);
-			raritySort[0].setSelected(true);
-			initialize.accept(rarity);
-			if(Objects.nonNull(distanceList)) {
-				initialize.accept(distance);
-				initialize.accept(handle);
-				initialize.accept(element);
-			}
-		});
-	}
-	
-	private void addReturnButton() {
-		returnButton.setText("戻る");
-		setButton(returnButton);
-		add(returnButton);
-		returnButton.addActionListener(_ ->{
-			SortDialog.dispose();
-		});
-	}
-	
-	private void setButton(JButton button) {
-		button.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
-	}
-	
-	private void initializeRadioButton() {
-		Function<Integer, JRadioButton[]> initialize = (size) -> {
-			JRadioButton[] radio = IntStream.range(0, size).mapToObj(_ -> new JRadioButton()).toArray(JRadioButton[]::new);
-			Stream.of(radio).forEach(i -> {
-				i.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 15));
-				i.setOpaque(false);
-				add(i);
-			});
-			return radio;
-		};
-		BiConsumer<ButtonGroup, JRadioButton[]> grouping = (group, radio) -> {
-			Stream.of(radio).forEach(i -> group.add(i));
-		};
-		
-		mode = initialize.apply(2);
-		mode[0].setSelected(true);
-		grouping.accept(sortGroup, mode);
-		
-		raritySort = initialize.apply(1);
-		raritySort[0].setSelected(true);
-		weapon = initialize.apply(DefaultUnit.WEAPON_WEAPON_MAP.size());
-		unit = initialize.apply(DefaultUnit.WEAPON_UNIT_MAP.size());
-		cut = initialize.apply(DefaultUnit.ELEMENT_MAP.size());
-		grouping.accept(itemGroup, raritySort);
-		grouping.accept(itemGroup, weapon);
-		grouping.accept(itemGroup, unit);
-		grouping.accept(itemGroup, cut);
-		
-		rarity = initialize.apply(Collections.max(rarityList));
-		if(Objects.nonNull(distanceList)) {
-			distance = initialize.apply(DefaultUnit.DISTANCE_MAP.size());
-			handle = initialize.apply(DefaultUnit.HANDLE_MAP.size());
-			element = initialize.apply(DefaultUnit.ELEMENT_MAP.size());
-			target = initialize.apply(DefaultAtackPattern.PATTERN_SPECIES);
-		}
-	}
-	
-	private void setRadioButtonAction() {
-		BiConsumer<JRadioButton[], Map<Integer, String>> setAction = (radio, map) ->{
-			IntStream.range(0, radio.length).forEach(i -> radio[i].setActionCommand(map.get(i)));
-		};		
-		mode[0].setActionCommand("true");
-		mode[1].setActionCommand("false");
-		
-		raritySort[0].setActionCommand("true");
-		setAction.accept(weapon, DefaultUnit.WEAPON_WEAPON_MAP);
-		setAction.accept(unit, DefaultUnit.WEAPON_UNIT_MAP);
-		setAction.accept(cut, DefaultUnit.ELEMENT_MAP);
-		
-		IntStream.range(0, rarity.length).forEach(i -> rarity[i].setActionCommand("" + (i + 1)));
-		if(Objects.nonNull(distanceList)) {
-			setAction.accept(distance, DefaultUnit.DISTANCE_MAP);
-			setAction.accept(handle, DefaultUnit.HANDLE_MAP);
-			setAction.accept(element, DefaultUnit.ELEMENT_MAP);
-			IntStream.range(0, target.length).forEach(i -> target[i].setActionCommand("" + i));
-		}
-	}
-	
-	private void setRadioButtonName() {
-		BiConsumer<JRadioButton[], Map<Integer, String>> getName = (radio, map) -> {
-			IntStream.range(0, radio.length).forEach(i -> radio[i].setText(map.get(i)));
-		};
-		mode[0].setText("降順");
-		mode[1].setText("昇順");
-		raritySort[0].setText("レアリティ");
-		getName.accept(weapon, DefaultUnit.WEAPON_WEAPON_MAP);
-		getName.accept(unit, DefaultUnit.WEAPON_UNIT_MAP);
-		getName.accept(cut, DefaultUnit.ELEMENT_MAP);
-		IntStream.range(0, rarity.length).forEach(i -> rarity[i].setText("★" + (i + 1)));
-		if(Objects.nonNull(distanceList)) {
-			getName.accept(distance, DefaultUnit.DISTANCE_MAP);
-			getName.accept(handle, DefaultUnit.HANDLE_MAP);
-			getName.accept(element, DefaultUnit.ELEMENT_MAP);
-			IntStream.range(0, target.length).forEach(i -> target[i].setText(new DefaultAtackPattern().getAtackPattern(i).getExplanation()));
-		}
-	}
-	
-	private void setLabel(){
-		sortLabel.setBounds(10, 10, 300, 40);
-		filterLabel.setBounds(10, 240, 300, 40);
 		IntStream.range(0, commentLabel.length / 2).forEach(i -> {
 			commentLabel[i].setBounds(10, 90 + 30 * (i % 4), 300, 30);
 			commentLabel[i + 4].setBounds(10, 280 + 30 * (i % 4), 300, 30);
@@ -242,32 +128,167 @@ class SortPanel extends JPanel {
 		commentLabel[8].setBounds(10, 430, 300, 30);
 	}
 	
-	private void setButton() {
-		sortButton.setBounds(220, 470, 120, 40);
-		resetButton.setBounds(350, 470, 120, 40);
-		returnButton.setBounds(480, 470, 120, 40);
+	private void addSortButton() {
+		setButton(sortButton, "ソート", 220, 470, 120, 40, largeFont);
+		sortButton.addActionListener(this::sortButtonAction);
 	}
 	
-	private void setRadioButton() {
-		int sizeX = 110;
-		int sizeY = 30;
-		IntStream.range(0, mode.length).forEach(i -> mode[i].setBounds(150 + i * sizeX, 50, sizeX, sizeY));
-		
-		raritySort[0].setBounds(150, 90, sizeX, sizeY);
-		IntStream.range(0, weapon.length).forEach(i -> weapon[i].setBounds(150 + i * sizeX, 90 + sizeY, sizeX, sizeY));
-		IntStream.range(0, unit.length).forEach(i -> unit[i].setBounds(150 + i * sizeX, 90 + sizeY * 2, sizeX, sizeY));
-		IntStream.range(0, cut.length).forEach(i -> cut[i].setBounds(150 + i % 6 * sizeX, 90 + sizeY * (3 + i / 6), sizeX, sizeY));
-		
-		IntStream.range(0, rarity.length).forEach(i -> rarity[i].setBounds(150 + i * sizeX, 280, sizeX, sizeY));
+	void sortButtonAction(ActionEvent e) {
+		canSort = true;
+		sortDialog.dispose();
+	}
+	
+	private void addResetButton() {
+		setButton(resetButton, "リセット", 350, 470, 120, 40, largeFont);
+		resetButton.addActionListener(this::resetButtonAction);
+	}
+	
+	void resetButtonAction(ActionEvent e) {
+		mode[0].setSelected(true);
+		raritySort[0].setSelected(true);
+		initializeRadioSelect(rarity);
 		if(Objects.nonNull(distanceList)) {
-			IntStream.range(0, distance.length).forEach(i -> distance[i].setBounds(150 + i * sizeX, 280 + sizeY, sizeX, sizeY));
-			IntStream.range(0, handle.length).forEach(i -> handle[i].setBounds(150 + i * sizeX, 280 + sizeY * 2, sizeX, sizeY));
-			IntStream.range(0, element.length).forEach(i -> element[i].setBounds(150 + i % 6 * sizeX, 280 + sizeY * (3 + i / 6), sizeX, sizeY));
-			IntStream.range(0, target.length).forEach(i -> target[i].setBounds(150 + i % 6 * sizeX, 280 + sizeY * 5, sizeX, sizeY));
+			initializeRadioSelect(distance);
+			initializeRadioSelect(handle);
+			initializeRadioSelect(element);
+			initializeRadioSelect(target);
 		}
 	}
 	
-	private void drawField(Graphics g) {
+	void initializeRadioSelect(JRadioButton[] radio) {
+		Stream.of(radio).forEach(i -> i.setSelected(false));
+	}
+	
+	private void addReturnButton() {
+		setButton(returnButton, "戻る", 480, 470, 120, 40, largeFont);
+		returnButton.addActionListener(this::returnButtonAction);
+	}
+	
+	void returnButtonAction(ActionEvent e) {
+		sortDialog.dispose();
+	}
+	
+	private void addRadioButton() {
+		initializeRadioButton();
+		setRadioAction();
+		setRadioName();
+		setRadioBounds();
+	}
+	
+	private void initializeRadioButton() {
+		mode = setRadio(2);
+		mode[0].setSelected(true);
+		radioGrouping(sortGroup, mode);
+		raritySort = setRadio(1);
+		raritySort[0].setSelected(true);
+		weapon = setRadio(DefaultUnit.WEAPON_WEAPON_MAP.size());
+		unit = setRadio(DefaultUnit.WEAPON_UNIT_MAP.size());
+		cut = setRadio(DefaultUnit.ELEMENT_MAP.size());
+		radioGrouping(itemGroup, raritySort);
+		radioGrouping(itemGroup, weapon);
+		radioGrouping(itemGroup, unit);
+		radioGrouping(itemGroup, cut);
+		rarity = setRadio(Collections.max(rarityList));
+		if(Objects.nonNull(distanceList)) {
+			distance = setRadio(DefaultUnit.DISTANCE_MAP.size());
+			handle = setRadio(DefaultUnit.HANDLE_MAP.size());
+			element = setRadio(DefaultUnit.ELEMENT_MAP.size());
+			target = setRadio(DefaultAtackPattern.PATTERN_SPECIES);
+		}
+	}
+	
+	JRadioButton[] setRadio(int size) {
+		JRadioButton[] radio = IntStream.range(0, size).mapToObj(_ -> new JRadioButton()).toArray(JRadioButton[]::new);
+		Stream.of(radio).forEach(i -> {
+			i.setFont(smallFont);
+			i.setOpaque(false);
+			add(i);
+		});
+		return radio;
+	}
+	
+	void radioGrouping(ButtonGroup group, JRadioButton[] radio) {
+		Stream.of(radio).forEach(i -> group.add(i));
+	}
+	
+	private void setRadioAction() {
+		radioMethod((radio, text) -> radio.setActionCommand(text), 
+				"true", 
+				"false", 
+				"true", 
+				(number) -> "" + (number + 1), 
+				(number) -> "" + number);
+	}
+	
+	private void setRadioName() {
+		DefaultAtackPattern atackPattern = createAtackPattern();
+		radioMethod((radio, text) -> radio.setText(text), 
+				"降順", 
+				"昇順", 
+				"レアリティ", 
+				(number) -> String.format("★%d", number + 1), 
+				(number) -> atackPattern.getAtackPattern(number).getExplanation());
+	}
+	
+	DefaultAtackPattern createAtackPattern() {
+		return new DefaultAtackPattern();
+	}
+	
+	void radioMethod(BiConsumer<JRadioButton, String> mainMethod, 
+			String modeText0, 
+			String modeText1, 
+			String raritySortText, 
+			Function<Integer, String> rarityText, 
+			Function<Integer, String> targetText) {
+		mainMethod.accept(mode[0], modeText0);
+		mainMethod.accept(mode[1], modeText1);
+		mainMethod.accept(raritySort[0], raritySortText);
+		arrayRadioText(mainMethod, weapon, DefaultUnit.WEAPON_WEAPON_MAP);
+		arrayRadioText(mainMethod, unit, DefaultUnit.WEAPON_UNIT_MAP);
+		arrayRadioText(mainMethod, cut, DefaultUnit.ELEMENT_MAP);
+		IntStream.range(0, rarity.length).forEach(i -> mainMethod.accept(rarity[i], rarityText.apply(i)));
+		if(Objects.nonNull(distanceList)) {
+			arrayRadioText(mainMethod, distance, DefaultUnit.DISTANCE_MAP);
+			arrayRadioText(mainMethod, handle, DefaultUnit.HANDLE_MAP);
+			arrayRadioText(mainMethod, element, DefaultUnit.ELEMENT_MAP);
+			IntStream.range(0, target.length).forEach(i -> mainMethod.accept(target[i], targetText.apply(i)));
+		}
+	}
+	
+	void arrayRadioText(BiConsumer<JRadioButton, String> consumer, JRadioButton[] radio, Map<Integer, String> map) {
+		IntStream.range(0, radio.length).forEach(i -> consumer.accept(radio[i], map.get(i)));
+	}
+	
+	private void setRadioBounds() {
+		int column = 6;
+		int startX = 150;
+		int startY = 50;
+		int sizeX = 110;
+		int sizeY = 30;
+		int block1 = startY + sizeY + 10;
+		int block2 = block1 + sizeY * 6 + 10;
+		//ここから下でハードコードしている数字は各Radioを何行分表示しているかを表している。
+		arrayRadioMethod(mode, (radio, i) -> radio.setBounds(startX + i * sizeX, startY, sizeX, sizeY));
+		arrayRadioMethod(raritySort, (radio, _) -> radio.setBounds(startX, block1, sizeX, sizeY));
+		arrayRadioMethod(weapon, (radio, i) -> radio.setBounds(startX + i * sizeX, block1 + sizeY, sizeX, sizeY));
+		arrayRadioMethod(unit, (radio, i) -> radio.setBounds(startX + i * sizeX, block1 + sizeY * 2, sizeX, sizeY));
+		arrayRadioMethod(cut, (radio, i) -> radio.setBounds(startX + i % column * sizeX, block1 + sizeY * (3 + i / column), sizeX, sizeY));
+		arrayRadioMethod(rarity, (radio, i) -> radio.setBounds(startX + i * sizeX, block2, sizeX, sizeY));
+		if(Objects.nonNull(distanceList)) {
+			arrayRadioMethod(distance, (radio, i) -> radio.setBounds(startX + i * sizeX, block2 + sizeY, sizeX, sizeY));
+			arrayRadioMethod(handle, (radio, i) -> radio.setBounds(startX + i * sizeX, block2 + sizeY * 2, sizeX, sizeY));
+			arrayRadioMethod(element, (radio, i) -> radio.setBounds(startX + i % column * sizeX, block2 + sizeY * (3 + i / column), sizeX, sizeY));
+			arrayRadioMethod(target, (radio, i) -> radio.setBounds(startX + i % column * sizeX, block2 + sizeY * 5, sizeX, sizeY));
+		}
+	}
+	
+	void arrayRadioMethod(JRadioButton[] radio, BiConsumer<JRadioButton, Integer> method) {
+		IntStream.range(0, radio.length).forEach(i -> method.accept(radio[i], i));
+	}
+	
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
 		g.setColor(Color.LIGHT_GRAY);
 		g.fillRect(5, 90, 150, 150);
 		g.fillRect(5, 280, 150, 180);
@@ -288,103 +309,90 @@ class SortPanel extends JPanel {
 		g.drawLine(150, 280, 150, 460);
 	}
 	
+	/**
+	 * ソート画面を開き、その入力結果からアイテムの表示順を作成する。
+	 * @return アイテムの表示順に並んだアイテムのインデックスリストを返却する。
+	 */
 	public List<Integer> getDisplayList(){
 		canSort = false;
-		SortDialog.setSortDialog(this);
+		sortDialog.setSortDialog(this);
 		if(!canSort) {
 			return defaultDisplayList;
 		}
 		return getFilterList(getSortList(defaultDisplayList));
 	}
 	
-	private List<Integer> getSortList(List<Integer> displayList){
+	Stream<Integer> getSortList(List<Integer> displayList){
 		String radioCommand = itemGroup.getSelection().getActionCommand();
-		Function<Map<Integer, String>, List<String>> getMapList = (map) -> {
-			return IntStream.range(0, map.size()).mapToObj(i -> map.get(i)).toList();
-		};
-		Predicate<List<String>> check = (mapList) -> {
-			return mapList.contains(radioCommand);
-		};
-		BiFunction<List<List<Double>>, List<String>, List<Integer>> getDisplayListDouble = (statusList, mapList) -> {
-			return displayList.stream().sorted(Comparator.comparing(i -> statusList.get(i).get(mapList.indexOf(radioCommand)), getOrderDouble())).collect(Collectors.toList());
-		};
-		BiFunction<List<List<Integer>>, List<String>, List<Integer>> getDisplayListInteger = (statusList, mapList) -> {
-			return displayList.stream().sorted(Comparator.comparing(i -> statusList.get(i).get(mapList.indexOf(radioCommand)), getOrderInteger())).collect(Collectors.toList());
-		};
-		
 		if(Boolean.valueOf(radioCommand)) {
-			return displayList.stream().sorted(Comparator.comparing(i -> rarityList.get(i), getOrderInteger())).collect(Collectors.toList());
+			return displayList.stream().sorted(Comparator.comparing(i -> rarityList.get(i)));
 		}
-		List<String> mapList = getMapList.apply(DefaultUnit.WEAPON_WEAPON_MAP);
-		if(check.test(mapList)) {
-			return getDisplayListDouble.apply(weaponStatusList, mapList);
+		List<String> mapList = getMapList(DefaultUnit.WEAPON_WEAPON_MAP);
+		if(hasContained(mapList, radioCommand)) {
+			return sortElement(displayList, radioCommand, weaponStatusList, mapList);
 		}
-		mapList = getMapList.apply(DefaultUnit.WEAPON_UNIT_MAP);
-		if(check.test(mapList)) {
-			return getDisplayListDouble.apply(unitStatusList, mapList);
+		mapList = getMapList(DefaultUnit.WEAPON_UNIT_MAP);
+		if(hasContained(mapList, radioCommand)) {
+			return sortElement(displayList, radioCommand, unitStatusList, mapList);
 		}
-		mapList = getMapList.apply(DefaultUnit.ELEMENT_MAP);
-		if(check.test(mapList)) {
-			return getDisplayListInteger.apply(cutList, mapList);
+		mapList = getMapList(DefaultUnit.ELEMENT_MAP);
+		if(hasContained(mapList, radioCommand)) {
+			return sortElement(displayList, radioCommand, cutList, mapList);
 		}
-		return displayList;
+		return displayList.stream();
 	}
 	
-	private Comparator<Integer> getOrderInteger() {
+	List<String> getMapList(Map<Integer, String> map){
+		return map.values().stream().toList();
+	}
+	
+	boolean hasContained(List<String> mapList, String radioCommand) {
+		return mapList.contains(radioCommand);
+	}
+	
+	<T extends Comparable<? super T>>Stream<Integer> sortElement(List<Integer> displayList, String radioCommand, List<List<T>> statusList, List<String> mapList){
+		return displayList.stream().sorted(Comparator.comparing(i -> statusList.get(i).get(mapList.indexOf(radioCommand)), getOrder()));
+	}
+	
+	<T extends Comparable<? super T>>Comparator<T> getOrder() {
 		return Boolean.valueOf(sortGroup.getSelection().getActionCommand())? Comparator.reverseOrder(): Comparator.naturalOrder();
 	}
 	
-	private Comparator<Double> getOrderDouble() {
-		return Boolean.valueOf(sortGroup.getSelection().getActionCommand())? Comparator.reverseOrder(): Comparator.naturalOrder();
-	}
-	
-	private List<Integer> getFilterList(List<Integer> displayList){
+	List<Integer> getFilterList(Stream<Integer> displayList){
 		if(Objects.isNull(distanceList)) {
-			return getRarityList(displayList);
+			return filterElement(displayList, rarity, matchIntegerCommand(rarityList)).collect(Collectors.toList());
 		}
-		displayList = getRarityList(displayList);
-		displayList = getTypeList(displayList, distance, DefaultUnit.DISTANCE_MAP, distanceList);
-		displayList = getTypeList(displayList, handle, DefaultUnit.HANDLE_MAP, handleList);
-		displayList = getElementList(displayList);
-		return getTargetList(displayList);
+		displayList = filterElement(displayList, rarity, matchIntegerCommand(rarityList));
+		displayList = filterElement(displayList, distance, matchStringCommand(DefaultUnit.DISTANCE_MAP, distanceList));
+		displayList = filterElement(displayList, handle, matchStringCommand(DefaultUnit.HANDLE_MAP, handleList));
+		displayList = filterElement(displayList, element, anyMatchCommand(DefaultUnit.ELEMENT_MAP, elementList));
+		return filterElement(displayList, target, matchIntegerCommand(targetList)).collect(Collectors.toList());
 	}
 	
-	private List<Integer> getRarityList(List<Integer> displayList){
-		Function<JRadioButton[], Stream<Integer>> getActiveButtonStream = (radio) -> {
-			return Stream.of(radio).filter(i -> i.isSelected()).map(i -> Integer.parseInt(i.getActionCommand()));
-		};
-		if(selectCheck(rarity)) {
-			return displayList;
-		}
-		return displayList.stream().filter(i -> getActiveButtonStream.apply(rarity).anyMatch(j -> rarityList.get(i) == j)).collect(Collectors.toList());
-	}
-	
-	private List<Integer> getTypeList(List<Integer> displayList, JRadioButton[] radio, Map<Integer, String> map, List<Integer> type){
+	Stream<Integer> filterElement(Stream<Integer> displayList, JRadioButton[] radio, BiPredicate<String, Integer> matchMethod){
 		if(selectCheck(radio)) {
 			return displayList;
 		}
-		return displayList.stream().filter(i -> getActiveButtonStream(radio).anyMatch(j -> map.get(type.get(i)).equals(j))).collect(Collectors.toList());
+		return displayList.filter(displayIndex -> activeRadioCommand(radio).anyMatch(command -> matchMethod.test(command, displayIndex)));
 	}
 	
-	private List<Integer> getElementList(List<Integer> displayList){
-		if(selectCheck(element)) {
-			return displayList;
-		}
-		return displayList.stream().filter(i -> getActiveButtonStream(element).anyMatch(j -> elementList.get(i).stream().anyMatch(k -> DefaultUnit.ELEMENT_MAP.get(k).equals(j)))).collect(Collectors.toList());
+	boolean selectCheck(JRadioButton[] radio) {
+		return !Stream.of(radio).map(AbstractButton::isSelected).anyMatch(i -> i);
 	}
 	
-	private List<Integer> getTargetList(List<Integer> displayList){
-		if(selectCheck(target)) {
-			return displayList;
-		}
-		return displayList.stream().filter(i -> getActiveButtonStream(target).anyMatch(j -> targetList.get(i) == Integer.parseInt(j))).collect(Collectors.toList());
+	Stream<String> activeRadioCommand(JRadioButton[] radio){
+		return Stream.of(radio).filter(AbstractButton::isSelected).map(AbstractButton::getActionCommand);
 	}
 	
-	private boolean selectCheck(JRadioButton[] radio) {
-		return !Stream.of(radio).map(i -> i.isSelected()).anyMatch(i -> i);
+	BiPredicate<String, Integer> matchIntegerCommand(List<Integer> dataList){
+		return (command, displayIndex) -> dataList.get(displayIndex) == Integer.parseInt(command);
 	}
 	
-	private Stream<String> getActiveButtonStream(JRadioButton[] radio){
-		return Stream.of(radio).filter(i -> i.isSelected()).map(i -> i.getActionCommand());
+	BiPredicate<String, Integer> matchStringCommand(Map<Integer, String> dataMap, List<Integer> dataList){
+		return (command, displayIndex) -> dataMap.get(dataList.get(displayIndex)).equals(command);
+	}
+	
+	BiPredicate<String, Integer> anyMatchCommand(Map<Integer, String> dataMap, List<List<Integer>> dataList){
+		return (command, displayIndex) -> dataList.get(displayIndex).stream().anyMatch(i -> dataMap.get(i).equals(command));
 	}
 }

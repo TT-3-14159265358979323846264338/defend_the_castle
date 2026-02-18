@@ -4,18 +4,18 @@ import javax.swing.JDialog;
 
 //ソート画面表示用ダイアログ
 class SortDialog extends JDialog{
-	protected void setSortDialog(SortPanel SortPanel) {
+	void setSortDialog(SortPanel sortPanel) {
+		setTitle("ソート/絞り込み");
+		setSize(835, 565);
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
-		setTitle("ソート/絞り込み");
-		setSize(835, 565);
 		setLocationRelativeTo(null);
-		add(SortPanel);
+		add(sortPanel);
 		setVisible(true);
 	}
 	
-	protected void disposeDialog() {
+	void disposeDialog() {
 		dispose();
 	}
 }

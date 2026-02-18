@@ -1,27 +1,31 @@
 package defendthecastle.commoninheritance;
 
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import defendthecastle.screendisplay.DisplaySort;
+import defendthecastle.screendisplay.CoreDisplaySort;
+import defendthecastle.screendisplay.WeaponDisplaySort;
 
 public abstract class DisplayList {
-	private final DisplaySort coreDisplaySort;
-	private final DisplaySort weaponDisplaySort;
+	private final CoreDisplaySort coreDisplaySort;
+	private final WeaponDisplaySort weaponDisplaySort;
 	
 	/**
 	 * コアと武器の表示する順番を指定する。
 	 */
-	protected DisplayList() {
-		coreDisplaySort = createDisplaySort();
-		weaponDisplaySort = createDisplaySort();
-		coreDisplaySort.core(initialCoreDisplayList());
-		weaponDisplaySort.weapon(initialWeaponDisplayList());
+	protected DisplayList(ScheduledExecutorService scheduler) {
+		coreDisplaySort = createCoreDisplaySort(scheduler);
+		weaponDisplaySort = createWeaponDisplaySort(scheduler);
 	}
 	
-	DisplaySort createDisplaySort() {
-		return new DisplaySort();
+	CoreDisplaySort createCoreDisplaySort(ScheduledExecutorService scheduler) {
+		return new CoreDisplaySort(scheduler, initialCoreDisplayList());
+	}
+	
+	WeaponDisplaySort createWeaponDisplaySort(ScheduledExecutorService scheduler) {
+		return new WeaponDisplaySort(scheduler, initialWeaponDisplayList());
 	}
 	
 	/**

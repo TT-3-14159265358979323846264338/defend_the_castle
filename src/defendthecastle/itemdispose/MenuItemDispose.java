@@ -34,7 +34,7 @@ public class MenuItemDispose extends CommonJPanel{
 	public MenuItemDispose(MainFrame mainFrame, ScheduledExecutorService scheduler) {
 		this.mainFrame = mainFrame;
 		operateData = createOperateData(scheduler);
-		createDisplayList = createDisplayList();
+		createDisplayList = createDisplayList(scheduler);
 		defaultDisposeData = createDefaultDisposeData();
 		coreImagePanel = createImagePanel(scheduler, defaultDisposeData.getCoreImageList(), createDisplayList.initialCoreDisplayList(), operateData.getCoreNumberList(), true);
 		weaponImagePanel = createImagePanel(scheduler, defaultDisposeData.getWeaponImageList(), createDisplayList.initialWeaponDisplayList(), operateData.getWeaponNumberList(), false);
@@ -51,8 +51,8 @@ public class MenuItemDispose extends CommonJPanel{
 		return new OperateData(scheduler);
 	}
 	
-	CreateDisplayList createDisplayList() {
-		return new CreateDisplayList(operateData);
+	CreateDisplayList createDisplayList(ScheduledExecutorService scheduler) {
+		return new CreateDisplayList(scheduler, operateData);
 	}
 	
 	DefaultDisposeData createDefaultDisposeData() {

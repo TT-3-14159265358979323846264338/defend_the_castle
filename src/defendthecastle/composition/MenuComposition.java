@@ -57,7 +57,7 @@ public class MenuComposition extends CommonJPanel implements MouseListener{
 	public MenuComposition(MainFrame MainFrame, ScheduledExecutorService scheduler) {
 		this.mainFrame = MainFrame;
 		saveData = createSaveData();
-		displayListCreation = createDisplayListCreation();
+		displayListCreation = createDisplayListCreation(scheduler);
 		compositionImage = createCompositionImage();
 		coreImagePanel = createImagePanel(scheduler, compositionImage.getNormalCoreList(), displayListCreation.initialCoreDisplayList(), saveData.getNowCoreNumberList(), true);
 		weaponImagePanel = createImagePanel(scheduler, compositionImage.getNormalWeaponList(), displayListCreation.initialWeaponDisplayList(), saveData.getNowWeaponNumberList(), false);
@@ -86,8 +86,8 @@ public class MenuComposition extends CommonJPanel implements MouseListener{
 		return new SaveData();
 	}
 	
-	DisplayListCreation createDisplayListCreation() {
-		return new DisplayListCreation(saveData);
+	DisplayListCreation createDisplayListCreation(ScheduledExecutorService scheduler) {
+		return new DisplayListCreation(scheduler, saveData);
 	}
 	
 	CompositionImage createCompositionImage(){

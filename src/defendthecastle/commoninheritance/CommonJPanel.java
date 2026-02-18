@@ -92,6 +92,18 @@ public abstract class CommonJPanel extends JPanel implements AncestorListener{
 	}
 	
 	/**
+	 * JLabelの設定を行い、JPanelに追加する。
+	 * @param label - 設定するJLabel
+	 * @param name - テキスト
+	 * @param font - フォント
+	 */
+	protected void setLabel(JLabel label, String name, Font font) {
+		label.setText(name);
+		label.setFont(font);
+		add(label);
+	}
+	
+	/**
 	 * JButtonの設定を行い、JPanelに追加する。
 	 * @param button - 設定するJButton
 	 * @param name - テキスト
