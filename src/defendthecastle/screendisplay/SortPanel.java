@@ -11,7 +11,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -63,7 +62,7 @@ abstract class SortPanel extends CommonJPanel {
 	private final Font smallFont = new Font("ＭＳ ゴシック", Font.BOLD, 15);
 	private boolean canSort;
 	
-	SortPanel(ScheduledExecutorService scheduler, List<Integer> defaultList) {
+	SortPanel(List<Integer> defaultList) {
 		this.defaultDisplayList = defaultList;
 		sortDialog = createSortDialog();
 		rarityList = createRarityList();
@@ -74,12 +73,12 @@ abstract class SortPanel extends CommonJPanel {
 		handleList = createHandleList();
 		elementList = createElementList();
 		targetList = createTargetList();
-		repaintTimer(scheduler, brown());
 		addLabel();
 		addSortButton();
 		addResetButton();
 		addReturnButton();
 		addRadioButton();
+		stillness(brown());
 	}
 	
 	SortDialog createSortDialog() {

@@ -1,7 +1,6 @@
 package defendthecastle.screendisplay;
 
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Stream;
 
 import defaultdata.DefaultUnit;
@@ -10,9 +9,9 @@ import defaultdata.weapon.WeaponData;
 public class WeaponDisplaySort extends SortPanel{
 	private final WeaponData[] weaponData;
 	
-	public WeaponDisplaySort(ScheduledExecutorService scheduler, List<Integer> defaultList) {
+	public WeaponDisplaySort(List<Integer> defaultList) {
 		weaponData = DefaultUnit.WEAPON_DATA_MAP.values().toArray(WeaponData[]::new);
-		super(scheduler, defaultList);
+		super(defaultList);
 	}
 	
 	@Override

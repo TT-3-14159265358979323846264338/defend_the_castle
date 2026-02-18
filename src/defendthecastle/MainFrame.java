@@ -79,7 +79,7 @@ public class MainFrame extends JFrame{
 	}
 	
 	MenuSelectStage createMenuSelectStage() {
-		return new MenuSelectStage(this, scheduler);
+		return new MenuSelectStage(this);
 	}
 	
 	public void battleDraw(StageData StageData, double difficultyCorrection) {

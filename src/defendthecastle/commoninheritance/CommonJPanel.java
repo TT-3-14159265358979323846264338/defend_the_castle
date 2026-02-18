@@ -19,35 +19,35 @@ public abstract class CommonJPanel extends JPanel implements AncestorListener{
 	private ScheduledFuture<?> commonFuture;
 	
 	/**
-	 * JPanelが表示されると約60fpsで画面の更新を行う。
-	 * 表示が終了すると更新は停止される。
-	 * @param scheduler - futureで使用するscheduler。
+	 * 静止画としてJPanelを使用する。
+	 * 必要に応じて{@link #repaintPanel}を呼び出せば再描写可能。
 	 * @param color - JPanelの背景色。
 	 */
-	protected void repaintTimer(ScheduledExecutorService scheduler, Color color) {
-		commonScheduler = scheduler;
+	protected void stillness(Color color) {
 		setBackground(color);
-		addAncestorListener(this);
 		setLayout(null);
 		setFocusable(true);
 	}
 	
 	/**
-	 * 画面の基本的な背景。
-	 * {@link #repaintTimer}で指定する。
-	 * @return 茶色を返却する。
+	 * JPanelの再描写を行う。
 	 */
-	protected Color brown() {
-		return new Color(240, 170, 80);
+	protected void repaintPanel() {
+		SwingUtilities.invokeLater(this::repaint);
 	}
 	
 	/**
-	 * デフォルト画面の背景。
-	 * {@link #repaintTimer}で指定する。
-	 * @return ほんの少し黒味のある白色を返却する。
+	 * JPanelが表示されると約60fpsで画面の更新を行う。
+	 * 表示が終了すると更新は停止される。
+	 * @param scheduler - futureで使用するscheduler。
+	 * @param color - JPanelの背景色。
 	 */
-	protected Color defaultWhite() {
-		return new Color(240, 240, 240);
+	protected void movie(ScheduledExecutorService scheduler, Color color) {
+		commonScheduler = scheduler;
+		addAncestorListener(this);
+		setBackground(color);
+		setLayout(null);
+		setFocusable(true);
 	}
 	
 	@Override
@@ -67,11 +67,25 @@ public abstract class CommonJPanel extends JPanel implements AncestorListener{
 	}
 	
 	ScheduledFuture<?> repaintFuture(){
-		return commonScheduler.scheduleAtFixedRate(this::repaintFutureProcess, 0, 17, TimeUnit.MILLISECONDS);
+		return commonScheduler.scheduleAtFixedRate(this::repaintPanel, 0, 17, TimeUnit.MILLISECONDS);
 	}
 	
-	void repaintFutureProcess() {
-		SwingUtilities.invokeLater(this::repaint);
+	/**
+	 * 画面の基本的な背景。
+	 * {@link #repaintTimer}で指定する。
+	 * @return 茶色を返却する。
+	 */
+	protected Color brown() {
+		return new Color(240, 170, 80);
+	}
+	
+	/**
+	 * デフォルト画面の背景。
+	 * {@link #repaintTimer}で指定する。
+	 * @return ほんの少し黒味のある白色を返却する。
+	 */
+	protected Color defaultWhite() {
+		return new Color(240, 240, 240);
 	}
 	
 	/**

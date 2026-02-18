@@ -1,7 +1,6 @@
 package defendthecastle.screendisplay;
 
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Stream;
 
 import defaultdata.DefaultUnit;
@@ -10,9 +9,9 @@ import defaultdata.core.CoreData;
 public class CoreDisplaySort extends SortPanel{
 	private final CoreData[] coreData;
 	
-	public CoreDisplaySort(ScheduledExecutorService scheduler, List<Integer> defaultList) {
+	public CoreDisplaySort(List<Integer> defaultList) {
 		coreData = DefaultUnit.CORE_DATA_MAP.values().toArray(CoreData[]::new);
-		super(scheduler, defaultList);
+		super(defaultList);
 	}
 	
 	@Override

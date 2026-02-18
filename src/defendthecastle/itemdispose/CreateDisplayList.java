@@ -1,7 +1,6 @@
 package defendthecastle.itemdispose;
 
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 
 import defaultdata.DefaultUnit;
 import defendthecastle.commoninheritance.DisplayList;
@@ -10,9 +9,9 @@ import defendthecastle.commoninheritance.DisplayList;
 class CreateDisplayList extends DisplayList{
 	private final OperateData operateData;
 	
-	CreateDisplayList(ScheduledExecutorService scheduler, OperateData operateData){
+	CreateDisplayList(OperateData operateData){
 		this.operateData = operateData;
-		super(scheduler);
+		super();
 	}
 
 	@Override

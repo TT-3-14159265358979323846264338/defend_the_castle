@@ -8,7 +8,6 @@ import java.awt.image.BufferedImage;
 import java.time.temporal.ValueRange;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -28,10 +27,9 @@ class DrawResult extends CommonJPanel implements MouseListener{
 	private int position;
 	private final int UNIT_SIZE = 80;
 	
-	DrawResult(ScheduledExecutorService scheduler, GachaInformation gachaInformation, HoldMedal holdMedal, ItemGetImage itemGetImage){
+	DrawResult(GachaInformation gachaInformation, HoldMedal holdMedal, ItemGetImage itemGetImage){
 		this.itemGetImage = itemGetImage;
 		addMouseListener(this);
-		repaintTimer(scheduler, brown());
 		switch(gachaInformation.getRepeatNumber()) {
 		case 1:
 			position = 435;
@@ -47,6 +45,7 @@ class DrawResult extends CommonJPanel implements MouseListener{
 		}
 		IntStream.range(0, gachaInformation.getRepeatNumber()).forEach(_ -> gacha(gachaInformation));
 		save(holdMedal);
+		stillness(brown());
 	}
 	
 	void gacha(GachaInformation gachaInformation) {

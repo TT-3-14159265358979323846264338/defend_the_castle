@@ -4,7 +4,6 @@ import static javax.swing.JOptionPane.*;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.IntStream;
 
 import defaultdata.DefaultUnit;
@@ -16,7 +15,6 @@ import savedata.SaveItem;
 
 //セーブデータの確認
 class OperateData{
-	private final ScheduledExecutorService scheduler;
 	private final SaveHoldItem saveHoldItem;
 	private final SaveComposition saveComposition;
 	private final SaveGameProgress saveGameProgress;
@@ -24,8 +22,7 @@ class OperateData{
 	private int[] usedCoreNumber;
 	private int[] usedWeaponNumber;
 	
-	OperateData(ScheduledExecutorService scheduler) {
-		this.scheduler = scheduler;
+	OperateData() {
 		saveHoldItem = createSaveHoldItem();
 		saveComposition = createSaveComposition();
 		saveGameProgress = createSaveGameProgress();
@@ -139,7 +136,7 @@ class OperateData{
 	}
 	
 	RecyclePanel createRecyclePanel(List<BufferedImage> imageList, int select, int max, List<Integer> rarityList) {
-		return new RecyclePanel(scheduler, imageList.get(select), max, rarityList.get(select));
+		return new RecyclePanel(imageList.get(select), max, rarityList.get(select));
 	}
 	
 	List<Integer> getCoreNumberList(){

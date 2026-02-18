@@ -8,7 +8,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.time.temporal.ValueRange;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.IntStream;
 
 import javax.swing.JLabel;
@@ -21,6 +20,7 @@ class SelectPanel extends CommonJPanel implements MouseListener{
 	private final MeritPanel meritPanel;
 	private final GameCondition gameCondition;
 	private final EnemyPanel enemyPanel;
+	private final MenuSelectStage menuSelectStage;
 	private final List<Boolean> clearStatus;
 	private final List<String> stageNameList;
 	private final JLabel[] nameLabel;
@@ -31,12 +31,12 @@ class SelectPanel extends CommonJPanel implements MouseListener{
 	private final Font otherFont = new Font("ＭＳ ゴシック", Font.BOLD, 10);
 	private int select = 0;
 	
-	SelectPanel(ScheduledExecutorService scheduler, ProgressData progressData, StageImage stageImage, MeritPanel meritPanel, GameCondition gameCondition, EnemyPanel enemyPanel) {
+	SelectPanel(ProgressData progressData, StageImage stageImage, MeritPanel meritPanel, GameCondition gameCondition, EnemyPanel enemyPanel, MenuSelectStage menuSelectStage) {
 		this.stageImage = stageImage;
 		this.meritPanel = meritPanel;
 		this.gameCondition = gameCondition;
 		this.enemyPanel = enemyPanel;
-		repaintTimer(scheduler, defaultWhite());
+		this.menuSelectStage = menuSelectStage;
 		clearStatus = progressData.getClearStatus();
 		stageNameList = progressData.getStageName();
 		select = progressData.getSelectStage();
@@ -46,6 +46,7 @@ class SelectPanel extends CommonJPanel implements MouseListener{
 		addOtherLabel(progressData);
 		addMouseListener(this);
 		setPreferredSize(stageDimension());
+		stillness(defaultWhite());
 	}
 	
 	private JLabel addNameLabel(int number) {
@@ -105,6 +106,7 @@ class SelectPanel extends CommonJPanel implements MouseListener{
 				if(select != i){
 					select = i;
 					changeSelect();
+					repaintPanel();
 				}
 				break;
 			}
@@ -128,5 +130,6 @@ class SelectPanel extends CommonJPanel implements MouseListener{
 		meritPanel.changeSelect(select);
 		gameCondition.changeSelect(select);
 		enemyPanel.changeSelect(select);
+		menuSelectStage.repaintPanel();
 	}
 }

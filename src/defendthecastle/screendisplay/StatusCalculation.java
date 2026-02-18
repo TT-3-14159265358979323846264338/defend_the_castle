@@ -39,17 +39,17 @@ public class StatusCalculation{
 		leftWeaponInstall(unitData.get(DefaultUnit.LEFT_WEAPON));
 	}
 	
-	private void rightWeaponInstall(int number) {
+	void rightWeaponInstall(int number) {
 		try {
-			WeaponData WeaponData = DefaultUnit.WEAPON_DATA_MAP.get(number);
-			rightType = WeaponData.getDistance();
-			rightElement = WeaponData.getElement();
-			rightAtackPattern = WeaponData.getAtackPattern();
-			rightWeaponStatus = WeaponData.getWeaponStatus();
-			rightUnitStatus = WeaponData.getUnitStatus();
-			rightWeaponCutList = WeaponData.getCutStatus();
-			if(!WeaponData.getBuff().isEmpty()) {
-				rightBuffList.addAll(WeaponData.getBuff());
+			WeaponData weaponData = weaponData(number);
+			rightType = weaponData.getDistance();
+			rightElement = weaponData.getElement();
+			rightAtackPattern = weaponData.getAtackPattern();
+			rightWeaponStatus = weaponData.getWeaponStatus();
+			rightUnitStatus = weaponData.getUnitStatus();
+			rightWeaponCutList = weaponData.getCutStatus();
+			if(!weaponData.getBuff().isEmpty()) {
+				rightBuffList.addAll(weaponData.getBuff());
 			}
 		}catch(Exception noWeapon) {
 			rightType = defaultType();
@@ -61,27 +61,35 @@ public class StatusCalculation{
 		}
 	}
 	
-	private void coreInstall(int number) {
-		CoreData CoreData = DefaultUnit.CORE_DATA_MAP.get(number);
-		coreWeaponStatus = CoreData.getWeaponStatus();
-		coreUnitStatus = CoreData.getUnitStatus();
-		coreCutList = CoreData.getCutStatus();
-		if(!CoreData.getBuff().isEmpty()) {
-			rightBuffList.addAll(CoreData.getBuff());
+	WeaponData weaponData(int number) {
+		return DefaultUnit.WEAPON_DATA_MAP.get(number);
+	}
+	
+	void coreInstall(int number) {
+		CoreData coreData = coreData(number);
+		coreWeaponStatus = coreData.getWeaponStatus();
+		coreUnitStatus = coreData.getUnitStatus();
+		coreCutList = coreData.getCutStatus();
+		if(!coreData.getBuff().isEmpty()) {
+			rightBuffList.addAll(coreData.getBuff());
 		}
 	}
 	
-	private void leftWeaponInstall(int number) {
+	CoreData coreData(int number) {
+		return DefaultUnit.CORE_DATA_MAP.get(number);
+	}
+	
+	void leftWeaponInstall(int number) {
 		try {
-			WeaponData WeaponData = DefaultUnit.WEAPON_DATA_MAP.get(number);
-			leftType = WeaponData.getDistance();
-			leftElement = WeaponData.getElement();
-			leftAtackPattern = WeaponData.getAtackPattern();
-			leftWeaponStatus = WeaponData.getWeaponStatus();
-			leftUnitStatus = WeaponData.getUnitStatus();
-			leftWeaponCutList = WeaponData.getCutStatus();
-			if(!WeaponData.getBuff().isEmpty()) {
-				leftBuffList.addAll(WeaponData.getBuff());
+			WeaponData weaponData = weaponData(number);
+			leftType = weaponData.getDistance();
+			leftElement = weaponData.getElement();
+			leftAtackPattern = weaponData.getAtackPattern();
+			leftWeaponStatus = weaponData.getWeaponStatus();
+			leftUnitStatus = weaponData.getUnitStatus();
+			leftWeaponCutList = weaponData.getCutStatus();
+			if(!weaponData.getBuff().isEmpty()) {
+				leftBuffList.addAll(weaponData.getBuff());
 			}
 		}catch(Exception noWeapon) {
 			leftType = defaultType();
@@ -133,7 +141,7 @@ public class StatusCalculation{
 		return getStatus(leftWeaponStatus);
 	}
 	
-	private List<Integer> getStatus(List<Integer> statusList){
+	List<Integer> getStatus(List<Integer> statusList){
 		return IntStream.range(0, statusList.size()).mapToObj(i -> (int) (statusList.get(i) * coreWeaponStatus.get(i))).toList();
 	}
 	

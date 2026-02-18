@@ -33,26 +33,26 @@ public class MenuItemDispose extends CommonJPanel{
 	
 	public MenuItemDispose(MainFrame mainFrame, ScheduledExecutorService scheduler) {
 		this.mainFrame = mainFrame;
-		operateData = createOperateData(scheduler);
-		createDisplayList = createDisplayList(scheduler);
+		operateData = createOperateData();
+		createDisplayList = createDisplayList();
 		defaultDisposeData = createDefaultDisposeData();
 		coreImagePanel = createImagePanel(scheduler, defaultDisposeData.getCoreImageList(), createDisplayList.initialCoreDisplayList(), operateData.getCoreNumberList(), true);
 		weaponImagePanel = createImagePanel(scheduler, defaultDisposeData.getWeaponImageList(), createDisplayList.initialWeaponDisplayList(), operateData.getWeaponNumberList(), false);
-		repaintTimer(scheduler, brown());
 		setLabel(typeLabel, typeName(), 20, 10, 400, 30, largeFont);
 		addSwitchButton();
 		addSortButton();
 		addDisposeButton();
 		addReturnButton();
 		addScroll();
+		stillness(brown());
 	}
 	
-	OperateData createOperateData(ScheduledExecutorService scheduler) {
-		return new OperateData(scheduler);
+	OperateData createOperateData() {
+		return new OperateData();
 	}
 	
-	CreateDisplayList createDisplayList(ScheduledExecutorService scheduler) {
-		return new CreateDisplayList(scheduler, operateData);
+	CreateDisplayList createDisplayList() {
+		return new CreateDisplayList(operateData);
 	}
 	
 	DefaultDisposeData createDefaultDisposeData() {

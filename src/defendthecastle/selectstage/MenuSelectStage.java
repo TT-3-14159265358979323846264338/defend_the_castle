@@ -3,7 +3,6 @@ package defendthecastle.selectstage;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -33,15 +32,14 @@ public class MenuSelectStage extends CommonJPanel{
 	private final JScrollPane meritScroll = new JScrollPane();
 	private final Font font = new Font("ＭＳ ゴシック", Font.BOLD, 20);
 	
-	public MenuSelectStage(MainFrame mainFrame, ScheduledExecutorService scheduler) {
+	public MenuSelectStage(MainFrame mainFrame) {
 		this.mainFrame = mainFrame;
 		progressData = createProgressData();
 		stageImage = createStageImage();
-		meritPanel = createMeritPanel(scheduler);
-		enemyPanel = createEnemyPanel(scheduler);
-		gameCondition = createGameCondition(scheduler);
-		selectPanel = createSelectPanel(scheduler);
-		repaintTimer(scheduler, brown());
+		meritPanel = createMeritPanel();
+		enemyPanel = createEnemyPanel();
+		gameCondition = createGameCondition();
+		selectPanel = createSelectPanel();
 		setLabel(stageLabel, "ステージ選択", 10, 10, 200, 30, font);
 		setLabel(informationLabel, "ステージ情報", 170, 10, 200, 30, font);
 		addReturnButton();
@@ -51,6 +49,7 @@ public class MenuSelectStage extends CommonJPanel{
 		addMeritScroll();
 		addEnemyScroll();
 		addGameCondition();
+		stillness(brown());
 	}
 	
 	ProgressData createProgressData() {
@@ -61,20 +60,20 @@ public class MenuSelectStage extends CommonJPanel{
 		return new StageImage(progressData);
 	}
 	
-	MeritPanel createMeritPanel(ScheduledExecutorService scheduler) {
-		return new MeritPanel(scheduler, progressData);
+	MeritPanel createMeritPanel() {
+		return new MeritPanel(progressData);
 	}
 	
-	EnemyPanel createEnemyPanel(ScheduledExecutorService scheduler) {
-		return new EnemyPanel(scheduler, progressData);
+	EnemyPanel createEnemyPanel() {
+		return new EnemyPanel(progressData);
 	}
 	
-	GameCondition createGameCondition(ScheduledExecutorService scheduler) {
-		return new GameCondition(scheduler, progressData);
+	GameCondition createGameCondition() {
+		return new GameCondition(progressData);
 	}
 	
-	SelectPanel createSelectPanel(ScheduledExecutorService scheduler) {
-		return new SelectPanel(scheduler, progressData, stageImage, meritPanel, gameCondition, enemyPanel);
+	SelectPanel createSelectPanel() {
+		return new SelectPanel(progressData, stageImage, meritPanel, gameCondition, enemyPanel, this);
 	}
 	
 	private void addReturnButton() {
@@ -133,5 +132,10 @@ public class MenuSelectStage extends CommonJPanel{
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		g.drawImage(stageImage.getDetailImage(selectPanel.getSelelct()), 170, 40, this);
+	}
+	
+	@Override
+	protected void repaintPanel() {
+		super.repaintPanel();
 	}
 }

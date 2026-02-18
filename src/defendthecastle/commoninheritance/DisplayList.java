@@ -1,7 +1,6 @@
 package defendthecastle.commoninheritance;
 
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -15,17 +14,17 @@ public abstract class DisplayList {
 	/**
 	 * コアと武器の表示する順番を指定する。
 	 */
-	protected DisplayList(ScheduledExecutorService scheduler) {
-		coreDisplaySort = createCoreDisplaySort(scheduler);
-		weaponDisplaySort = createWeaponDisplaySort(scheduler);
+	protected DisplayList() {
+		coreDisplaySort = createCoreDisplaySort();
+		weaponDisplaySort = createWeaponDisplaySort();
 	}
 	
-	CoreDisplaySort createCoreDisplaySort(ScheduledExecutorService scheduler) {
-		return new CoreDisplaySort(scheduler, initialCoreDisplayList());
+	CoreDisplaySort createCoreDisplaySort() {
+		return new CoreDisplaySort(initialCoreDisplayList());
 	}
 	
-	WeaponDisplaySort createWeaponDisplaySort(ScheduledExecutorService scheduler) {
-		return new WeaponDisplaySort(scheduler, initialWeaponDisplayList());
+	WeaponDisplaySort createWeaponDisplaySort() {
+		return new WeaponDisplaySort(initialWeaponDisplayList());
 	}
 	
 	/**

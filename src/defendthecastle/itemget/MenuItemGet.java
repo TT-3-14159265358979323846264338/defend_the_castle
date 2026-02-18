@@ -49,12 +49,12 @@ public class MenuItemGet extends CommonJPanel{
 		openBallMotion = createOpenBallMotion(scheduler);
 		ballMotion = createBallMotion(scheduler);
 		handleMotion = createHandleMotion(scheduler);
-		repaintTimer(scheduler, defaultWhite());
 		addMedalLabel();
 		addGachaDetailButton();
 		addRepeatButton();
 		addReturnButton();
 		addGachaScroll();
+		movie(scheduler, defaultWhite());
 	}
 	
 	AutoRotate createAutoRotate(ScheduledExecutorService scheduler) {

@@ -8,7 +8,6 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.time.temporal.ValueRange;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.IntStream;
 
 import defaultdata.DefaultEnemy;
@@ -29,12 +28,12 @@ class EnemyPanel extends CommonJPanel implements MouseListener{
 	private final int PANEL_SIZE =  200;
 	private int select;
 	
-	EnemyPanel(ScheduledExecutorService scheduler, ProgressData progressData) {
+	EnemyPanel(ProgressData progressData) {
 		enemyData = enemyData(progressData);
 		enemyImage = enemyImage();
 		enemyCount = enemyCount(progressData);
 		addMouseListener(this);
-		repaintTimer(scheduler, defaultWhite());
+		stillness(defaultWhite());
 	}
 	
 	List<List<EnemyData>> enemyData(ProgressData progressData){
@@ -110,6 +109,7 @@ class EnemyPanel extends CommonJPanel implements MouseListener{
 		this.select = select;
 		dimension.setSize(PANEL_SIZE, dimensionHeight());
 		revalidate();
+		repaintPanel();
 	}
 	
 	int dimensionHeight() {

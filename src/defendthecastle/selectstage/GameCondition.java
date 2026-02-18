@@ -4,7 +4,6 @@ import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javax.swing.JLabel;
 
@@ -19,13 +18,13 @@ class GameCondition extends CommonJPanel{
 	private final Font font = new Font("ＭＳ ゴシック", Font.BOLD, 15);
 	private final List<List<String>> condition;
 	
-	GameCondition(ScheduledExecutorService scheduler, ProgressData progressData) {
+	GameCondition(ProgressData progressData) {
 		condition = conditionData(progressData);
-		repaintTimer(scheduler, defaultWhite());
 		setLabel(clearCommentLabel, "勝利条件: ", 5, 5, 80, 40, font);
 		setLabel(clearConditionLabel, "", 80, 5, 240, 40, font);
 		setLabel(gameOverCommentLabel, "敗北条件: ", 5, 60, 100, 40, font);
 		setLabel(gameOverConditionLabel, "", 80, 60, 240, 40, font);
+		stillness(defaultWhite());
 	}
 	
 	List<List<String>> conditionData(ProgressData progressData){

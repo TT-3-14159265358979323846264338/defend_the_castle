@@ -35,12 +35,12 @@ public class MenuMain extends CommonJPanel{
 		finalMotion = createFinalMotion();
 		mainImage = createmainImage();
 		mainTimer = createMainTimer(scheduler);
-		repaintTimer(scheduler, brown());
 		addItemGetButton();
 		addItemDisposeButton();
 		addCompositionButton();
 		addBattleButton();
 		addTestButton();
+		movie(scheduler, brown());
 	}
 	
 	FallMotion[] createFallMotion(){

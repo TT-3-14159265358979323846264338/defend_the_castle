@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -32,15 +31,15 @@ class RecyclePanel extends CommonJPanel{
 	private final Font gothicFont = new Font("ＭＳ ゴシック", Font.BOLD, 15);
 	private final Font arailFont = new Font("Arail", Font.BOLD, 15);
 	
-	RecyclePanel(ScheduledExecutorService scheduler, BufferedImage image, int max, int rarity) {
+	RecyclePanel(BufferedImage image, int max, int rarity) {
 		this.image = image;
 		this.rarity = rarity;
-		repaintTimer(scheduler, defaultWhite());
 		setLabel(commentLabel, "ガチャメダルへリサイクルする数量を入力してください", 120, 10, 400, 30, gothicFont);
 		setLabel(resultLabel, medalComment(), 370, 50, 400, 30, gothicFont);
 		addRecycleButton();
 		addSpinner(max);
 		addReturnButton();
+		stillness(defaultWhite());
 		recycleDialog = createRecycleDialog();
 		recycleDialog.setDialog(this);
 	}

@@ -70,7 +70,7 @@ class OpenBallMotion{
 	}
 	
 	void gacha() {
-		new GachaResult(scheduler, gachaInformation, holdMedal, itemGetImage);
+		new GachaResult(gachaInformation, holdMedal, itemGetImage);
 	}
 	
 	boolean canRunTimer() {

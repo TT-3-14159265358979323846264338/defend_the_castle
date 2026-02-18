@@ -9,7 +9,6 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.IntStream;
 
 import javax.swing.JLabel;
@@ -32,15 +31,15 @@ class MeritPanel extends CommonJPanel{
 	private final int PANEL_SIZE =  200;
 	private final BasicStroke stroke = new BasicStroke(1);
 	
-	MeritPanel(ScheduledExecutorService scheduler, ProgressData progressData) {
+	MeritPanel(ProgressData progressData) {
 		meritStatus = progressData.getMeritStatus();
 		meritInformation = progressData.getActivateStage().stream().map(i -> informationList(i)).toList();
 		rewardInformation = progressData.getActivateStage().stream().map(i -> DefaultStage.STAGE_DATA.get(i).getReward()).toList();
-		repaintTimer(scheduler, defaultWhite());
 		meritLabel = IntStream.range(0, labelNumber(progressData)).mapToObj(this::addMeritLabel).toArray(JLabel[]::new);
 		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(this::addClearLabel).toArray(JLabel[]::new);
 		rewardLabel = IntStream.range(0, meritLabel.length).mapToObj(this::addRewardLabel).toArray(JLabel[]::new);
 		setPreferredSize(dimension);
+		stillness(defaultWhite());
 	}
 	
 	int labelNumber(ProgressData progressData) {
@@ -104,6 +103,7 @@ class MeritPanel extends CommonJPanel{
 		dimension.setSize(PANEL_SIZE, dimensionHeight(select));
 		changeLabelText(select);
 		revalidate();
+		repaintPanel();
 	}
 	
 	int dimensionHeight(int select) {

@@ -38,7 +38,7 @@ public class ImagePanel extends CommonJPanel implements MouseListener{
 		setPreferredSize(dimension);
 		resetSelectNumber();
 		addMouseListener(this);
-		repaintTimer(scheduler, defaultWhite());
+		movie(scheduler, defaultWhite());
 	}
 	
 	Dimension createDimension() {
