@@ -136,6 +136,9 @@ public class SaveComposition extends SQLOperation{
 	}
 	
 	public boolean rename(int index, String name) {
+		if(name == null) {
+			return false;
+		}
 		if(MAX_WORD < name.	length()) {
 			showMessageDialog(null, String.format("編成名で使用できる最大文字数は%dです。", MAX_WORD));
 			return false;
