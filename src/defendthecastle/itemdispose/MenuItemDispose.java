@@ -10,9 +10,9 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
+import commoninheritance.CommonJPanel;
+import commoninheritance.ImagePanel;
 import defendthecastle.MainFrame;
-import defendthecastle.commoninheritance.CommonJPanel;
-import defendthecastle.commoninheritance.ImagePanel;
 
 //アイテムのリサイクル
 public class MenuItemDispose extends CommonJPanel{

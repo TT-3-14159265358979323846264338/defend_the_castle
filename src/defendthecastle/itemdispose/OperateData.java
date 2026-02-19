@@ -6,8 +6,8 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import commoninheritance.ImagePanel;
 import defaultdata.DefaultUnit;
-import defendthecastle.commoninheritance.ImagePanel;
 import savedata.SaveComposition;
 import savedata.SaveGameProgress;
 import savedata.SaveHoldItem;

@@ -24,9 +24,9 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 
+import commoninheritance.CommonJPanel;
 import defaultdata.DefaultAtackPattern;
 import defaultdata.DefaultUnit;
-import defendthecastle.commoninheritance.CommonJPanel;
 
 //ソート画面
 abstract class SortPanel extends CommonJPanel {

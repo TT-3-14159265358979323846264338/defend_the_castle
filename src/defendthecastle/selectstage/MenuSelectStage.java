@@ -8,10 +8,10 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
+import commoninheritance.CommonJPanel;
 import defaultdata.DefaultStage;
 import defendthecastle.MainFrame;
 import defendthecastle.battle.BattleEnemy;
-import defendthecastle.commoninheritance.CommonJPanel;
 
 //ステージ選択画面
 public class MenuSelectStage extends CommonJPanel{

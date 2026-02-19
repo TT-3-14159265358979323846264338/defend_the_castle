@@ -10,10 +10,10 @@ import java.time.temporal.ValueRange;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import commoninheritance.CommonJPanel;
 import defaultdata.DefaultEnemy;
 import defaultdata.DefaultStage;
 import defaultdata.enemy.EnemyData;
-import defendthecastle.commoninheritance.CommonJPanel;
 import defendthecastle.screendisplay.DisplayStatus;
 
 //敵兵情報

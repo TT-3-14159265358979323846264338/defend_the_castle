@@ -3,136 +3,131 @@ package testdataedit;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
+import commoninheritance.CommonJPanel;
 import defaultdata.DefaultStage;
 import savedata.SaveGameProgress;
 import savedata.SaveItem;
 
 //クリア状況編集
-class EditProgress extends JPanel{
-	private JLabel medalLabel;
-	private JSpinner medalSpinner;
-	private JLabel[] nameLabel;
-	private JRadioButton[] stage;
-	private List<JRadioButton[]> merit;
-	private List<BufferedImage> stageImage = DefaultStage.STAGE_DATA.stream().map(i -> i.getImage(20)).toList();
-	private SaveGameProgress SaveGameProgress = new SaveGameProgress();
-	private SaveItem SaveItem= new SaveItem();
-	private int sizeX = 110;
-	private int sizeY = 70;
+class EditProgress extends CommonJPanel{
+	private final TestEditImage testEditImage;
+	private final SaveGameProgress saveGameProgress;
+	private final SaveItem saveItem;
+	private final JLabel medalLabel = new JLabel();
+	//JUnitでゲッターを追加する可能性あり
+	@SuppressWarnings("unused")
+	private final JLabel[] nameLabel;
+	private final JSpinner medalSpinner = new JSpinner();
+	private final JRadioButton[] stageRadio;
+	private final List<JRadioButton[]> merit;
+	private final Font largeGothicFont = new Font("ＭＳ ゴシック", Font.BOLD, 15);
+	private final Font smallGothicFont = new Font("ＭＳ ゴシック", Font.BOLD, 10);
+	private final Font arailFont = new Font("Arail", Font.BOLD, 15);
+	private final int SIZE_X = 110;
+	private final int SIZE_Y = 70;
 	
-	protected EditProgress() {
-		load();
-		addLabel();
-		addSpinner();
-		addRadio();
-		setPreferredSize(new Dimension(500, sizeY * stageImage.size()));
-	}
-	
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		drawImage(g);
-		setLabel();
+	EditProgress(TestEditImage testEditImage) {
+		this.testEditImage = testEditImage;
+		saveGameProgress = createSaveGameProgress();
+		saveItem = createSaveItem();
+		saveGameProgress.load();
+		saveItem.load();
+		setLabel(medalLabel, "保有メダル", SIZE_X, 0, SIZE_X, SIZE_Y, largeGothicFont);
+		nameLabel = createNameLabel();
 		setSpinner();
+		stageRadio = createRadioArray(testEditImage.stageSize(), saveGameProgress.getStageStatus());
+		merit = createRadioList();
 		setRadio();
+		setPreferredSize(new Dimension(500, SIZE_Y * testEditImage.stageSize()));
+		stillness(defaultWhite());
 	}
 	
-	private void load() {
-		SaveGameProgress.load();
-		SaveItem.load();
+	SaveGameProgress createSaveGameProgress() {
+		return new SaveGameProgress();
 	}
 	
-	protected void save() {
-		IntStream.range(0, stage.length).forEach(i -> {
-			SaveGameProgress.setStage(i, stage[i].isSelected());
-			IntStream.range(0, merit.get(i).length).forEach(j -> {
-				SaveGameProgress.getMeritData(i).setMeritClear(j, merit.get(i)[j].isSelected());
-			});
-		});
-		SaveItem.setMedalNumber((int) medalSpinner.getValue());
-		SaveGameProgress.save();
-		SaveItem.save();
+	SaveItem createSaveItem() {
+		return new SaveItem();
 	}
 	
-	private void addLabel() {
-		Function<Integer, JLabel[]> initialize = count -> {
-			return IntStream.range(0, count).mapToObj(_ -> new JLabel()).toArray(JLabel[]::new);
-		};
-		BiConsumer<JLabel, String> set = (label, name) -> {
-			add(label);
-			label.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 15));
-			label.setText(name);
-		};
-		nameLabel = initialize.apply(stageImage.size());
-		IntStream.range(0, DefaultStage.STAGE_DATA.size()).forEach(i -> set.accept(nameLabel[i], DefaultStage.STAGE_DATA.get(i).getName()));
-		medalLabel = new JLabel();
-		set.accept(medalLabel, "保有メダル");
+	JLabel[] createNameLabel() {
+		return IntStream.range(0, DefaultStage.STAGE_DATA.size()).mapToObj(i -> initializeLabel(i)).toArray(JLabel[]::new);
 	}
 	
-	private void setLabel() {
-		IntStream.range(0, nameLabel.length).forEach(i -> nameLabel[i].setBounds(sizeX, (i + 1) * sizeY, sizeX, sizeY));
-		medalLabel.setBounds(sizeX, 0, sizeX, sizeY);
-	}
-	
-	private void addSpinner() {
-		medalSpinner = new JSpinner();
-		add(medalSpinner);
-		medalSpinner.setModel(new SpinnerNumberModel(SaveItem.getMedalNumber(), 0, 100000, 100));
-		JSpinner.NumberEditor editor = new JSpinner.NumberEditor(medalSpinner);
-		editor.getTextField().setEditable(false);
-		editor.getTextField().setHorizontalAlignment(JTextField.CENTER);
-		medalSpinner.setEditor(editor);
+	JLabel initializeLabel(int number) {
+		JLabel label = new JLabel();
+		setLabel(label, DefaultStage.STAGE_DATA.get(number).getName(), SIZE_X, (number + 1) * SIZE_Y, SIZE_X, SIZE_Y, largeGothicFont);
+		return label;
 	}
 	
 	private void setSpinner() {
-		medalSpinner.setBounds(sizeX * 2, 0, sizeX, sizeY);
+		medalSpinner.setModel(new SpinnerNumberModel(saveItem.getMedalNumber(), 0, 100000, 100));
+		JSpinner.NumberEditor editor = new JSpinner.NumberEditor(medalSpinner);
+		JTextField field = editor.getTextField();
+		field.setEditable(false);
+		field.setFocusable(false);
+		field.setHorizontalAlignment(JTextField.CENTER);
+		medalSpinner.setEditor(editor);
+		medalSpinner.setBounds(SIZE_X * 2, 0, SIZE_X, SIZE_Y);
 		medalSpinner.setPreferredSize(medalSpinner.getSize());
-		medalSpinner.setFont(new Font("Arail", Font.BOLD, 15));
+		medalSpinner.setFont(arailFont);
+		add(medalSpinner);
 	}
 	
-	private void addRadio() {
-		Function<Integer, JRadioButton[]> initialize = count -> {
-			return IntStream.range(0, count).mapToObj(_ -> new JRadioButton()).toArray(JRadioButton[]::new);
-		};
-		BiConsumer<JRadioButton[], List<Boolean>> set = (radio, clear) -> {
-			IntStream.range(0, radio.length).forEach(i -> {
-				add(radio[i]);
-				radio[i].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 10));
-				radio[i].setOpaque(false);
-				if(clear.get(i)) {
-					radio[i].setSelected(true);
-				}
+	JRadioButton[] createRadioArray(int size, List<Boolean> clearList){
+		return IntStream.range(0, size).mapToObj(i -> initializeRadio(i, clearList.get(i))).toArray(JRadioButton[]::new);
+	}
+	
+	JRadioButton initializeRadio(int number, boolean hasCleared) {
+		JRadioButton radio = new JRadioButton();
+		radio.setFont(smallGothicFont);
+		radio.setOpaque(false);
+		if(hasCleared) {
+			radio.setSelected(true);
+		}
+		add(radio);
+		return radio;
+	}
+	
+	List<JRadioButton[]> createRadioList(){
+		return IntStream.range(0, DefaultStage.STAGE_DATA.size()).mapToObj(i -> createRadioArray(DefaultStage.STAGE_DATA.get(i).getMerit().size(), saveGameProgress.getMeritData(i).getMeritClearList())).toList();
+	}
+	
+	private void setRadio(){
+		IntStream.range(0, stageRadio.length).forEach(i -> {
+				stageRadio[i].setText("ステージクリア");
+				stageRadio[i].setBounds(SIZE_X + 100, (i + 1) * SIZE_Y, SIZE_X, SIZE_Y);
 			});
-		};
-		stage = initialize.apply(stageImage.size());
-		set.accept(stage, SaveGameProgress.getStageStatus());
-		Stream.of(stage).forEach(i -> i.setText("ステージクリア"));
-		merit = DefaultStage.STAGE_DATA.stream().map(i -> initialize.apply(i.getMerit().size())).toList();
-		IntStream.range(0, merit.size()).forEach(i -> {
-			set.accept(merit.get(i), SaveGameProgress.getMeritData(i).getMeritClearList());
-			IntStream.range(0, merit.get(i).length).forEach(j -> merit.get(i)[j].setText("戦功" + (j + 1) + "クリア"));
+		IntStream.range(0, merit.size()).forEach(i -> IntStream.range(0, merit.get(i).length).forEach(j -> {
+				merit.get(i)[j].setText("戦功" + (j + 1) + "クリア");
+				merit.get(i)[j].setBounds(100 + SIZE_X * (2 + j / 2), (i + 1) * SIZE_Y + j % 2 * SIZE_Y / 2, SIZE_X, SIZE_Y / 2);
+			}));
+	}
+	
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		IntStream.range(0, testEditImage.stageSize()).forEach(i -> g.drawImage(testEditImage.getStageImage().get(i), 0, (i + 1) * SIZE_Y, this));
+	}
+	
+	void save() {
+		IntStream.range(0, stageRadio.length).forEach(i -> {
+			saveGameProgress.setStage(i, stageRadio[i].isSelected());
+			IntStream.range(0, merit.get(i).length).forEach(j -> {
+				saveGameProgress.getMeritData(i).setMeritClear(j, merit.get(i)[j].isSelected());
+			});
 		});
-	}
-	
-	private void setRadio() {
-		IntStream.range(0, stage.length).forEach(i -> stage[i].setBounds(sizeX + 100, (i + 1) * sizeY, sizeX, sizeY));
-		IntStream.range(0, merit.size()).forEach(i -> IntStream.range(0, merit.get(i).length).forEach(j -> merit.get(i)[j].setBounds(100 + sizeX * (2 + j / 2), (i + 1) * sizeY + j % 2 * sizeY / 2, sizeX, sizeY / 2)));
-	}
-	
-	private void drawImage(Graphics g) {
-		IntStream.range(0, stageImage.size()).forEach(i -> g.drawImage(stageImage.get(i), 0, (i + 1) * sizeY, this));
+		saveItem.setMedalNumber((int) medalSpinner.getValue());
+		saveGameProgress.save();
+		saveItem.save();
 	}
 }

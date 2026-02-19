@@ -3,8 +3,8 @@ package defendthecastle.itemdispose;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
+import commoninheritance.CommonImage;
 import defaultdata.DefaultUnit;
-import defendthecastle.commoninheritance.CommonImage;
 
 class DefaultDisposeData extends CommonImage{
 	private final int RATIO = 2;

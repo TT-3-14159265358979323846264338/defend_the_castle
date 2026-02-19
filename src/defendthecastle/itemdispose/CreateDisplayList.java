@@ -2,8 +2,8 @@ package defendthecastle.itemdispose;
 
 import java.util.List;
 
+import commoninheritance.DisplayList;
 import defaultdata.DefaultUnit;
-import defendthecastle.commoninheritance.DisplayList;
 
 //表示リスト作成
 class CreateDisplayList extends DisplayList{

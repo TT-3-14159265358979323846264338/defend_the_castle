@@ -6,116 +6,101 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
+import commoninheritance.CommonJPanel;
 import defaultdata.DefaultUnit;
 import savedata.SaveHoldItem;
 
 //保有アイテム編集
-class EditItem extends JPanel{
-	private JLabel[] coreLabel;
-	private JLabel[] weaponLabel;
-	private JSpinner[] coreSpinner;
-	private JSpinner[] weaponSpinner;
-	private List<BufferedImage> coreImage = IntStream.range(0, DefaultUnit.CORE_DATA_MAP.size()).mapToObj(i -> DefaultUnit.CORE_DATA_MAP.get(i).getImage(4)).toList();
-	private List<BufferedImage> weaponImage = IntStream.range(0, DefaultUnit.WEAPON_DATA_MAP.size()).mapToObj(i -> DefaultUnit.WEAPON_DATA_MAP.get(i).getImage(4)).toList();
-	private SaveHoldItem SaveHoldItem = new SaveHoldItem();
-	private int size = 50;
+class EditItem extends CommonJPanel{
+	private final TestEditImage testEditImage;
+	private final SaveHoldItem saveHoldItem;
+	private final JLabel[] coreLabel;
+	private final JLabel[] weaponLabel;
+	private final JSpinner[] coreSpinner;
+	private final JSpinner[] weaponSpinner;
+	private final Font gothicFont =  new Font("ＭＳ ゴシック", Font.BOLD, 15);
+	private final Font arialFont = new Font("Arail", Font.BOLD, 15);
+	private final int SIZE = 50;
+	private final int LABEL_POSITION = 0;
+	private final int SPINNER_POSITION = 360;
 	
-	protected EditItem() {
-		SaveHoldItem.load();
-		addLabel();
-		addSpinner();
-		setPreferredSize(new Dimension(100, size * (weaponImage.size() < coreImage.size()? coreImage.size(): weaponImage.size())));
+	EditItem(TestEditImage testEditImage) {
+		this.testEditImage = testEditImage;
+		saveHoldItem = createSaveHoldItem();
+		saveHoldItem.load();
+		List<String> coreName = IntStream.range(0, testEditImage.coreSize()).mapToObj(i -> DefaultUnit.CORE_DATA_MAP.get(i).getName()).toList();
+		List<String> weaponName = IntStream.range(0, testEditImage.coreSize()).mapToObj(i -> DefaultUnit.WEAPON_DATA_MAP.get(i).getName()).toList();
+		coreLabel = createLabel(testEditImage.coreSize(), LABEL_POSITION, coreName);
+		weaponLabel = createLabel(testEditImage.weaponSize(), SPINNER_POSITION, weaponName);
+		coreSpinner = createSpinner(coreLabel.length, LABEL_POSITION, saveHoldItem.getCoreNumberList());
+		weaponSpinner = createSpinner(weaponLabel.length, SPINNER_POSITION, saveHoldItem.getWeaponNumberList());
+		setPreferredSize(new Dimension(100, SIZE * maxSize()));
+		stillness(defaultWhite());
 	}
 	
+	SaveHoldItem createSaveHoldItem() {
+		return new SaveHoldItem();
+	}
+	
+	JLabel[] createLabel(int size, int position, List<String> nameList) {
+		return IntStream.range(0, size).mapToObj(i -> initializeLabel(i, position, nameList.get(i))).toArray(JLabel[]::new);
+	}
+	
+	JLabel initializeLabel(int number, int position, String name) {
+		JLabel label = new JLabel();
+		setLabel(label, name, SIZE + position, number * SIZE, 200, SIZE, gothicFont);
+		return label;
+	}
+	
+	JSpinner[] createSpinner(int size, int position, List<Integer> numberList) {
+		return IntStream.range(0, size).mapToObj(i -> initializeSpinner(i, position, numberList.get(i))).toArray(JSpinner[]::new);
+	}
+	
+	JSpinner initializeSpinner(int number, int position, int itemNumber) {
+		JSpinner spinner = new JSpinner();
+		spinner.setModel(new SpinnerNumberModel(itemNumber, 0, 100, 1));
+		JSpinner.NumberEditor editor = new JSpinner.NumberEditor(spinner);
+		JTextField field = editor.getTextField();
+		field.setEditable(false);
+		field.setFocusable(false);
+		field.setHorizontalAlignment(JTextField.CENTER);
+		spinner.setEditor(editor);
+		spinner.setBounds(SIZE + position + 200, number * SIZE, 100, SIZE);
+		spinner.setPreferredSize(spinner.getSize());
+		spinner.setFont(arialFont);
+		add(spinner);
+		return spinner;
+	}
+	
+	int maxSize() {
+		return testEditImage.weaponSize() < testEditImage.coreSize()? testEditImage.coreSize(): testEditImage.weaponSize();
+	}
+	
+	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		drawImage(g);
-		setLabel();
-		setSpinner();
-	}
-	
-	protected void save() {
-		Function<JSpinner[], List<Integer>> input = (spinner) -> {
-			return Stream.of(spinner).map(i ->  (int) i.getValue()).collect(Collectors.toList());
-		};
-		SaveHoldItem.setCoreNumberList(input.apply(coreSpinner));
-		SaveHoldItem.setWeaponNumberList(input.apply(weaponSpinner));
-		SaveHoldItem.save();
-	}
-	
-	private void addLabel() {
-		Function<Integer, JLabel[]> initialize = count -> {
-			return IntStream.range(0, count).mapToObj(_ -> new JLabel()).toArray(JLabel[]::new);
-		};
-		BiConsumer<JLabel[], List<String>> set = (label, name) -> {
-			IntStream.range(0, label.length).forEach(i -> {
-				add(label[i]);
-				label[i].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 15));
-				label[i].setText(name.get(i));
-			});
-		};
-		coreLabel = initialize.apply(coreImage.size());
-		weaponLabel = initialize.apply(weaponImage.size());
-		set.accept(coreLabel, IntStream.range(0, coreLabel.length).mapToObj(i -> DefaultUnit.CORE_DATA_MAP.get(i).getName()).toList());
-		set.accept(weaponLabel, IntStream.range(0, weaponLabel.length).mapToObj(i -> DefaultUnit.WEAPON_DATA_MAP.get(i).getName()).toList());
-	}
-	
-	private void setLabel() {
-		BiConsumer<JLabel[], Integer> draw = (label, position) -> {
-			IntStream.range(0, label.length).forEach(i -> label[i].setBounds(size + position, i * size, 200, size));
-		};
-		draw.accept(coreLabel, 0);
-		draw.accept(weaponLabel, 360);
-	}
-	
-	private void addSpinner() {
-		Function<Integer, JSpinner[]> initialize = count -> {
-			return IntStream.range(0, count).mapToObj(_ -> new JSpinner()).toArray(JSpinner[]::new);
-		};
-		BiConsumer<JSpinner[], List<Integer>> set = (spinner, number) -> {
-			IntStream.range(0, spinner.length).forEach(i -> {
-				add(spinner[i]);
-				spinner[i].setModel(new SpinnerNumberModel((int) number.get(i), 0, 100, 1));
-				JSpinner.NumberEditor editor = new JSpinner.NumberEditor(spinner[i]);
-				editor.getTextField().setEditable(false);
-				editor.getTextField().setHorizontalAlignment(JTextField.CENTER);
-				spinner[i].setEditor(editor);
-			});
-		};
-		coreSpinner = initialize.apply(coreImage.size());
-		weaponSpinner = initialize.apply(weaponImage.size());
-		set.accept(coreSpinner, SaveHoldItem.getCoreNumberList());
-		set.accept(weaponSpinner, SaveHoldItem.getWeaponNumberList());
-	}
-	
-	private void setSpinner() {
-		BiConsumer<JSpinner[], Integer> draw = (spinner, position) -> {
-			IntStream.range(0, spinner.length).forEach(i -> {
-				spinner[i].setBounds(size + position + 200, i * size, 100, size);
-				spinner[i].setPreferredSize(spinner[i].getSize());
-				spinner[i].setFont(new Font("Arail", Font.BOLD, 15));
-			});
-		};
-		draw.accept(coreSpinner, 0);
-		draw.accept(weaponSpinner, 360);
-	}
-	
-	private void drawImage(Graphics g) {
 		BiConsumer<List<BufferedImage>, Integer> draw = (image, position) -> {
-			IntStream.range(0, image.size()).forEach(i -> g.drawImage(image.get(i), position, i * size, this));
+			IntStream.range(0, image.size()).forEach(i -> g.drawImage(image.get(i), position, i * SIZE, this));
 		};
-		draw.accept(coreImage, 0);
-		draw.accept(weaponImage, 360);
+		draw.accept(testEditImage.getCoreImage(), 0);
+		draw.accept(testEditImage.getWeaponImage(), 360);
+	}
+	
+	void save() {
+		saveHoldItem.setCoreNumberList(input(coreSpinner));
+		saveHoldItem.setWeaponNumberList(input(weaponSpinner));
+		saveHoldItem.save();
+	}
+	
+	List<Integer> input(JSpinner[] spinner){
+		return Stream.of(spinner).map(i ->  (int) i.getValue()).toList();
 	}
 }

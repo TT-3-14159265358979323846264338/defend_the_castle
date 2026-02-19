@@ -15,9 +15,9 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 
+import commoninheritance.CommonJPanel;
 import defaultdata.EditImage;
 import defendthecastle.MainFrame;
-import defendthecastle.commoninheritance.CommonJPanel;
 
 //ガチャ本体
 public class MenuItemGet extends CommonJPanel{

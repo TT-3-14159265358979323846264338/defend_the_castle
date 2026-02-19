@@ -3,8 +3,8 @@ package defendthecastle.itemget;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
+import commoninheritance.CommonImage;
 import defaultdata.DefaultOther;
-import defendthecastle.commoninheritance.CommonImage;
 
 class ItemGetImage extends CommonImage{
 	private final List<BufferedImage> coreImageList;

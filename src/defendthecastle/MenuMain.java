@@ -8,8 +8,8 @@ import java.util.stream.IntStream;
 
 import javax.swing.JButton;
 
+import commoninheritance.CommonJPanel;
 import defaultdata.EditImage;
-import defendthecastle.commoninheritance.CommonJPanel;
 import testdataedit.TestDataEdit;
 
 //トップメニュー画面

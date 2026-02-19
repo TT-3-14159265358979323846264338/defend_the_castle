@@ -2,107 +2,96 @@ package testdataedit;
 
 import static javax.swing.JOptionPane.*;
 
-import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics;
+import java.awt.event.ActionEvent;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import commoninheritance.CommonJPanel;
+
 //セーブデータ編集用メインパネル
-class TestPanel extends JPanel{
-	private JLabel typeLabel = new JLabel();
-	private JButton switchButton = new JButton();
-	private JButton saveButton = new JButton();
-	private JButton returnButton = new JButton();
-	private JScrollPane itemScroll = new JScrollPane();
-	private EditItem EditItem = new EditItem();
-	private EditProgress EditProgress = new EditProgress();
-	private TestDataEdit TestDataEdit;
+class TestPanel extends CommonJPanel{
+	private final TestDataEdit testDataEdit;
+	private final EditItem editItem;
+	private final EditProgress editProgress;
+	private final JLabel typeLabel = new JLabel();
+	private final JButton switchButton = new JButton();
+	private final JButton saveButton = new JButton();
+	private final JButton returnButton = new JButton();
+	private final JScrollPane itemScroll = new JScrollPane();
+	private final Font largeFont = new Font("ＭＳ ゴシック", Font.BOLD, 25);
+	private final Font smallFont = new Font("ＭＳ ゴシック", Font.BOLD, 20);
 	
-	protected TestPanel(TestDataEdit TestDataEdit) {
-		this.TestDataEdit = TestDataEdit;
-		setBackground(new Color(240, 170, 80));
-		add(typeLabel);
+	TestPanel(TestDataEdit testDataEdit) {
+		this.testDataEdit = testDataEdit;
+		TestEditImage testEditImage = createTestEditImage();
+		editItem = createEditItem(testEditImage);
+		editProgress = createEditProgress(testEditImage);
+		setLabel(typeLabel, labelText(), 20, 10, 400, 30, largeFont);
 		addSwitchButton();
 		addSaveButton();
 		addReturnButton();
 		addScroll();
+		stillness(brown());
 	}
 	
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		setTypeLabel();
-		setSwitchButton();
-		setSaveButton();
-		setReturnButton();
-		setScroll();
-		requestFocus();
+	TestEditImage createTestEditImage() {
+		return new TestEditImage();
 	}
 	
-	private void setTypeLabel() {
-		typeLabel.setText((itemScroll.getViewport().getView() == EditItem)? "保有アイテム": "クリア状況");
-		typeLabel.setBounds(20, 10, 400, 30);
-		typeLabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 25));
+	EditItem createEditItem(TestEditImage testEditImage) {
+		return new EditItem(testEditImage);
+	}
+	
+	EditProgress createEditProgress(TestEditImage testEditImage) {
+		return new EditProgress(testEditImage);
+	}
+	
+	String labelText() {
+		return hasDisplayedItem()? "保有アイテム": "クリア状況";
+	}
+	
+	boolean hasDisplayedItem() {
+		return itemScroll.getViewport().getView() == editItem;
 	}
 	
 	private void addSwitchButton() {
-		add(switchButton);
-		switchButton.addActionListener(_ ->{
-			itemScroll.getViewport().setView((itemScroll.getViewport().getView() == EditItem)? EditProgress: EditItem);
-		});
+		setButton(switchButton, "表示切替", 145, 530, 150, 60, smallFont);
+		switchButton.addActionListener(this::switchButtonAction);
 	}
 	
-	private void setSwitchButton() {
-		switchButton.setText("表示切替");
-		switchButton.setBounds(145, 530, 150, 60);
-		setButton(switchButton);
+	void switchButtonAction(ActionEvent e) {
+		itemScroll.getViewport().setView(hasDisplayedItem()? editProgress: editItem);
+		typeLabel.setText(labelText());
 	}
 	
 	private void addSaveButton() {
-		add(saveButton);
-		saveButton.addActionListener(_ ->{
-			if(itemScroll.getViewport().getView() == EditItem) {
-				EditItem.save();
-			}else {
-				EditProgress.save();
-			}
-			showMessageDialog(null, "セーブしました");
-		});
+		setButton(saveButton, "セーブ", 315, 530, 150, 60, smallFont);
+		saveButton.addActionListener(this::saveButtonAction);
 	}
 	
-	private void setSaveButton() {
-		saveButton.setText("セーブ");
-		saveButton.setBounds(315, 530, 150, 60);
-		setButton(saveButton);
+	void saveButtonAction(ActionEvent e) {
+		if(hasDisplayedItem()) {
+			editItem.save();
+		}else {
+			editProgress.save();
+		}
+		showMessageDialog(null, "セーブしました");
 	}
 	
 	private void addReturnButton() {
-		add(returnButton);
-		returnButton.addActionListener(_ ->{
-			TestDataEdit.disposeDialog();
-		});
+		setButton(returnButton, "戻る", 485, 530, 150, 60, smallFont);
+		returnButton.addActionListener(this::returnButtonAction);
 	}
 	
-	private void setReturnButton() {
-		returnButton.setText("戻る");
-		returnButton.setBounds(485, 530, 150, 60);
-		setButton(returnButton);
-	}
-	
-	private void setButton(JButton button) {
-		button.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
+	void returnButtonAction(ActionEvent e) {
+		testDataEdit.disposeDialog();
 	}
 	
 	private void addScroll() {
-		itemScroll.getViewport().setView(EditItem);
-		add(itemScroll);
-	}
-	
-	private void setScroll() {
-		itemScroll.setBounds(20, 50, 730, 470);
-		itemScroll.setPreferredSize(itemScroll.getSize());
+		itemScroll.getViewport().setView(editItem);
+		setScroll(itemScroll, 20, 50, 730, 470);
 	}
 }

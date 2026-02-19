@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 
+import commoninheritance.CommonImage;
 import defaultdata.DefaultOther;
-import defendthecastle.commoninheritance.CommonImage;
 
 class MainImage extends CommonImage{
 	private final BufferedImage titleImage;

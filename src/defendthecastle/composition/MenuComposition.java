@@ -21,11 +21,11 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 
+import commoninheritance.CommonJPanel;
+import commoninheritance.ImagePanel;
 import defaultdata.DefaultUnit;
 import defaultdata.EditImage;
 import defendthecastle.MainFrame;
-import defendthecastle.commoninheritance.CommonJPanel;
-import defendthecastle.commoninheritance.ImagePanel;
 import defendthecastle.screendisplay.DisplayStatus;
 
 //編成

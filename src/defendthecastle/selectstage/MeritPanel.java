@@ -13,8 +13,8 @@ import java.util.stream.IntStream;
 
 import javax.swing.JLabel;
 
+import commoninheritance.CommonJPanel;
 import defaultdata.DefaultStage;
-import defendthecastle.commoninheritance.CommonJPanel;
 
 //戦功情報
 class MeritPanel extends CommonJPanel{

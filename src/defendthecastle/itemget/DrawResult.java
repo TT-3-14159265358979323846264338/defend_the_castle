@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import defendthecastle.commoninheritance.CommonJPanel;
+import commoninheritance.CommonJPanel;
 import defendthecastle.screendisplay.DisplayStatus;
 import savedata.SaveHoldItem;
 

@@ -14,7 +14,7 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 
-import defendthecastle.commoninheritance.CommonJPanel;
+import commoninheritance.CommonJPanel;
 
 //リサイクル数確定画面
 class RecyclePanel extends CommonJPanel{

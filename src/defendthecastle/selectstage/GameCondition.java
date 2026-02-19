@@ -7,8 +7,8 @@ import java.util.List;
 
 import javax.swing.JLabel;
 
+import commoninheritance.CommonJPanel;
 import defaultdata.DefaultStage;
-import defendthecastle.commoninheritance.CommonJPanel;
 
 class GameCondition extends CommonJPanel{
 	private final JLabel clearCommentLabel = new JLabel();
