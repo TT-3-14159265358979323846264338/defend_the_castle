@@ -71,8 +71,7 @@ public abstract class CommonJPanel extends JPanel implements AncestorListener{
 	}
 	
 	/**
-	 * 画面の基本的な背景。
-	 * {@link #repaintTimer}で指定する。
+	 * 本ゲーム画面の基本的な背景。
 	 * @return 茶色を返却する。
 	 */
 	protected Color brown() {
@@ -80,8 +79,7 @@ public abstract class CommonJPanel extends JPanel implements AncestorListener{
 	}
 	
 	/**
-	 * デフォルト画面の背景。
-	 * {@link #repaintTimer}で指定する。
+	 * デフォルトJPanelの背景。
 	 * @return ほんの少し黒味のある白色を返却する。
 	 */
 	protected Color defaultWhite() {
