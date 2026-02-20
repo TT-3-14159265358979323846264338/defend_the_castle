@@ -3,7 +3,7 @@ package defaultdata.weapon;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import defaultdata.EditImage;
+import commonclass.EditImage;
 
 public abstract class WeaponData {
 	/**

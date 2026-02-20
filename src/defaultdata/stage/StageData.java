@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import defaultdata.EditImage;
+import commonclass.EditImage;
 import defendthecastle.battle.Battle;
 import defendthecastle.battle.BattleEnemy;
 import defendthecastle.battle.BattleFacility;

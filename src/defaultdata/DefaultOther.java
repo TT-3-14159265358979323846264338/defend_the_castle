@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
 
+import commonclass.EditImage;
+
 //その他のデータ
 public class DefaultOther {
 	//タイトル画像ファイル
