@@ -3,7 +3,7 @@ package defendthecastle.itemdispose;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import commoninheritance.CommonImage;
+import commonclass.CommonImage;
 import defaultdata.DefaultUnit;
 
 class DefaultDisposeData extends CommonImage{

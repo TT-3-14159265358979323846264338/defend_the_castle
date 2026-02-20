@@ -12,7 +12,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
-import commoninheritance.CommonJPanel;
+import commonclass.CommonJPanel;
 import defaultdata.DefaultStage;
 import savedata.SaveGameProgress;
 import savedata.SaveItem;

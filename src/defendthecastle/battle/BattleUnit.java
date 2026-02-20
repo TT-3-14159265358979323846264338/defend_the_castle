@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import commonclass.EditImage;
 import defaultdata.DefaultAtackPattern;
 import defaultdata.DefaultUnit;
-import defaultdata.EditImage;
 import defendthecastle.screendisplay.StatusCalculation;
 import savedata.OneUnitData;
 

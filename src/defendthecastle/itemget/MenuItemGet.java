@@ -15,8 +15,8 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 
-import commoninheritance.CommonJPanel;
-import defaultdata.EditImage;
+import commonclass.CommonJPanel;
+import commonclass.EditImage;
 import defendthecastle.MainFrame;
 
 //ガチャ本体

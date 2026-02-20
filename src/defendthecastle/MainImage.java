@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 
-import commoninheritance.CommonImage;
+import commonclass.CommonImage;
 import defaultdata.DefaultOther;
 
 class MainImage extends CommonImage{

@@ -3,7 +3,7 @@ package defendthecastle.composition;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import commoninheritance.CommonImage;
+import commonclass.CommonImage;
 
 class CompositionImage extends CommonImage{
 	private final int RATIO = 2;

@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 
 import javax.swing.JLabel;
 
-import commoninheritance.CommonJPanel;
+import commonclass.CommonJPanel;
 import defaultdata.DefaultStage;
 
 //戦功情報

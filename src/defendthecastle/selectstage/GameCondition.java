@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.swing.JLabel;
 
-import commoninheritance.CommonJPanel;
+import commonclass.CommonJPanel;
 import defaultdata.DefaultStage;
 
 class GameCondition extends CommonJPanel{

@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-import commoninheritance.CommonJPanel;
+import commonclass.CommonJPanel;
 
 //ステータス表示
 abstract class StatusPanel extends CommonJPanel{

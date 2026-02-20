@@ -9,7 +9,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
-import defaultdata.EditImage;
+import commonclass.EditImage;
 
 public class Bullet {
 	public static final int CORRECTION = 25;

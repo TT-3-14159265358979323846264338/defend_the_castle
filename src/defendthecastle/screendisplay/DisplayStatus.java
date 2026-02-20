@@ -11,10 +11,10 @@ import java.util.stream.IntStream;
 
 import javax.swing.JLabel;
 
+import commonclass.EditImage;
 import defaultdata.DefaultAtackPattern;
 import defaultdata.DefaultEnemy;
 import defaultdata.DefaultUnit;
-import defaultdata.EditImage;
 import defaultdata.core.CoreData;
 import defaultdata.enemy.EnemyData;
 import defaultdata.weapon.WeaponData;

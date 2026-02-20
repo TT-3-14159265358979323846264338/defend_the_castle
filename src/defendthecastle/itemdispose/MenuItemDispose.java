@@ -10,8 +10,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
-import commoninheritance.CommonJPanel;
-import commoninheritance.ImagePanel;
+import commonclass.CommonJPanel;
+import commonclass.ImagePanel;
 import defendthecastle.MainFrame;
 
 //アイテムのリサイクル

@@ -24,7 +24,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 
-import commoninheritance.CommonJPanel;
+import commonclass.CommonJPanel;
 import defaultdata.DefaultAtackPattern;
 import defaultdata.DefaultUnit;
 

@@ -3,8 +3,8 @@ package defendthecastle.selectstage;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
+import commonclass.EditImage;
 import defaultdata.DefaultStage;
-import defaultdata.EditImage;
 
 class StageImage {
 	private final List<BufferedImage> detailStageImage;

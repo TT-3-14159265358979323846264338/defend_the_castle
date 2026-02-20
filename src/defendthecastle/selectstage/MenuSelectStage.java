@@ -8,7 +8,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
-import commoninheritance.CommonJPanel;
+import commonclass.CommonJPanel;
 import defaultdata.DefaultStage;
 import defendthecastle.MainFrame;
 import defendthecastle.battle.BattleEnemy;

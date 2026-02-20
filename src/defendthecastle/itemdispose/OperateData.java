@@ -6,7 +6,7 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import commoninheritance.ImagePanel;
+import commonclass.ImagePanel;
 import defaultdata.DefaultUnit;
 import savedata.SaveComposition;
 import savedata.SaveGameProgress;

@@ -12,7 +12,7 @@ import java.util.stream.IntStream;
 
 import javax.swing.JLabel;
 
-import commoninheritance.CommonJPanel;
+import commonclass.CommonJPanel;
 
 //ステージ切り替え
 class SelectPanel extends CommonJPanel implements MouseListener{

@@ -9,7 +9,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
-import commoninheritance.CommonJPanel;
+import commonclass.CommonJPanel;
 
 //セーブデータ編集用メインパネル
 class TestPanel extends CommonJPanel{

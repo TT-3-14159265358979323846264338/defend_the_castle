@@ -10,8 +10,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
+import commonclass.EditImage;
 import defaultdata.DefaultUnit;
-import defaultdata.EditImage;
 import defaultdata.atackpattern.AtackPattern;
 
 //全キャラクターの共通システム

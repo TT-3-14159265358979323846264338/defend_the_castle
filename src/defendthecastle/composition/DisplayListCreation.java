@@ -2,7 +2,7 @@ package defendthecastle.composition;
 
 import java.util.List;
 
-import commoninheritance.DisplayList;
+import commonclass.DisplayList;
 
 //表示リスト作成
 class DisplayListCreation extends DisplayList{

@@ -3,7 +3,7 @@ package testdataedit;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import commoninheritance.CommonImage;
+import commonclass.CommonImage;
 import defaultdata.DefaultStage;
 
 class TestEditImage extends CommonImage{

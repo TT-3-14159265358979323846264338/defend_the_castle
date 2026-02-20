@@ -8,8 +8,8 @@ import java.util.stream.IntStream;
 
 import javax.swing.JButton;
 
-import commoninheritance.CommonJPanel;
-import defaultdata.EditImage;
+import commonclass.CommonJPanel;
+import commonclass.EditImage;
 import testdataedit.TestDataEdit;
 
 //トップメニュー画面
