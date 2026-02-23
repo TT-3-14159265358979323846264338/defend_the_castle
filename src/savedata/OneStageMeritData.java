@@ -8,14 +8,19 @@ import defaultdata.DefaultStage;
 
 public class OneStageMeritData {
 	/**
-	 * 戦功のクリア状況
+	 * 戦功のクリア状況。
+	 * ステージによって戦功数は異なるため、データベースでは多めに列が存在する。
+	 * 有効な戦功数を超えてデータが保存されているため、リストを取り出す時は有効な戦功数で切り出す必要がある。
 	 */
 	private List<Boolean> meritClearList = new ArrayList<>();
 	
-	private int activeMerit;
+	/**
+	 * このステージの有効な戦功数。
+	 */
+	private final int activeMerit;
 	
-	OneStageMeritData(ResultSet result, int index) throws Exception{
-		activeMerit = DefaultStage.STAGE_DATA.get(index).getReward().size();
+	OneStageMeritData(ResultSet result, int stageNo) throws Exception{
+		activeMerit = DefaultStage.STAGE_DATA.get(stageNo).getReward().size();
 		for(int i = 0; i < SaveGameProgress.MERIT_MAX_NUMBER; i++) {
 			meritClearList.add(result.getBoolean(String.format("%s%d", SaveGameProgress.MERIT_COLUMN, i)));
 		}

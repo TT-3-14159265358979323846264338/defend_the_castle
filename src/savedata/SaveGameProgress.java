@@ -1,5 +1,6 @@
 package savedata;
 
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,17 +54,33 @@ public class SaveGameProgress extends SQLOperation{
 	public void load() {
 		operateSQL(mysql -> {
 			operateResultSet(mysql, STAGE_NAME, result -> {
-				stageStatus.clear();
-				meritStatus.clear();
-				int index = 0;
+				List<Boolean> loadStage = new ArrayList<>();
+				List<OneStageMeritData> loadMerit = new ArrayList<>();
+				int stageNo = 0;
 				while(result.next()) {
-					OneStageMeritData OneStageMeritData = new OneStageMeritData(result, index);
-					stageStatus.add(result.getBoolean(STAGE_COLUMN));
-					meritStatus.add(OneStageMeritData);
-					index++;
+					addStageStatus(loadStage, result);
+					var oneStageMeritData = createOneStageMeritData(result, stageNo);
+					addMeritStatus(loadMerit, oneStageMeritData);
+					stageNo++;
 				}
+				stageStatus.clear();
+				stageStatus.addAll(loadStage);
+				meritStatus.clear();
+				meritStatus.addAll(loadMerit);
 			});
 		});
+	}
+	
+	void addStageStatus(List<Boolean> loadData, ResultSet result) throws Exception{
+		loadData.add(result.getBoolean(STAGE_COLUMN));
+	}
+	
+	OneStageMeritData createOneStageMeritData(ResultSet result, int stageNo) throws Exception{
+		return new OneStageMeritData(result, stageNo);
+	}
+	
+	void addMeritStatus(List<OneStageMeritData> loadData, OneStageMeritData OneStageMeritData) {
+		loadData.add(OneStageMeritData);
 	}
 	
 	public void save() {

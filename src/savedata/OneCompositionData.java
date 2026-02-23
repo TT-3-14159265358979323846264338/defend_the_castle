@@ -23,7 +23,11 @@ public class OneCompositionData extends SQLOperation{
 	OneCompositionData(int id, String compositionName, List<Integer> unitList) {
 		this.id = id;
 		this.compositionName = compositionName;
-		unitData = IntStream.range(0, SaveComposition.UNIT_NUMBER).mapToObj(i -> new OneUnitData(unitList.get(i * 3), unitList.get(i * 3 + 1), unitList.get(i * 3 + 2))).toList();
+		unitData = IntStream.range(0, SaveComposition.UNIT_NUMBER).mapToObj(i -> createOneUnitData(i, unitList)).toList();
+	}
+	
+	OneUnitData createOneUnitData(int unitNo, List<Integer> unitList) {
+		return new OneUnitData(unitList.get(unitNo * 3), unitList.get(unitNo * 3 + 1), unitList.get(unitNo * 3 + 2));
 	}
 	
 	int getID() {

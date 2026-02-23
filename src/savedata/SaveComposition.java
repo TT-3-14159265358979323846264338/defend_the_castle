@@ -83,22 +83,28 @@ public class SaveComposition extends SQLOperation{
 	public void load() {
 		operateSQL(mysql -> {
 			operateResultSet(mysql, COMPOSITION_NAME, result -> {
-				allCompositionList.clear();
+				List<OneCompositionData> loadData = new ArrayList<>();
 				List<String> unitColumnList = getUnitColumnList();
 				while (result.next()) {
 					List<Integer> unitList = new ArrayList<>();
 					for(String i: unitColumnList) {
 						unitList.add(result.getInt(i));
 					}
-					addComposition(result.getInt(ID_COLUMN), result.getString(NAME_COLUMN), unitList);
+					var oneCompositionData = createOneCompositionData(result.getInt(ID_COLUMN), result.getString(NAME_COLUMN), unitList);
+					addComposition(loadData, oneCompositionData);
 				}
+				allCompositionList.clear();
+				allCompositionList.addAll(loadData);
 			});
 		});
 	}
 	
-	public void addComposition(int id, String compositionName, List<Integer> unitList) {
-		OneCompositionData newCompositionData = new OneCompositionData(id, compositionName, unitList);
-		allCompositionList.add(newCompositionData);
+	void addComposition(List<OneCompositionData> loadData, OneCompositionData newCompositionData) {
+		loadData.add(newCompositionData);
+	}
+	
+	OneCompositionData createOneCompositionData(int id, String compositionName, List<Integer> unitList) {
+		return new OneCompositionData(id, compositionName, unitList);
 	}
 	
 	public void save() {
