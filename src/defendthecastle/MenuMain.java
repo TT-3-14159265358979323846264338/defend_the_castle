@@ -35,11 +35,11 @@ public class MenuMain extends CommonJPanel{
 		finalMotion = createFinalMotion();
 		mainImage = createmainImage();
 		mainTimer = createMainTimer(scheduler);
-		addItemGetButton();
-		addItemDisposeButton();
-		addCompositionButton();
-		addBattleButton();
-		addTestButton();
+		setButton(itemGetButton, "ガチャ", 10, 400, 130, 60, font, this::itemGetButtonAction);
+		setButton(itemDisposeButton, "リサイクル", 150, 400, 130, 60, font, this::itemDisposeButtonAction);
+		setButton(compositionButton, "ユニット編成", 290, 400, 130, 60, font, this::compositionButtonAction);
+		setButton(selectStageButton, "ステージ選択", 430, 400, 130, 60, font, this::battleButtonAction);
+		setButton(testButton, "セーブデータ編集", 410, 0, 160, 40, font, this::testButtonAction);
 		movie(scheduler, brown());
 	}
 	
@@ -59,36 +59,16 @@ public class MenuMain extends CommonJPanel{
 		return new MainTimer(scheduler, fallMotion, finalMotion);
 	}
 	
-	private void addItemGetButton() {
-		setButton(itemGetButton, "ガチャ", 10, 400, 130, 60, font);
-		itemGetButton.addActionListener(this::itemGetButtonAction);
-	}
-	
 	void itemGetButtonAction(ActionEvent e) {
 		mainFrame.itemGetMenuDraw();
-	}
-	
-	private void addItemDisposeButton() {
-		setButton(itemDisposeButton, "リサイクル", 150, 400, 130, 60, font);
-		itemDisposeButton.addActionListener(this::itemDisposeButtonAction);
 	}
 	
 	void itemDisposeButtonAction(ActionEvent e) {
 		mainFrame.itemDisposeMenuDraw();
 	}
 	
-	private void addCompositionButton() {
-		setButton(compositionButton, "ユニット編成", 290, 400, 130, 60, font);
-		compositionButton.addActionListener(this::compositionButtonAction);
-	}
-	
 	void compositionButtonAction(ActionEvent e) {
 		mainFrame.compositionDraw();
-	}
-	
-	private void addBattleButton() {
-		setButton(selectStageButton, "ステージ選択", 430, 400, 130, 60, font);
-		selectStageButton.addActionListener(this::battleButtonAction);
 	}
 	
 	void battleButtonAction(ActionEvent e) {
@@ -107,11 +87,6 @@ public class MenuMain extends CommonJPanel{
 	}
 	
 	//テスト用
-	private void addTestButton() {
-		setButton(testButton, "セーブデータ編集", 410, 0, 160, 40, font);
-		testButton.addActionListener(this::testButtonAction);
-	}
-	
 	void testButtonAction(ActionEvent e) {
 		new TestDataEdit();
 	}

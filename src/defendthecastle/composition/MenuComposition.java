@@ -10,7 +10,6 @@ import java.awt.image.BufferedImage;
 import java.time.temporal.ValueRange;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.IntStream;
 
@@ -65,16 +64,16 @@ public class MenuComposition extends CommonJPanel implements MouseListener{
 		setLabel(compositionNameLabel, "編成名", 10, 10, 130, 30, largeFont);
 		setLabel(compositionLabel, "ユニット編成", 230, 10, 130, 30, largeFont);
 		setLabel(typeLabel, typeName(), 570, 10, 130, 30, largeFont);
-		addSwapButton();
-		addNameChangeButton();
-		addSaveButton();
-		addLoadButton();
-		addResetButton();
-		addReturnButton();
-		addSwitchButton();
-		addSortButton();
-		addCompositionScroll();
-		addItemScroll();
+		setButton(swapButton, "編成入替", 10, 320, 101, 60, smallFont, this::swapButtonAction);
+		setButton(nameChangeButton, "名称変更", 120, 320, 101, 60, smallFont, this::nameChangeButtonAction);
+		setButton(saveButton, "セーブ", 10, 390, 101, 60, smallFont, this::saveButtonAction);
+		setButton(loadButton, "ロード", 120, 390, 101, 60, smallFont, this::loadButtonAction);
+		setButton(resetButton, "リセット", 10, 460, 101, 60, smallFont, this::resetButtonAction);
+		setButton(returnButton, "戻る", 120, 460, 101, 60, smallFont, this::returnButtonAction);
+		setButton(switchButton, "表示切替", 570, 460, 185, 60, smallFont, this::switchButtonAction);
+		setButton(sortButton, "ソート", 765, 460, 185, 60, smallFont, this::sortButtonAction);
+		setCompositionScroll();
+		setScroll(itemScroll, 570, 40, 380, 410, coreImagePanel);
 		movie(scheduler, brown());
 	}
 	
@@ -102,19 +101,9 @@ public class MenuComposition extends CommonJPanel implements MouseListener{
 		return itemScroll.getViewport().getView() == coreImagePanel;
 	}
 	
-	private void addSwapButton(){
-		setButton(swapButton, "編成入替", 10, 320, 101, 60, smallFont);
-		swapButton.addActionListener(this::swapButtonAction);
-	}
-	
 	void swapButtonAction(ActionEvent e) {
 		saveData.swapComposition(compositionJList.getMaxSelectionIndex(), compositionJList.getMinSelectionIndex());
 		modelUpdate();
-	}
-	
-	private void addNameChangeButton() {
-		setButton(nameChangeButton, "名称変更", 120, 320, 101, 60, smallFont);
-		nameChangeButton.addActionListener(this::nameChangeButtonAction);
 	}
 	
 	void nameChangeButtonAction(ActionEvent e) {
@@ -122,18 +111,8 @@ public class MenuComposition extends CommonJPanel implements MouseListener{
 		modelUpdate();
 	}
 	
-	private void addSaveButton() {
-		setButton(saveButton, "セーブ", 10, 390, 101, 60, smallFont);
-		saveButton.addActionListener(this::saveButtonAction);
-	}
-	
 	void saveButtonAction(ActionEvent e) {
 		saveData.saveProcessing();
-	}
-	
-	private void addLoadButton() {
-		setButton(loadButton, "ロード", 120, 390, 101, 60, smallFont);
-		loadButton.addActionListener(this::loadButtonAction);
 	}
 	
 	void loadButtonAction(ActionEvent e) {
@@ -141,29 +120,14 @@ public class MenuComposition extends CommonJPanel implements MouseListener{
 		modelUpdate();
 	}
 	
-	private void addResetButton() {
-		setButton(resetButton, "リセット", 10, 460, 101, 60, smallFont);
-		resetButton.addActionListener(this::resetButtonAction);
-	}
-	
 	void resetButtonAction(ActionEvent e) {
 		saveData.resetComposition();
-	}
-	
-	private void addReturnButton() {
-		setButton(returnButton, "戻る", 120, 460, 101, 60, smallFont);
-		returnButton.addActionListener(this::returnButtonAction);
 	}
 	
 	void returnButtonAction(ActionEvent e) {
 		if(saveData.returnProcessing()) {
 			mainFrame.mainMenuDraw();
 		}
-	}
-	
-	private void addSwitchButton() {
-		setButton(switchButton, "表示切替", 570, 460, 185, 60, smallFont);
-		switchButton.addActionListener(this::switchButtonAction);
 	}
 	
 	void switchButtonAction(ActionEvent e) {
@@ -175,11 +139,6 @@ public class MenuComposition extends CommonJPanel implements MouseListener{
 		return hasDisplayedPanel()? weaponImagePanel: coreImagePanel;
 	}
 	
-	private void addSortButton() {
-		setButton(sortButton, "ソート", 765, 460, 185, 60, smallFont);
-		sortButton.addActionListener(this::sortButtonAction);
-	}
-	
 	void sortButtonAction(ActionEvent e) {
 		if(hasDisplayedPanel()) {
 			coreImagePanel.setDisplayList(displayListCreation.getCoreDisplayList());
@@ -188,13 +147,12 @@ public class MenuComposition extends CommonJPanel implements MouseListener{
 		}
 	}
 	
-	private void addCompositionScroll() {
+	private void setCompositionScroll() {
 		modelUpdate();
 		compositionJList.addListSelectionListener(this::selectAction);
-		compositionScroll.getViewport().setView(compositionJList);
 		compositionJList.setFont(largeFont);
-		setScroll(compositionScroll, 10, 40, 210, 270);
-		CompletableFuture.runAsync(this::delaySelect);
+		setScroll(compositionScroll, 10, 40, 210, 270, compositionJList);
+		compositionJList.ensureIndexIsVisible(saveData.getSelectNumber());
 	}
 	
 	void selectAction(ListSelectionEvent e) {
@@ -203,20 +161,6 @@ public class MenuComposition extends CommonJPanel implements MouseListener{
 			return;
 		}
 		saveData.selectNumberUpdate(selectIndex);
-	}
-	
-	void delaySelect() {
-		try {
-			Thread.sleep(100);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		compositionJList.ensureIndexIsVisible(saveData.getSelectNumber());
-	}
-	
-	private void addItemScroll() {
-		itemScroll.getViewport().setView(coreImagePanel);
-		setScroll(itemScroll, 570, 40, 380, 410);
 	}
 	
 	void modelUpdate() {

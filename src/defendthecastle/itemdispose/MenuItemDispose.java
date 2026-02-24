@@ -39,11 +39,11 @@ public class MenuItemDispose extends CommonJPanel{
 		coreImagePanel = createImagePanel(scheduler, defaultDisposeData.getCoreImageList(), createDisplayList.initialCoreDisplayList(), operateData.getCoreNumberList(), true);
 		weaponImagePanel = createImagePanel(scheduler, defaultDisposeData.getWeaponImageList(), createDisplayList.initialWeaponDisplayList(), operateData.getWeaponNumberList(), false);
 		setLabel(typeLabel, typeName(), 20, 10, 400, 30, largeFont);
-		addSwitchButton();
-		addSortButton();
-		addDisposeButton();
-		addReturnButton();
-		addScroll();
+		setButton(switchButton, "表示切替", 20, 530, 150, 60, smallFont, this::switchButtonAction);
+		setButton(sortButton, "ソート", 190, 530, 150, 60, smallFont, this::sortButtonAction);
+		setButton(disposeButton, "リサイクル", 360, 530, 150, 60, smallFont, this::disposeButtonAction);
+		setButton(returnButton, "戻る", 530, 530, 150, 60, smallFont, this::returnButtonAction);
+		setScroll(itemScroll, 20, 50, 660, 470, coreImagePanel);
 		stillness(brown());
 	}
 	
@@ -71,11 +71,6 @@ public class MenuItemDispose extends CommonJPanel{
 		return itemScroll.getViewport().getView() == coreImagePanel;
 	}
 	
-	private void addSwitchButton() {
-		setButton(switchButton, "表示切替", 20, 530, 150, 60, smallFont);
-		switchButton.addActionListener(this::switchButtonAction);
-	}
-	
 	void switchButtonAction(ActionEvent e) {
 		itemScroll.getViewport().setView(switchItemImagePanel());
 		typeLabel.setText(typeName());
@@ -83,11 +78,6 @@ public class MenuItemDispose extends CommonJPanel{
 	
 	ImagePanel switchItemImagePanel() {
 		return hasDisplayedPanel()? weaponImagePanel: coreImagePanel;
-	}
-	
-	private void addSortButton() {
-		setButton(sortButton, "ソート", 190, 530, 150, 60, smallFont);
-		sortButton.addActionListener(this::sortButtonAction);
 	}
 	
 	void sortButtonAction(ActionEvent e) {
@@ -98,11 +88,6 @@ public class MenuItemDispose extends CommonJPanel{
 		}
 	}
 	
-	private void addDisposeButton() {
-		setButton(disposeButton, "リサイクル", 360, 530, 150, 60, smallFont);
-		disposeButton.addActionListener(this::disposeButtonAction);
-	}
-	
 	void disposeButtonAction(ActionEvent e) {
 		if(hasDisplayedPanel()) {
 			operateData.recycle(coreImagePanel, operateData.getCoreNumberList(), operateData.getUsedCoreNumber(), defaultDisposeData.getCoreImageList(), defaultDisposeData.getCoreRarityList());
@@ -111,17 +96,7 @@ public class MenuItemDispose extends CommonJPanel{
 		}
 	}
 	
-	private void addReturnButton() {
-		setButton(returnButton, "戻る", 530, 530, 150, 60, smallFont);
-		returnButton.addActionListener(this::returnButtonAction);
-	}
-	
 	void returnButtonAction(ActionEvent e) {
 		mainFrame.mainMenuDraw();
-	}
-	
-	private void addScroll() {
-		itemScroll.getViewport().setView(coreImagePanel);
-		setScroll(itemScroll, 20, 50, 660, 470);
 	}
 }

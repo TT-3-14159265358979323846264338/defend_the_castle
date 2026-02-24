@@ -20,9 +20,9 @@ import commonclass.CommonJPanel;
 class RecyclePanel extends CommonJPanel{
 	private final JLabel commentLabel = new JLabel();
 	private final JLabel resultLabel = new JLabel();
-	private final JSpinner countSpinner = new JSpinner();
 	private final JButton recycleButton = new JButton();
 	private final JButton returnButton = new JButton();
+	private final JSpinner countSpinner = new JSpinner();
 	private final RecycleDialog recycleDialog;
 	private final BufferedImage image;
 	private final int rarity;
@@ -36,9 +36,9 @@ class RecyclePanel extends CommonJPanel{
 		this.rarity = rarity;
 		setLabel(commentLabel, "ガチャメダルへリサイクルする数量を入力してください", 120, 10, 400, 30, gothicFont);
 		setLabel(resultLabel, medalComment(), 370, 50, 400, 30, gothicFont);
-		addRecycleButton();
-		addSpinner(max);
-		addReturnButton();
+		setButton(recycleButton, "リサイクル", 170, 100, 120, 40, gothicFont, this::recycleButtonAction);
+		setButton(returnButton, "戻る", 310, 100, 120, 40, gothicFont, this::returnButtonAction);
+		setSpinner(max);
 		stillness(defaultWhite());
 		recycleDialog = createRecycleDialog();
 		recycleDialog.setDialog(this);
@@ -52,7 +52,18 @@ class RecyclePanel extends CommonJPanel{
 		return new RecycleDialog();
 	}
 	
-	private void addSpinner(int max) {
+	void recycleButtonAction(ActionEvent e) {
+		if(YES_OPTION == showConfirmDialog(null, quantity + "個をリサイクルしますか","リサイクル確認",YES_NO_OPTION , QUESTION_MESSAGE)) {
+			canDispose = true;
+			recycleDialog.disposeDialog();
+		}
+	}
+	
+	void returnButtonAction(ActionEvent e) {
+		recycleDialog.disposeDialog();
+	}
+	
+	private void setSpinner(int max) {
 		countSpinner.setModel(new SpinnerNumberModel(1, 1, max, 1));
 		countSpinner.addChangeListener(this::importQuantity);
 		importQuantity(null);
@@ -75,27 +86,6 @@ class RecyclePanel extends CommonJPanel{
 		spinner.setPreferredSize(spinner.getSize());
 		spinner.setFont(arailFont);
 		add(spinner);
-	}
-	
-	private void addRecycleButton() {
-		setButton(recycleButton, "リサイクル", 170, 100, 120, 40, gothicFont);
-		recycleButton.addActionListener(this::recycleButtonAction);
-	}
-	
-	void recycleButtonAction(ActionEvent e) {
-		if(YES_OPTION == showConfirmDialog(null, quantity + "個をリサイクルしますか","リサイクル確認",YES_NO_OPTION , QUESTION_MESSAGE)) {
-			canDispose = true;
-			recycleDialog.disposeDialog();
-		}
-	}
-	
-	private void addReturnButton() {
-		setButton(returnButton, "戻る", 310, 100, 120, 40, gothicFont);
-		returnButton.addActionListener(this::returnButtonAction);
-	}
-	
-	void returnButtonAction(ActionEvent e) {
-		recycleDialog.disposeDialog();
 	}
 	
 	@Override

@@ -30,10 +30,10 @@ class TestPanel extends CommonJPanel{
 		editItem = createEditItem(testEditImage);
 		editProgress = createEditProgress(testEditImage);
 		setLabel(typeLabel, labelText(), 20, 10, 400, 30, largeFont);
-		addSwitchButton();
-		addSaveButton();
-		addReturnButton();
-		addScroll();
+		setButton(switchButton, "表示切替", 145, 530, 150, 60, smallFont, this::switchButtonAction);
+		setButton(saveButton, "セーブ", 315, 530, 150, 60, smallFont, this::saveButtonAction);
+		setButton(returnButton, "戻る", 485, 530, 150, 60, smallFont, this::returnButtonAction);
+		setScroll(itemScroll, 20, 50, 730, 470, editItem);
 		stillness(brown());
 	}
 	
@@ -57,19 +57,9 @@ class TestPanel extends CommonJPanel{
 		return itemScroll.getViewport().getView() == editItem;
 	}
 	
-	private void addSwitchButton() {
-		setButton(switchButton, "表示切替", 145, 530, 150, 60, smallFont);
-		switchButton.addActionListener(this::switchButtonAction);
-	}
-	
 	void switchButtonAction(ActionEvent e) {
 		itemScroll.getViewport().setView(hasDisplayedItem()? editProgress: editItem);
 		typeLabel.setText(labelText());
-	}
-	
-	private void addSaveButton() {
-		setButton(saveButton, "セーブ", 315, 530, 150, 60, smallFont);
-		saveButton.addActionListener(this::saveButtonAction);
 	}
 	
 	void saveButtonAction(ActionEvent e) {
@@ -81,17 +71,7 @@ class TestPanel extends CommonJPanel{
 		showMessageDialog(null, "セーブしました");
 	}
 	
-	private void addReturnButton() {
-		setButton(returnButton, "戻る", 485, 530, 150, 60, smallFont);
-		returnButton.addActionListener(this::returnButtonAction);
-	}
-	
 	void returnButtonAction(ActionEvent e) {
 		testDataEdit.disposeDialog();
-	}
-	
-	private void addScroll() {
-		itemScroll.getViewport().setView(editItem);
-		setScroll(itemScroll, 20, 50, 730, 470);
 	}
 }

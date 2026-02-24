@@ -49,11 +49,11 @@ public class MenuItemGet extends CommonJPanel{
 		openBallMotion = createOpenBallMotion(scheduler);
 		ballMotion = createBallMotion(scheduler);
 		handleMotion = createHandleMotion(scheduler);
-		addMedalLabel();
-		addGachaDetailButton();
-		addRepeatButton();
-		addReturnButton();
-		addGachaScroll();
+		setMedalLabel();
+		setButton(gachaDetailButton, "<html>ガチャ詳細", 350, 330, 210, 60, smallFont, this::gachaDetailButtonAction);
+		setButton(repeatButton, repeatText(), 350, 400, 100, 60, smallFont, this::repeatButtonAction);
+		setButton(returnButton, "<html>戻る", 460, 400, 100, 60, smallFont, this::returnButtonAction);
+		setGachaScroll();
 		movie(scheduler, defaultWhite());
 	}
 	
@@ -85,7 +85,7 @@ public class MenuItemGet extends CommonJPanel{
 		return new HandleMotion(this, holdMedal, ballMotion, scheduler);
 	}
 	
-	private void addMedalLabel() {
+	private void setMedalLabel() {
 		setLabel(medalLabel, medalText(), 350, 20, 200, 30, largeFont);
 		medalLabel.setHorizontalAlignment(JLabel.CENTER);
 	}
@@ -94,18 +94,8 @@ public class MenuItemGet extends CommonJPanel{
 		return String.format("メダル: %d枚", holdMedal.getMedal());
 	}
 	
-	private void addGachaDetailButton() {
-		gachaDetailButton.addActionListener(this::gachaDetailButtonAction);
-		setButton(gachaDetailButton, "<html>ガチャ詳細", 350, 330, 210, 60, smallFont);
-	}
-	
 	void gachaDetailButtonAction(ActionEvent e) {
 		new GachaLineup(gachaInformation);
-	}
-	
-	private void addRepeatButton() {
-		repeatButton.addActionListener(this::repeatButtonAction);
-		setButton(repeatButton, repeatText(), 350, 400, 100, 60, smallFont);
 	}
 	
 	String repeatText() {
@@ -117,22 +107,16 @@ public class MenuItemGet extends CommonJPanel{
 		repeatButton.setText(repeatText());
 	}
 	
-	private void addReturnButton() {
-		returnButton.addActionListener(this::returnButtonAction);
-		setButton(returnButton, "<html>戻る", 460, 400, 100, 60, smallFont);
-	}
-	
 	void returnButtonAction(ActionEvent e) {
 		mainFrame.mainMenuDraw();
 	}
 	
-	private void addGachaScroll() {
+	private void setGachaScroll() {
 		selectGachaJList.setListData(gachaInformation.getGachaName());
-		selectGachaScroll.getViewport().setView(selectGachaJList);
 		selectGachaJList.setSelectedIndex(0);
 		selectGachaJList.addListSelectionListener(this::selectAction);
 		selectGachaJList.setFont(largeFont);
-		setScroll(selectGachaScroll, 350, 60, 210, 260);
+		setScroll(selectGachaScroll, 350, 60, 210, 260, selectGachaJList);
 	}
 	
 	void selectAction(ListSelectionEvent e) {

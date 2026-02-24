@@ -73,11 +73,11 @@ abstract class SortPanel extends CommonJPanel {
 		handleList = createHandleList();
 		elementList = createElementList();
 		targetList = createTargetList();
-		addLabel();
-		addSortButton();
-		addResetButton();
-		addReturnButton();
-		addRadioButton();
+		setAllLabel();
+		setButton(sortButton, "ソート", 220, 470, 120, 40, largeFont, this::sortButtonAction);
+		setButton(resetButton, "リセット", 350, 470, 120, 40, largeFont, this::resetButtonAction);
+		setButton(returnButton, "戻る", 480, 470, 120, 40, largeFont, this::returnButtonAction);
+		setRadioButton();
 		stillness(brown());
 	}
 	
@@ -106,7 +106,7 @@ abstract class SortPanel extends CommonJPanel {
 		return statusList.stream().map(i -> IntStream.range(0, i.size()).mapToObj(j -> (j == 2)? 1 / i.get(j): i.get(j)).toList()).toList();
 	}
 	
-	private void addLabel(){
+	private void setAllLabel(){
 		setLabel(sortLabel, "並び替え", 10, 10, 300, 40, largeFont);
 		setLabel(filterLabel, "絞り込み", 10, 240, 300, 40, largeFont);
 		setLabel(commentLabel[0], "レアリティ", smallFont);
@@ -127,19 +127,9 @@ abstract class SortPanel extends CommonJPanel {
 		commentLabel[8].setBounds(10, 430, 300, 30);
 	}
 	
-	private void addSortButton() {
-		setButton(sortButton, "ソート", 220, 470, 120, 40, largeFont);
-		sortButton.addActionListener(this::sortButtonAction);
-	}
-	
 	void sortButtonAction(ActionEvent e) {
 		canSort = true;
 		sortDialog.dispose();
-	}
-	
-	private void addResetButton() {
-		setButton(resetButton, "リセット", 350, 470, 120, 40, largeFont);
-		resetButton.addActionListener(this::resetButtonAction);
 	}
 	
 	void resetButtonAction(ActionEvent e) {
@@ -158,16 +148,11 @@ abstract class SortPanel extends CommonJPanel {
 		Stream.of(radio).forEach(i -> i.setSelected(false));
 	}
 	
-	private void addReturnButton() {
-		setButton(returnButton, "戻る", 480, 470, 120, 40, largeFont);
-		returnButton.addActionListener(this::returnButtonAction);
-	}
-	
 	void returnButtonAction(ActionEvent e) {
 		sortDialog.dispose();
 	}
 	
-	private void addRadioButton() {
+	private void setRadioButton() {
 		initializeRadioButton();
 		setRadioAction();
 		setRadioName();

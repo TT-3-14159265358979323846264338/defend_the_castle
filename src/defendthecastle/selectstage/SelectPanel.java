@@ -43,7 +43,7 @@ class SelectPanel extends CommonJPanel implements MouseListener{
 		changeSelect();
 		nameLabel = IntStream.range(0, progressData.getActivateStage().size()).mapToObj(this::addNameLabel).toArray(JLabel[]::new);
 		clearLabel = IntStream.range(0, nameLabel.length).mapToObj(this::addClearLabel).toArray(JLabel[]::new);
-		addOtherLabel(progressData);
+		setOtherLabel(progressData);
 		addMouseListener(this);
 		setPreferredSize(stageDimension());
 		stillness(defaultWhite());
@@ -68,7 +68,7 @@ class SelectPanel extends CommonJPanel implements MouseListener{
 		return clearStatus.get(number)? "clear": "";
 	}
 	
-	private void addOtherLabel(ProgressData progressData) {
+	private void setOtherLabel(ProgressData progressData) {
 		setLabel(otherStageLabel, stageComment(progressData), 0, 85 * clearLabel.length, 130, 30, otherFont);
 		otherStageLabel.setHorizontalAlignment(JLabel.CENTER);
 	}

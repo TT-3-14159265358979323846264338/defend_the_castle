@@ -47,7 +47,7 @@ abstract class StatusPanel extends CommonJPanel{
 	
 	void setStatusPanel(BufferedImage image) {
 		imageLabel = new JLabel(new ImageIcon(image));
-		addLabel();
+		setAllLabel();
 		setLabelPosition();
 		stillness(brown());
 		displayDialog();
@@ -57,7 +57,7 @@ abstract class StatusPanel extends CommonJPanel{
 		new StstusDialog(this);
 	}
 	
-	void addLabel() {
+	void setAllLabel() {
 		add(imageLabel);
 		imageLabel.setHorizontalAlignment(JLabel.CENTER);
 		labelMethod(item, labelMethod(defaultFont()));

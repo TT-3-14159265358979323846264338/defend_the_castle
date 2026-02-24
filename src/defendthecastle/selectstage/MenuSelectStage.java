@@ -42,13 +42,13 @@ public class MenuSelectStage extends CommonJPanel{
 		selectPanel = createSelectPanel();
 		setLabel(stageLabel, "ステージ選択", 10, 10, 200, 30, font);
 		setLabel(informationLabel, "ステージ情報", 170, 10, 200, 30, font);
-		addReturnButton();
-		addNormalModeButton();
-		addHardModeButton();
-		addStageScroll();
-		addMeritScroll();
-		addEnemyScroll();
-		addGameCondition();
+		setButton(returnButton, "戻る", 10, 460, 150, 60, font, this::returnButtonAction);
+		setButton(normalModeButton, "normal", 580, 460, 155, 60, font, this::normalModeButtonAction);
+		setButton(hardModeButton, "hard", 745, 460, 155, 60, font, this::hardModeButtonAction);
+		setScroll(stageScroll, 10, 40, 150, 410, selectPanel);
+		setScroll(meritScroll, 170, 275, 400, 245, meritPanel);
+		setScroll(enemyScroll, 580, 40, 320, 295, enemyPanel);
+		setGameCondition();
 		stillness(brown());
 	}
 	
@@ -76,27 +76,12 @@ public class MenuSelectStage extends CommonJPanel{
 		return new SelectPanel(progressData, stageImage, meritPanel, gameCondition, enemyPanel, this);
 	}
 	
-	private void addReturnButton() {
-		setButton(returnButton, "戻る", 10, 460, 150, 60, font);
-		returnButton.addActionListener(this::returnButtonAction);
-	}
-	
 	void returnButtonAction(ActionEvent e) {
 		mainFrame.mainMenuDraw();
 	}
 	
-	private void addNormalModeButton() {
-		setButton(normalModeButton, "normal", 580, 460, 155, 60, font);
-		normalModeButton.addActionListener(this::normalModeButtonAction);
-	}
-	
 	void normalModeButtonAction(ActionEvent e) {
 		battleStart(BattleEnemy.NORMAL_MODE);
-	}
-	
-	private void addHardModeButton() {
-		setButton(hardModeButton, "hard", 745, 460, 155, 60, font);
-		hardModeButton.addActionListener(this::hardModeButtonAction);
 	}
 	
 	void hardModeButtonAction(ActionEvent e) {
@@ -108,22 +93,7 @@ public class MenuSelectStage extends CommonJPanel{
 		mainFrame.battleDraw(DefaultStage.STAGE_DATA.get(selectPanel.getSelelct()), mode);
 	}
 	
-	private void addStageScroll() {
-		stageScroll.getViewport().setView(selectPanel);
-		setScroll(stageScroll, 10, 40, 150, 410);
-	}
-	
-	private void addMeritScroll() {
-		meritScroll.getViewport().setView(meritPanel);
-		setScroll(meritScroll, 170, 275, 400, 245);
-	}
-	
-	private void addEnemyScroll() {
-		enemyScroll.getViewport().setView(enemyPanel);
-		setScroll(enemyScroll, 580, 40, 320, 295);
-	}
-	
-	private void addGameCondition() {
+	private void setGameCondition() {
 		gameCondition.setBounds(580, 345, 320, 105);
 		add(gameCondition);
 	}
