@@ -1,7 +1,9 @@
 package commonclass;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
+import java.awt.event.ActionListener;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -124,12 +126,14 @@ public abstract class CommonJPanel extends JPanel implements AncestorListener{
 	 * @param width - 横幅
 	 * @param height - 高さ
 	 * @param font - フォント
+	 * @param task - ボタンを押した時の処理
 	 */
-	protected void setButton(JButton button, String name, int x, int y, int width, int height, Font font) {
+	protected void setButton(JButton button, String name, int x, int y, int width, int height, Font font, ActionListener task) {
 		button.setText(name);
 		button.setBounds(x, y, width, height);
 		button.setFont(font);
 		button.setFocusable(false);
+		button.addActionListener(task);
 		add(button);
 	}
 	
@@ -140,11 +144,13 @@ public abstract class CommonJPanel extends JPanel implements AncestorListener{
 	 * @param y - 配置するy座標
 	 * @param width - 横幅
 	 * @param height - 高さ
+	 * @param view - スクロールに表示するコンポーネント
 	 */
-	protected void setScroll(JScrollPane scroll, int x, int y, int width, int height) {
+	protected void setScroll(JScrollPane scroll, int x, int y, int width, int height, Component view) {
 		scroll.setBounds(x, y, width, height);
 		scroll.setPreferredSize(scroll.getSize());
 		scroll.setFocusable(false);
+		scroll.getViewport().setView(view);
 		add(scroll);
 	}
 }

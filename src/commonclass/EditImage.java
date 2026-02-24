@@ -150,8 +150,8 @@ public class EditImage{
 		int resizeHeight = height + expansion;
 		BufferedImage resizeImage = getBlankImage(resizeWidth, resizeHeight);
 		resizeImage.createGraphics().drawImage(
-	    	image.getScaledInstance(resizeWidth, resizeHeight, Image.SCALE_AREA_AVERAGING),
-	        0, 0, resizeWidth, resizeHeight, null);
+				image.getScaledInstance(resizeWidth, resizeHeight, Image.SCALE_AREA_AVERAGING),
+				0, 0, resizeWidth, resizeHeight, null);
 		int pixel = 9;
 		float[] matrix = new float[pixel * pixel];
 		IntStream.range(0, matrix.length).forEach(i -> matrix[i] = 1.5f / (pixel * pixel));//透過度あるため、色濃いめの1.5f

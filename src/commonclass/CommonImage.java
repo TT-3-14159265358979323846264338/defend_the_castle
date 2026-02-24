@@ -28,7 +28,7 @@ public abstract class CommonImage {
 	/**
 	 * 指定の縮尺倍率で戦闘時の右武器初期画像を取り込む。
 	 * @param ratio - 元の画像を何倍の縮尺で取り込むか指定。
-	 * @return 戦闘時の右武器初期画像リストを返却する。
+	 * @return 戦闘時の右武器初期画像リストを返却する。両手武器の場合はnullとなる。
 	 */
 	protected List<BufferedImage> createBattleRightWeaponImage(double ratio){
 		return DefaultUnit.WEAPON_DATA_MAP.values().stream().map(i -> rightWeaponImage(i, ratio)).toList();
