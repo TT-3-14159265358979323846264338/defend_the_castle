@@ -59,19 +59,19 @@ public abstract class CoreData {
 	
 	/**
 	 * 装備した武器のステータス上昇率(倍率上昇)。
-	 * @return {@link defaultdata.DefaultUnit#CORE_WEAPON_MAP CORE_WEAPON_MAP}の順にステータス上昇率をリスト化。
+	 * @return {@link defaultdata.CoreAtack CoreAtack}の順にステータス上昇率をリスト化。
 	 */
 	public abstract List<Double> getWeaponStatus();
 	
 	/**
 	 * ユニットのステータス上昇率(倍率上昇)。
-	 * @return {@link defaultdata.DefaultUnit#CORE_UNIT_MAP CORE_UNIT_MAP}の順にステータス上昇率をリスト化。
+	 * @return {@link defaultdata.CoreUnit CoreUnit}の順にステータス上昇率をリスト化。
 	 */
 	public abstract List<Double> getUnitStatus();
 	
 	/**
 	 * ダメージカット率上昇量(加算上昇)。
-	 * @return {@link defaultdata.DefaultUnit#ELEMENT_MAP ELEMENT_MAP}の順にステータス上昇量をリスト化。
+	 * @return {@link defaultdata.Element Element}の順にステータス上昇量をリスト化。
 	 */
 	public abstract List<Integer> getCutStatus();
 	

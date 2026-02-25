@@ -149,19 +149,19 @@ public abstract class WeaponData {
 	
 	/**
 	 * 装備した武器のステータス上昇量(加算上昇)。
-	 * @return {@link defaultdata.DefaultUnit#WEAPON_WEAPON_MAP WEAPON_WEAPON_MAP}の順にステータス上昇量をリスト化。
+	 * @return {@link defaultdata.Atack Atack}の順にステータス上昇量をリスト化。
 	 */
 	public abstract List<Integer> getWeaponStatus();
 	
 	/**
 	 * ユニットのステータス上昇量(加算上昇)。
-	 * @return {@link defaultdata.DefaultUnit#WEAPON_UNIT_MAP WEAPON_UNIT_MAP}の順にステータス上昇量をリスト化。
+	 * @return {@link defaultdata.WeaponUnit WeaponUnit}の順にステータス上昇量をリスト化。
 	 */
 	public abstract List<Integer> getUnitStatus();
 	
 	/**
 	 * ダメージカット率上昇量(加算上昇)。
-	 * @return {@link defaultdata.DefaultUnit#ELEMENT_MAP ELEMENT_MAP}の順にステータス上昇量をリスト化。
+	 * @return {@link defaultdata.Element Element}の順にステータス上昇量をリスト化。
 	 */
 	public abstract List<Integer> getCutStatus();
 	

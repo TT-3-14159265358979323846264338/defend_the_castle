@@ -115,19 +115,19 @@ public abstract class FacilityData {
 	
 	/**
 	 * 武器のステータス。
-	 * @return {@link defaultdata.Placement#WEAPON_MAP WEAPON_MAP}の順にステータスをリスト化。攻撃しない時は空のArrays.asList()を返却する。
+	 * @return {@link defaultdata.Atack Atack}の順にステータスをリスト化。攻撃しない時は空のArrays.asList()を返却する。
 	 */
 	public abstract List<Integer> getWeaponStatus();
 	
 	/**
 	 * 設備のステータス。
-	 * @return {@link defaultdata.Placement#UNIT_MAP UNIT_MAP}の順にステータスをリスト化。足止め数∞の時は-1を指定する。
+	 * @return {@link defaultdata.FacilityUnit FacilityUnit}の順にステータスをリスト化。足止め数∞の時は-1を指定する。
 	 */
 	public abstract List<Integer> getUnitStatus();
 	
 	/**
 	 * ダメージカット率。
-	 * @return {@link defaultdata.Placement#ELEMENT_MAP ELEMENT_MAP}の順にステータスをリスト化。
+	 * @return {@link defaultdata.Element Element}の順にステータスをリスト化。
 	 */
 	public abstract List<Integer> getCutStatus();
 	

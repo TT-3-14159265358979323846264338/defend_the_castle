@@ -110,19 +110,19 @@ public abstract class EnemyData {
 	
 	/**
 	 * 武器のステータス。
-	 * @return {@link defaultdata.DefaultEnemy#WEAPON_MAP WEAPON_MAP}の順にステータスをリスト化。
+	 * @return {@link defaultdata.Atack Atack}の順にステータスをリスト化。
 	 */
 	public abstract List<Integer> getWeaponStatus();
 	
 	/**
 	 * 敵のステータス。
-	 * @return {@link defaultdata.DefaultEnemy#UNIT_MAP UNIT_MAP}の順にステータスをリスト化。
+	 * @return {@link defaultdata.EnemyUnit EnemyUnit}の順にステータスをリスト化。
 	 */
 	public abstract List<Integer> getUnitStatus();
 	
 	/**
 	 * ダメージカット率。
-	 * @return {@link defaultdata.DefaultEnemy#ELEMENT_MAP ELEMENT_MAP}の順にステータスをリスト化。
+	 * @return {@link defaultdata.Element Element}の順にステータスをリスト化。
 	 */
 	public abstract List<Integer> getCutStatus();
 	

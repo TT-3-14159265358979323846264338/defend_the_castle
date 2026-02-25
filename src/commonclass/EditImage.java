@@ -175,13 +175,19 @@ public class EditImage{
 		List<BufferedImage> placementImage = new Placement().getPlacementImage(4);
 		IntStream.range(0, placementImage.size()).forEach(i -> stageData.getPlacementPoint().get(i).stream().forEach(j -> g.drawImage(placementImage.get(i), j.get(0).intValue(), j.get(1).intValue(), null)));
 		//設備の表示
-		List<BufferedImage> frontFacilityImage = Stream.of(Facility.values()).map(i -> i.getFacilityData().getActionFrontImage(4).get(0)).toList();
-		List<BufferedImage> sideFacilityImage = Stream.of(Facility.values()).map(i -> i.getFacilityData().getActionSideImage(4).get(0)).toList();
-		IntStream.range(0, stageData.getFacility().size()).forEach(i -> {
-			drawImage.accept(stageData.getFacilityDirection().get(i)? frontFacilityImage.get(stageData.getFacility().get(i).getId()): sideFacilityImage.get(stageData.getFacility().get(i).getId()), stageData.getFacilityPoint().get(i));
-		});
+		List<BufferedImage> frontImage = Stream.of(Facility.values()).map(i -> i.getFacilityData().getActionFrontImage(4).get(0)).toList();
+		List<BufferedImage> sideImage = Stream.of(Facility.values()).map(i -> i.getFacilityData().getActionSideImage(4).get(0)).toList();
+		IntStream.range(0, stageData.getFacility().size()).forEach(i -> drawImage.accept(facilityImage(frontImage, sideImage, stageData, i), stageData.getFacilityPoint().get(i)));
 		g.dispose();
 		return scalingImage(image, ratio / 2);
+	}
+	
+	static BufferedImage facilityImage(List<BufferedImage> frontImage, List<BufferedImage> sideImage, StageData stageData, int number) {
+		return stageData.getFacilityDirection().get(number)? selectImage(frontImage, stageData, number): selectImage(sideImage, stageData, number);
+	}
+	
+	static BufferedImage selectImage(List<BufferedImage> imageList, StageData stageData, int number) {
+		return imageList.get(stageData.getFacility().get(number).getId());
 	}
 	
 	static BufferedImage getBlankImage(int width, int height) {

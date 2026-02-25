@@ -21,8 +21,8 @@ public class No0002Stage2 extends StageData{
 	}
 
 	@Override
-	public boolean canActivate(SaveGameProgress SaveGameProgress) {
-		return hasClearedMerit(SaveGameProgress, 0, 0, 1);
+	public boolean canActivate(SaveGameProgress saveGameProgress) {
+		return hasClearedMerit(saveGameProgress, 0, 0, 1);
 	}
 
 	@Override
@@ -82,7 +82,7 @@ public class No0002Stage2 extends StageData{
 	}
 
 	@Override
-	public List<List<Boolean>> canUsePlacement(Battle Battle, BattleEnemy[] EnemyData) {
+	public List<List<Boolean>> canUsePlacement(Battle battle, BattleEnemy[] enemyData) {
 		return Arrays.asList(
 				Arrays.asList(true,
 						true,
@@ -130,8 +130,8 @@ public class No0002Stage2 extends StageData{
 	}
 
 	@Override
-	public boolean canClear(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData) {
-		return canAllDefeat(EnemyData);
+	public boolean canClear(BattleUnit[] unitMainData, BattleUnit[] unitLeftData, BattleFacility[] facilityData, BattleEnemy[] enemyData, GameData gameData) {
+		return canAllDefeat(enemyData);
 	}
 
 	@Override
@@ -140,8 +140,8 @@ public class No0002Stage2 extends StageData{
 	}
 
 	@Override
-	public boolean existsGameOver(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData) {
-		return canAllBreak(FacilityData[0]);
+	public boolean existsGameOver(BattleUnit[] unitMainData, BattleUnit[] unitLeftData, BattleFacility[] facilityData, BattleEnemy[] enemyData, GameData gameData) {
+		return canAllBreak(facilityData[0]);
 	}
 
 	@Override
@@ -154,12 +154,12 @@ public class No0002Stage2 extends StageData{
 	}
 
 	@Override
-	public List<Boolean> canClearMerit(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double nowDifficulty) {
+	public List<Boolean> canClearMerit(BattleUnit[] unitMainData, BattleUnit[] unitLeftData, BattleFacility[] facilityData, BattleEnemy[] enemyData, GameData gameData, double nowDifficulty) {
 		return Arrays.asList(canClearStage(BattleEnemy.NORMAL_MODE, nowDifficulty),
-				hasNotHited(BattleEnemy.NORMAL_MODE, nowDifficulty, FacilityData[0]),
+				hasNotHited(BattleEnemy.NORMAL_MODE, nowDifficulty, facilityData[0]),
 				canClearStage(BattleEnemy.HARD_MODE, nowDifficulty),
-				hasNotHited(BattleEnemy.HARD_MODE, nowDifficulty, FacilityData[0]),
-				canNotDefeat(BattleEnemy.HARD_MODE, nowDifficulty, UnitMainData, UnitLeftData));
+				hasNotHited(BattleEnemy.HARD_MODE, nowDifficulty, facilityData[0]),
+				canNotDefeat(BattleEnemy.HARD_MODE, nowDifficulty, unitMainData, unitLeftData));
 	}
 
 	@Override

@@ -21,7 +21,7 @@ public class No0001Stage1 extends StageData{
 	}
 
 	@Override
-	public boolean canActivate(SaveGameProgress SaveGameProgress) {
+	public boolean canActivate(SaveGameProgress saveGameProgress) {
 		return true;
 	}
 
@@ -88,7 +88,7 @@ public class No0001Stage1 extends StageData{
 	}
 
 	@Override
-	public List<List<Boolean>> canUsePlacement(Battle Battle, BattleEnemy[] EnemyData) {
+	public List<List<Boolean>> canUsePlacement(Battle battle, BattleEnemy[] enemyData) {
 		return  Arrays.asList(
 				Arrays.asList(true,
 						true,
@@ -142,8 +142,8 @@ public class No0001Stage1 extends StageData{
 	}
 
 	@Override
-	public boolean canClear(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData) {
-		return canAllDefeat(EnemyData);
+	public boolean canClear(BattleUnit[] unitMainData, BattleUnit[] unitLeftData, BattleFacility[] facilityData, BattleEnemy[] enemyData, GameData gameData) {
+		return canAllDefeat(enemyData);
 	}
 
 	@Override
@@ -152,8 +152,8 @@ public class No0001Stage1 extends StageData{
 	}
 
 	@Override
-	public boolean existsGameOver(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData) {
-		return canAllBreak(FacilityData[0]);
+	public boolean existsGameOver(BattleUnit[] unitMainData, BattleUnit[] unitLeftData, BattleFacility[] facilityData, BattleEnemy[] enemyData, GameData gameData) {
+		return canAllBreak(facilityData[0]);
 	}
 
 	@Override
@@ -166,12 +166,12 @@ public class No0001Stage1 extends StageData{
 	}
 
 	@Override
-	public List<Boolean> canClearMerit(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double nowDifficulty) {
+	public List<Boolean> canClearMerit(BattleUnit[] unitMainData, BattleUnit[] unitLeftData, BattleFacility[] facilityData, BattleEnemy[] enemyData, GameData gameData, double nowDifficulty) {
 		return Arrays.asList(canClearStage(BattleEnemy.NORMAL_MODE, nowDifficulty),
-				existsOverAwakening(BattleEnemy.NORMAL_MODE, nowDifficulty, 5, UnitMainData),
+				existsOverAwakening(BattleEnemy.NORMAL_MODE, nowDifficulty, 5, unitMainData),
 				canClearStage(BattleEnemy.HARD_MODE, nowDifficulty),
-				existsOverAwakening(BattleEnemy.HARD_MODE, nowDifficulty, 5, UnitMainData),
-				canNotDefeat(BattleEnemy.HARD_MODE, nowDifficulty, UnitMainData, UnitLeftData));
+				existsOverAwakening(BattleEnemy.HARD_MODE, nowDifficulty, 5, unitMainData),
+				canNotDefeat(BattleEnemy.HARD_MODE, nowDifficulty, unitMainData, unitLeftData));
 	}
 
 	@Override

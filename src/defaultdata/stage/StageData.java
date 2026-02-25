@@ -28,10 +28,10 @@ public abstract class StageData {
 	
 	/**
 	 * このステージが有効であるか判定する。{@link StageData}の下部で定義したメソッドを使用する。
-	 * @param SaveGameProgress - 現在のゲームクリア状況。
+	 * @param saveGameProgress - 現在のゲームクリア状況。
 	 * @return このステージが有効であればtrueを返却する。
 	 */
-	public abstract boolean canActivate(SaveGameProgress SaveGameProgress);
+	public abstract boolean canActivate(SaveGameProgress saveGameProgress);
 	
 	/**
 	 * ステージ画像ファイル名。
@@ -78,11 +78,11 @@ public abstract class StageData {
 	
 	/**
 	 * 配置可能位置の使用条件。
-	 * @param Battle - 現在のゲームデータ。{@link defendthecastle.battle.Battle Battle}
-	 * @param EnemyData - 現在の敵データ。{@link defendthecastle.battle.BattleEnemy BattleEnemy}
+	 * @param battle - 現在のゲームデータ。{@link defendthecastle.battle.Battle Battle}
+	 * @param enemyData - 現在の敵データ。{@link defendthecastle.battle.BattleEnemy BattleEnemy}
 	 * @return 各配置可能位置が使用可能であればtrueを入りたListを返却する。データの順番は{@link #getPlacementPoint getPlacementPoint}の順に記載する。
 	 */
-	public abstract List<List<Boolean>> canUsePlacement(Battle Battle, BattleEnemy[] EnemyData);
+	public abstract List<List<Boolean>> canUsePlacement(Battle battle, BattleEnemy[] enemyData);
 	
 	/**
 	 * 初期コスト。
@@ -105,15 +105,15 @@ public abstract class StageData {
 	
 	/**
 	 * ゲームクリア判定を行う。
-	 * @param UnitMainData - 現在のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
-	 * @param UnitLeftData - 現在のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
-	 * @param FacilityData - 現在の設備データ。{@link defendthecastle.battle.BattleFacility BattleFacility}
-	 * @param EnemyData - 現在の敵データ。{@link defendthecastle.battle.BattleEnemy BattleEnemy}
-	 * @param GameData - 現在のゲームデータ。{@link defendthecastle.battle.GameData GameData}
+	 * @param unitMainData - 現在のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
+	 * @param unitLeftData - 現在のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
+	 * @param facilityData - 現在の設備データ。{@link defendthecastle.battle.BattleFacility BattleFacility}
+	 * @param enemyData - 現在の敵データ。{@link defendthecastle.battle.BattleEnemy BattleEnemy}
+	 * @param gameData - 現在のゲームデータ。{@link defendthecastle.battle.GameData GameData}
 	 * @return ゲームクリアであるならばtrueを返却する。<br>
 	 * 			達成判定は{@link StageData}の下部で定義したメソッドを使用する。
 	 */
-	public abstract boolean canClear(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData);
+	public abstract boolean canClear(BattleUnit[] unitMainData, BattleUnit[] unitLeftData, BattleFacility[] facilityData, BattleEnemy[] enemyData, GameData gameData);
 	
 	/**
 	 * ゲームオーバー条件。
@@ -124,15 +124,15 @@ public abstract class StageData {
 	
 	/**
 	 * ゲームオーバー判定を行う。
-	 * @param UnitMainData - 現在のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
-	 * @param UnitLeftData - 現在のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
-	 * @param FacilityData - 現在の設備データ。{@link defendthecastle.battle.BattleFacility BattleFacility}
-	 * @param EnemyData - 現在の敵データ。{@link defendthecastle.battle.BattleEnemy BattleEnemy}
-	 * @param GameData - 現在のゲームデータ。{@link defendthecastle.battle.GameData GameData}
+	 * @param unitMainData - 現在のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
+	 * @param unitLeftData - 現在のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
+	 * @param facilityData - 現在の設備データ。{@link defendthecastle.battle.BattleFacility BattleFacility}
+	 * @param enemyData - 現在の敵データ。{@link defendthecastle.battle.BattleEnemy BattleEnemy}
+	 * @param gameData - 現在のゲームデータ。{@link defendthecastle.battle.GameData GameData}
 	 * @return ゲームオーバーであるならばtrueを返却する。<br>
 	 * 			達成判定は{@link StageData}の下部で定義したメソッドを使用する。
 	 */
-	public abstract boolean existsGameOver(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData);
+	public abstract boolean existsGameOver(BattleUnit[] unitMainData, BattleUnit[] unitLeftData, BattleFacility[] facilityData, BattleEnemy[] enemyData, GameData gameData);
 	
 	/**
 	 * 戦功内容。
@@ -145,17 +145,17 @@ public abstract class StageData {
 	
 	/**
 	 * 各戦功のクリア状況の判定。
-	 * @param UnitMainData - ゲーム終了後のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
-	 * @param UnitLeftData - ゲーム終了後のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
-	 * @param FacilityData - ゲーム終了後の設備データ。{@link defendthecastle.battle.BattleFacility BattleFacility}
-	 * @param EnemyData - ゲーム終了後の敵データ。{@link defendthecastle.battle.BattleEnemy BattleEnemy}
-	 * @param GameData - ゲーム終了後のゲームデータ。{@link defendthecastle.battle.GameData GameData}
+	 * @param unitMainData - ゲーム終了後のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
+	 * @param unitLeftData - ゲーム終了後のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
+	 * @param facilityData - ゲーム終了後の設備データ。{@link defendthecastle.battle.BattleFacility BattleFacility}
+	 * @param enemyData - ゲーム終了後の敵データ。{@link defendthecastle.battle.BattleEnemy BattleEnemy}
+	 * @param gameData - ゲーム終了後のゲームデータ。{@link defendthecastle.battle.GameData GameData}
 	 * @param nowDifficulty - ゲームの難易度。{@link defendthecastle.battle.BattleEnemy#NORMAL_MODE ステータス補正倍率}
 	 * @return 各戦功の達成状況のListを返却する。<br>
 	 * 			達成した場合をtrue, 未達成の場合をfalseとする。<br>
 	 * 			達成判定は{@link StageData}の下部で定義したメソッドを使用する。
 	 */
-	public abstract List<Boolean> canClearMerit(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double nowDifficulty);
+	public abstract List<Boolean> canClearMerit(BattleUnit[] unitMainData, BattleUnit[] unitLeftData, BattleFacility[] facilityData, BattleEnemy[] enemyData, GameData gameData, double nowDifficulty);
 	
 	/**
 	 * 各戦功で獲得可能な報酬。
@@ -240,16 +240,16 @@ public abstract class StageData {
 	
 	/**
 	 * 指定の範囲内のステージで戦功クリア数が一定以上であるか判定する。
-	 * @param SaveGameProgress - 現在のゲームクリア状況。
+	 * @param saveGameProgress - 現在のゲームクリア状況。
 	 * @param minStageNumber - 検索する最小ステージ番号。ステージ番号は{@link defaultdata.Placement#STAGE_DATA STAGE_DATA}のリスト順である。このステージ番号を含む。
 	 * @param maxStageNumber - 検索する最大ステージ番号。ステージ番号は{@link defaultdata.Placement#STAGE_DATA STAGE_DATA}のリスト順である。このステージ番号を含む。
 	 * @param clearCount - このステージが有効になる最低戦功クリア数。-1を指定すると半数以上を表す。
 	 * @return 戦功クリア数が一定以上であればtrueを返却する。
 	 */
-	boolean hasClearedMerit(SaveGameProgress SaveGameProgress, int minStageNumber, int maxStageNumber, int clearCount) {
-		List<List<Boolean>> meritStatus = IntStream.range(0, SaveGameProgress.getMeritStatus().size())
+	boolean hasClearedMerit(SaveGameProgress saveGameProgress, int minStageNumber, int maxStageNumber, int clearCount) {
+		List<List<Boolean>> meritStatus = IntStream.range(0, saveGameProgress.getMeritStatus().size())
 											.filter(i -> minStageNumber <= i && i <= maxStageNumber)
-											.mapToObj(i -> SaveGameProgress.getMeritData(i).getMeritClearList())
+											.mapToObj(i -> saveGameProgress.getMeritData(i).getMeritClearList())
 											.toList();
 		if(clearCount == -1) {
 			clearCount = (1 + meritStatus.stream().mapToInt(i -> i.size()).sum()) / 2;
@@ -259,15 +259,15 @@ public abstract class StageData {
 	
 	/**
 	 * 指定の範囲内の全てのステージをクリアしているか判定する。
-	 * @param SaveGameProgress - 現在のゲームクリア状況。
+	 * @param saveGameProgress - 現在のゲームクリア状況。
 	 * @param minStageNumber - 検索する最小ステージ番号。ステージ番号は{@link defaultdata.Placement#STAGE_DATA STAGE_DATA}のリスト順である。このステージ番号を含む。
 	 * @param maxStageNumber - 検索する最大ステージ番号。ステージ番号は{@link defaultdata.Placement#STAGE_DATA STAGE_DATA}のリスト順である。このステージ番号を含む。
 	 * @return 範囲内の全てのステージがクリア済みならtrueを返却する。
 	 */
-	boolean hasClearedStage(SaveGameProgress SaveGameProgress, int minStageNumber, int maxStageNumber) {
-		return 0 == IntStream.range(0, SaveGameProgress.getMeritStatus().size())
+	boolean hasClearedStage(SaveGameProgress saveGameProgress, int minStageNumber, int maxStageNumber) {
+		return 0 == IntStream.range(0, saveGameProgress.getMeritStatus().size())
 						.filter(i -> minStageNumber <= i && i <= maxStageNumber)
-						.mapToObj(i -> SaveGameProgress.getStageStatus().get(i))
+						.mapToObj(i -> saveGameProgress.getStageStatus().get(i))
 						.filter(i -> !i)
 						.count();
 	}

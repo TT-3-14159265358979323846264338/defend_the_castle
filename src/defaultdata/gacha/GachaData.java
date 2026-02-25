@@ -154,16 +154,16 @@ public abstract class GachaData {
 	
 	/**
 	 * 指定の範囲内のステージで戦功クリア数が一定以上であるか判定する。
-	 * @param SaveGameProgress - 現在のゲームクリア状況。
-	 * @param minStageNumber - 検索する最小ステージ番号。ステージ番号は{@link defaultdata.Placement#STAGE_DATA STAGE_DATA}のリスト順である。このステージ番号を含む。
-	 * @param maxStageNumber - 検索する最大ステージ番号。ステージ番号は{@link defaultdata.Placement#STAGE_DATA STAGE_DATA}のリスト順である。このステージ番号を含む。
+	 * @param saveGameProgress - 現在のゲームクリア状況。
+	 * @param minStageNumber - 検索する最小ステージ番号。ステージ番号は{@link defaultdata.Stage Stage}のリスト順である。このステージ番号を含む。
+	 * @param maxStageNumber - 検索する最大ステージ番号。ステージ番号は{@link defaultdata.Stage Stage}のリスト順である。このステージ番号を含む。
 	 * @param clearCount - このガチャが有効になる最低戦功クリア数。-1を指定すると半数以上を表す。
 	 * @return 戦功クリア数が一定以上であればtrueを返却する。
 	 */
-	boolean hasClearedMerit(SaveGameProgress SaveGameProgress, int minStageNumber, int maxStageNumber, int clearCount) {
-		List<List<Boolean>> meritStatus = IntStream.range(0, SaveGameProgress.getMeritStatus().size())
+	boolean hasClearedMerit(SaveGameProgress saveGameProgress, int minStageNumber, int maxStageNumber, int clearCount) {
+		List<List<Boolean>> meritStatus = IntStream.range(0, saveGameProgress.getMeritStatus().size())
 											.filter(i -> minStageNumber <= i && i <= maxStageNumber)
-											.mapToObj(i -> SaveGameProgress.getMeritData(i).getMeritClearList())
+											.mapToObj(i -> saveGameProgress.getMeritData(i).getMeritClearList())
 											.toList();
 		if(clearCount == -1) {
 			clearCount = (1 + meritStatus.stream().mapToInt(i -> i.size()).sum()) / 2;
@@ -173,15 +173,15 @@ public abstract class GachaData {
 	
 	/**
 	 * 指定の範囲内の全てのステージをクリアしているか判定する。
-	 * @param SaveGameProgress - 現在のゲームクリア状況。
-	 * @param minStageNumber - 検索する最小ステージ番号。ステージ番号は{@link defaultdata.Placement#STAGE_DATA STAGE_DATA}のリスト順である。このステージ番号を含む。
-	 * @param maxStageNumber - 検索する最大ステージ番号。ステージ番号は{@link defaultdata.Placement#STAGE_DATA STAGE_DATA}のリスト順である。このステージ番号を含む。
+	 * @param saveGameProgress - 現在のゲームクリア状況。
+	 * @param minStageNumber - 検索する最小ステージ番号。ステージ番号は{@link defaultdata.Stage Stage}のリスト順である。このステージ番号を含む。
+	 * @param maxStageNumber - 検索する最大ステージ番号。ステージ番号は{@link defaultdata.Stage Stage}のリスト順である。このステージ番号を含む。
 	 * @return 範囲内の全てのステージがクリア済みならtrueを返却する。
 	 */
-	boolean hasClearedStage(SaveGameProgress SaveGameProgress, int minStageNumber, int maxStageNumber) {
-		return 0 == IntStream.range(0, SaveGameProgress.getMeritStatus().size())
+	boolean hasClearedStage(SaveGameProgress saveGameProgress, int minStageNumber, int maxStageNumber) {
+		return 0 == IntStream.range(0, saveGameProgress.getMeritStatus().size())
 						.filter(i -> minStageNumber <= i && i <= maxStageNumber)
-						.mapToObj(i -> SaveGameProgress.getStageStatus().get(i))
+						.mapToObj(i -> saveGameProgress.getStageStatus().get(i))
 						.filter(i -> !i)
 						.count();
 	}

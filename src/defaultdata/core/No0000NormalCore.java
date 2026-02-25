@@ -51,6 +51,6 @@ public class No0000NormalCore extends CoreData{
 
 	@Override
 	public String getSkillImageName() {
-		return "image/skill/atack buff.png";
+		return null;
 	}
 }
