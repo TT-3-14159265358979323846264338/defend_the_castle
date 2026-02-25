@@ -10,10 +10,14 @@ import java.awt.Graphics2D;
 import javax.swing.JLabel;
 
 class AwakeLabel extends JLabel{
+	private final Font font = new Font("ＭＳ ゴシック", Font.BOLD, 7);
+	private final Dimension dimension = new Dimension(40, 20);
+	private final GradientPaint paint = new GradientPaint(15.0f, 10.0f, Color.PINK, 25.0f, 30.0f, Color.MAGENTA);
+	
 	AwakeLabel() {
-		setPreferredSize(new Dimension(40, 20));
 		setText("覚醒可能");
-		setFont(new Font("ＭＳ ゴシック", Font.BOLD, 7));
+		setFont(font);
+		setPreferredSize(dimension);
 		setHorizontalAlignment(JLabel.CENTER);
 		setForeground(Color.RED);
 	}
@@ -21,7 +25,7 @@ class AwakeLabel extends JLabel{
 	@Override
 	protected void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D)g;
-		g2.setPaint(new GradientPaint(15.0f, 10.0f, Color.PINK, 25.0f, 30.0f, Color.MAGENTA));
+		g2.setPaint(paint);
 		g2.fillOval(0, 0, getSize().width, getSize().height);
 		super.paintComponent(g2);
 	}
