@@ -137,19 +137,19 @@ public class Battle extends CommonJPanel implements MouseListener, MouseMotionLi
 	}
 	
 	BattleUnit createMainBattleUnit(List<OneUnitData> unitList, int number, ScheduledExecutorService scheduler) {
-		return new BattleUnit(this, unitList.get(number), initialX(number), initialY(number), scheduler);
+		return new BattleUnit(gameTimer, unitList.get(number), initialX(number), initialY(number), scheduler);
 	}
 	
 	BattleUnit createLeftBattleUnit(List<OneUnitData> unitList, int number, ScheduledExecutorService scheduler) {
-		return new BattleUnit(this, unitList.get(number), scheduler);
+		return new BattleUnit(gameTimer, unitList.get(number), scheduler);
 	}
 	
 	BattleFacility createBattleFacility(int number, ScheduledExecutorService scheduler) {
-		return new BattleFacility(this, stage.getStageData(), number, scheduler);
+		return new BattleFacility(gameTimer, stage.getStageData(), number, scheduler);
 	}
 	
 	BattleEnemy createBattleEnemy(int number, ScheduledExecutorService scheduler) {
-		return new BattleEnemy(this, stage.getStageData(), number, difficultyCorrection, scheduler);
+		return new BattleEnemy(gameTimer, stage.getStageData(), number, difficultyCorrection, scheduler);
 	}
 	
 	void install() {
@@ -213,7 +213,7 @@ public class Battle extends CommonJPanel implements MouseListener, MouseMotionLi
 	
 	void stageReturnButtonAction(ActionEvent e){
 		gameTimer.timerStop();
-		new PauseDialog(this, mainFrame, stage, difficultyCorrection);
+		new PauseDialog(gameTimer, mainFrame, stage, difficultyCorrection);
 	}
 	
 	void setUnitButton(JButton button, String name, ActionListener task) {

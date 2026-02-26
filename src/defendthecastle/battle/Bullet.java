@@ -19,7 +19,7 @@ public class Bullet {
 	private long beforeBulletTime;
 	private ScheduledFuture<?> hitFuture;
 	private long beforeHitTime;
-	private Battle Battle;
+	private GameTimer gameTimer;
 	private BattleData myself;
 	private BattleData target;
 	private BufferedImage bulletImage;
@@ -33,8 +33,8 @@ public class Bullet {
 	private boolean canRestart;
 	private final int NONE_DELAY = 0;
 	
-	Bullet(Battle Battle, BattleData myself, BattleData target, BufferedImage bulletImage, List<BufferedImage> hitImage, ScheduledExecutorService scheduler) {
-		this.Battle = Battle;
+	Bullet(GameTimer gameTimer, BattleData myself, BattleData target, BufferedImage bulletImage, List<BufferedImage> hitImage, ScheduledExecutorService scheduler) {
+		this.gameTimer = gameTimer;
 		this.myself = myself;
 		this.target = target;
 		this.bulletImage = bulletImage;
@@ -153,12 +153,12 @@ public class Bullet {
 		if(bulletFuture != null && !bulletFuture.isCancelled()) {
 			bulletFuture.cancel(true);
 			long bulletTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> bullet(bulletTime));
+			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> bullet(bulletTime));
 		}
 		if(hitFuture != null && !hitFuture.isCancelled()) {
 			hitFuture.cancel(true);
 			long hitTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> hitTimer(hitTime));
+			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> hitTimer(hitTime));
 		}
 	}
 	

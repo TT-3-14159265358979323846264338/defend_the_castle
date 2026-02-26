@@ -58,9 +58,9 @@ public class BattleUnit extends BattleData{
 	private long beforeRelocationTime;
 	
 	//右武器/コア用　攻撃・被弾などの判定はこちらで行う
-	BattleUnit(Battle Battle, OneUnitData OneUnitData, int positionX, int positionY, ScheduledExecutorService scheduler) {
-		this.Battle = Battle;
-		composition = OneUnitData.getUnitDataList();
+	BattleUnit(GameTimer gameTimer, OneUnitData oneUnitData, int positionX, int positionY, ScheduledExecutorService scheduler) {
+		this.gameTimer = gameTimer;
+		composition = oneUnitData.getUnitDataList();
 		StatusCalculation StatusCalculation = new StatusCalculation(composition);
 		try {
 			rightActionImage = Weapon.getWeaponData(composition.get(savedata.OneUnitData.RIGHT_WEAPON)).getRightActionImage(IMAGE_RATIO);
@@ -78,7 +78,7 @@ public class BattleUnit extends BattleData{
 		initialPosition = new Point(positionX, positionY);
 		type = StatusCalculation.getType();
 		element = StatusCalculation.getRightElement().stream().toList();
-		AtackPatternData = new AtackPattern().getAtackPattern(StatusCalculation.getRightAtackPattern());
+		atackPatternData = new AtackPattern().getAtackPattern(StatusCalculation.getRightAtackPattern());
 		defaultWeaponStatus = StatusCalculation.getRightWeaponStatus().stream().collect(Collectors.toList());
 		defaultUnitStatus = StatusCalculation.getUnitStatus().stream().collect(Collectors.toList());
 		defaultCutStatus = StatusCalculation.getCutStatus().stream().collect(Collectors.toList());
@@ -87,9 +87,9 @@ public class BattleUnit extends BattleData{
 	}
 	
 	//左武器用
-	BattleUnit(Battle Battle, OneUnitData OneUnitData, ScheduledExecutorService scheduler) {
-		this.Battle = Battle;
-		composition = OneUnitData.getUnitDataList();
+	BattleUnit(GameTimer gameTimer, OneUnitData oneUnitData, ScheduledExecutorService scheduler) {
+		this.gameTimer = gameTimer;
+		composition = oneUnitData.getUnitDataList();
 		StatusCalculation StatusCalculation = new StatusCalculation(composition);
 		try {
 			rightActionImage = Weapon.getWeaponData(composition.get(savedata.OneUnitData.LEFT_WEAPON)).getLeftActionImage(IMAGE_RATIO);
@@ -100,28 +100,28 @@ public class BattleUnit extends BattleData{
 		}
 		generatedBuffInformation = StatusCalculation.getLeftBuffList();
 		element = StatusCalculation.getLeftElement().stream().toList();
-		AtackPatternData = new AtackPattern().getAtackPattern(StatusCalculation.getLeftAtackPattern());
+		atackPatternData = new AtackPattern().getAtackPattern(StatusCalculation.getLeftAtackPattern());
 		defaultWeaponStatus = StatusCalculation.getLeftWeaponStatus();
 		defaultUnitStatus = StatusCalculation.getUnitStatus();
 		defaultCutStatus = StatusCalculation.getCutStatus();
 		super.initialize(scheduler);
 	}
 	
-	void install(GameData GameData, BattleUnit otherWeapon, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
-		this.GameData = GameData;
+	void install(GameData gameData, BattleUnit otherWeapon, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
+		this.gameData = gameData;
 		this.otherWeapon = otherWeapon;
 		allyData = Stream.concat(Stream.of(unitMainData), Stream.of(facilityData)).toList();
 		this.enemyData = Stream.of(enemyData).toList();
 		existsOtherBuffRange = (defaultWeaponStatus.get((int) Buff.RANGE) <= otherWeapon.defaultWeaponStatus.get((int) Buff.RANGE))? true: false;
-		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData, scheduler)).toList();
+		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, gameTimer, gameData, scheduler)).toList();
 		canPossessSkill = generatedBuff.stream().anyMatch(i -> i.canPossessSkill());
-		if(Objects.isNull(AtackPatternData)) {
+		if(Objects.isNull(atackPatternData)) {
 			return;
 		}
 		if(element.stream().anyMatch(i -> i == Element.SUPPORT)){
-			AtackPatternData.install(this, allyData);
+			atackPatternData.install(this, allyData);
 		}else {
-			AtackPatternData.install(this, this.enemyData);
+			atackPatternData.install(this, this.enemyData);
 		}
 	}
 	
@@ -187,7 +187,7 @@ public class BattleUnit extends BattleData{
 	}
 	
 	void awakening() {
-		GameData.moraleBoost(defendthecastle.battle.GameData.UNIT, SOTIE_MORALE);
+		gameData.moraleBoost(GameData.UNIT, SOTIE_MORALE);
 		awakeningNumber++;
 	}
 	
@@ -228,7 +228,7 @@ public class BattleUnit extends BattleData{
 		canActivate = true;
 		canLocate = false;
 		if(defaultUnitStatus.get(5) != 0) {
-			GameData.moraleBoost(defendthecastle.battle.GameData.UNIT, SOTIE_MORALE);
+			gameData.moraleBoost(GameData.UNIT, SOTIE_MORALE);
 		}
 		positionX = x;
 		positionY = y;
@@ -243,25 +243,25 @@ public class BattleUnit extends BattleData{
 		if(achievementFuture != null && !achievementFuture.isCancelled()) {
 			achievementFuture.cancel(true);
 			long achievementTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> achievementTimer(achievementTime));
+			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> achievementTimer(achievementTime));
 		}
 		if(relocationFuture != null && !relocationFuture.isCancelled()) {
 			relocationFuture.cancel(true);
 			long relocationTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> relocation(relocationTime));
+			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> relocation(relocationTime));
 		}
 	}
 	
 	@Override
 	protected int moraleCorrection() {
-		return (GameData.getMoraleDifference() <= 0)? Math.abs(GameData.getMoraleDifference()): 0;
+		return (gameData.getMoraleDifference() <= 0)? Math.abs(gameData.getMoraleDifference()): 0;
 	}
 	
 	@Override
 	protected void defeat(BattleData target) {
 		int price = 60;
 		defeatNumber++;
-		GameData.lowMorale(defendthecastle.battle.GameData.UNIT, price);
+		gameData.lowMorale(defendthecastle.battle.GameData.UNIT, price);
 		relocationTime = price * 1000;
 		relocation(NONE_DELAY);
 		reset(target);
@@ -269,7 +269,7 @@ public class BattleUnit extends BattleData{
 	
 	void retreat() {
 		int price = (5 + 10 * (getMaxHP() - nowHP) / getMaxHP());
-		GameData.lowMorale(defendthecastle.battle.GameData.UNIT, price);
+		gameData.lowMorale(defendthecastle.battle.GameData.UNIT, price);
 		relocationTime = price * 1000;
 		relocation(NONE_DELAY);
 		reset(null);

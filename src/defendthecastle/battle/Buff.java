@@ -91,8 +91,8 @@ public class Buff {
 	private List<Double> buffInformation;
 	private BattleData myself;
 	private List<BattleData> candidate;
-	private Battle Battle;
-	private GameData GameData;
+	private GameTimer gameTimer;
+	private GameData gameData;
 	private List<BattleData> target = new ArrayList<>();
 	private List<Double> effect = new ArrayList<>();
 	private int durationCount = 0;
@@ -109,16 +109,16 @@ public class Buff {
 	private final int NONE_DELAY = 0;
 	private final int INITIALIZE = 0;
 	
-	Buff(List<Double> buffInformation, BattleData myself, List<BattleData> ally, List<BattleData> enemy, Battle Battle, GameData GameData, ScheduledExecutorService scheduler) {
+	Buff(List<Double> buffInformation, BattleData myself, List<BattleData> ally, List<BattleData> enemy, GameTimer gameTimer, GameData gameData, ScheduledExecutorService scheduler) {
 		this.buffInformation = buffInformation;
 		this.myself = myself;
-		this.Battle = Battle;
+		this.gameTimer = gameTimer;
 		if(buffInformation.get(TARGET_CODE) == ALLY) {
 			candidate = ally;
 		}else if(buffInformation.get(TARGET_CODE) == ENEMY) {
 			candidate = enemy;
 		}else {
-			this.GameData = GameData;
+			this.gameData = gameData;
 		}
 		canRecast = (canPossessSkill())? true: false;
 		this.scheduler = scheduler;
@@ -138,21 +138,21 @@ public class Buff {
 		if(recastFuture != null && !recastFuture.isCancelled()) {
 			recastFuture.cancel(true);
 			long recastTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> recastBuff(recastTime));
+			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> recastBuff(recastTime));
 		}
 		if(intervalFuture != null && !intervalFuture.isCancelled()) {
 			intervalFuture.cancel(true);
 			long intervalTime = System.currentTimeMillis();
 			if(existsInterval()) {
-				CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> gameIntervalControl(intervalTime));
+				CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> gameIntervalControl(intervalTime));
 			}else {
-				CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> intervalControl(intervalTime));
+				CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> intervalControl(intervalTime));
 			}
 		}
 		if(durationFuture != null && !durationFuture.isCancelled()) {
 			durationFuture.cancel(true);
 			long durationTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> durationControl(durationTime));
+			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> durationControl(durationTime));
 		}
 	}
 	
@@ -223,19 +223,19 @@ public class Buff {
 	void moraleBuff() {
 		setEffect(INITIALIZE);
 		if(existsAddition()) {
-			GameData.moraleBoost(defendthecastle.battle.GameData.UNIT, (int) getEffect());
+			gameData.moraleBoost(defendthecastle.battle.GameData.UNIT, (int) getEffect());
 			return;
 		}
-		GameData.lowMorale(defendthecastle.battle.GameData.UNIT, (int) getEffect());
+		gameData.lowMorale(defendthecastle.battle.GameData.UNIT, (int) getEffect());
 	}
 	
 	void costBuff() {
 		setEffect(INITIALIZE);
 		if(existsAddition()) {
-			GameData.addCost((int) getEffect());
+			gameData.addCost((int) getEffect());
 			return;
 		}
-		GameData.consumeCost((int) getEffect());
+		gameData.consumeCost((int) getEffect());
 	}
 	
 	//ユニットバフ

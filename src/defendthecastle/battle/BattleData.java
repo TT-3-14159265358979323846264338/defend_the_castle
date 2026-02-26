@@ -17,14 +17,14 @@ import defaultdata.atackpattern.AtackPatternData;
 //全キャラクターの共通システム
 public class BattleData{
 	//基礎データ
-	protected Battle Battle;
-	protected GameData GameData;
+	protected GameData gameData;
+	protected GameTimer gameTimer;
 	protected List<BattleData> allyData;
 	protected List<BattleData> enemyData;
 	protected final int IMAGE_RATIO = 4;
 	
 	//攻撃関連
-	protected AtackPatternData AtackPatternData;
+	protected AtackPatternData atackPatternData;
 	protected boolean existsRight = true;
 	protected boolean canAtack;
 	private int motionNumber = 0;
@@ -81,17 +81,17 @@ public class BattleData{
 		if(atackFuture != null && !atackFuture.isCancelled() && !canAtack) {
 			atackFuture.cancel(true);
 			long atackTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> atackTimer(atackTime));
+			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> atackTimer(atackTime));
 		}
 		if(motionFuture != null && !motionFuture.isCancelled()) {
 			motionFuture.cancel(true);
 			long motionTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> motionTimer(motionTime));
+			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> motionTimer(motionTime));
 		}
 		if(healFuture != null && !healFuture.isCancelled()) {
 			healFuture.cancel(true);
 			long healTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> healTimer(healTime));
+			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> healTimer(healTime));
 		}
 		bulletList.stream().forEach(i -> i.futureStop());
 		generatedBuff.stream().forEach(i -> i.futureStop());
@@ -152,7 +152,7 @@ public class BattleData{
 	}
 	
 	List<BattleData> targetCheck() {
-		List<BattleData> targetList = AtackPatternData.getTarget();
+		List<BattleData> targetList = atackPatternData.getTarget();
 		do {
 			try {
 				Thread.sleep(10);
@@ -165,7 +165,7 @@ public class BattleData{
 				atackFuture.cancel(true);
 				return Arrays.asList();
 			}
-			targetList = AtackPatternData.getTarget();
+			targetList = atackPatternData.getTarget();
 		}while(targetList.isEmpty());
 		return targetList;
 	}
@@ -188,7 +188,7 @@ public class BattleData{
 			beforeMotionTime = System.currentTimeMillis();
 			if(rightActionImage.size() - 1 <= motionNumber) {
 				motionNumber = 0;
-				bulletList = targetList.stream().map(i -> new Bullet(Battle, this, i, bulletImage, hitImage, scheduler)).toList();
+				bulletList = targetList.stream().map(i -> new Bullet(gameTimer, this, i, bulletImage, hitImage, scheduler)).toList();
 				CompletableFuture.runAsync(this::atackProcess, scheduler);
 				motionFuture.cancel(true);
 				return;
@@ -327,7 +327,7 @@ public class BattleData{
 			return;
 		}
 		buff.forEach(i -> i.buffStart(null));
-		GameData.consumeCost(skillCost());
+		gameData.consumeCost(skillCost());
 	}
 	
 	int skillCost() {
@@ -335,7 +335,7 @@ public class BattleData{
 	}
 	
 	boolean canPossessCost(Buff Buff) {
-		return Buff.getCost() <= GameData.getCost();
+		return Buff.getCost() <= gameData.getCost();
 	}
 	
 	void receiveBuff(Buff Buff) {
@@ -434,7 +434,7 @@ public class BattleData{
 	}
 	
 	public AtackPatternData getAtackPattern() {
-		return AtackPatternData;
+		return atackPatternData;
 	}
 	
 	int getAtack() {

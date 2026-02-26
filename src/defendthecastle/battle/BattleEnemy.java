@@ -47,9 +47,9 @@ public class BattleEnemy extends BattleData{
 	private ScheduledFuture<?> resuscitationFuture;
 	private long beforeResuscitationTime;
 	
-	BattleEnemy(Battle Battle, StageData StageData, int number, double difficultyCorrection, ScheduledExecutorService scheduler) {
-		this.Battle = Battle;
-		EnemyData EnemyData = Enemy.getEnemyData(StageData.getEnemy().get(number).get(0));
+	BattleEnemy(GameTimer gameTimer, StageData stageData, int number, double difficultyCorrection, ScheduledExecutorService scheduler) {
+		this.gameTimer = gameTimer;
+		EnemyData EnemyData = Enemy.getEnemyData(stageData.getEnemy().get(number).get(0));
 		name = EnemyData.getName();
 		explanation = EnemyData.getExplanation();
 		rightActionImage = EnemyData.getActionImage(IMAGE_RATIO);
@@ -58,12 +58,12 @@ public class BattleEnemy extends BattleData{
 		hitImage = EnemyData.getHitImage(IMAGE_RATIO);
 		move = EnemyData.getMove();
 		type = EnemyData.getType();
-		route = StageData.getRoute().get(StageData.getEnemy().get(number).get(1));
-		activateTime = StageData.getEnemy().get(number).get(2);
-		resurrectionCount = StageData.getEnemy().get(number).get(3);
-		interval = StageData.getEnemy().get(number).get(4);
+		route = stageData.getRoute().get(stageData.getEnemy().get(number).get(1));
+		activateTime = stageData.getEnemy().get(number).get(2);
+		resurrectionCount = stageData.getEnemy().get(number).get(3);
+		interval = stageData.getEnemy().get(number).get(4);
 		element = EnemyData.getElement().stream().toList();
-		AtackPatternData = new AtackPattern().getAtackPattern(EnemyData.getAtackPattern());
+		atackPatternData = new AtackPattern().getAtackPattern(EnemyData.getAtackPattern());
 		defaultWeaponStatus = weaponStatus(EnemyData, difficultyCorrection);
 		defaultUnitStatus = unitStatus(EnemyData, difficultyCorrection);
 		defaultCutStatus = EnemyData.getCutStatus().stream().toList();
@@ -71,17 +71,17 @@ public class BattleEnemy extends BattleData{
 		super.initialize(scheduler);
 	}
 	
-	List<Integer> weaponStatus(EnemyData EnemyData, double difficultyCorrection){
+	List<Integer> weaponStatus(EnemyData enemyData, double difficultyCorrection){
 		final int ATACK = (int) Buff.ATACK;
-		List<Integer> defaultStatus = EnemyData.getWeaponStatus();
+		List<Integer> defaultStatus = enemyData.getWeaponStatus();
 		defaultStatus.set(ATACK, defaultStatus(defaultStatus.get(ATACK), difficultyCorrection));
 		return defaultStatus.stream().toList();
 	}
 	
-	List<Integer> unitStatus(EnemyData EnemyData, double difficultyCorrection){
+	List<Integer> unitStatus(EnemyData enemyData, double difficultyCorrection){
 		final int DEFENCE = (int) Buff.DEFENCE - 10;
 		final int HEAL = (int) Buff.HEAL - 10;
-		List<Integer> defaultStatus = EnemyData.getUnitStatus();
+		List<Integer> defaultStatus = enemyData.getUnitStatus();
 		defaultStatus.set(DEFENCE, defaultStatus(defaultStatus.get(DEFENCE), difficultyCorrection));
 		defaultStatus.set(HEAL, defaultStatus(defaultStatus.get(HEAL), difficultyCorrection));
 		return defaultStatus.stream().toList();
@@ -91,16 +91,16 @@ public class BattleEnemy extends BattleData{
 		return (int) (status * difficultyCorrection);
 	}
 	
-	void install(GameData GameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
-		this.GameData = GameData;
+	void install(GameData gameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
+		this.gameData = gameData;
 		allyData = Stream.of(enemyData).toList();
 		this.enemyData = Stream.concat(Stream.of(facilityData), Stream.of(unitMainData)).toList();
 		if(element.stream().anyMatch(i -> i == Element.SUPPORT)){
-			AtackPatternData.install(this, allyData);
+			atackPatternData.install(this, allyData);
 		}else {
-			AtackPatternData.install(this, this.enemyData);
+			atackPatternData.install(this, this.enemyData);
 		}
-		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData, scheduler)).toList();
+		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, gameTimer, gameData, scheduler)).toList();
 		reset();
 	}
 	
@@ -131,9 +131,9 @@ public class BattleEnemy extends BattleData{
 	
 	void eternalStop() {
 		moveFuture = scheduler.scheduleAtFixedRate(() -> {
-			if(activateTime <= Battle.getMainTime()) {
+			if(activateTime <= gameTimer.getMilliTime()) {
 				canActivate = true;
-				GameData.moraleBoost(defendthecastle.battle.GameData.ENEMY, SOTIE_MORALE);
+				gameData.moraleBoost(defendthecastle.battle.GameData.ENEMY, SOTIE_MORALE);
 				atackTimer(NONE_DELAY);
 				healTimer(NONE_DELAY);
 				moveFuture.cancel(true);
@@ -178,8 +178,8 @@ public class BattleEnemy extends BattleData{
 				routeChange();
 				return;
 			}
-			if(activateTime <= Battle.getMainTime()) {
-				GameData.moraleBoost(defendthecastle.battle.GameData.ENEMY, SOTIE_MORALE);
+			if(activateTime <= gameTimer.getMilliTime()) {
+				gameData.moraleBoost(defendthecastle.battle.GameData.ENEMY, SOTIE_MORALE);
 				activate();
 			}
 		}, (int) initialDelay, (int) delay, TimeUnit.MICROSECONDS);
@@ -288,7 +288,7 @@ public class BattleEnemy extends BattleData{
 		if(resuscitationFuture != null && !resuscitationFuture.isDone()) {
 			resuscitationFuture.cancel(true);
 			long resuscitationTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> resurrection(resuscitationTime));
+			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> resurrection(resuscitationTime));
 			return;
 		}
 		if(moveFuture == null) {
@@ -308,20 +308,20 @@ public class BattleEnemy extends BattleData{
 		}
 		moveFuture.cancel(true);
 		long moveTime = System.currentTimeMillis();
-		CompletableFuture.runAsync(Battle::timerWait, scheduler).thenRun(() -> constantMove(moveTime));
+		CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> constantMove(moveTime));
 	}
 	
 	@Override
 	protected int moraleCorrection() {
-		return (0 <= GameData.getMoraleDifference())? GameData.getMoraleDifference(): 0;
+		return (0 <= gameData.getMoraleDifference())? gameData.getMoraleDifference(): 0;
 	}
 	
 	@Override
 	protected void defeat(BattleData target) {
 		canActivate = false;
-		GameData.addCost(getCost());
+		gameData.addCost(getCost());
 		releaseBlock(this);
-		GameData.lowMorale(defendthecastle.battle.GameData.ENEMY, DEFEAT_MORALE);
+		gameData.lowMorale(defendthecastle.battle.GameData.ENEMY, DEFEAT_MORALE);
 		activateBuff(Buff.DEFEAT, target);
 		moveFuture.cancel(true);
 		beforeResuscitationTime = System.currentTimeMillis();

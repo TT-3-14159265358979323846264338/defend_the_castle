@@ -17,20 +17,20 @@ public class BattleFacility extends BattleData{
 	private BufferedImage breakImage;
 	private final int DEFEAT_MORALE = 30;
 	
-	BattleFacility(Battle Battle, StageData StageData, int number, ScheduledExecutorService scheduler) {
-		this.Battle = Battle;
-		FacilityData FacilityData = StageData.getFacility().get(number).getFacilityData();
+	BattleFacility(GameTimer gameTimer, StageData stageData, int number, ScheduledExecutorService scheduler) {
+		this.gameTimer = gameTimer;
+		FacilityData FacilityData = stageData.getFacility().get(number).getFacilityData();
 		name = FacilityData.getName();
 		explanation = FacilityData.getExplanation();
-		rightActionImage = StageData.getFacilityDirection().get(number)? FacilityData.getActionFrontImage(IMAGE_RATIO): FacilityData.getActionSideImage(IMAGE_RATIO);
+		rightActionImage = stageData.getFacilityDirection().get(number)? FacilityData.getActionFrontImage(IMAGE_RATIO): FacilityData.getActionSideImage(IMAGE_RATIO);
 		bulletImage = FacilityData.getBulletImage(IMAGE_RATIO);
 		hitImage = FacilityData.getHitImage(IMAGE_RATIO);
 		generatedBuffInformation = FacilityData.getBuff();
 		breakImage = FacilityData.getBreakImage(IMAGE_RATIO);
-		positionX = StageData.getFacilityPoint().get(number).x;
-		positionY = StageData.getFacilityPoint().get(number).y;
+		positionX = stageData.getFacilityPoint().get(number).x;
+		positionY = stageData.getFacilityPoint().get(number).y;
 		element = FacilityData.getElement().stream().toList();
-		AtackPatternData = new AtackPattern().getAtackPattern(FacilityData.getAtackPattern());
+		atackPatternData = new AtackPattern().getAtackPattern(FacilityData.getAtackPattern());
 		if(FacilityData.getWeaponStatus() == null || FacilityData.getWeaponStatus().isEmpty()) {
 			defaultWeaponStatus = IntStream.range(0, Atack.values().length).mapToObj(_ -> 0).toList();
 		}else {
@@ -44,19 +44,19 @@ public class BattleFacility extends BattleData{
 		healTimer(NONE_DELAY);
 	}
 	
-	void install(GameData GameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
-		this.GameData = GameData;
-		if(Objects.isNull(AtackPatternData)) {
+	void install(GameData gameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
+		this.gameData = gameData;
+		if(Objects.isNull(atackPatternData)) {
 			return;
 		}
 		allyData = Stream.concat(Stream.of(unitMainData), Stream.of(facilityData)).toList();
 		this.enemyData = Stream.of(enemyData).toList();
 		if(element.stream().anyMatch(i -> i == Element.SUPPORT)){
-			AtackPatternData.install(this, allyData);
+			atackPatternData.install(this, allyData);
 		}else {
-			AtackPatternData.install(this, this.enemyData);
+			atackPatternData.install(this, this.enemyData);
 		}
-		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, Battle, GameData, scheduler)).toList();
+		generatedBuff = IntStream.range(0, generatedBuffInformation.size()).mapToObj(i -> new Buff(generatedBuffInformation.get(i), this, allyData, this.enemyData, gameTimer, gameData, scheduler)).toList();
 		activateBuff(Buff.BIGINNING, null);
 	}
 	
@@ -78,7 +78,7 @@ public class BattleFacility extends BattleData{
 	protected void defeat(BattleData target) {
 		canActivate = false;
 		clearBlock();
-		GameData.lowMorale(defendthecastle.battle.GameData.UNIT, DEFEAT_MORALE);
+		gameData.lowMorale(GameData.UNIT, DEFEAT_MORALE);
 		activateBuff(Buff.DEFEAT, target);
 	}
 }

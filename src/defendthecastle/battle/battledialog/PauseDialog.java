@@ -8,22 +8,22 @@ import javax.swing.JDialog;
 
 import defaultdata.Stage;
 import defendthecastle.MainFrame;
-import defendthecastle.battle.Battle;
 import defendthecastle.battle.BattleEnemy;
 import defendthecastle.battle.BattleFacility;
 import defendthecastle.battle.BattleUnit;
 import defendthecastle.battle.GameData;
+import defendthecastle.battle.GameTimer;
 
 //一時停止中の画面
 public class PauseDialog extends JDialog implements WindowListener{
-	private Battle Battle;
+	private GameTimer gameTimer;
 	
-	public PauseDialog(Battle Battle, MainFrame MainFrame, Stage stage, double difficultyCorrection) {
-		setDialog(Battle);
+	public PauseDialog(GameTimer gameTimer, MainFrame MainFrame, Stage stage, double difficultyCorrection) {
+		setDialog(gameTimer);
 		setTitle("一時停止");
 		setSize(545, 615);
 		setLocationRelativeTo(null);
-		add(new ReturnPanel(this, Battle, MainFrame, stage, difficultyCorrection));
+		add(new ReturnPanel(this, MainFrame, stage, difficultyCorrection));
 		setVisible(true);
 	}
 	
@@ -45,8 +45,8 @@ public class PauseDialog extends JDialog implements WindowListener{
 		setVisible(true);
 	}
 	
-	void setDialog(Battle Battle) {
-		this.Battle = Battle;
+	void setDialog(GameTimer gameTimer) {
+		this.gameTimer = gameTimer;
 		addWindowListener(this);
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -65,10 +65,10 @@ public class PauseDialog extends JDialog implements WindowListener{
 	}
 	@Override
 	public void windowClosed(WindowEvent e) {
-		if(Objects.isNull(Battle)) {
+		if(Objects.isNull(gameTimer)) {
 			return;
 		}
-		Battle.timerRestart();
+		gameTimer.timerRestart();
 	}
 	@Override
 	public void windowIconified(WindowEvent e) {
