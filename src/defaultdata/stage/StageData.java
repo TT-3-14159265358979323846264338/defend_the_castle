@@ -10,11 +10,11 @@ import java.util.stream.Stream;
 
 import commonclass.EditImage;
 import defaultdata.Facility;
-import defendthecastle.battle.Battle;
 import defendthecastle.battle.BattleEnemy;
 import defendthecastle.battle.BattleFacility;
 import defendthecastle.battle.BattleUnit;
 import defendthecastle.battle.GameData;
+import defendthecastle.battle.GameTimer;
 import savedata.SaveGameProgress;
 import savedata.SaveItem;
 
@@ -78,11 +78,11 @@ public abstract class StageData {
 	
 	/**
 	 * 配置可能位置の使用条件。
-	 * @param battle - 現在のゲームデータ。{@link defendthecastle.battle.Battle Battle}
+	 * @param gameTimer - 現在のゲームデータ。{@link defendthecastle.battle.GameTimer GameTimer}
 	 * @param enemyData - 現在の敵データ。{@link defendthecastle.battle.BattleEnemy BattleEnemy}
 	 * @return 各配置可能位置が使用可能であればtrueを入りたListを返却する。データの順番は{@link #getPlacementPoint getPlacementPoint}の順に記載する。
 	 */
-	public abstract List<List<Boolean>> canUsePlacement(Battle battle, BattleEnemy[] enemyData);
+	public abstract List<List<Boolean>> canUsePlacement(GameTimer gameTimer, BattleEnemy[] enemyData);
 	
 	/**
 	 * 初期コスト。

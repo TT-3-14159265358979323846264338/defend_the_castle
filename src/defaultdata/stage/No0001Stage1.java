@@ -7,11 +7,11 @@ import java.util.List;
 
 import defaultdata.Enemy;
 import defaultdata.Facility;
-import defendthecastle.battle.Battle;
 import defendthecastle.battle.BattleEnemy;
 import defendthecastle.battle.BattleFacility;
 import defendthecastle.battle.BattleUnit;
 import defendthecastle.battle.GameData;
+import defendthecastle.battle.GameTimer;
 import savedata.SaveGameProgress;
 
 public class No0001Stage1 extends StageData{
@@ -88,7 +88,7 @@ public class No0001Stage1 extends StageData{
 	}
 
 	@Override
-	public List<List<Boolean>> canUsePlacement(Battle battle, BattleEnemy[] enemyData) {
+	public List<List<Boolean>> canUsePlacement(GameTimer gameTimer, BattleEnemy[] enemyData) {
 		return  Arrays.asList(
 				Arrays.asList(true,
 						true,
