@@ -6,47 +6,50 @@ import defaultdata.stage.StageData;
 public class GameData{
 	public static final boolean UNIT = true;
 	public static final boolean ENEMY = false;
+	private final Battle battle;
 	private int unitMorale;
 	private int enemyMorale;
 	private int cost;
-	private Object moraleLock = new Object();
-	private Object costLock = new Object();
+	private final Object moraleLock = new Object();
+	private final Object costLock = new Object();
 	
-	GameData(StageData StageData) {
-		unitMorale = StageData.getMorale().get(0);
-		enemyMorale = StageData.getMorale().get(1);
-		cost = StageData.getCost();
+	GameData(Battle battle, StageData stageData) {
+		this.battle = battle;
+		unitMorale = stageData.getMorale().get(0);
+		enemyMorale = stageData.getMorale().get(1);
+		cost = stageData.getCost();
 	}
 	
 	void moraleBoost(boolean code, int boost) {
-		synchronized(moraleLock) {
-			if(code) {
-				unitMorale += boost;
-				return;
-			}
-			enemyMorale += boost;
-		}
+		changeMorale(code, boost);
 	}
 	
 	void lowMorale(boolean code, int decline) {
+		changeMorale(code, - decline);
+	}
+	
+	void changeMorale(boolean code, int value) {
 		synchronized(moraleLock) {
 			if(code) {
-				unitMorale -= decline;
+				unitMorale += value;
 				return;
 			}
-			enemyMorale -= decline;
+			enemyMorale += value;
 		}
 	}
 	
 	void consumeCost(int consumeValue) {
-		synchronized(costLock) {
-			cost -= consumeValue;
-		}
+		changeCost(- consumeValue);
 	}
 	
 	void addCost(int addValue) {
+		changeCost(addValue);
+	}
+	
+	void changeCost(int value) {
 		synchronized(costLock) {
-			cost += addValue;
+			cost += value;
+			battle.setCostText();
 		}
 	}
 	

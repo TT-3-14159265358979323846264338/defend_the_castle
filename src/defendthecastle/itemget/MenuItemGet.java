@@ -13,6 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 
 import commonclass.CommonJPanel;
@@ -153,12 +154,17 @@ public class MenuItemGet extends CommonJPanel{
 	}
 	
 	void activatePanel() {
-		setPanel(true);
-		medalLabel.setText(medalText());
+		SwingUtilities.invokeLater(() -> {
+			setPanel(true);
+			medalLabel.setText(medalText());
+		});
+		
 	}
 	
 	void deactivatePanel() {
-		setPanel(false);
+		SwingUtilities.invokeLater(() -> {
+			setPanel(false);
+		});
 	}
 	
 	private void setPanel(boolean canActivate) {

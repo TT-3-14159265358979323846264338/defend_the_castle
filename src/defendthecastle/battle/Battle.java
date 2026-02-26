@@ -5,228 +5,221 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Arc2D;
-import java.awt.image.BufferedImage;
 import java.time.temporal.ValueRange;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
-import defaultdata.Placement;
+import commonclass.CommonJPanel;
 import defaultdata.Distance;
 import defaultdata.Stage;
 import defendthecastle.MainFrame;
 import defendthecastle.battle.battledialog.PauseDialog;
 import defendthecastle.screendisplay.DisplayStatus;
-import savedata.OneCompositionData;
+import savedata.OneUnitData;
 import savedata.SaveComposition;
 import savedata.SaveSelect;
 
 //バトル画面制御
-public class Battle extends JPanel implements MouseListener, MouseMotionListener{
+public class Battle extends CommonJPanel implements MouseListener, MouseMotionListener{
 	public static final int SIZE = 28;
 	
-	//表示パーツ
-	private JLabel costLabel = new JLabel();
-	private JLabel[] awakeLabel;
-	private JButton rangeDrawButton = new JButton();
-	private JButton autoAwakeningButton = new JButton();
-	private JButton stageReturnButton = new JButton();
-	private JButton statusButton = new UnitButton();
-	private JButton retreatButton = new UnitButton();
-	private JButton awakeningButton = new UnitButton();
-	private JButton unitReturnButton = new UnitButton();
-	private Color rangeRed = new Color(255, 0, 0, 20);
-	private Color rangeBlue = new Color(0, 0, 255, 20);
-	private Color placeRed = new Color(255, 220, 220);
-	private Color placeBlue = new Color(220, 220, 255);
-	private Color recastGray = new Color(128, 128, 128, 125);
-	private Color recastWhite = new Color(255, 255, 255, 125);
-	
 	//ゲームデータ
-	private Stage stage;
-	private BufferedImage stageImage;
-	private List<BufferedImage> placementImage = new Placement().getPlacementImage(4);
-	private List<List<List<Double>>> placementList;
-	private List<List<Boolean>> canUsePlacement;
-	private BattleUnit[] UnitMainData;//右武器/コア用　攻撃・被弾などの判定はこちらで行う
-	private BattleUnit[] UnitLeftData;//左武器用
-	private BattleFacility[] FacilityData;
-	private BattleEnemy[] EnemyData;
-	private GameData GameData;
+	private final MainFrame mainFrame;
+	private final Stage stage;
+	private final double difficultyCorrection;
+	private final GameTimer gameTimer;
+	private final GameData gameData;
+	private final StageImage stageImage;
+	private final AwakeUnit awakeUnit;
+	private final BattleUnit[] unitMainData;//右武器/コア用　攻撃・被弾などの判定はこちらで行う
+	private final BattleUnit[] unitLeftData;//左武器用
+	private final BattleFacility[] facilityData;
+	private final BattleEnemy[] enemyData;
+	
+	//表示パーツ
+	private final JLabel costLabel = new JLabel();
+	private final JLabel[] awakeLabel;
+	private final JButton rangeDrawButton = new JButton();
+	private final JButton autoAwakeningButton = new JButton();
+	private final JButton stageReturnButton = new JButton();
+	private final JButton statusButton = new UnitButton();
+	private final JButton retreatButton = new UnitButton();
+	private final JButton awakeningButton = new UnitButton();
+	private final JButton unitReturnButton = new UnitButton();
+	private final Color rangeRed = new Color(255, 0, 0, 20);
+	private final Color rangeBlue = new Color(0, 0, 255, 20);
+	private final Color placeRed = new Color(255, 220, 220);
+	private final Color placeBlue = new Color(220, 220, 255);
+	private final Color recastGray = new Color(128, 128, 128, 125);
+	private final Color recastWhite = new Color(255, 255, 255, 125);
+	private final Font costFont = new Font("ＭＳ ゴシック", Font.BOLD, 20);
+	private final Font menuFont = new Font("ＭＳ ゴシック", Font.BOLD, 12);
+	private final Font unitFont = new Font("ＭＳ ゴシック", Font.BOLD, 10);
+	private final Font skillFont = new Font("Ravie", Font.BOLD, 30);
 	
 	//操作関連
 	private Point mouse;
 	private int select;
 	private boolean canSelect;
-	private int time;
-	private boolean canStop;
 	private boolean canRangeDraw;
-	private boolean canAutoAwake;
-	private boolean canAwake;
-	private BattleUnit selectUnit;
-	private BattleUnit awakeUnit;
-	private final int AWAKE_COST = 10;
-	private final int IMAGE_RATIO = 2;
-	private final int NATURAL_RECOVERY = 1;
-	private final int NONE_DELAY = 0;
-	
-	//システム関連
-	private ScheduledExecutorService scheduler;
-	private ScheduledFuture<?> mainFuture;
-	private long beforeMainTime;
-	private ScheduledFuture<?> autoFuture;
-	private long beforeAutoTime;
-	private ScheduledFuture<?> awakeFuture = scheduler.schedule(() -> null, 0, TimeUnit.SECONDS);
-	private Object awakeLock = new Object();
 	
 	//メイン画面制御
-	public Battle(MainFrame MainFrame, ScheduledExecutorService scheduler, Stage stage, double difficultyCorrection) {
-		this.scheduler = scheduler;
+	public Battle(MainFrame mainFrame, ScheduledExecutorService scheduler, Stage stage, double difficultyCorrection) {
+		this.mainFrame = mainFrame;
 		this.stage = stage;
+		this.difficultyCorrection = difficultyCorrection;
 		addMouseListener(this);
 		addMouseMotionListener(this);
-		setBackground(new Color(240, 170, 80));
-		install(difficultyCorrection);
-		addCostLabel();
-		addRangeDrawButton();
-		addAutoAwakeningButton();
-		addStageReturnButton(MainFrame, difficultyCorrection);
-		mainTimer(NONE_DELAY);
-		clearTimer(MainFrame, difficultyCorrection);
-	}
-	
-	@Override
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		rangeDrawButton.setBounds(0, 0, 95, 40);
+		gameTimer = createGameTimer(scheduler);
+		gameData = createGameData();
+		List<OneUnitData> unitList = createOneCompositionData();
+		unitMainData = createBattleData(unitList, number -> createMainBattleUnit(unitList, number, scheduler), BattleUnit[]::new);
+		unitLeftData = createBattleData(unitList, number -> createLeftBattleUnit(unitList, number, scheduler), BattleUnit[]::new);
+		facilityData = createBattleData(stage.getStageData().getFacility(), number -> createBattleFacility(number, scheduler), BattleFacility[]::new);
+		enemyData = createBattleData(stage.getStageData().getEnemy(), number -> createBattleEnemy(number, scheduler), BattleEnemy[]::new);
+		install();
+		stageImage = createStageImage();
+		awakeUnit = createAwakeUnit(scheduler);
 		setCostLabel();
-		setMenuButton(rangeDrawButton, canRangeDraw? "射程表示": "射程なし", 1010, 465, 95, 40);
-		setMenuButton(autoAwakeningButton, canAutoAwake? "自動覚醒": "手動覚醒", 1115, 465, 95, 40);
-		setMenuButton(stageReturnButton, "一時停止", 1010, 515, 200, 40);
-		if(statusButton.isValid()) {
-			int x = selectUnit.getPositionX();
-			int y = selectUnit.getPositionY();
-			setUnitButton(statusButton, "能力", x + 15, y - 10);
-			setUnitButton(retreatButton, "撤退", x - 45, y + 30);
-			setUnitButton(awakeningButton, "覚醒", x + 75, y + 30);
-			setUnitButton(unitReturnButton, "戻る", x + 15, y + 70);
-		}
-		drawField(g);
-		drawEnemy(g);
-		drawBackground(g);
-		drawSkill(g);
-		drawUnit(g);
-		drawAwakenable();
-		drawAwake(g);
-		drawBullet(g);
-		drawSelectUnit(g);
-		drawMorale(g);
-		requestFocus();
-		//ゲーム時間表示(ステージ調整用)
-		g.drawString(time / 1000 + "s", 980, 30);
+		awakeLabel = IntStream.range(0, unitMainData.length).mapToObj(_ -> new AwakeLabel()).toArray(JLabel[]::new);
+		setButton(rangeDrawButton, rangeText(), 1010, 465, 95, 40, menuFont, this::rangeDrawButtonAction);
+		setButton(autoAwakeningButton, awakeText(), 1115, 465, 95, 40, menuFont, this::autoAwakeningButtonAction);
+		setButton(stageReturnButton, "一時停止", 1010, 515, 200, 40, menuFont, this::stageReturnButtonAction);
+		setUnitButton(statusButton, "能力", this::statusButtonAction);
+		setUnitButton(retreatButton, "撤退", this::retreatButtonAction);
+		setUnitButton(awakeningButton, "覚醒", this::awakeningButtonAction);
+		setUnitButton(unitReturnButton, "戻る", this::unitReturnButtonAction);
+		movie(scheduler, brown());
+		gameTimer.timerStart(gameData, awakeUnit, stageImage, unitMainData, unitLeftData, facilityData, enemyData);
 	}
 	
-	void install(double difficultyCorrection) {
-		GameData = new GameData(stage.getStageData());
-		stageImage = stage.getStageData().getImage(IMAGE_RATIO);
-		placementList = stage.getStageData().getPlacementPoint();
-		SaveComposition SaveComposition = new SaveComposition();
-		SaveComposition.load();
-		SaveSelect SaveSelect = new SaveSelect();
-		SaveSelect.load();
-		OneCompositionData composition = SaveComposition.getOneCompositionData(SaveSelect.getCompositionSelectNumber());
-		UnitMainData = IntStream.range(0, composition.getOneUnitDataList().size()).mapToObj(i -> new BattleUnit(this, composition.getOneUnitData(i), initialX(i), initialY(i), scheduler)).toArray(BattleUnit[]::new);
-		UnitLeftData = IntStream.range(0, composition.getOneUnitDataList().size()).mapToObj(i -> new BattleUnit(this, composition.getOneUnitData(i), scheduler)).toArray(BattleUnit[]::new);;
-		FacilityData = IntStream.range(0, stage.getStageData().getFacility().size()).mapToObj(i -> new BattleFacility(this, stage.getStageData(), i, scheduler)).toArray(BattleFacility[]::new);
-		EnemyData = IntStream.range(0, stage.getStageData().getEnemy().size()).mapToObj(i -> new BattleEnemy(this, stage.getStageData(), i, difficultyCorrection, scheduler)).toArray(BattleEnemy[]::new);
-		IntStream.range(0, UnitMainData.length).forEach(i -> UnitMainData[i].install(GameData, UnitLeftData[i], UnitMainData, FacilityData, EnemyData));
-		IntStream.range(0, UnitLeftData.length).forEach(i -> UnitLeftData[i].install(GameData, UnitMainData[i], UnitMainData, FacilityData, EnemyData));
-		Stream.of(FacilityData).forEach(i -> i.install(GameData, UnitMainData, FacilityData, EnemyData));
-		Stream.of(EnemyData).forEach(i -> i.install(GameData, UnitMainData, FacilityData, EnemyData));
-		awakeLabel = IntStream.range(0, UnitMainData.length).mapToObj(_ -> new AwakeLabel()).toArray(JLabel[]::new);
+	GameTimer createGameTimer(ScheduledExecutorService scheduler) {
+		return new GameTimer(mainFrame, stage, difficultyCorrection, scheduler);
 	}
 	
-	void addCostLabel() {
-		add(costLabel);
+	GameData createGameData() {
+		return new GameData(this, stage.getStageData());
+	}
+	
+	List<OneUnitData> createOneCompositionData() {
+		SaveComposition saveComposition = createSaveComposition();
+		saveComposition.load();
+		SaveSelect saveSelect = createSaveSelect();
+		saveSelect.load();
+		return saveComposition.getOneCompositionData(saveSelect.getCompositionSelectNumber()).getOneUnitDataList();
+	}
+	
+	SaveComposition createSaveComposition() {
+		return new SaveComposition();
+	}
+	
+	SaveSelect createSaveSelect() {
+		return new SaveSelect();
+	}
+	
+	<T>T[] createBattleData(List<?> list, IntFunction<T> method, IntFunction<T[]> instance){
+		return IntStream.range(0, list.size()).mapToObj(method).toArray(instance);
+	}
+	
+	BattleUnit createMainBattleUnit(List<OneUnitData> unitList, int number, ScheduledExecutorService scheduler) {
+		return new BattleUnit(this, unitList.get(number), initialX(number), initialY(number), scheduler);
+	}
+	
+	BattleUnit createLeftBattleUnit(List<OneUnitData> unitList, int number, ScheduledExecutorService scheduler) {
+		return new BattleUnit(this, unitList.get(number), scheduler);
+	}
+	
+	BattleFacility createBattleFacility(int number, ScheduledExecutorService scheduler) {
+		return new BattleFacility(this, stage.getStageData(), number, scheduler);
+	}
+	
+	BattleEnemy createBattleEnemy(int number, ScheduledExecutorService scheduler) {
+		return new BattleEnemy(this, stage.getStageData(), number, difficultyCorrection, scheduler);
+	}
+	
+	void install() {
+		IntStream.range(0, unitMainData.length).forEach(i -> unitMainData[i].install(gameData, unitLeftData[i], unitMainData, facilityData, enemyData));
+		IntStream.range(0, unitLeftData.length).forEach(i -> unitLeftData[i].install(gameData, unitMainData[i], unitMainData, facilityData, enemyData));
+		Stream.of(facilityData).forEach(i -> i.install(gameData, unitMainData, facilityData, enemyData));
+		Stream.of(enemyData).forEach(i -> i.install(gameData, unitMainData, facilityData, enemyData));
+	}
+	
+	StageImage createStageImage(){
+		return new StageImage(stage.getStageData(), enemyData, gameTimer);
+	}
+	
+	AwakeUnit createAwakeUnit(ScheduledExecutorService scheduler){
+		return new AwakeUnit(this, gameData, unitMainData, unitLeftData, scheduler);
+	}
+	
+	String rangeText() {
+		return canRangeDraw? "射程表示": "射程なし";
+	}
+	
+	String awakeText() {
+		return awakeUnit.canAutoAwake()? "自動覚醒": "手動覚醒";
+	}
+	
+	void setCostLabel() {
+		setLabel(costLabel, costText(), 1010, 15, 200, 30, costFont);
 		costLabel.setBackground(Color.WHITE);
 		costLabel.setOpaque(true);
 		costLabel.setHorizontalAlignment(JLabel.CENTER);
 	}
 	
-	void addRangeDrawButton() {
-		add(rangeDrawButton);
-		rangeDrawButton.addActionListener(_ ->{
-			canRangeDraw = canRangeDraw? false: true;
-		});
+	void setCostText() {
+		SwingUtilities.invokeLater(() -> costLabel.setText(costText()));
 	}
 	
-	void addAutoAwakeningButton() {
-		add(autoAwakeningButton);
-		autoAwakeningButton.addActionListener(_ ->{
-			canAutoAwake = canAutoAwake? false: true;
-			if(canAutoAwake) {
-				autoAwake(NONE_DELAY);
-				return;
+	String costText() {
+		return String.format("コスト: %d", gameData.getCost());
+	}
+	
+	void setAwakeLabel(int number) {
+		SwingUtilities.invokeLater(() -> {
+			if(awakeLabel[number].getParent() == null) {
+				awakeLabel[number].setLocation(unitMainData[number].getPositionX() + 25, unitMainData[number].getPositionY() + 10);
+				add(awakeLabel[number]);
+			}else {
+				remove(awakeLabel[number]);
 			}
-			autoFuture.cancel(true);
 		});
 	}
 	
-	void autoAwake(long stopTime) {
-		int delay = 100;
-		long initialDelay;
-		if(stopTime == NONE_DELAY) {
-			initialDelay = NONE_DELAY;
-		}else {
-			initialDelay = (stopTime - beforeAutoTime < delay)? delay - (stopTime - beforeAutoTime): NONE_DELAY;
-			beforeAutoTime += System.currentTimeMillis() - stopTime;
-		}
-		autoFuture = scheduler.scheduleAtFixedRate(() -> {
-			beforeAutoTime = System.currentTimeMillis();
-			IntStream.range(0, UnitMainData.length).filter(i -> canAwake(i)).boxed().sorted(Comparator.comparing(i -> UnitMainData[i].getAwakeningNumber())).forEach(i -> awake(i));
-		}, initialDelay, delay, TimeUnit.MILLISECONDS);
+	void rangeDrawButtonAction(ActionEvent e){
+		canRangeDraw = canRangeDraw? false: true;
+		rangeDrawButton.setText(rangeText());
 	}
 	
-	void addStageReturnButton(MainFrame MainFrame, double difficultyCorrection) {
-		add(stageReturnButton);
-		stageReturnButton.addActionListener(_ ->{
-			timerStop();
-			new PauseDialog(this, MainFrame, stage, difficultyCorrection);
-		});
+	void autoAwakeningButtonAction(ActionEvent e){
+		awakeUnit.changeAutoAwake();
+		autoAwakeningButton.setText(awakeText());
 	}
 	
-	void setCostLabel() {
-		costLabel.setText("コスト: " + GameData.getCost());
-		costLabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 20));
-		costLabel.setBounds(1010, 15, 200, 30);
+	void stageReturnButtonAction(ActionEvent e){
+		gameTimer.timerStop();
+		new PauseDialog(this, mainFrame, stage, difficultyCorrection);
 	}
 	
-	void setMenuButton(JButton button, String name, int x, int y, int width, int height) {
+	void setUnitButton(JButton button, String name, ActionListener task) {
 		button.setText(name);
-		button.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 12));
-		button.setBounds(x, y, width, height);
-	}
-	
-	void setUnitButton(JButton button, String name, int x, int y) {
-		button.setText(name);
-		button.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 10));
-		button.setLocation(x, y);
+		button.setFont(unitFont);
+		button.addActionListener(task);
 	}
 	
 	int initialX(int i) {
@@ -237,36 +230,51 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		return 55 + i / 2 * 100;
 	}
 	
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		drawField(g);
+		drawEnemy(g);
+		drawCompositionBackground(g);
+		drawSkill(g);
+		drawUnit(g);
+		drawAwake(g);
+		drawBullet(g);
+		drawSelectUnit(g);
+		drawMorale(g);
+		//ゲーム時間表示(ステージ調整用)
+		g.drawString(gameTimer.getSecondsTime() + "s", 980, 30);
+	}
+	
 	void drawField(Graphics g) {
-		g.drawImage(stageImage, 0, 0, this);
-		canUsePlacement = stage.getStageData().canUsePlacement(this, EnemyData);
-		IntStream.range(0, placementList.size()).forEach(i -> IntStream.range(0, placementList.get(i).size())
-				.filter(j -> canUsePlacement.get(i).get(j))
-				.forEach(j -> g.drawImage(placementImage.get(i), placementList.get(i).get(j).get(0).intValue(), placementList.get(i).get(j).get(1).intValue(), this)));
-		IntStream.range(0, FacilityData.length).forEach(i -> {
+		g.drawImage(stageImage.getStageImage(), 0, 0, this);
+		IntStream.range(0, stageImage.getPlacementSize()).forEach(i -> IntStream.range(0, stageImage.getPlacementList(i).size())
+				.filter(j -> stageImage.getUsePlacementList(i).get(j))
+				.forEach(j -> g.drawImage(stageImage.getPlacementImage(i), stageImage.getPlacementList(i).get(j).get(0).intValue(), stageImage.getPlacementList(i).get(j).get(1).intValue(), this)));
+		IntStream.range(0, facilityData.length).forEach(i -> {
 			if(canRangeDraw) {
-				rangeDraw(g, rangeRed, FacilityData[i].getPositionX(), FacilityData[i].getPositionY(), FacilityData[i].getRange());
+				rangeDraw(g, rangeRed, facilityData[i].getPositionX(), facilityData[i].getPositionY(), facilityData[i].getRange());
 			}
-			g.drawImage(FacilityData[i].canActivate()? FacilityData[i].getActionImage(): FacilityData[i].getBreakImage(), FacilityData[i].getPositionX(), FacilityData[i].getPositionY(), this);
-			if(FacilityData[i].canActivate()) {
-				drawHP(g, FacilityData[i], Color.BLUE);
+			g.drawImage(facilityData[i].canActivate()? facilityData[i].getActionImage(): facilityData[i].getBreakImage(), facilityData[i].getPositionX(), facilityData[i].getPositionY(), this);
+			if(facilityData[i].canActivate()) {
+				drawHP(g, facilityData[i], Color.BLUE);
 			}
 		});
 	}
 	
 	void drawEnemy(Graphics g) {
-		IntStream.range(0, EnemyData.length).filter(i -> EnemyData[i].canActivate()).boxed().sorted(Comparator.reverseOrder()).forEach(i -> {
+		IntStream.range(0, enemyData.length).filter(i -> enemyData[i].canActivate()).boxed().sorted(Comparator.reverseOrder()).forEach(i -> {
 			if(canRangeDraw) {
-				rangeDraw(g, rangeRed, EnemyData[i].getPositionX(), EnemyData[i].getPositionY(), EnemyData[i].getRange());
+				rangeDraw(g, rangeRed, enemyData[i].getPositionX(), enemyData[i].getPositionY(), enemyData[i].getRange());
 			}
-			g.drawImage(EnemyData[i].getActionImage(), EnemyData[i].getPositionX(), EnemyData[i].getPositionY(), this);
-			drawHP(g, EnemyData[i], Color.RED);
+			g.drawImage(enemyData[i].getActionImage(), enemyData[i].getPositionX(), enemyData[i].getPositionY(), this);
+			drawHP(g, enemyData[i], Color.RED);
 		});
 	}
 	
-	void drawBackground(Graphics g) {
+	void drawCompositionBackground(Graphics g) {
 		IntStream.range(0, 8).forEach(i -> {
-			switch(UnitMainData[i].getType()) {
+			switch(unitMainData[i].getType()) {
 			case Distance.NEAR:
 				g.setColor(placeRed);
 				g.fillRect(initialX(i) - 5, initialY(i) - 5, 100, 100);
@@ -291,7 +299,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	void drawSkill(Graphics g) {
-		Stream.of(UnitMainData).filter(i -> i.canActivate() && i.canPossessSkill()).forEach(i -> skill(g, i));
+		Stream.of(unitMainData).filter(i -> i.canActivate() && i.canPossessSkill()).forEach(i -> skill(g, i));
 	}
 	
 	void skill(Graphics g, BattleUnit BattleUnit) {
@@ -300,7 +308,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		if(BattleUnit.canRecast()) {
 			g.drawImage(BattleUnit.getSkillImage(), x, y, this);
 			g.setColor(Color.RED);
-			g.setFont(new Font("Ravie", Font.BOLD, 30));
+			g.setFont(skillFont);
 			g.drawString("" + BattleUnit.skillCost(), x + 50, y + 80);
 			return;
 		}
@@ -312,21 +320,21 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	void drawUnit(Graphics g) {
-		IntStream.range(0, UnitMainData.length).forEach(i -> {
-			if(UnitMainData[i].canActivate() && canRangeDraw) {
-				rangeDraw(g, rangeRed, UnitMainData[i].getPositionX(), UnitMainData[i].getPositionY(), UnitMainData[i].getRange());
-				rangeDraw(g, rangeBlue, UnitLeftData[i].getPositionX(), UnitLeftData[i].getPositionY(), UnitLeftData[i].getRange());
+		IntStream.range(0, unitMainData.length).forEach(i -> {
+			if(unitMainData[i].canActivate() && canRangeDraw) {
+				rangeDraw(g, rangeRed, unitMainData[i].getPositionX(), unitMainData[i].getPositionY(), unitMainData[i].getRange());
+				rangeDraw(g, rangeBlue, unitLeftData[i].getPositionX(), unitLeftData[i].getPositionY(), unitLeftData[i].getRange());
 			}
-			int x = UnitMainData[i].getPositionX();
-			int y = UnitMainData[i].getPositionY();
-			g.drawImage(UnitMainData[i].getActionImage(), x, y, this);
-			g.drawImage(UnitMainData[i].getCoreImage(), x, y, this);
-			g.drawImage(UnitLeftData[i].getActionImage(), x, y, this);
-			if(UnitMainData[i].canActivate()) {
-				drawHP(g, UnitMainData[i], Color.BLUE);
+			int x = unitMainData[i].getPositionX();
+			int y = unitMainData[i].getPositionY();
+			g.drawImage(unitMainData[i].getActionImage(), x, y, this);
+			g.drawImage(unitMainData[i].getCoreImage(), x, y, this);
+			g.drawImage(unitLeftData[i].getActionImage(), x, y, this);
+			if(unitMainData[i].canActivate()) {
+				drawHP(g, unitMainData[i], Color.BLUE);
 			}else {
-				if(!UnitMainData[i].canLocate()) {
-					drawRelocation(g, UnitMainData[i]);
+				if(!unitMainData[i].canLocate()) {
+					drawRelocation(g, unitMainData[i]);
 				}
 			}
 		});
@@ -342,20 +350,10 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		g2.fill(new Arc2D.Double(x, y, 90, 90, 90, 360 * BattleUnit.locationRatio(), Arc2D.PIE));
 	}
 	
-	void drawAwakenable() {
-		IntStream.range(0, UnitMainData.length).forEach(i -> {
-			remove(awakeLabel[i]);
-			if(canAwake(i)) {
-				add(awakeLabel[i]);
-				awakeLabel[i].setLocation(UnitMainData[i].getPositionX() + 25, UnitMainData[i].getPositionY() + 10);
-			}
-		});
-	}
-	
 	void drawAwake(Graphics g) {
-		if(canAwake) {
-			int x = awakeUnit.getPositionX();
-			int y = awakeUnit.getPositionY();
+		if(awakeUnit.hasAwaked()) {
+			int x = awakeUnit.unitPositionX();
+			int y = awakeUnit.unitPositionY();
 			g.setColor(Color.RED);
 			g.fillRect(x + 15, y + 30, 10, 30);
 			g.fillPolygon(new int[] {x + 10, x + 20, x + 30}, new int[] {y + 40, y + 20, y + 40}, 3);
@@ -365,10 +363,10 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	void drawBullet(Graphics g) {
-		drawBullet(g, UnitMainData);
-		drawBullet(g, UnitLeftData);
-		drawBullet(g, FacilityData);
-		drawBullet(g, EnemyData);
+		drawBullet(g, unitMainData);
+		drawBullet(g, unitLeftData);
+		drawBullet(g, facilityData);
+		drawBullet(g, enemyData);
 	}
 	
 	void drawBullet(Graphics g, BattleData[] BattleData) {
@@ -379,11 +377,11 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		if(canSelect) {
 			int x = mouse.x - 45;
 			int y = mouse.y - 45;
-			rangeDraw(g, rangeRed, x, y, UnitMainData[select].getRange());
-			rangeDraw(g, rangeBlue, x, y, UnitLeftData[select].getRange());
-			g.drawImage(UnitMainData[select].getDefaultImage(), x, y, this);
-			g.drawImage(UnitMainData[select].getDefaultCoreImage(), x, y, this);
-			g.drawImage(UnitLeftData[select].getDefaultImage(), x, y, this);
+			rangeDraw(g, rangeRed, x, y, unitMainData[select].getRange());
+			rangeDraw(g, rangeBlue, x, y, unitLeftData[select].getRange());
+			g.drawImage(unitMainData[select].getDefaultImage(), x, y, this);
+			g.drawImage(unitMainData[select].getDefaultCoreImage(), x, y, this);
+			g.drawImage(unitLeftData[select].getDefaultImage(), x, y, this);
 		}
 	}
 	
@@ -408,7 +406,7 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	void drawMorale(Graphics g) {
 		g.setColor(Color.BLUE);
 		g.fillRect(25, 525, 950, 30);
-		int moralePosition = 475 + GameData.getMoraleDifference() * 2;
+		int moralePosition = 475 + gameData.getMoraleDifference() * 2;
 		if(moralePosition <= 50) {
 			moralePosition = 50;
 		}else if(900 <= moralePosition) {
@@ -420,7 +418,6 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		g.fillPolygon(new int[] {490, 500, 510}, new int[] {500, 525, 500}, 3);
 	}
 	
-	//操作制御
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		if(canSelect) {
@@ -433,49 +430,39 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		actionInitialize();
-		int number = clickPointCheck(e, UnitMainData);
-		if(0 <= number) {
-			if(UnitMainData[number].canActivate()) {
-				unitMenu(number);
-				return;
-			}
-			unitStatus(number);
+		if(hasClicked(e, unitMainData, this::unitOperation, targetCheck())) {
 			return;
 		}
 		if(canActivateSkill(e)) {
 			return;
 		}
-		number = clickPointCheck(e, FacilityData);
-		if(0 <= number && FacilityData[number].canActivate()) {
-			facilityStatus(number);
+		if(hasClicked(e, facilityData, this::facilityStatus, targetCheck(facilityData))) {
 			return;
 		}
-		number = clickPointCheck(e, EnemyData);
-		if(0 <= number && EnemyData[number].canActivate()) {
-			enemyStatus(number);
-		}
+		hasClicked(e, enemyData, this::enemyStatus, targetCheck(enemyData));
 	}
 	@Override
 	public void mousePressed(MouseEvent e) {
 		actionInitialize();
 		mouse = e.getPoint();
-		IntStream.range(0, UnitMainData.length).filter(i -> !UnitMainData[i].canActivate()).forEach(i -> {
+		List<Integer> activeUnit = IntStream.range(0, unitMainData.length).filter(i -> !unitMainData[i].canActivate()).boxed().toList();
+		for(int i: activeUnit) {
 			int x = initialX(i) + 30;
 			int y = initialY(i) + 30;
-			if(ValueRange.of(x, x + SIZE).isValidIntValue(e.getX())
-					&& ValueRange.of(y, y + SIZE).isValidIntValue(e.getY())) {
-				if(UnitMainData[i].getCost() <= GameData.getCost() && UnitMainData[i].canLocate()) {
+			if(existsTarget(x, y, SIZE, e)) {
+				if(unitMainData[i].getCost() <= gameData.getCost() && unitMainData[i].canLocate()) {
 					select = i;
 					canSelect = true;
 				}
+				return;
 			}
-		});
+		}
 	}
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		if(canSelect) {
 			mouse = e.getPoint();
-			switch(UnitMainData[select].getType()) {
+			switch(unitMainData[select].getType()) {
 			case Distance.NEAR:
 				placeUnit(Distance.NEAR.getId());
 				placeUnit(Distance.ALL.getId());
@@ -502,98 +489,102 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	public void mouseExited(MouseEvent e) {
 	}
 	
-	int clickPointCheck(MouseEvent e, BattleData[] data) {
+	boolean hasClicked(MouseEvent e, BattleData[] battleData, Runnable task, Predicate<Integer> check) {
+		int number = clickTarget(e, battleData);
+		if(check.test(number)) {
+			select = number;
+			task.run();
+			return true;
+		}
+		return false;
+	}
+	
+	Predicate<Integer> targetCheck(){
+		return number -> 0 <= number;
+	}
+	
+	Predicate<Integer> targetCheck(BattleData[] battleData){
+		return number -> targetCheck().test(number) && battleData[number].canActivate();
+	}
+	
+	int clickTarget(MouseEvent e, BattleData[] data) {
 		for(int i = 0; i < data.length; i++) {
 			int x = data[i].getPositionX() + 30;
 			int y = data[i].getPositionY() + 30;
-			if(ValueRange.of(x, x + SIZE).isValidIntValue(e.getX())
-					&& ValueRange.of(y, y + SIZE).isValidIntValue(e.getY())) {
+			if(existsTarget(x, y, SIZE, e)) {
 				return i;
 			}
 		}
 		return -1;
 	}
 	
-	boolean canActivateSkill(MouseEvent e) {
-		for(int i = 0; i < UnitMainData.length; i++) {
-			if(!UnitMainData[i].canActivate() || !UnitMainData[i].canPossessSkill() || !UnitMainData[i].canRecast()) {
-				continue;
-			}
-			int x = UnitMainData[i].getInitialPosition().x;
-			int y = UnitMainData[i].getInitialPosition().y;
-			if(ValueRange.of(x, x + 90).isValidIntValue(e.getX())
-					&& ValueRange.of(y, y + 90).isValidIntValue(e.getY())) {
-				UnitMainData[i].activateSkillBuff();
-				return true;
-			}
-		}
-		return false;
+	boolean existsTarget(int x, int y, int range, MouseEvent e) {
+		return existsTarget(x, y, range, e.getX(), e.getY());
 	}
 	
-	void unitMenu(int number) {
+	boolean existsTarget(int x, int y, int range, int valueX, int valueY) {
+		return ValueRange.of(x, x + range).isValidIntValue(valueX)
+				&& ValueRange.of(y, y + range).isValidIntValue(valueY);
+	}
+	
+	void unitOperation() {
+		if(unitMainData[select].canActivate()) {
+			addUnitMenu();
+			return;
+		}
+		unitStatus();
+	}
+	
+	void addUnitMenu() {
 		deactivateAction();
-		timerStop();
-		selectUnit = UnitMainData[number];
-		addStatusButton(number);
-		addRetreatButton(number);
-		addAwakeningButton(number);
-		addUnitReturnButton();
-	}
-	
-	void addStatusButton(int number) {
+		gameTimer.timerStop();
+		setLocation(unitMainData[select]);
 		add(statusButton);
-		statusButton.addActionListener(_ ->{
-			actionInitialize();
-			new DisplayStatus().unit(UnitMainData[number], UnitLeftData[number]);
-			timerRestart();
-		});
-	}
-	
-	void addRetreatButton(int number) {
 		add(retreatButton);
-		retreatButton.addActionListener(_ ->{
-			actionInitialize();
-			GameData.addCost((int) Math.ceil(UnitMainData[number].getCost() / 2));
-			UnitMainData[number].retreat();
-			timerRestart();
-		});
-	}
-	
-	void addAwakeningButton(int number) {
-		if(canAwake(number)) {
+		if(awakeUnit.canAwake(select)) {
 			add(awakeningButton);
-			awakeningButton.addActionListener(_ ->{
-				actionInitialize();
-				awake(number);
-				timerRestart();
-			});
 		}
-	}
-	
-	boolean canAwake(int number) {
-		return UnitMainData[number].canAwake() && AWAKE_COST <= GameData.getCost();
-	}
-	
-	void awake(int number) {
-		synchronized(awakeLock) {
-			if(canAwake(number)) {
-				awakeUnit = UnitMainData[number];
-				canAwake = true;
-				awakeFuture.cancel(true);
-				awakeFuture = scheduler.schedule(() -> canAwake = false, 2, TimeUnit.SECONDS);
-				UnitMainData[number].awakening();
-				UnitLeftData[number].awakening();
-				GameData.consumeCost(AWAKE_COST);
-			}
-		}
-	}
-	
-	void addUnitReturnButton() {
 		add(unitReturnButton);
-		unitReturnButton.addActionListener(_ ->{
-			actionInitialize();
-			timerRestart();
+	}
+	
+	void setLocation(BattleUnit selectUnit) {
+		int x = selectUnit.getPositionX();
+		int y = selectUnit.getPositionY();
+		statusButton.setLocation(x + 15, y - 10);
+		retreatButton.setLocation(x - 45, y + 30);
+		awakeningButton.setLocation(x + 75, y + 30);
+		unitReturnButton.setLocation(x + 15, y + 70);
+	}
+	
+	void statusButtonAction(ActionEvent e) {
+		buttonAction(this::displayUnit);
+	}
+	
+	void displayUnit() {
+		new DisplayStatus().unit(unitMainData[select], unitLeftData[select]);
+	}
+	
+	void retreatButtonAction(ActionEvent e) {
+		buttonAction(() -> {
+			gameData.addCost((int) Math.ceil(unitMainData[select].getCost() / 2));
+			unitMainData[select].retreat();
 		});
+	}
+	
+	void awakeningButtonAction(ActionEvent e) {
+		buttonAction(() -> awakeUnit.awake(select));
+	}
+	
+	void unitReturnButtonAction(ActionEvent e) {
+		buttonAction(null);
+	}
+	
+	void buttonAction(Runnable task) {
+		actionInitialize();
+		if(task != null) {
+			task.run();
+		}
+		gameTimer.timerRestart();
 	}
 	
 	void actionInitialize() {
@@ -602,14 +593,10 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 	}
 	
 	void removeMenu() {
-		Consumer<JButton> removeButton = (button) -> {
-			remove(button);
-			Stream.of(button.getActionListeners()).forEach(i -> button.removeActionListener(i));
-		};
-		removeButton.accept(statusButton);
-		removeButton.accept(retreatButton);
-		removeButton.accept(awakeningButton);
-		removeButton.accept(unitReturnButton);
+		remove(statusButton);
+		remove(retreatButton);
+		remove(awakeningButton);
+		remove(unitReturnButton);
 	}
 	
 	void activateAction() {
@@ -626,112 +613,74 @@ public class Battle extends JPanel implements MouseListener, MouseMotionListener
 		removeMouseMotionListener(this);
 	}
 	
-	void unitStatus(int number) {
-		timerStop();
-		new DisplayStatus().unit(UnitMainData[number], UnitLeftData[number]);
-		timerRestart();
+	void unitStatus() {
+		displayStatus(this::displayUnit);
 	}
 	
-	void facilityStatus(int number) {
-		timerStop();
-		new DisplayStatus().facility(FacilityData[number]);
-		timerRestart();
+	void facilityStatus() {
+		displayStatus(this::displayFacility);
 	}
 	
-	void enemyStatus(int number) {
-		timerStop();
-		new DisplayStatus().enemy(EnemyData[number]);
-		timerRestart();
+	void displayFacility() {
+		new DisplayStatus().facility(facilityData[select]);
+	}
+	
+	void enemyStatus() {
+		displayStatus(this::displayEnemy);
+	}
+	
+	void displayEnemy() {
+		new DisplayStatus().enemy(enemyData[select]);
+	}
+	
+	void displayStatus(Runnable task) {
+		gameTimer.timerStop();
+		task.run();
+		gameTimer.timerRestart();
+	}
+	
+	boolean canActivateSkill(MouseEvent e) {
+		for(BattleUnit i: unitMainData) {
+			if(i.canActivate() || !i.canPossessSkill() || !i.canRecast()) {
+				continue;
+			}
+			int x = i.getInitialPosition().x;
+			int y = i.getInitialPosition().y;
+			if(existsTarget(x, y, 90, e)) {
+				i.activateSkillBuff();
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	void placeUnit(int placementCode) {
-		Function<Double, Integer> correctPosition = (position) -> {
-			return position.intValue() - SIZE;
-		};
-		Predicate<List<Double>> positionCheck = (point) -> {
-			return Stream.of(UnitMainData).noneMatch(i -> i.getPositionX() == correctPosition.apply(point.get(0))
-					&& i.getPositionY() == correctPosition.apply(point.get(1)));
-		};
-		IntStream.range(0, placementList.get(placementCode).size()).filter(i -> canUsePlacement.get(placementCode).get(i))
-			.filter(i -> positionCheck.test(placementList.get(placementCode).get(i)))
-			.forEach(i -> {
-				List<Double> position = placementList.get(placementCode).get(i);
-				if(ValueRange.of(position.get(0).intValue(), position.get(0).intValue() + SIZE).isValidIntValue(mouse.x)
-						&& ValueRange.of(position.get(1).intValue(), position.get(1).intValue() + SIZE).isValidIntValue(mouse.y)) {
-					GameData.consumeCost(UnitMainData[select].getCost());
-					UnitMainData[select].activate(correctPosition.apply(position.get(0)), correctPosition.apply(position.get(1)));
-					UnitLeftData[select].activate(correctPosition.apply(position.get(0)), correctPosition.apply(position.get(1)));
-				}
-		});
-	}
-	
-	//メインタイマー制御
-	void mainTimer(long stopTime) {
-		int delay = 10;
-		long initialDelay;
-		if(stopTime == NONE_DELAY) {
-			initialDelay = NONE_DELAY;
-		}else {
-			initialDelay = (stopTime - beforeMainTime < delay)? delay - (stopTime - beforeMainTime): NONE_DELAY;
-			beforeMainTime += System.currentTimeMillis() - stopTime;
-		}
-		mainFuture = scheduler.scheduleAtFixedRate(() -> {
-			beforeMainTime = System.currentTimeMillis();
-			time += delay;
-			if(time % 1000 == 0) {
-				GameData.addCost(NATURAL_RECOVERY);
-			}
-		}, initialDelay, delay, TimeUnit.MILLISECONDS);
-	}
-	
-	void timerStop() {
-		canStop = true;
-		mainFuture.cancel(true);
-		long mainTime = System.currentTimeMillis();
-		CompletableFuture.runAsync(this::timerWait, scheduler).thenRun(() -> mainTimer(mainTime));
-		if(autoFuture != null && !autoFuture.isCancelled()) {
-			autoFuture.cancel(true);
-			long autoTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(this::timerWait, scheduler).thenRun(() -> autoAwake(autoTime));
-		}
-		Stream.of(UnitMainData).forEach(i -> i.futureStop());
-		Stream.of(UnitLeftData).forEach(i -> i.futureStop());
-		Stream.of(FacilityData).forEach(i -> i.futureStop());
-		Stream.of(EnemyData).forEach(i -> i.futureStop());
-	}
-	
-	synchronized void timerWait() {
-		if(!canStop) {
-			return;
-		}
-		try {
-			wait();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public synchronized void timerRestart() {
-		canStop = false;
-		notifyAll();
-	}
-	
-	int getMainTime() {
-		return time;
-	}
-	
-	//ゲーム状態監視
-	void clearTimer(MainFrame MainFrame, double difficultyCorrection) {
-		scheduler.scheduleAtFixedRate(() -> {
-			if(stage.getStageData().canClear(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData)) {
-				new PauseDialog(stage, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
-				MainFrame.selectStageDraw();
+		List<List<Double>> placementList = stageImage.getPlacementList(placementCode);
+		List<List<Double>> activeList = IntStream.range(0, placementList.size())
+				.filter(i -> stageImage.getUsePlacementList(placementCode).get(i))
+				.mapToObj(i -> placementList.get(i))
+				.filter(i -> notExistsOverlapping(i))
+				.toList();
+		for(List<Double> i: activeList) {
+			if(existsTarget(i.get(0).intValue(), i.get(1).intValue(), SIZE, mouse.x, mouse.y)) {
+				gameData.consumeCost(unitMainData[select].getCost());
+				setPlacement(unitMainData, i);
+				setPlacement(unitLeftData, i);
 				return;
 			}
-			if(stage.getStageData().existsGameOver(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData)) {
-				new PauseDialog();
-				MainFrame.selectStageDraw();
-			}
-		}, 0, 1, TimeUnit.SECONDS);
+		}
+	}
+	
+	boolean notExistsOverlapping(List<Double> point) {
+		return Stream.of(unitMainData).noneMatch(i -> i.getPositionX() == correctPosition(point.get(0))
+				&& i.getPositionY() == correctPosition(point.get(1)));
+	}
+	
+	int correctPosition(double position) {
+		return (int) (position - SIZE);
+	}
+	
+	void setPlacement(BattleUnit[] unit, List<Double> position) {
+		unit[select].activate(correctPosition(position.get(0)), correctPosition(position.get(1)));
 	}
 }
