@@ -28,12 +28,6 @@ class AwakeUnit {
 		this.unitLeftData = unitLeftData;
 		this.scheduler= scheduler;
 		canAwakeUnit = new boolean[unitMainData.length];
-		autoFuture = blanckFuture();
-		awakeFuture = blanckFuture();
-	}
-	
-	ScheduledFuture<?> blanckFuture(){
-		return scheduler.schedule(() -> null, 0, TimeUnit.SECONDS);
 	}
 	
 	void changeAutoAwake() {
@@ -47,6 +41,7 @@ class AwakeUnit {
 	
 	void timerStop() {
 		autoFuture.cancel(true);
+		autoFuture = null;
 	}
 	
 	void timerRestart() {
@@ -76,7 +71,9 @@ class AwakeUnit {
 			if(canAwake(number)) {
 				awakeUnit = unitMainData[number];
 				hasAwaked = true;
-				awakeFuture.cancel(true);
+				if(awakeFuture != null) {
+					awakeFuture.cancel(true);
+				}
 				awakeFuture = createAwakeTimer();
 				unitMainData[number].awakening();
 				unitLeftData[number].awakening();
@@ -91,6 +88,7 @@ class AwakeUnit {
 	
 	void awakeTimerProcess() {
 		hasAwaked = false;
+		awakeFuture = null;
 	}
 	
 	void awakeUnit() {

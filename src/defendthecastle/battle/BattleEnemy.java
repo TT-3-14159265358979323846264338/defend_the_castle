@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -34,18 +32,18 @@ public class BattleEnemy extends BattleData{
 	private final int SOTIE_MORALE = 5;
 	private final int DEFEAT_MORALE = 3;
 	private final int MOVE_DISTANCE = 2;
+	private final int MOVE_DELAY = 10000;
 	
 	//移動制御
+	private int nowSpeed;
 	private int pauseCount;
 	private int deactivateCount;
 	private BattleData blockTarget;
 	
 	//システム関連
 	private Object blockWait = new Object();
-	private ScheduledFuture<?> moveFuture;
-	private long beforeMoveTime;
-	private ScheduledFuture<?> resuscitationFuture;
-	private long beforeResuscitationTime;
+	private MicroSecondsTimerOperation moveTimer;
+	private ScheduleTimerOperation resuscitationTimer;
 	
 	BattleEnemy(GameTimer gameTimer, StageData stageData, int number, double difficultyCorrection, ScheduledExecutorService scheduler) {
 		this.gameTimer = gameTimer;
@@ -69,6 +67,8 @@ public class BattleEnemy extends BattleData{
 		defaultCutStatus = EnemyData.getCutStatus().stream().toList();
 		canActivate = false;
 		super.initialize(scheduler);
+		moveTimer = createMicroSecondsTimerOperation();
+		resuscitationTimer = createScheduleTimerOperation();
 	}
 	
 	List<Integer> weaponStatus(EnemyData enemyData, double difficultyCorrection){
@@ -89,6 +89,10 @@ public class BattleEnemy extends BattleData{
 	
 	int defaultStatus(int status, double difficultyCorrection) {
 		return (int) (status * difficultyCorrection);
+	}
+	
+	MicroSecondsTimerOperation createMicroSecondsTimerOperation() {
+		return new MicroSecondsTimerOperation(gameTimer, scheduler);
 	}
 	
 	void install(GameData gameData, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
@@ -130,63 +134,60 @@ public class BattleEnemy extends BattleData{
 	}
 	
 	void eternalStop() {
-		moveFuture = scheduler.scheduleAtFixedRate(() -> {
-			if(activateTime <= gameTimer.getMilliTime()) {
-				canActivate = true;
-				gameData.moraleBoost(defendthecastle.battle.GameData.ENEMY, SOTIE_MORALE);
-				atackTimer(NONE_DELAY);
-				healTimer(NONE_DELAY);
-				moveFuture.cancel(true);
-			}
-		}, 0, 10, TimeUnit.MILLISECONDS);
+		moveTimer.timerStrat(NONE_DELAY, MOVE_DELAY, this::moveTimerProcessEternalStop);
+	}
+	
+	void moveTimerProcessEternalStop() {
+		if(activateTime <= gameTimer.getMilliTime()) {
+			canActivate = true;
+			gameData.moraleBoost(GameData.ENEMY, SOTIE_MORALE);
+			atackTimer(NONE_DELAY);
+			healTimer(NONE_DELAY);
+			moveTimer.timerStop();
+		}
 	}
 	
 	void constantMove(long stopTime) {
-		int nowSpeed = getMoveSpeedOrBlock();
+		nowSpeed = getMoveSpeedOrBlock();
 		double delay = MOVE_DISTANCE * 1000000.0 / nowSpeed;
-		double initialDelay;
-		if(stopTime == NONE_DELAY) {
-			initialDelay = NONE_DELAY;
-		}else {
-			initialDelay = ((stopTime - beforeMoveTime) * 1000 < delay)? delay - (stopTime - beforeMoveTime) * 1000: NONE_DELAY;
-			beforeMoveTime += System.currentTimeMillis() - stopTime;
+		moveTimer.timerStrat(stopTime, (int) delay, this::moveTimerProcessConstantMove);
+	}
+	
+	void moveTimerProcessConstantMove() {
+		moveTimer.updateBeforeTime();
+		if(nowHP <= 0) {
+			moveTimer.timerStop();
+			return;
 		}
-		moveFuture = scheduler.scheduleAtFixedRate(() -> {
-			beforeMoveTime = System.currentTimeMillis();
-			if(nowHP <= 0) {
-				moveFuture.cancel(true);
-				return;
-			}
-			if(canAtack) {
-				CompletableFuture.runAsync(this::atackWait, scheduler).thenRun(() -> constantMove(NONE_DELAY));
-				moveFuture.cancel(true);
-				return;
-			}
-			blockTarget = blockTarget();
-			if(Objects.nonNull(blockTarget)) {
-				blockTarget.addBlock(this);
-				CompletableFuture.runAsync(() -> blockWait(blockTarget), scheduler).thenRun(() -> constantMove(NONE_DELAY));
-				moveFuture.cancel(true);
-				return;
-			}
-			if(nowSpeed != getMoveSpeedOrBlock()) {
-				CompletableFuture.runAsync(() -> moveFuture.cancel(true), scheduler).thenRun(() -> constantMove(NONE_DELAY));
-				return;
-			}
-			if(canActivate || 0 < deactivateCount) {
-				move();
-				routeChange();
-				return;
-			}
-			if(activateTime <= gameTimer.getMilliTime()) {
-				gameData.moraleBoost(defendthecastle.battle.GameData.ENEMY, SOTIE_MORALE);
-				activate();
-			}
-		}, (int) initialDelay, (int) delay, TimeUnit.MICROSECONDS);
+		if(canAtack) {
+			CompletableFuture.runAsync(this::atackWait, scheduler).thenRun(() -> constantMove(NONE_DELAY));
+			moveTimer.timerStop();
+			return;
+		}
+		blockTarget = blockTarget();
+		if(Objects.nonNull(blockTarget)) {
+			blockTarget.addBlock(this);
+			CompletableFuture.runAsync(() -> blockWait(blockTarget), scheduler).thenRun(() -> constantMove(NONE_DELAY));
+			moveTimer.timerStop();
+			return;
+		}
+		if(nowSpeed != getMoveSpeedOrBlock()) {
+			CompletableFuture.runAsync(moveTimer::timerStop, scheduler).thenRun(() -> constantMove(NONE_DELAY));
+			return;
+		}
+		if(canActivate || 0 < deactivateCount) {
+			move();
+			routeChange();
+			return;
+		}
+		if(activateTime <= gameTimer.getMilliTime()) {
+			gameData.moraleBoost(GameData.ENEMY, SOTIE_MORALE);
+			activate();
+		}
 	}
 	
 	BattleData blockTarget() {
-		List<BattleData> nearList = enemyData.stream().filter(i -> i.canActivate()).filter(this::existsInside).toList();
+		List<BattleData> nearList = enemyData.stream().filter(BattleData::canActivate).filter(this::existsInside).toList();
 		if(nearList.isEmpty()) {
 			return null;
 		}
@@ -202,7 +203,7 @@ public class BattleEnemy extends BattleData{
 	}
 	
 	boolean existsInside(BattleData BattleData) {
-		return Math.sqrt(Math.pow(positionX - BattleData.getPositionX(), 2) + Math.pow(positionY - BattleData.getPositionY(), 2)) <= defendthecastle.battle.Battle.SIZE;
+		return Math.sqrt(Math.pow(positionX - BattleData.getPositionX(), 2) + Math.pow(positionY - BattleData.getPositionY(), 2)) <= Battle.SIZE;
 	}
 	
 	void blockWait(BattleData blockTarget) {
@@ -284,18 +285,11 @@ public class BattleEnemy extends BattleData{
 	}
 	
 	@Override
-	protected void individualFutureStop() {
-		if(resuscitationFuture != null && !resuscitationFuture.isDone()) {
-			resuscitationFuture.cancel(true);
-			long resuscitationTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> resurrection(resuscitationTime));
-			return;
-		}
-		if(moveFuture == null) {
-			return;
-		}
-		if(moveFuture.isCancelled()) {
-			return;
+	protected void individualTimerPause() {
+		if(resuscitationTimer.isRunningFuture()) {
+			if(resuscitationTimer.timerPause(this::resurrection)){
+				return;
+			}
 		}
 		if(canAtack) {
 			return;
@@ -306,16 +300,20 @@ public class BattleEnemy extends BattleData{
 		if(getMoveSpeedOrBlock() <= 0) {
 			return;
 		}
-		moveFuture.cancel(true);
-		long moveTime = System.currentTimeMillis();
-		CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> constantMove(moveTime));
+		moveTimer.timerPause(this::constantMove);
+	}
+	
+	@Override
+	protected void individualTimerEnd() {
+		resuscitationTimer.timerStop();
+		moveTimer.timerStop();
 	}
 	
 	@Override
 	protected int moraleCorrection() {
 		return (0 <= gameData.getMoraleDifference())? gameData.getMoraleDifference(): 0;
 	}
-	
+
 	@Override
 	protected void defeat(BattleData target) {
 		canActivate = false;
@@ -323,25 +321,25 @@ public class BattleEnemy extends BattleData{
 		releaseBlock(this);
 		gameData.lowMorale(defendthecastle.battle.GameData.ENEMY, DEFEAT_MORALE);
 		activateBuff(Buff.DEFEAT, target);
-		moveFuture.cancel(true);
-		beforeResuscitationTime = System.currentTimeMillis();
+		moveTimer.timerStop();
+		resuscitationTimer.updateBeforeTime();
 		resurrection(NONE_DELAY);
+	}
+	
+	@Override
+	protected void kill() {
+		//特に処理なし
 	}
 	
 	void resurrection(long stopTime) {
 		if(resurrectionCount == 0) {
 			return;
 		}
-		long delay;
-		if(stopTime == NONE_DELAY) {
-			delay = interval;
-		}else {
-			delay = (stopTime - beforeResuscitationTime < interval)? interval - (stopTime - beforeResuscitationTime): NONE_DELAY;
-			beforeResuscitationTime += System.currentTimeMillis() - stopTime;
-		}
-		resuscitationFuture = scheduler.schedule(() -> {
-			resurrectionCount--;
-			reset();
-		}, delay, TimeUnit.MILLISECONDS);
+		resuscitationTimer.timerStrat(stopTime, interval, this::resuscitationTimerProcess);
+	}
+	
+	void resuscitationTimerProcess() {
+		resurrectionCount--;
+		reset();
 	}
 }

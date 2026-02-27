@@ -32,13 +32,10 @@ class FinalMotion{
 		timerStop();
 	}
 	
-	boolean canEnd() {
-		return finalFuture.isCancelled();
-	}
-	
 	void timerStop() {
 		if(10 < count) {
 			finalFuture.cancel(true);
+			finalFuture = null;
 		}
 	}
 	

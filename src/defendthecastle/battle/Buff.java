@@ -6,8 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
@@ -91,7 +89,6 @@ public class Buff {
 	private List<Double> buffInformation;
 	private BattleData myself;
 	private List<BattleData> candidate;
-	private GameTimer gameTimer;
 	private GameData gameData;
 	private List<BattleData> target = new ArrayList<>();
 	private List<Double> effect = new ArrayList<>();
@@ -99,20 +96,16 @@ public class Buff {
 	private int recastCount = 0;
 	private boolean canRecast;
 	private ScheduledExecutorService scheduler;
-	private ScheduledFuture<?> recastFuture;
-	private long beforeRecastTime;
-	private ScheduledFuture<?> targetFuture;
-	private ScheduledFuture<?> intervalFuture;
-	private long beforeIntervalTime;
-	private ScheduledFuture<?> durationFuture;
-	private long beforeDurationTime;
+	private TimerOperation recastTimer;
+	private TimerOperation targetTimer;
+	private TimerOperation intervalTimer;
+	private TimerOperation durationTimer;
 	private final int NONE_DELAY = 0;
 	private final int INITIALIZE = 0;
 	
 	Buff(List<Double> buffInformation, BattleData myself, List<BattleData> ally, List<BattleData> enemy, GameTimer gameTimer, GameData gameData, ScheduledExecutorService scheduler) {
 		this.buffInformation = buffInformation;
 		this.myself = myself;
-		this.gameTimer = gameTimer;
 		if(buffInformation.get(TARGET_CODE) == ALLY) {
 			candidate = ally;
 		}else if(buffInformation.get(TARGET_CODE) == ENEMY) {
@@ -122,6 +115,14 @@ public class Buff {
 		}
 		canRecast = (canPossessSkill())? true: false;
 		this.scheduler = scheduler;
+		recastTimer = createTimerOperation(gameTimer, scheduler);
+		targetTimer = createTimerOperation(gameTimer, scheduler);
+		intervalTimer = createTimerOperation(gameTimer, scheduler);
+		durationTimer = createTimerOperation(gameTimer, scheduler);
+	}
+	
+	TimerOperation createTimerOperation(GameTimer gameTimer, ScheduledExecutorService scheduler) {
+		return new TimerOperation(gameTimer, scheduler);
 	}
 	
 	void buffStart(BattleData BattleData) {
@@ -134,26 +135,16 @@ public class Buff {
 		unitBuff(BattleData);
 	}
 	
-	void futureStop() {
-		if(recastFuture != null && !recastFuture.isCancelled()) {
-			recastFuture.cancel(true);
-			long recastTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> recastBuff(recastTime));
-		}
-		if(intervalFuture != null && !intervalFuture.isCancelled()) {
-			intervalFuture.cancel(true);
-			long intervalTime = System.currentTimeMillis();
+	void timerPause() {
+		recastTimer.timerPause(this::recastBuff);
+		intervalTimer.timerPause(time -> {
 			if(existsInterval()) {
-				CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> gameIntervalControl(intervalTime));
-			}else {
-				CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> intervalControl(intervalTime));
+				gameIntervalControl(time);
+				return;
 			}
-		}
-		if(durationFuture != null && !durationFuture.isCancelled()) {
-			durationFuture.cancel(true);
-			long durationTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> durationControl(durationTime));
-		}
+			intervalControl(time);
+		});
+		durationTimer.timerPause(this::durationControl);
 	}
 	
 	//リキャスト
@@ -162,22 +153,17 @@ public class Buff {
 			return;
 		}
 		canRecast = false;
-		long initialDelay;
-		if(stopTime == NONE_DELAY) {
-			initialDelay = NONE_DELAY;
-		}else {
-			initialDelay = (stopTime - beforeRecastTime < DELEY)? DELEY - (stopTime - beforeRecastTime): NONE_DELAY;
-			beforeRecastTime += System.currentTimeMillis() - stopTime;
+		recastTimer.timerStrat(stopTime, DELEY, this::recastTimerProcess);
+	}
+	
+	void recastTimerProcess() {
+		recastTimer.updateBeforeTime();
+		recastCount += DELEY;
+		if(recastMax() <= recastCount) {
+			recastCount = INITIALIZE;
+			canRecast = true;
+			recastTimer.timerStop();
 		}
-		recastFuture = scheduler.scheduleAtFixedRate(() -> {
-			beforeRecastTime = System.currentTimeMillis();
-			recastCount += DELEY;
-			if(recastMax() <= recastCount) {
-				recastCount = INITIALIZE;
-				canRecast = true;
-				recastFuture.cancel(true);
-			}
-		}, initialDelay, DELEY, TimeUnit.MILLISECONDS);
 	}
 	
 	//ゲームバフ
@@ -192,24 +178,19 @@ public class Buff {
 	}
 	
 	void gameIntervalControl(long stopTime) {
-		int delay = getInterval();
-		long initialDelay;
-		if(stopTime == NONE_DELAY) {
-			initialDelay = NONE_DELAY;
-		}else {
-			initialDelay = (stopTime - beforeIntervalTime < delay)? delay - (stopTime - beforeIntervalTime): NONE_DELAY;
-			beforeIntervalTime += System.currentTimeMillis() - stopTime;
+		int delay = getInterval() * 1000;
+		intervalTimer.timerStrat(stopTime, delay, this::intervalTimerProcessGameBuff);
+	}
+	
+	void intervalTimerProcessGameBuff() {
+		intervalTimer.updateBeforeTime();
+		if(canNotActivateBuff()) {
+			return;
 		}
-		intervalFuture = scheduler.scheduleAtFixedRate(() -> {
-			beforeIntervalTime = System.currentTimeMillis();
-			if(canNotActivateBuff()) {
-				return;
-			}
-			gameBuffSelect();
-			if(existsMax(INITIALIZE)) {
-				intervalFuture.cancel(true);
-			}
-		}, initialDelay, delay, TimeUnit.SECONDS);
+		gameBuffSelect();
+		if(existsMax(INITIALIZE)) {
+			intervalTimer.timerStop();
+		}
 	}
 	
 	void gameBuffSelect() {
@@ -223,10 +204,10 @@ public class Buff {
 	void moraleBuff() {
 		setEffect(INITIALIZE);
 		if(existsAddition()) {
-			gameData.moraleBoost(defendthecastle.battle.GameData.UNIT, (int) getEffect());
+			gameData.moraleBoost(GameData.UNIT, (int) getEffect());
 			return;
 		}
-		gameData.lowMorale(defendthecastle.battle.GameData.UNIT, (int) getEffect());
+		gameData.lowMorale(GameData.UNIT, (int) getEffect());
 	}
 	
 	void costBuff() {
@@ -289,14 +270,16 @@ public class Buff {
 	}
 	
 	void targetControl(Predicate<? super BattleData> rangeFilter) {
-		targetFuture = scheduler.scheduleAtFixedRate(() -> {
-			if(canNotActivateBuff()) {
-				return;
-			}
-			List<BattleData> newTarget = candidate.stream().filter(i -> i.canActivate()).filter(rangeFilter).toList();
-			IntStream.range(0, target.size()).boxed().sorted(Comparator.reverseOrder()).forEach(i -> removeUpdate(i, newTarget));
-			newTarget.forEach(this::addUpdate);
-		}, 0, DELEY, TimeUnit.MILLISECONDS);
+		targetTimer.timerStrat(0, DELEY, () -> targetTimerProcess(rangeFilter));
+	}
+	
+	void targetTimerProcess(Predicate<? super BattleData> rangeFilter) {
+		if(canNotActivateBuff()) {
+			return;
+		}
+		List<BattleData> newTarget = candidate.stream().filter(i -> i.canActivate()).filter(rangeFilter).toList();
+		IntStream.range(0, target.size()).boxed().sorted(Comparator.reverseOrder()).forEach(i -> removeUpdate(i, newTarget));
+		newTarget.forEach(this::addUpdate);
 	}
 	
 	void removeUpdate(int number, List<BattleData> newTarget) {
@@ -332,21 +315,16 @@ public class Buff {
 		if(existsInterval()) {
 			return;
 		}
-		int delay = getInterval();
-		long initialDelay;
-		if(stopTime == NONE_DELAY) {
-			initialDelay = NONE_DELAY;
-		}else {
-			initialDelay = (stopTime - beforeIntervalTime < delay)? delay - (stopTime - beforeIntervalTime): NONE_DELAY;
-			beforeIntervalTime += System.currentTimeMillis() - stopTime;
+		int delay = getInterval() * 1000;
+		intervalTimer.timerStrat(stopTime, delay, this::intervalTimerProcessUnitBuff);
+	}
+	
+	void intervalTimerProcessUnitBuff() {
+		intervalTimer.updateBeforeTime();
+		if(canNotActivateBuff()) {
+			return;
 		}
-		intervalFuture = scheduler.scheduleAtFixedRate(() -> {
-			beforeIntervalTime = System.currentTimeMillis();
-			if(canNotActivateBuff()) {
-				return;
-			}
-			IntStream.range(0, effect.size()).filter(i -> !existsMax(i)).forEach(i -> setEffect(i));
-		}, initialDelay, delay, TimeUnit.SECONDS);
+		IntStream.range(0, effect.size()).filter(i -> !existsMax(i)).forEach(i -> setEffect(i));
 	}
 	
 	//共通メソッド
@@ -354,24 +332,19 @@ public class Buff {
 		if(existsDuration()) {
 			return;
 		}
-		long initialDelay;
-		if(stopTime == NONE_DELAY) {
-			initialDelay = NONE_DELAY;
-		}else {
-			initialDelay = (stopTime - beforeDurationTime < DELEY)? DELEY - (stopTime - beforeDurationTime): NONE_DELAY;
-			beforeDurationTime += System.currentTimeMillis() - stopTime;
+		durationTimer.timerStrat(stopTime, DELEY, this::durationTimerProcess);
+	}
+	
+	void durationTimerProcess() {
+		durationTimer.updateBeforeTime();
+		durationCount += DELEY;
+		if(canNotActivateBuff()) {
+			return;
 		}
-		durationFuture = scheduler.scheduleAtFixedRate(() -> {
-			beforeDurationTime = System.currentTimeMillis();
-			durationCount += DELEY;
-			if(canNotActivateBuff()) {
-				return;
-			}
-			if(buffInformation.get(DURATION) * 1000 <= durationCount) {
-				durationCount = INITIALIZE;
-				buffEnd();
-			}
-		}, initialDelay, DELEY, TimeUnit.MILLISECONDS);
+		if(buffInformation.get(DURATION) * 1000 <= durationCount) {
+			durationCount = INITIALIZE;
+			buffEnd();
+		}
 	}
 	
 	boolean canNotActivateBuff() {
@@ -386,19 +359,14 @@ public class Buff {
 	}
 	
 	CompletableFuture<Void> buffEnd() {
-		return CompletableFuture.runAsync(this::futureCancel, scheduler).thenRun(this::resetBuff);
+		return CompletableFuture.runAsync(this::timerEnd, scheduler).thenRun(this::resetBuff);
 	}
 	
-	void futureCancel() {
-		if(targetFuture != null) {
-			targetFuture.cancel(true);
-		}
-		if(intervalFuture != null) {
-			intervalFuture.cancel(true);
-		}
-		if(durationFuture != null) {
-			durationFuture.cancel(true);
-		}
+	void timerEnd() {
+		recastTimer.timerStop();
+		targetTimer.timerStop();
+		intervalTimer.timerStop();
+		durationTimer.timerStop();
 	}
 	
 	void resetBuff() {

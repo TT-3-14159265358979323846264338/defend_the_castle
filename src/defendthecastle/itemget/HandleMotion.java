@@ -26,7 +26,6 @@ class HandleMotion implements MouseListener, MouseMotionListener{
 		this.HoldMedal = holdMedal;
 		this.BallMotion = ballMotion;
 		this.scheduler = scheduler;
-		handleFuture = scheduler.schedule(() -> null, 0, TimeUnit.MILLISECONDS);
 		addListener();
 	}
 	
@@ -41,7 +40,7 @@ class HandleMotion implements MouseListener, MouseMotionListener{
 	}
 	
 	double angle() {
-		if(!handleFuture.isDone()) {
+		if(handleFuture != null) {
 			return autoAngle();
 		}
 		return manualAngle();
@@ -56,6 +55,7 @@ class HandleMotion implements MouseListener, MouseMotionListener{
 	
 	void autoTurnStop() {
 		handleFuture.cancel(true);
+		handleFuture = null;
 		BallMotion.timerStart(this);
 		reset();
 	}

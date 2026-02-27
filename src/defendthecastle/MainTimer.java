@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 
 class MainTimer {
 	private final ScheduledExecutorService scheduler;
-	private final ScheduledFuture<?> mainFuture;
+	private ScheduledFuture<?> mainFuture;
 	private final FallMotion[] fallMotion;
 	private final FinalMotion[] finalMotion;
 	private int count;
@@ -33,10 +33,11 @@ class MainTimer {
 		if(Stream.of(fallMotion).noneMatch(i -> i.canStart())) {
 			Stream.of(finalMotion).forEach(i -> i.finalTimerStart(scheduler));
 			mainFuture.cancel(true);
+			mainFuture = null;
 		}
 	}
 	
 	boolean isEnd() {
-		return mainFuture.isCancelled();
+		return mainFuture == null;
 	}
 }

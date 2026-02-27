@@ -29,7 +29,6 @@ class OpenBallMotion{
 		this.gachaInformation = gachaInformation;
 		this.scheduler = scheduler;
 		this.itemGetImage = itemGetImage;
-		openFuture = scheduler.schedule(() -> null, 0, TimeUnit.MILLISECONDS);
 		reset();
 	}
 	
@@ -66,6 +65,7 @@ class OpenBallMotion{
 		handleMotion.addListener();
 		menuItemGet.activatePanel();
 		openFuture.cancel(true);
+		openFuture = null;
 	}
 	
 	void gacha() {
@@ -73,7 +73,7 @@ class OpenBallMotion{
 	}
 	
 	boolean canRunTimer() {
-		return !openFuture.isDone();
+		return openFuture != null;
 	}
 	
 	List<Double> getBallAngle(){

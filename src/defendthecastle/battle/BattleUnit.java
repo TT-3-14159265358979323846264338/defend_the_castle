@@ -5,10 +5,7 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -52,10 +49,8 @@ public class BattleUnit extends BattleData{
 	
 	//システム関連
 	private Object achievementLock = new Object();
-	private ScheduledFuture<?> achievementFuture;
-	private long beforeAchievementTime;
-	private ScheduledFuture<?> relocationFuture;
-	private long beforeRelocationTime;
+	private TimerOperation achievementTimer;
+	private TimerOperation relocationTimer;
 	
 	//右武器/コア用　攻撃・被弾などの判定はこちらで行う
 	BattleUnit(GameTimer gameTimer, OneUnitData oneUnitData, int positionX, int positionY, ScheduledExecutorService scheduler) {
@@ -84,6 +79,8 @@ public class BattleUnit extends BattleData{
 		defaultCutStatus = StatusCalculation.getCutStatus().stream().collect(Collectors.toList());
 		canActivate = false;
 		super.initialize(scheduler);
+		achievementTimer = createTimerOperation();
+		relocationTimer = createTimerOperation();
 	}
 	
 	//左武器用
@@ -105,6 +102,8 @@ public class BattleUnit extends BattleData{
 		defaultUnitStatus = StatusCalculation.getUnitStatus();
 		defaultCutStatus = StatusCalculation.getCutStatus();
 		super.initialize(scheduler);
+		achievementTimer = createTimerOperation();
+		relocationTimer = createTimerOperation();
 	}
 	
 	void install(GameData gameData, BattleUnit otherWeapon, BattleData[] unitMainData, BattleData[] facilityData, BattleData[] enemyData) {
@@ -152,21 +151,16 @@ public class BattleUnit extends BattleData{
 	}
 	
 	void achievementTimer(long stopTime) {
-		long initialDelay;
-		if(stopTime == NONE_DELAY) {
-			initialDelay = NONE_DELAY;
-		}else {
-			initialDelay = (stopTime - beforeAchievementTime < TIMER_INTERVAL)? TIMER_INTERVAL - (stopTime - beforeAchievementTime): NONE_DELAY;
-			beforeAchievementTime += System.currentTimeMillis() - stopTime;
+		achievementTimer.timerStrat(stopTime, TIMER_INTERVAL, this::achievementTimerProcess);
+	}
+	
+	void achievementTimerProcess() {
+		achievementTimer.updateBeforeTime();
+		if(!canActivate) {
+			achievementTimer.timerStop();
+			return;
 		}
-		achievementFuture = scheduler.scheduleAtFixedRate(() -> {
-			beforeAchievementTime = System.currentTimeMillis();
-			if(!canActivate) {
-				achievementFuture.cancel(true);
-				return;
-			}
-			setAchievement(PLACEMENT_ACHIEVEMENT);
-		}, initialDelay, TIMER_INTERVAL, TimeUnit.MILLISECONDS);
+		setAchievement(PLACEMENT_ACHIEVEMENT);
 	}
 	
 	void setAchievement(int value) {
@@ -239,17 +233,15 @@ public class BattleUnit extends BattleData{
 	}
 	
 	@Override
-	protected void individualFutureStop() {
-		if(achievementFuture != null && !achievementFuture.isCancelled()) {
-			achievementFuture.cancel(true);
-			long achievementTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> achievementTimer(achievementTime));
-		}
-		if(relocationFuture != null && !relocationFuture.isCancelled()) {
-			relocationFuture.cancel(true);
-			long relocationTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> relocation(relocationTime));
-		}
+	protected void individualTimerPause() {
+		achievementTimer.timerPause(this::achievementTimer);
+		relocationTimer.timerPause(this::relocationTimer);
+	}
+
+	@Override
+	protected void individualTimerEnd() {
+		achievementTimer.timerStop();
+		relocationTimer.timerStop();
 	}
 	
 	@Override
@@ -263,7 +255,7 @@ public class BattleUnit extends BattleData{
 		defeatNumber++;
 		gameData.lowMorale(defendthecastle.battle.GameData.UNIT, price);
 		relocationTime = price * 1000;
-		relocation(NONE_DELAY);
+		relocationTimer(NONE_DELAY);
 		reset(target);
 	}
 	
@@ -271,27 +263,22 @@ public class BattleUnit extends BattleData{
 		int price = (5 + 10 * (getMaxHP() - nowHP) / getMaxHP());
 		gameData.lowMorale(defendthecastle.battle.GameData.UNIT, price);
 		relocationTime = price * 1000;
-		relocation(NONE_DELAY);
+		relocationTimer(NONE_DELAY);
 		reset(null);
 	}
 	
-	void relocation(long stopTime) {
-		long initialDelay;
-		if(stopTime == NONE_DELAY) {
-			initialDelay = NONE_DELAY;
-		}else {
-			initialDelay = (stopTime - beforeRelocationTime < TIMER_INTERVAL)? TIMER_INTERVAL - (stopTime - beforeRelocationTime): NONE_DELAY;
-			beforeRelocationTime += System.currentTimeMillis() - stopTime;
+	void relocationTimer(long stopTime) {
+		relocationTimer.timerStrat(stopTime, TIMER_INTERVAL, this::relocationTimerProcess);
+	}
+	
+	void relocationTimerProcess() {
+		relocationTimer.updateBeforeTime();
+		relocationCount += TIMER_INTERVAL;
+		if(relocationTime <= relocationCount) {
+			relocationCount = 0;
+			canLocate = true;
+			relocationTimer.timerStop();
 		}
-		relocationFuture = scheduler.scheduleAtFixedRate(() -> {
-			beforeRelocationTime = System.currentTimeMillis();
-			relocationCount += TIMER_INTERVAL;
-			if(relocationTime <= relocationCount) {
-				relocationCount = 0;
-				canLocate = true;
-				relocationFuture.cancel(true);
-			}
-		}, initialDelay, TIMER_INTERVAL, TimeUnit.MILLISECONDS);
 	}
 	
 	void reset(BattleData target) {

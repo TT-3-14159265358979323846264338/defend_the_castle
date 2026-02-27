@@ -6,8 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import commonclass.EditImage;
@@ -15,7 +13,7 @@ import defaultdata.Element;
 import defaultdata.atackpattern.AtackPatternData;
 
 //全キャラクターの共通システム
-public class BattleData{
+public abstract class BattleData{
 	//基礎データ
 	protected GameData gameData;
 	protected GameTimer gameTimer;
@@ -58,49 +56,57 @@ public class BattleData{
 	private final int GUARANTEE_RANGE = 10;
 	private final int GUARANTEE_ATACK_SPEED = 100;
 	private final int GUARANTEE_MAX_HP = 100;
+	private final int MOTION_DELAY = 20;
+	private final int HEAL_DELAY = 5000;
 	
 	//システム関連
 	private Object buffLock = new Object();
 	private Object blockLock = new Object();
 	private Object HPLock = new Object();
 	protected ScheduledExecutorService scheduler;
-	private ScheduledFuture<?> atackFuture;
-	private long beforeAtackTime;
-	private ScheduledFuture<?> motionFuture;
-	private long beforeMotionTime;
-	private ScheduledFuture<?> healFuture;
-	private long beforeHealTime;
+	private ScheduleTimerOperation atackTimer;
+	private TimerOperation motionTimer;
+	private TimerOperation healTimer;
 	
 	void initialize(ScheduledExecutorService scheduler) {
+		this.scheduler = scheduler;
 		leftActionImage = rightActionImage.stream().map(i -> EditImage.mirrorImage(i)).toList();
 		nowHP = defaultUnitStatus.get(1);
-		this.scheduler = scheduler;
+		atackTimer = createScheduleTimerOperation();
+		motionTimer = createTimerOperation();
+		healTimer = createTimerOperation();
 	}
 	
-	void futureStop() {
-		if(atackFuture != null && !atackFuture.isCancelled() && !canAtack) {
-			atackFuture.cancel(true);
-			long atackTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> atackTimer(atackTime));
-		}
-		if(motionFuture != null && !motionFuture.isCancelled()) {
-			motionFuture.cancel(true);
-			long motionTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> motionTimer(motionTime));
-		}
-		if(healFuture != null && !healFuture.isCancelled()) {
-			healFuture.cancel(true);
-			long healTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> healTimer(healTime));
-		}
-		bulletList.stream().forEach(i -> i.futureStop());
-		generatedBuff.stream().forEach(i -> i.futureStop());
-		individualFutureStop();
+	ScheduleTimerOperation createScheduleTimerOperation() {
+		return new ScheduleTimerOperation(gameTimer, scheduler);
 	}
 	
-	protected void individualFutureStop() {
-		//詳細は@Overrideで記載
+	TimerOperation createTimerOperation() {
+		return new TimerOperation(gameTimer, scheduler);
 	}
+	
+	void timerPause() {
+		if(!canAtack) {
+			atackTimer.timerPause(this::atackTimer);
+		}
+		motionTimer.timerPause(this::motionTimer);
+		healTimer.timerPause(this::healTimer);
+		bulletList.stream().forEach(Bullet::timerPause);
+		generatedBuff.stream().forEach(Buff::timerPause);
+		individualTimerPause();
+	}
+	
+	protected abstract void individualTimerPause();
+	
+	void timerEnd() {
+		atackTimer.timerStop();
+		motionTimer.timerStop();
+		bulletList.stream().forEach(Bullet::timerEnd);
+		generatedBuff.stream().forEach(Buff::timerEnd);
+		individualTimerEnd();
+	}
+	
+	protected abstract void individualTimerEnd();
 	
 	//画像管理
 	BufferedImage getActionImage(){
@@ -128,27 +134,21 @@ public class BattleData{
 		if(defaultWeaponStatus.get((int) Buff.ATACK) <= 0) {
 			return;
 		}
-		int delay = getAtackSpeed();
-		long initialDelay;
-		if(stopTime == NONE_DELAY) {
-			initialDelay = delay;
-		}else {
-			initialDelay = (stopTime - beforeAtackTime < delay)? delay - (stopTime - beforeAtackTime): NONE_DELAY;
-			beforeAtackTime += System.currentTimeMillis() - stopTime;
+		atackTimer.timerStrat(stopTime, getAtackSpeed(), this::atackTimerProcess);
+	}
+	
+	void atackTimerProcess() {
+		if(atackTimer.getDelay() != getAtackSpeed()) {
+			CompletableFuture.runAsync(atackTimer::timerStop, scheduler).thenRun(() -> atackTimer(NONE_DELAY));
+			return;
 		}
-		atackFuture = scheduler.schedule(() -> {
-			if(delay != getAtackSpeed()) {
-				CompletableFuture.runAsync(() -> atackFuture.cancel(true), scheduler).thenRun(() -> atackTimer(NONE_DELAY));
-				return;
-			}
-			targetList = targetCheck();
-			if(targetList.isEmpty()) {
-				return;
-			}
-			beforeAtackTime = System.currentTimeMillis();
-			modeChange();
-			motionTimer(NONE_DELAY);
-		}, initialDelay, TimeUnit.MILLISECONDS);
+		targetList = targetCheck();
+		if(targetList.isEmpty()) {
+			return;
+		}
+		atackTimer.updateBeforeTime();
+		modeChange();
+		motionTimer(NONE_DELAY);
 	}
 	
 	List<BattleData> targetCheck() {
@@ -162,7 +162,7 @@ public class BattleData{
 				return Arrays.asList();
 			}
 			if(!canActivate) {
-				atackFuture.cancel(true);
+				atackTimer.timerStop();
 				return Arrays.asList();
 			}
 			targetList = atackPatternData.getTarget();
@@ -176,25 +176,19 @@ public class BattleData{
 	}
 	
 	void motionTimer(long stopTime) {
-		int delay = 1000 * getAtackSpeed() / 50;
-		long initialDelay;
-		if(stopTime == NONE_DELAY) {
-			initialDelay = NONE_DELAY;
-		}else {
-			initialDelay = (stopTime - beforeMotionTime < delay)? delay - (stopTime - beforeMotionTime): NONE_DELAY;
-			beforeMotionTime += System.currentTimeMillis() - stopTime;
+		motionTimer.timerStrat(stopTime, getAtackSpeed() * MOTION_DELAY, this::motionTimerProcess);
+	}
+	
+	void motionTimerProcess() {
+		motionTimer.updateBeforeTime();
+		if(rightActionImage.size() - 1 <= motionNumber) {
+			motionNumber = 0;
+			bulletList = targetList.stream().map(i -> new Bullet(gameTimer, this, i, bulletImage, hitImage, scheduler)).toList();
+			CompletableFuture.runAsync(this::atackProcess, scheduler);
+			motionTimer.timerStop();
+			return;
 		}
-		motionFuture = scheduler.scheduleAtFixedRate(() -> {
-			beforeMotionTime = System.currentTimeMillis();
-			if(rightActionImage.size() - 1 <= motionNumber) {
-				motionNumber = 0;
-				bulletList = targetList.stream().map(i -> new Bullet(gameTimer, this, i, bulletImage, hitImage, scheduler)).toList();
-				CompletableFuture.runAsync(this::atackProcess, scheduler);
-				motionFuture.cancel(true);
-				return;
-			}
-			motionNumber++;
-		}, initialDelay, delay, TimeUnit.MICROSECONDS);
+		motionNumber++;
 	}
 	
 	void atackProcess(){
@@ -255,10 +249,7 @@ public class BattleData{
 		return (int) (baseDamage * (100 - cutRatio) / 100);
 	}
 	
-	protected int moraleCorrection() {
-		//詳細は@Overrideで記載
-		return 0;
-	}
+	protected abstract int moraleCorrection();
 	
 	void HPIncrease(int increase) {
 		synchronized(HPLock) {
@@ -289,31 +280,21 @@ public class BattleData{
 		return hitedCount;
 	}
 	
-	protected void defeat(BattleData target) {
-		//詳細は@Overrideで記載
-	}
+	protected abstract void defeat(BattleData target);
 	
-	protected void kill() {
-		//BattleUnitのみ@Overrideで記載
-	}
+	protected abstract void kill();
 	
 	void healTimer(long stopTime) {
-		int delay = 5000;
-		long initialDelay;
-		if(stopTime == NONE_DELAY) {
-			initialDelay = NONE_DELAY;
-		}else {
-			initialDelay = (stopTime - beforeHealTime < delay)? delay - (stopTime - beforeHealTime): NONE_DELAY;
-			beforeHealTime += System.currentTimeMillis() - stopTime;
+		healTimer.timerStrat(stopTime, HEAL_DELAY, this::healTimerProcess);
+	}
+	
+	void healTimerProcess() {
+		healTimer.updateBeforeTime();
+		if(!canActivate) {
+			healTimer.timerStop();
+			return;
 		}
-		healFuture = scheduler.scheduleAtFixedRate(() -> {
-			beforeHealTime = System.currentTimeMillis();
-			if(!canActivate) {
-				healFuture.cancel(true);
-				return;
-			}
-			HPIncrease(getRecover());
-		}, initialDelay, delay, TimeUnit.MILLISECONDS);
+		HPIncrease(getRecover());
 	}
 	
 	//バフ管理

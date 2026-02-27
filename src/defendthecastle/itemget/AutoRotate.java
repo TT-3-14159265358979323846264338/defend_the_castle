@@ -28,6 +28,7 @@ class AutoRotate implements AncestorListener{
     public void ancestorRemoved(AncestorEvent event) {
 		if(future != null) {
 			future.cancel(true);
+			future = null;
 		}
 	}
 

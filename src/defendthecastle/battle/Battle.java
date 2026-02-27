@@ -212,7 +212,7 @@ public class Battle extends CommonJPanel implements MouseListener, MouseMotionLi
 	}
 	
 	void stageReturnButtonAction(ActionEvent e){
-		gameTimer.timerStop();
+		gameTimer.timerPause();
 		new PauseDialog(gameTimer, mainFrame, stage, difficultyCorrection);
 	}
 	
@@ -537,7 +537,7 @@ public class Battle extends CommonJPanel implements MouseListener, MouseMotionLi
 	
 	void addUnitMenu() {
 		deactivateAction();
-		gameTimer.timerStop();
+		gameTimer.timerPause();
 		setLocation(unitMainData[select]);
 		add(statusButton);
 		add(retreatButton);
@@ -634,7 +634,7 @@ public class Battle extends CommonJPanel implements MouseListener, MouseMotionLi
 	}
 	
 	void displayStatus(Runnable task) {
-		gameTimer.timerStop();
+		gameTimer.timerPause();
 		task.run();
 		gameTimer.timerRestart();
 	}

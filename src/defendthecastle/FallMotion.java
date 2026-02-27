@@ -52,6 +52,7 @@ class FallMotion{
 		if(FINAL_COODINATE < y) {
 			canStart = false;
 			fallFuture.cancel(true);
+			fallFuture = null;
 		}
 	}
 	

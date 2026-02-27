@@ -23,7 +23,7 @@ public class PauseDialog extends JDialog implements WindowListener{
 		setTitle("一時停止");
 		setSize(545, 615);
 		setLocationRelativeTo(null);
-		add(new ReturnPanel(this, MainFrame, stage, difficultyCorrection));
+		add(new ReturnPanel(this, MainFrame, stage, difficultyCorrection, gameTimer));
 		setVisible(true);
 	}
 	

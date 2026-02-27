@@ -1,6 +1,7 @@
 package defendthecastle.battle;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +27,8 @@ public class GameTimer {
 	private long beforeMainTime;
 	private ScheduledFuture<?> clearFuture;
 	private ScheduledFuture<?> monitorFuture;
-	private boolean canStop;
+	private boolean hasStoped;
+	private boolean hasEndedGame;
 	private int time;
 	private final int NONE_DELAY = 0;
 	private final int NATURAL_RECOVERY = 1;
@@ -99,11 +101,13 @@ public class GameTimer {
 		if(stage.getStageData().canClear(unitMainData, unitLeftData, facilityData, enemyData, gameData)) {
 			new PauseDialog(stage, unitMainData, unitLeftData, facilityData, enemyData, gameData, difficultyCorrection);
 			mainFrame.selectStageDraw();
+			gameEnd();
 			return;
 		}
 		if(stage.getStageData().existsGameOver(unitMainData, unitLeftData, facilityData, enemyData, gameData)) {
 			new PauseDialog();
 			mainFrame.selectStageDraw();
+			gameEnd();
 		}
 	}
 	
@@ -120,44 +124,71 @@ public class GameTimer {
 		stageImage.updatePlacement();
 	}
 	
-	void timerStop() {
-		canStop = true;
-		clearFuture.cancel(true);
-		monitorFuture.cancel(true);
-		awakeUnit.timerStop();
-		mainFuture.cancel(true);
+	void timerPause() {
+		hasStoped = true;
+		timerStop();
 		long mainTime = System.currentTimeMillis();
 		CompletableFuture.runAsync(this::timerWait, scheduler).thenRun(() -> mainTimer(mainTime));
-		unitStop(unitMainData);
-		unitStop(unitLeftData);
-		unitStop(facilityData);
-		unitStop(enemyData);
+		allTimerPause(unitMainData);
+		allTimerPause(unitLeftData);
+		allTimerPause(facilityData);
+		allTimerPause(enemyData);
 	}
 	
-	void unitStop(BattleData[] data) {
-		CompletableFuture.runAsync(() -> futureStop(data), scheduler);
+	void allTimerPause(BattleData[] data) {
+		CompletableFuture.runAsync(() -> battleDataTimerPause(data), scheduler);
 	}
 	
-	void futureStop(BattleData[] data) {
-		Stream.of(data).forEach(BattleData::futureStop);
+	void battleDataTimerPause(BattleData[] data) {
+		Stream.of(data).forEach(BattleData::timerPause);
 	}
 	
 	synchronized void timerWait() {
-		if(!canStop) {
+		if(!hasStoped) {
 			return;
 		}
 		try {
 			wait();
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new CompletionException(e);
 		}
 	}
 	
 	public synchronized void timerRestart() {
-		canStop = false;
+		if(!hasStoped || hasEndedGame) {
+			return;
+		}
+		hasStoped = false;
 		notifyAll();
 		clearTimer();
 		monitorTimer();
 		awakeUnit.timerRestart();
+	}
+	
+	public void gameEnd() {
+		hasEndedGame = true;
+		timerStop();
+		battleDataTimerEnd(unitMainData);
+		battleDataTimerEnd(unitLeftData);
+		battleDataTimerEnd(facilityData);
+		battleDataTimerEnd(enemyData);
+	}
+	
+	void timerStop() {
+		timerEnd(clearFuture);
+		timerEnd(monitorFuture);
+		timerEnd(mainFuture);
+		awakeUnit.timerStop();
+	}
+	
+	void timerEnd(ScheduledFuture<?> future) {
+		if(future != null) {
+			future.cancel(true);
+			future = null;
+		}
+	}
+	
+	void battleDataTimerEnd(BattleData[] data) {
+		Stream.of(data).forEach(BattleData::timerEnd);
 	}
 }

@@ -3,10 +3,7 @@ package defendthecastle.battle;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
 import commonclass.EditImage;
@@ -14,12 +11,8 @@ import commonclass.EditImage;
 public class Bullet {
 	public static final int CORRECTION = 25;
 	public static final int COUNT = 5;
-	private ScheduledExecutorService scheduler;
-	private ScheduledFuture<?> bulletFuture;
-	private long beforeBulletTime;
-	private ScheduledFuture<?> hitFuture;
-	private long beforeHitTime;
-	private GameTimer gameTimer;
+	private final TimerOperation bulletTimer;
+	private final TimerOperation hitTimer;
 	private BattleData myself;
 	private BattleData target;
 	private BufferedImage bulletImage;
@@ -32,15 +25,21 @@ public class Bullet {
 	private int hitNumber = -1;
 	private boolean canRestart;
 	private final int NONE_DELAY = 0;
+	private final int BULLET_DELAY = 30;
+	private final int HIT_DELAY = 50;
 	
 	Bullet(GameTimer gameTimer, BattleData myself, BattleData target, BufferedImage bulletImage, List<BufferedImage> hitImage, ScheduledExecutorService scheduler) {
-		this.gameTimer = gameTimer;
 		this.myself = myself;
 		this.target = target;
 		this.bulletImage = bulletImage;
 		this.hitImage = hitImage;
-		this.scheduler = scheduler;
+		bulletTimer = createTimerOperation(gameTimer, scheduler);
+		hitTimer = createTimerOperation(gameTimer, scheduler);
 		bulletTimer();
+	}
+	
+	TimerOperation createTimerOperation(GameTimer gameTimer, ScheduledExecutorService scheduler) {
+		return new TimerOperation(gameTimer, scheduler);
 	}
 	
 	void bulletTimer() {
@@ -53,7 +52,7 @@ public class Bullet {
 		oneTimeMoveX = (myself.getPositionX() - target.getPositionX()) / COUNT;
 		oneTimeMoveY = (myself.getPositionY() - target.getPositionY()) / COUNT;
 		bulletImage = EditImage.rotateImage(bulletImage, angle());
-		bullet(NONE_DELAY);
+		bulletTimer(NONE_DELAY);
 	}
 	
 	double angle() {
@@ -76,24 +75,18 @@ public class Bullet {
 		return (0 < outerProductDirection)? Math.PI * 2 - cosineTheoremAngle: cosineTheoremAngle;
 	}
 	
-	void bullet(long stopTime) {
-		int delay = 30;
-		long initialDelay;
-		if(stopTime == NONE_DELAY) {
-			initialDelay = NONE_DELAY;
-		}else {
-			initialDelay = (stopTime - beforeBulletTime < delay)? delay - (stopTime - beforeBulletTime): NONE_DELAY;
-			beforeBulletTime += System.currentTimeMillis() - stopTime;
+	void bulletTimer(long stopTime) {
+		bulletTimer.timerStrat(stopTime, BULLET_DELAY, this::bulletTimerProcess);
+	}
+	
+	void bulletTimerProcess() {
+		bulletTimer.updateBeforeTime();
+		if(COUNT <= bulletNumber) {
+			hit();
+			bulletTimer.timerStop();
+			return;
 		}
-		bulletFuture = scheduler.scheduleAtFixedRate(() -> {
-			beforeBulletTime = System.currentTimeMillis();
-			if(COUNT <= bulletNumber) {
-				hit();
-				bulletFuture.cancel(true);
-				return;
-			}
-			moveBullet();
-		}, initialDelay, delay, TimeUnit.MILLISECONDS);
+		moveBullet();
 	}
 	
 	void moveBullet() {
@@ -113,23 +106,17 @@ public class Bullet {
 	}
 	
 	void hitTimer(long stopTime) {
-		int delay = 50;
-		long initialDelay;
-		if(stopTime == NONE_DELAY) {
-			initialDelay = NONE_DELAY;
-		}else {
-			initialDelay = (stopTime - beforeHitTime < delay)? delay - (stopTime - beforeHitTime): NONE_DELAY;
-			beforeHitTime += System.currentTimeMillis() - stopTime;
+		hitTimer.timerStrat(stopTime, HIT_DELAY, this::hitTimerProcess);
+	}
+	
+	void hitTimerProcess() {
+		hitTimer.updateBeforeTime();
+		if(hitImage.size() - 1 <= hitNumber) {
+			completion();
+			hitTimer.timerStop();
+			return;
 		}
-		hitFuture = scheduler.scheduleAtFixedRate(() -> {
-			beforeHitTime = System.currentTimeMillis();
-			if(hitImage.size() - 1 <= hitNumber) {
-				completion();
-				hitFuture.cancel(true);
-				return;
-			}
-			hitNumber++;
-		}, initialDelay, delay, TimeUnit.MILLISECONDS);
+		hitNumber++;
 	}
 	
 	synchronized void waitCompletion() {
@@ -149,17 +136,14 @@ public class Bullet {
 		notifyAll();
 	}
 	
-	void futureStop() {
-		if(bulletFuture != null && !bulletFuture.isCancelled()) {
-			bulletFuture.cancel(true);
-			long bulletTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> bullet(bulletTime));
-		}
-		if(hitFuture != null && !hitFuture.isCancelled()) {
-			hitFuture.cancel(true);
-			long hitTime = System.currentTimeMillis();
-			CompletableFuture.runAsync(gameTimer::timerWait, scheduler).thenRun(() -> hitTimer(hitTime));
-		}
+	void timerPause() {
+		bulletTimer.timerPause(time -> bulletTimer(time));
+		hitTimer.timerPause(time -> hitTimer(time));
+	}
+	
+	void timerEnd() {
+		bulletTimer.timerStop();
+		hitTimer.timerStop();
 	}
 	
 	BufferedImage getImage() {

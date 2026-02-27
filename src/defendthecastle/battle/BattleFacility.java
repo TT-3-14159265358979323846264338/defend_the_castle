@@ -65,7 +65,12 @@ public class BattleFacility extends BattleData{
 	}
 	
 	@Override
-	protected void individualFutureStop() {
+	protected void individualTimerPause() {
+		//特になし
+	}
+	
+	@Override
+	protected void individualTimerEnd() {
 		//特になし
 	}
 	
@@ -80,5 +85,10 @@ public class BattleFacility extends BattleData{
 		clearBlock();
 		gameData.lowMorale(GameData.UNIT, DEFEAT_MORALE);
 		activateBuff(Buff.DEFEAT, target);
+	}
+	
+	@Override
+	protected void kill() {
+		//特に処理なし
 	}
 }
