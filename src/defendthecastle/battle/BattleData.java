@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import commonclass.EditImage;
@@ -33,7 +35,6 @@ public abstract class BattleData{
 	private List<Bullet> bulletList = Arrays.asList();
 	private List<BattleData> targetList = new ArrayList<>();
 	private int hitedCount;
-	protected final int NONE_DELAY = 0;
 	
 	//バフ関連
 	protected List<List<Double>> generatedBuffInformation;
@@ -56,17 +57,18 @@ public abstract class BattleData{
 	private final int GUARANTEE_RANGE = 10;
 	private final int GUARANTEE_ATACK_SPEED = 100;
 	private final int GUARANTEE_MAX_HP = 100;
-	private final int MOTION_DELAY = 20;
-	private final int HEAL_DELAY = 5000;
 	
 	//システム関連
-	private Object buffLock = new Object();
-	private Object blockLock = new Object();
-	private Object HPLock = new Object();
+	private final Object buffLock = new Object();
+	private final Object blockLock = new Object();
+	private final Object HPLock = new Object();
 	protected ScheduledExecutorService scheduler;
 	private ScheduleTimerOperation atackTimer;
 	private TimerOperation motionTimer;
 	private TimerOperation healTimer;
+	protected final int NONE_DELAY = 0;
+	private final int MOTION_DELAY = 20;
+	private final int HEAL_DELAY = 5000;
 	
 	void initialize(ScheduledExecutorService scheduler) {
 		this.scheduler = scheduler;
@@ -183,12 +185,16 @@ public abstract class BattleData{
 		motionTimer.updateBeforeTime();
 		if(rightActionImage.size() - 1 <= motionNumber) {
 			motionNumber = 0;
-			bulletList = targetList.stream().map(i -> new Bullet(gameTimer, this, i, bulletImage, hitImage, scheduler)).toList();
+			bulletList = targetList.stream().map(this::createBullet).toList();
 			CompletableFuture.runAsync(this::atackProcess, scheduler);
 			motionTimer.timerStop();
 			return;
 		}
 		motionNumber++;
+	}
+	
+	Bullet createBullet(BattleData battleData) {
+		return new Bullet(gameTimer, this, battleData, bulletImage, hitImage, scheduler);
 	}
 	
 	void atackProcess(){
@@ -204,7 +210,7 @@ public abstract class BattleData{
 				wait();
 			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			throw new CompletionException(e);
 		}
 	}
 	
@@ -337,12 +343,7 @@ public abstract class BattleData{
 	}
 	
 	double totalAdditionalBuff(double buff, double statusCode, BattleData BattleData) {
-		for(Buff i: BattleData.receivedBuff){
-			if(i.getBuffStatusCode() == statusCode) {
-				buff = i.additionalEffect(BattleData, buff);
-			}
-		}
-		return buff;
+		return getTotalBuff(buff, statusCode, BattleData, i -> i.additionalEffect(BattleData, buff));
 	}
 	
 	protected double getRatioBuff(double statusCode) {
@@ -351,9 +352,13 @@ public abstract class BattleData{
 	}
 	
 	double totalRatioBuff(double buff, double statusCode, BattleData BattleData) {
+		return getTotalBuff(buff, statusCode, BattleData, i -> i.ratioEffect(BattleData, buff));
+	}
+	
+	double getTotalBuff(double buff, double statusCode, BattleData BattleData, Function<Buff, Double> method) {
 		for(Buff i: BattleData.receivedBuff){
 			if(i.getBuffStatusCode() == statusCode) {
-				buff = i.ratioEffect(BattleData, buff);
+				buff = method.apply(i);
 			}
 		}
 		return buff;
@@ -422,27 +427,15 @@ public abstract class BattleData{
 		if(defaultWeaponStatus.get((int) Buff.ATACK) == 0) {
 			return 0;
 		}
-		int atack = (int) (statusControl(Buff.ATACK) * awakeningCorrection());
-		if(atack <= GUARANTEE_ATACK) {
-			return GUARANTEE_ATACK;
-		}
-		return atack;
+		return getStatusWithCorrection(Buff.ATACK, GUARANTEE_ATACK);
 	}
 	
 	public int getRange() {
-		int range = (int) (statusControl(Buff.RANGE) * awakeningCorrection());
-		if(range <= GUARANTEE_RANGE) {
-			return GUARANTEE_RANGE;
-		}
-		return range;
+		return getStatusWithCorrection(Buff.RANGE, GUARANTEE_RANGE);
 	}
 	
 	int getAtackSpeed() {
-		int atackSpeed = statusControl(Buff.ATACK_SPEED);
-		if(atackSpeed <= GUARANTEE_ATACK_SPEED) {
-			return GUARANTEE_ATACK_SPEED;
-		}
-		return atackSpeed;
+		return getStatusWithoutCorrection(Buff.ATACK_SPEED, GUARANTEE_ATACK_SPEED);
 	}
 	
 	public int getAtackNumber() {
@@ -459,11 +452,7 @@ public abstract class BattleData{
 	}
 	
 	public int getMaxHP() {
-		int HP = statusControl(Buff.HP);
-		if(HP <= GUARANTEE_MAX_HP) {
-			return GUARANTEE_MAX_HP;
-		}
-		return HP;
+		return getStatusWithoutCorrection(Buff.HP, GUARANTEE_MAX_HP);
 	}
 	
 	public int getNowHP() {
@@ -471,19 +460,11 @@ public abstract class BattleData{
 	}
 	
 	int getDefense() {
-		int defence = (int) (statusControl(Buff.DEFENCE) * awakeningCorrection());
-		if(defence <= 0) {
-			return 0;
-		}
-		return defence;
+		return getStatusWithCorrection(Buff.DEFENCE, 0);
 	}
 	
 	int getRecover() {
-		int recover = statusControl(Buff.HEAL);
-		if(recover <= 0) {
-			return 0;
-		}
-		return recover;
+		return getStatusWithoutCorrection(Buff.HEAL, 0);
 	}
 	
 	int getMoveSpeedOrBlock() {
@@ -491,11 +472,7 @@ public abstract class BattleData{
 	}
 	
 	int getCost() {
-		int cost = statusControl(Buff.COST);
-		if(cost <= 0) {
-			return 0;
-		}
-		return cost;
+		return getStatusWithoutCorrection(Buff.COST, 0);
 	}
 	
 	public List<Integer> getUnit(){
@@ -509,16 +486,29 @@ public abstract class BattleData{
 		return status;
 	}
 	
-	int getCut(double number) {
-		int cut = statusControl(number);
-		if(cut <= 0) {
-			return 0;
-		}
-		return cut;
+	int getCut(double code) {
+		return getStatusWithoutCorrection(code, 0);
 	}
 	
 	public List<Integer> getCut(){
 		return IntStream.range(100, defaultCutStatus.size() + 100).mapToObj(i -> getCut(i)).toList();
+	}
+	
+	int getStatusWithCorrection(double code, int guarantee) {
+		int status = (int) (statusControl(code) * awakeningCorrection());
+		return getStatus(status, guarantee);
+	}
+	
+	int getStatusWithoutCorrection(double code, int guarantee) {
+		int status = statusControl(code);
+		return getStatus(status, guarantee);
+	}
+	
+	int getStatus(int status, int guarantee) {
+		if(status <= guarantee) {
+			return guarantee;
+		}
+		return status;
 	}
 	
 	int statusControl(double number) {

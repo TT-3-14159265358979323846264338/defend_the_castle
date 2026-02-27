@@ -40,8 +40,10 @@ class AwakeUnit {
 	}
 	
 	void timerStop() {
-		autoFuture.cancel(true);
-		autoFuture = null;
+		if(autoFuture != null) {
+			autoFuture.cancel(true);
+			autoFuture = null;
+		}
 	}
 	
 	void timerRestart() {
