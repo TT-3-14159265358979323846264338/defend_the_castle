@@ -65,6 +65,7 @@ public abstract class CommonJPanel extends JPanel implements AncestorListener{
     public void ancestorRemoved(AncestorEvent event) {
 		if(commonFuture != null) {
 			commonFuture.cancel(true);
+			commonFuture = null;
 		}
 	}
 	

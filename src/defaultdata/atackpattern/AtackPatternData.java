@@ -30,7 +30,7 @@ public abstract class AtackPatternData {
 	
 	/**
 	 * targetとなる相手のBattleDataを算出する。
-	 * @return {@link #candidate}を元に、条件に合うターゲットを返却する。{@link AtackPatternData}下部に、条件を探す際によく使うメソッドがある。
+	 * @return {@link #candidate}を元に、条件に合うターゲットを返却する。{@link atackPatternData}下部に、条件を探す際によく使うメソッドがある。
 	 */
 	public abstract List<BattleData> getTarget();
 	

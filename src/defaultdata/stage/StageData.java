@@ -109,7 +109,7 @@ public abstract class StageData {
 	 * @param unitLeftData - 現在のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
 	 * @param facilityData - 現在の設備データ。{@link defendthecastle.battle.BattleFacility BattleFacility}
 	 * @param enemyData - 現在の敵データ。{@link defendthecastle.battle.BattleEnemy BattleEnemy}
-	 * @param gameData - 現在のゲームデータ。{@link defendthecastle.battle.GameData GameData}
+	 * @param gameData - 現在のゲームデータ。{@link defendthecastle.battle.GameData gameData}
 	 * @return ゲームクリアであるならばtrueを返却する。<br>
 	 * 			達成判定は{@link StageData}の下部で定義したメソッドを使用する。
 	 */
@@ -128,7 +128,7 @@ public abstract class StageData {
 	 * @param unitLeftData - 現在のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
 	 * @param facilityData - 現在の設備データ。{@link defendthecastle.battle.BattleFacility BattleFacility}
 	 * @param enemyData - 現在の敵データ。{@link defendthecastle.battle.BattleEnemy BattleEnemy}
-	 * @param gameData - 現在のゲームデータ。{@link defendthecastle.battle.GameData GameData}
+	 * @param gameData - 現在のゲームデータ。{@link defendthecastle.battle.GameData gameData}
 	 * @return ゲームオーバーであるならばtrueを返却する。<br>
 	 * 			達成判定は{@link StageData}の下部で定義したメソッドを使用する。
 	 */
@@ -149,7 +149,7 @@ public abstract class StageData {
 	 * @param unitLeftData - ゲーム終了後のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
 	 * @param facilityData - ゲーム終了後の設備データ。{@link defendthecastle.battle.BattleFacility BattleFacility}
 	 * @param enemyData - ゲーム終了後の敵データ。{@link defendthecastle.battle.BattleEnemy BattleEnemy}
-	 * @param gameData - ゲーム終了後のゲームデータ。{@link defendthecastle.battle.GameData GameData}
+	 * @param gameData - ゲーム終了後のゲームデータ。{@link defendthecastle.battle.GameData gameData}
 	 * @param nowDifficulty - ゲームの難易度。{@link defendthecastle.battle.BattleEnemy#NORMAL_MODE ステータス補正倍率}
 	 * @return 各戦功の達成状況のListを返却する。<br>
 	 * 			達成した場合をtrue, 未達成の場合をfalseとする。<br>
