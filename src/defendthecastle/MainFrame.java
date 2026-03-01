@@ -83,7 +83,7 @@ public class MainFrame extends JFrame{
 	}
 	
 	public void battleDraw(Stage stage, double difficultyCorrection) {
-		setTitle(stage.getStageData().getName());
+		setTitle(stage.getLabel().getName());
 		setSize(1235, 600);
 		getContentPane().removeAll();
 		add(createBattle(stage, difficultyCorrection));

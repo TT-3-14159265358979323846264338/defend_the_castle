@@ -25,8 +25,8 @@ class ReturnPanel extends JPanel{
 	
 	ReturnPanel(PauseDialog PauseDialog, MainFrame MainFrame, Stage stage, double difficultyCorrection, GameTimer gameTimer) {
 		setBackground(new Color(240, 170, 80));
-		addGameCondition(stage.getStageData(), difficultyCorrection);
-		addEnemyScroll(stage.getStageData());
+		addGameCondition(stage.getLabel(), difficultyCorrection);
+		addEnemyScroll(stage.getLabel());
 		addMeritScroll(stage);
 		addRestartButton(PauseDialog);
 		addReturnButton(PauseDialog, MainFrame, gameTimer);

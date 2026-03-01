@@ -47,7 +47,7 @@ public class BattleEnemy extends BattleData{
 	
 	BattleEnemy(GameTimer gameTimer, StageData stageData, int number, double difficultyCorrection, ScheduledExecutorService scheduler) {
 		this.gameTimer = gameTimer;
-		EnemyData EnemyData = Enemy.getEnemyData(stageData.getEnemy().get(number).get(0));
+		EnemyData EnemyData = Enemy.getLabel(stageData.getEnemy().get(number).get(0));
 		name = EnemyData.getName();
 		explanation = EnemyData.getExplanation();
 		rightActionImage = EnemyData.getActionImage(IMAGE_RATIO);

@@ -37,8 +37,8 @@ class EditItem extends CommonJPanel{
 		this.testEditImage = testEditImage;
 		saveHoldItem = createSaveHoldItem();
 		saveHoldItem.load();
-		List<String> coreName = Stream.of(Core.values()).map(i -> i.getCoreData().getName()).toList();
-		List<String> weaponName = Stream.of(Weapon.values()).map(i -> i.getWeaponData().getName()).toList();
+		List<String> coreName = Stream.of(Core.values()).map(i -> i.getLabel().getName()).toList();
+		List<String> weaponName = Stream.of(Weapon.values()).map(i -> i.getLabel().getName()).toList();
 		coreLabel = createLabel(testEditImage.coreSize(), LABEL_POSITION, coreName);
 		weaponLabel = createLabel(testEditImage.weaponSize(), SPINNER_POSITION, weaponName);
 		coreSpinner = createSpinner(coreLabel.length, LABEL_POSITION, saveHoldItem.getCoreNumberList());

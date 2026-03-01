@@ -33,8 +33,8 @@ class GameCondition extends CommonJPanel{
 	
 	List<String> condition(Stage stage){
 		List<String> stageCondition = new ArrayList<>();
-		stageCondition.add(conditionComment(stage.getStageData().getClearCondition()));
-		stageCondition.add(conditionComment(stage.getStageData().getGameOverCondition()));
+		stageCondition.add(conditionComment(stage.getLabel().getClearCondition()));
+		stageCondition.add(conditionComment(stage.getLabel().getGameOverCondition()));
 		return stageCondition;
 	}
 	

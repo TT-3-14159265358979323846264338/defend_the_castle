@@ -41,7 +41,7 @@ class EnemyPanel extends CommonJPanel implements MouseListener{
 	}
 	
 	List<EnemyData> enemyDataList(Stage stage){
-		return stage.getStageData().getDisplayOrder().stream().map(j -> Enemy.getEnemyData(j)).toList();
+		return stage.getLabel().getDisplayOrder().stream().map(j -> Enemy.getLabel(j)).toList();
 	}
 	
 	List<List<BufferedImage>> enemyImage(){
@@ -57,7 +57,7 @@ class EnemyPanel extends CommonJPanel implements MouseListener{
 	}
 	
 	List<Integer> enemyCount(Stage stage){
-		return stage.getStageData().getDisplayOrder().stream().map(j -> count(j, stage.getStageData().getEnemy())).toList();
+		return stage.getLabel().getDisplayOrder().stream().map(j -> count(j, stage.getLabel().getEnemy())).toList();
 	}
 	
 	int count(int enemyNumber, List<List<Integer>> enemyList) {

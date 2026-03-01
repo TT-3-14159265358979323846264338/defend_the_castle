@@ -66,7 +66,7 @@ class EditProgress extends CommonJPanel{
 	
 	JLabel initializeLabel(Stage stage) {
 		JLabel label = new JLabel();
-		setLabel(label, stage.getStageData().getName(), SIZE_X, (stage.getId() + 1) * SIZE_Y, SIZE_X, SIZE_Y, largeGothicFont);
+		setLabel(label, stage.getLabel().getName(), SIZE_X, (stage.getId() + 1) * SIZE_Y, SIZE_X, SIZE_Y, largeGothicFont);
 		return label;
 	}
 	
@@ -100,7 +100,7 @@ class EditProgress extends CommonJPanel{
 	}
 	
 	List<JRadioButton[]> createRadioList(){
-		return Stream.of(Stage.values()).map(i -> createRadioArray(i.getStageData().getMerit().size(), saveGameProgress.getMeritData(i.getId()).getMeritClearList())).toList();
+		return Stream.of(Stage.values()).map(i -> createRadioArray(i.getLabel().getMerit().size(), saveGameProgress.getMeritData(i.getId()).getMeritClearList())).toList();
 	}
 	
 	private void setRadio(){

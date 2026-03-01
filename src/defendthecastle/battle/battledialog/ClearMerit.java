@@ -36,7 +36,7 @@ class ClearMerit extends JPanel{
 	private Font clearFont = new Font("Arail", Font.BOLD, 30);
 	
 	ClearMerit(Stage stage, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
-		thisClearList = stage.getStageData().canClearMerit(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
+		thisClearList = stage.getLabel().canClearMerit(UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection);
 		beforeSet(stage);
 		updateClearData(stage);
 		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel(clearComment(i))).toArray(JLabel[]::new);
@@ -61,8 +61,8 @@ class ClearMerit extends JPanel{
 	void beforeSet(Stage stage) {
 		stageNumber = stage.getId();
 		SaveGameProgress.load();
-		meritLabel = IntStream.range(0, stage.getStageData().getMerit().size()).mapToObj(i -> new JLabel(meritComment(i, stage))).toArray(JLabel[]::new);
-		rewardLabel = stage.getStageData().getReward().stream().map(i -> new JLabel(i)).toArray(JLabel[]::new);
+		meritLabel = IntStream.range(0, stage.getLabel().getMerit().size()).mapToObj(i -> new JLabel(meritComment(i, stage))).toArray(JLabel[]::new);
+		rewardLabel = stage.getLabel().getReward().stream().map(i -> new JLabel(i)).toArray(JLabel[]::new);
 		completeLabel =  IntStream.range(0, meritLabel.length).mapToObj(i -> new JLabel(completeComment(i))).toArray(JLabel[]::new);
 	}
 	
@@ -85,11 +85,11 @@ class ClearMerit extends JPanel{
 			SaveGameProgress.setStage(stageNumber, true);
 		}
 		SaveGameProgress.save();
-		stage.getStageData().giveClearReward(newClearList);
+		stage.getLabel().giveClearReward(newClearList);
 	}
 	
 	String meritComment(int number, Stage stage) {
-		String comment = stage.getStageData().getMerit().get(number);
+		String comment = stage.getLabel().getMerit().get(number);
 		int lastPosition = 0;
 		List<Integer> wrapPosition = new ArrayList<>();
 		for(int i = 0; i < comment.length(); i++) {

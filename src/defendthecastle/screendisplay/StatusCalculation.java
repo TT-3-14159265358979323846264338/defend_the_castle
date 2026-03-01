@@ -66,7 +66,7 @@ public class StatusCalculation{
 	}
 	
 	WeaponData weaponData(int number) {
-		return Weapon.getWeaponData(number);
+		return Weapon.getLabel(number);
 	}
 	
 	void coreInstall(int number) {
@@ -80,7 +80,7 @@ public class StatusCalculation{
 	}
 	
 	CoreData coreData(int number) {
-		return Core.getCoreData(number);
+		return Core.getLabel(number);
 	}
 	
 	void leftWeaponInstall(int number) {

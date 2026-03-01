@@ -28,7 +28,7 @@ import defaultdata.AtackPattern;
 import defaultdata.Distance;
 import defaultdata.Element;
 import defaultdata.Handle;
-import defaultdata.StatusText;
+import defaultdata.DefaultEnum;
 import defaultdata.WeaponUnit;
 import defaultdata.Atack;
 
@@ -243,8 +243,8 @@ abstract class SortPanel extends CommonJPanel {
 		}
 	}
 	
-	<T extends Enum<T> & StatusText>void arrayRadioText(BiConsumer<JRadioButton, String> consumer, JRadioButton[] radio, T[] data) {
-		Stream.of(data).forEach(i -> consumer.accept(radio[i.getId()], i.getText()));
+	<T extends Enum<T> & DefaultEnum<U>, U>void arrayRadioText(BiConsumer<JRadioButton, U> consumer, JRadioButton[] radio, T[] data) {
+		Stream.of(data).forEach(i -> consumer.accept(radio[i.getId()], i.getLabel()));
 	}
 	
 	private void setRadioBounds() {
@@ -330,8 +330,8 @@ abstract class SortPanel extends CommonJPanel {
 		return displayList.stream();
 	}
 	
-	<T extends Enum<T> & StatusText>List<String> getMapList(T[] data){
-		return Stream.of(data).map(StatusText::getText).toList();
+	<T extends Enum<T> & DefaultEnum<String>>List<String> getMapList(T[] data){
+		return Stream.of(data).map(DefaultEnum::getLabel).toList();
 	}
 	
 	boolean hasContained(List<String> mapList, String radioCommand) {
@@ -376,11 +376,11 @@ abstract class SortPanel extends CommonJPanel {
 		return (command, displayIndex) -> dataList.get(displayIndex) == Integer.parseInt(command);
 	}
 	
-	<T extends Enum<T> & StatusText>BiPredicate<String, Integer> matchStringCommand(T[] dafualtData, List<T> dataList){
-		return (command, displayIndex) -> dafualtData[dataList.get(displayIndex).getId()].getText().equals(command);
+	<T extends Enum<T> & DefaultEnum<?>>BiPredicate<String, Integer> matchStringCommand(T[] dafualtData, List<T> dataList){
+		return (command, displayIndex) -> dafualtData[dataList.get(displayIndex).getId()].getLabel().equals(command);
 	}
 	
-	<T extends Enum<T> & StatusText>BiPredicate<String, Integer> anyMatchCommand(T[] dafualtData, List<List<T>> dataList){
-		return (command, displayIndex) -> dataList.get(displayIndex).stream().map(i -> i.getId()).anyMatch(i -> dafualtData[i].getText().equals(command));
+	<T extends Enum<T> & DefaultEnum<?>>BiPredicate<String, Integer> anyMatchCommand(T[] dafualtData, List<List<T>> dataList){
+		return (command, displayIndex) -> dataList.get(displayIndex).stream().map(i -> i.getId()).anyMatch(i -> dafualtData[i].getLabel().equals(command));
 	}
 }

@@ -13,7 +13,7 @@ public class CoreDisplaySort extends SortPanel{
 	private final CoreData[] coreData;
 	
 	public CoreDisplaySort(List<Integer> defaultList) {
-		coreData = Stream.of(Core.values()).map(i -> i.getCoreData()).toArray(CoreData[]::new);
+		coreData = Stream.of(Core.values()).map(i -> i.getLabel()).toArray(CoreData[]::new);
 		super(defaultList);
 	}
 	

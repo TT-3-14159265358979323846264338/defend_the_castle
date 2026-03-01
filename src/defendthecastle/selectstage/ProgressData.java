@@ -31,7 +31,7 @@ class ProgressData{
 	
 	List<Stage> activeStageIndex(){
 		return Stream.of(Stage.values())
-				.filter(i -> i.getStageData().canActivate(saveGameProgress))
+				.filter(i -> i.getLabel().canActivate(saveGameProgress))
 				.toList();
 	}
 	
@@ -57,7 +57,7 @@ class ProgressData{
 	}
 	
 	List<String> getStageName(){
-		return activeStageList.stream().map(i -> i.getStageData().getName()).toList();
+		return activeStageList.stream().map(i -> i.getLabel().getName()).toList();
 	}
 	
 	boolean canAllActivate() {

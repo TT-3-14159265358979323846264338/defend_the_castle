@@ -13,7 +13,7 @@ public class WeaponDisplaySort extends SortPanel{
 	private final WeaponData[] weaponData;
 	
 	public WeaponDisplaySort(List<Integer> defaultList) {
-		weaponData = Stream.of(Weapon.values()).map(i -> i.getWeaponData()).toArray(WeaponData[]::new);
+		weaponData = Stream.of(Weapon.values()).map(i -> i.getLabel()).toArray(WeaponData[]::new);
 		super(defaultList);
 	}
 	

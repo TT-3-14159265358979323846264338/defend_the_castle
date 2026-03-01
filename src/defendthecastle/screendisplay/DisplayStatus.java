@@ -19,7 +19,7 @@ import defaultdata.AtackPattern;
 import defaultdata.Element;
 import defaultdata.EnemyUnit;
 import defaultdata.FacilityUnit;
-import defaultdata.StatusText;
+import defaultdata.DefaultEnum;
 import defaultdata.WeaponUnit;
 import defaultdata.Weapon;
 import defaultdata.Atack;
@@ -46,7 +46,7 @@ public class DisplayStatus extends StatusPanel{
 	}
 	
 	CoreData createCoreData(int number) {
-		return Core.getCoreData(number);
+		return Core.getLabel(number);
 	}
 	
 	public void weapon(BufferedImage image, int number) {
@@ -61,7 +61,7 @@ public class DisplayStatus extends StatusPanel{
 	}
 	
 	WeaponData createWeaponData(int number) {
-		return Weapon.getWeaponData(number);
+		return Weapon.getLabel(number);
 	}
 	
 	public void unit(BufferedImage image, List<Integer> compositionList) {
@@ -192,7 +192,7 @@ public class DisplayStatus extends StatusPanel{
 	
 	void setWeapon(List<Double> statusList) {
 		Stream.of(CoreAtack.values()).forEach(i -> {
-			weapon[i.getId() + 1].setText(i.getText());
+			weapon[i.getId() + 1].setText(i.getLabel());
 			weapon[i.getId() + 10].setText(statusList.get(i.getId()) + "倍");
 		});
 		weapon[9].setText("武器性能");
@@ -200,7 +200,7 @@ public class DisplayStatus extends StatusPanel{
 	
 	void setWeapon(WeaponData WeaponData) {
 		Stream.of(Atack.values()).forEach(i -> {
-			weapon[i.getId() + 1].setText(i.getText());
+			weapon[i.getId() + 1].setText(i.getLabel());
 			weapon[i.getId() + 10].setText("" + WeaponData.getWeaponStatus().get(i.getId()));
 		});
 		weapon[5].setText("距離タイプ");
@@ -208,14 +208,14 @@ public class DisplayStatus extends StatusPanel{
 		weapon[7].setText("属性");
 		weapon[8].setText("ターゲット");
 		weapon[9].setText("武器性能");
-		weapon[14].setText("" + WeaponData.getDistance().getText());
-		weapon[15].setText("" + WeaponData.getHandle().getText());
+		weapon[14].setText("" + WeaponData.getDistance().getLabel());
+		weapon[15].setText("" + WeaponData.getHandle().getLabel());
 		weapon[16].setText("" + getElement(WeaponData.getElement()));
 		weapon[17].setText("" + new AtackPattern().getAtackPattern(WeaponData.getAtackPattern()).getExplanation());
 	}
 	
 	void setWeapon(StatusCalculation statusCalculation, List<Integer> compositionList) {
-		Stream.of(Atack.values()).forEach(i -> weapon[i.getId() + 1].setText(i.getText()));
+		Stream.of(Atack.values()).forEach(i -> weapon[i.getId() + 1].setText(i.getLabel()));
 		weapon[5].setText("距離タイプ");
 		weapon[6].setText("装備タイプ");
 		weapon[7].setText("属性");
@@ -224,8 +224,8 @@ public class DisplayStatus extends StatusPanel{
 		if(0 <= compositionList.get(OneUnitData.LEFT_WEAPON)) {
 			WeaponData weaponData = createWeaponData(compositionList.get(OneUnitData.LEFT_WEAPON));
 			Stream.of(Atack.values()).forEach(i -> weapon[i.getId() + 10].setText("" + statusCalculation.getLeftWeaponStatus().get(i.getId())));
-			weapon[14].setText("" + weaponData.getDistance().getText());
-			weapon[15].setText("" + weaponData.getHandle().getText());
+			weapon[14].setText("" + weaponData.getDistance().getLabel());
+			weapon[15].setText("" + weaponData.getHandle().getLabel());
 			weapon[16].setText("" + getElement(statusCalculation.getLeftElement()));
 			weapon[17].setText("" + new AtackPattern().getAtackPattern(weaponData.getAtackPattern()).getExplanation());
 		}
@@ -233,8 +233,8 @@ public class DisplayStatus extends StatusPanel{
 		if(0 <= compositionList.get(OneUnitData.RIGHT_WEAPON)) {
 			WeaponData weaponData = createWeaponData(compositionList.get(OneUnitData.RIGHT_WEAPON));
 			Stream.of(Atack.values()).forEach(i -> weapon[i.getId() + 19].setText("" + statusCalculation.getRightWeaponStatus().get(i.getId())));
-			weapon[23].setText("" + weaponData.getDistance().getText());
-			weapon[24].setText("" + weaponData.getHandle().getText());
+			weapon[23].setText("" + weaponData.getDistance().getLabel());
+			weapon[24].setText("" + weaponData.getHandle().getLabel());
 			weapon[25].setText("" + getElement(statusCalculation.getRightElement()));
 			weapon[26].setText("" + new AtackPattern().getAtackPattern(weaponData.getAtackPattern()).getExplanation());
 		}
@@ -242,7 +242,7 @@ public class DisplayStatus extends StatusPanel{
 	
 	void setWeapon(EnemyData enemyData) {
 		Stream.of(Atack.values()).forEach(i -> {
-			weapon[i.getId() + 1].setText(i.getText());
+			weapon[i.getId() + 1].setText(i.getLabel());
 			weapon[i.getId() + 10].setText("" + enemyData.getWeaponStatus().get(i.getId()));
 		});
 		weapon[5].setText("移動タイプ");
@@ -250,35 +250,35 @@ public class DisplayStatus extends StatusPanel{
 		weapon[7].setText("属性");
 		weapon[8].setText("ターゲット");
 		weapon[9].setText("攻撃性能");
-		weapon[14].setText("" + enemyData.getMove().getText());
-		weapon[15].setText("" + enemyData.getType().getText());
+		weapon[14].setText("" + enemyData.getMove().getLabel());
+		weapon[15].setText("" + enemyData.getType().getLabel());
 		weapon[16].setText("" + getElement(enemyData.getElement()));
 		weapon[17].setText("" + new AtackPattern().getAtackPattern(enemyData.getAtackPattern()).getExplanation());
 	}
 	
 	void setWeapon(BattleUnit unitMainData, BattleUnit unitLeftData) {
-		Stream.of(Atack.values()).forEach(i -> weapon[i.getId() + 1].setText(i.getText()));
+		Stream.of(Atack.values()).forEach(i -> weapon[i.getId() + 1].setText(i.getLabel()));
 		weapon[5].setText("距離タイプ");
 		weapon[6].setText("属性");
 		weapon[7].setText("ターゲット");
 		weapon[9].setText("左武器");
 		if(!unitLeftData.getElement().isEmpty()) {
 			Stream.of(Atack.values()).forEach(i -> weapon[i.getId() + 10].setText("" + unitLeftData.getWeapon().get(i.getId())));
-			weapon[14].setText("" + unitMainData.getType().getText());
+			weapon[14].setText("" + unitMainData.getType().getLabel());
 			weapon[15].setText("" + getElement(unitLeftData.getElement()));
 			weapon[16].setText("" + unitLeftData.getAtackPattern().getExplanation());
 		}
 		weapon[18].setText("右武器");
 		if(!unitMainData.getElement().isEmpty()) {
 			Stream.of(Atack.values()).forEach(i -> weapon[i.getId() + 19].setText("" + unitMainData.getWeapon().get(i.getId())));
-			weapon[23].setText("" + unitMainData.getType().getText());
+			weapon[23].setText("" + unitMainData.getType().getLabel());
 			weapon[24].setText("" + getElement(unitMainData.getElement()));
 			weapon[25].setText("" + unitMainData.getAtackPattern().getExplanation());
 		}
 	}
 	
 	void setWeapon(BattleFacility facilityData) {
-		Stream.of(Atack.values()).forEach(i -> weapon[i.getId() + 1].setText(i.getText()));
+		Stream.of(Atack.values()).forEach(i -> weapon[i.getId() + 1].setText(i.getLabel()));
 		weapon[5].setText("属性");
 		weapon[6].setText("ターゲット");
 		weapon[9].setText("攻撃性能");
@@ -290,7 +290,7 @@ public class DisplayStatus extends StatusPanel{
 	
 	void setWeapon(BattleEnemy enemyData) {
 		Stream.of(Atack.values()).forEach(i -> {
-			weapon[i.getId() + 1].setText(i.getText());
+			weapon[i.getId() + 1].setText(i.getLabel());
 			weapon[i.getId() + 10].setText("" + enemyData.getWeapon().get(i.getId()));
 		});
 		weapon[5].setText("移動タイプ");
@@ -298,8 +298,8 @@ public class DisplayStatus extends StatusPanel{
 		weapon[7].setText("属性");
 		weapon[8].setText("ターゲット");
 		weapon[9].setText("攻撃性能");
-		weapon[14].setText("" + enemyData.getMove().getText());
-		weapon[15].setText("" + enemyData.getType().getText());
+		weapon[14].setText("" + enemyData.getMove().getLabel());
+		weapon[15].setText("" + enemyData.getType().getLabel());
 		weapon[16].setText("" + getElement(enemyData.getElement()));
 		weapon[17].setText(enemyData.getAtackPattern().getExplanation());
 	}
@@ -310,21 +310,21 @@ public class DisplayStatus extends StatusPanel{
 		}
 		String element = "";
 		for(Element i: elementList) {
-			element += i.getText() + ", ";
+			element += i.getLabel() + ", ";
 		}
 		return element.substring(0, element.length() - 2);
 	}
 	
 	void setUnit(List<Double> statusList, String comment) {
 		Stream.of(CoreUnit.values()).forEach(i -> {
-			unit[i.getId()].setText(i.getText());
+			unit[i.getId()].setText(i.getLabel());
 			unit[i.getId() + 6].setText(statusList.get(i.getId()) + comment);
 		});
 	}
 	
-	<T extends Enum<T> & StatusText>void setUnit(List<Integer> statusList, T[] data) {
+	<T extends Enum<T> & DefaultEnum<String>>void setUnit(List<Integer> statusList, T[] data) {
 		IntStream.range(0, statusList.size()).forEach(i -> {
-			unit[i].setText(data[i].getText());
+			unit[i].setText(data[i].getLabel());
 			if(statusList.get(i) < 0) {
 				unit[i + 6].setText("∞");
 			}else {
@@ -333,10 +333,10 @@ public class DisplayStatus extends StatusPanel{
 		});
 	}
 	
-	<T extends Enum<T> & StatusText>void setUnit(BattleData battle, T[] data) {
+	<T extends Enum<T> & DefaultEnum<String>>void setUnit(BattleData battle, T[] data) {
 		List<Integer> statusList = battle.getUnit();
 		IntStream.range(0, statusList.size()).forEach(i -> {
-			unit[i].setText(data[i].getText());
+			unit[i].setText(data[i].getLabel());
 			if(statusList.get(i) < 0) {
 				unit[i + 6].setText("∞");
 			}else if(i == 1) {
@@ -348,7 +348,7 @@ public class DisplayStatus extends StatusPanel{
 	}
 	
 	void setCut(List<Integer> cutList) {
-		Stream.of(Element.values()).forEach(i -> cut[i.getId()].setText(i.getText() + ((i == Element.SUPPORT)? "倍率": "耐性")));
+		Stream.of(Element.values()).forEach(i -> cut[i.getId()].setText(i.getLabel() + ((i == Element.SUPPORT)? "倍率": "耐性")));
 		IntStream.range(0, cutList.size()).forEach(i -> cut[i + 12].setText(cutList.get(i) + "%"));
 	}
 }

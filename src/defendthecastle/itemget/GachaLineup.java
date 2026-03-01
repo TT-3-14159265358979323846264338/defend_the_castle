@@ -46,7 +46,7 @@ class GachaLineup extends JDialog{
 		lineup.addElement("【コア確率】 " + ratioName(getTotal(coreRatio)));
 		lineup.addElement(" ");
 		IntStream.range(0, coreLineup.size()).forEach(i -> {
-			var coreData = coreLineup.get(i).getCoreData();
+			var coreData = coreLineup.get(i).getLabel();
 			var coreName = String.format("%s%s", rarityName(coreData.getRarity()), coreData.getName());
 			lineup.addElement(String.format("%s%s", unitName(coreName), ratioName(coreRatio.get(i))));
 		});
@@ -59,7 +59,7 @@ class GachaLineup extends JDialog{
 		lineup.addElement("【武器確率】 " + ratioName(getTotal(weaponRatio)));
 		lineup.addElement(" ");
 		IntStream.range(0, weaponLineup.size()).forEach(i -> {
-			var weaponData = weaponLineup.get(i).getWeaponData();
+			var weaponData = weaponLineup.get(i).getLabel();
 			var weaponName = String.format("%s%s", rarityName(weaponData.getRarity()), weaponData.getName());
 			lineup.addElement(String.format("%s%s", unitName(weaponName), ratioName(weaponRatio.get(i))));
 		});

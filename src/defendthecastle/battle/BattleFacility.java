@@ -19,7 +19,7 @@ public class BattleFacility extends BattleData{
 	
 	BattleFacility(GameTimer gameTimer, StageData stageData, int number, ScheduledExecutorService scheduler) {
 		this.gameTimer = gameTimer;
-		FacilityData FacilityData = stageData.getFacility().get(number).getFacilityData();
+		FacilityData FacilityData = stageData.getFacility().get(number).getLabel();
 		name = FacilityData.getName();
 		explanation = FacilityData.getExplanation();
 		rightActionImage = stageData.getFacilityDirection().get(number)? FacilityData.getActionFrontImage(IMAGE_RATIO): FacilityData.getActionSideImage(IMAGE_RATIO);

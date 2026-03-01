@@ -14,7 +14,7 @@ import java.util.stream.IntStream;
 
 import commonclass.CommonJPanel;
 import defaultdata.Core;
-import defaultdata.Id;
+import defaultdata.DefaultEnum;
 import defaultdata.Weapon;
 import defendthecastle.screendisplay.DisplayStatus;
 import savedata.SaveHoldItem;
@@ -94,7 +94,7 @@ class DrawResult extends CommonJPanel implements MouseListener{
 		return new SaveHoldItem();
 	}
 	
-	<T extends Id>List<Integer> getItemList(List<Integer> dataList, List<T> getList){
+	<T extends DefaultEnum<?>>List<Integer> getItemList(List<Integer> dataList, List<T> getList){
 		int[] count = new int[dataList.size()];
 		getList.stream().map(i -> i.getId()).forEach(i -> count[i]++);
 		return IntStream.range(0, count.length).mapToObj(i -> dataList.get(i) + count[i]).collect(Collectors.toList());
@@ -107,7 +107,7 @@ class DrawResult extends CommonJPanel implements MouseListener{
 		draw(g, getWeapon, itemGetImage.getWeaponImageList(), weaponPosition);
 	}
 	
-	<T extends Id>void draw(Graphics g, List<T> getList, List<BufferedImage> imageList, List<Point> position) {
+	<T extends DefaultEnum<?>>void draw(Graphics g, List<T> getList, List<BufferedImage> imageList, List<Point> position) {
 		if(getList.size() != 0) {
 			IntStream.range(0, getList.size()).forEach(i -> g.drawImage(imageList.get(getList.get(i).getId()), position.get(i).x, position.get(i).y, null));
 		}

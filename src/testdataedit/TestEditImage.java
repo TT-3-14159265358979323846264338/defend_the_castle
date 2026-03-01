@@ -21,7 +21,7 @@ class TestEditImage extends CommonImage{
 	}
 	
 	List<BufferedImage> createStageImage(){
-		return Stream.of(Stage.values()).map(i -> i.getStageData().getImage(STAGE_RATIO)).toList();
+		return Stream.of(Stage.values()).map(i -> i.getLabel().getImage(STAGE_RATIO)).toList();
 	}
 
 	List<BufferedImage> getCoreImage() {

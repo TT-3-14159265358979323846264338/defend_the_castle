@@ -166,13 +166,13 @@ class SaveData{
 	}
 	
 	void changeWeapon(int number, int selectWeapon) {
-		if(Weapon.getWeaponData(selectWeapon).getHandle() == Handle.BOTH) {
+		if(Weapon.getLabel(selectWeapon).getHandle() == Handle.BOTH) {
 			getUnitData(number).setUnitData(OneUnitData.LEFT_WEAPON, selectWeapon);
 			getUnitData(number).setUnitData(OneUnitData.RIGHT_WEAPON, Weapon.NO_WEAPON);
 		}else if(getUnitData(number).getUnitDataList().get(OneUnitData.LEFT_WEAPON) == Weapon.NO_WEAPON) {
 			change(number, selectWeapon);
 		}else {
-			switch(Weapon.getWeaponData(getUnitData(number).getUnitDataList().get(OneUnitData.LEFT_WEAPON)).getHandle()) {
+			switch(Weapon.getLabel(getUnitData(number).getUnitDataList().get(OneUnitData.LEFT_WEAPON)).getHandle()) {
 			case Handle.ONE:
 				change(number, selectWeapon);
 				break;

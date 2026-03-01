@@ -90,8 +90,8 @@ public class Battle extends CommonJPanel implements MouseListener, MouseMotionLi
 		List<OneUnitData> unitList = createOneCompositionData();
 		unitMainData = createBattleData(unitList, number -> createMainBattleUnit(unitList, number, scheduler), BattleUnit[]::new);
 		unitLeftData = createBattleData(unitList, number -> createLeftBattleUnit(unitList, number, scheduler), BattleUnit[]::new);
-		facilityData = createBattleData(stage.getStageData().getFacility(), number -> createBattleFacility(number, scheduler), BattleFacility[]::new);
-		enemyData = createBattleData(stage.getStageData().getEnemy(), number -> createBattleEnemy(number, scheduler), BattleEnemy[]::new);
+		facilityData = createBattleData(stage.getLabel().getFacility(), number -> createBattleFacility(number, scheduler), BattleFacility[]::new);
+		enemyData = createBattleData(stage.getLabel().getEnemy(), number -> createBattleEnemy(number, scheduler), BattleEnemy[]::new);
 		install();
 		stageImage = createStageImage();
 		awakeUnit = createAwakeUnit(scheduler);
@@ -113,7 +113,7 @@ public class Battle extends CommonJPanel implements MouseListener, MouseMotionLi
 	}
 	
 	GameData createGameData() {
-		return new GameData(this, stage.getStageData());
+		return new GameData(this, stage.getLabel());
 	}
 	
 	List<OneUnitData> createOneCompositionData() {
@@ -145,11 +145,11 @@ public class Battle extends CommonJPanel implements MouseListener, MouseMotionLi
 	}
 	
 	BattleFacility createBattleFacility(int number, ScheduledExecutorService scheduler) {
-		return new BattleFacility(gameTimer, stage.getStageData(), number, scheduler);
+		return new BattleFacility(gameTimer, stage.getLabel(), number, scheduler);
 	}
 	
 	BattleEnemy createBattleEnemy(int number, ScheduledExecutorService scheduler) {
-		return new BattleEnemy(gameTimer, stage.getStageData(), number, difficultyCorrection, scheduler);
+		return new BattleEnemy(gameTimer, stage.getLabel(), number, difficultyCorrection, scheduler);
 	}
 	
 	void install() {
@@ -160,7 +160,7 @@ public class Battle extends CommonJPanel implements MouseListener, MouseMotionLi
 	}
 	
 	StageImage createStageImage(){
-		return new StageImage(stage.getStageData(), enemyData, gameTimer);
+		return new StageImage(stage.getLabel(), enemyData, gameTimer);
 	}
 	
 	AwakeUnit createAwakeUnit(ScheduledExecutorService scheduler){

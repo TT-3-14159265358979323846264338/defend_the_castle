@@ -15,7 +15,7 @@ class StageImage {
 	}
 	
 	List<BufferedImage> detailStageImage(ProgressData progressData){
-		return progressData.getActivateStage().stream().map(i -> EditImage.stageImage(i.getStageData(), 5)).toList();
+		return progressData.getActivateStage().stream().map(i -> EditImage.stageImage(i.getLabel(), 5)).toList();
 	}
 	
 	List<BufferedImage> selectStageImage(){

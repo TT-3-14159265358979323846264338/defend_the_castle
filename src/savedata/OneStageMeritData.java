@@ -20,7 +20,7 @@ public class OneStageMeritData {
 	private final int activeMerit;
 	
 	OneStageMeritData(ResultSet result, int stageNo) throws Exception{
-		activeMerit = Stage.getStageData(stageNo).getReward().size();
+		activeMerit = Stage.getLabel(stageNo).getReward().size();
 		for(int i = 0; i < SaveGameProgress.MERIT_MAX_NUMBER; i++) {
 			meritClearList.add(result.getBoolean(String.format("%s%d", SaveGameProgress.MERIT_COLUMN, i)));
 		}

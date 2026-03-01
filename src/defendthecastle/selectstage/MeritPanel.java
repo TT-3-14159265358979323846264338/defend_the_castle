@@ -34,7 +34,7 @@ class MeritPanel extends CommonJPanel{
 	MeritPanel(ProgressData progressData) {
 		meritStatus = progressData.getMeritStatus();
 		meritInformation = progressData.getActivateStage().stream().map(i -> informationList(i)).toList();
-		rewardInformation = progressData.getActivateStage().stream().map(i -> i.getStageData().getReward()).toList();
+		rewardInformation = progressData.getActivateStage().stream().map(i -> i.getLabel().getReward()).toList();
 		meritLabel = IntStream.range(0, labelNumber(progressData)).mapToObj(this::addMeritLabel).toArray(JLabel[]::new);
 		clearLabel = IntStream.range(0, meritLabel.length).mapToObj(this::addClearLabel).toArray(JLabel[]::new);
 		rewardLabel = IntStream.range(0, meritLabel.length).mapToObj(this::addRewardLabel).toArray(JLabel[]::new);
@@ -44,13 +44,13 @@ class MeritPanel extends CommonJPanel{
 	
 	int labelNumber(ProgressData progressData) {
 		return progressData.getActivateStage().stream()
-				.mapToInt(i -> i.getStageData().getMerit().size())
+				.mapToInt(i -> i.getLabel().getMerit().size())
 				.max()
 				.getAsInt();
 	}
 	
 	List<String> informationList(Stage stage){
-		return stage.getStageData().getMerit().stream().map(j -> wrap(j)).toList();
+		return stage.getLabel().getMerit().stream().map(j -> wrap(j)).toList();
 	}
 	
 	String wrap(String comment) {

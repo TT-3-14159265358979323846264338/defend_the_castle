@@ -86,13 +86,13 @@ public class GameTimer {
 	
 	void clearTimerProcess() {
 		clearTimer.updateBeforeTime();
-		if(stage.getStageData().canClear(unitMainData, unitLeftData, facilityData, enemyData, gameData)) {
+		if(stage.getLabel().canClear(unitMainData, unitLeftData, facilityData, enemyData, gameData)) {
 			new PauseDialog(stage, unitMainData, unitLeftData, facilityData, enemyData, gameData, difficultyCorrection);
 			mainFrame.selectStageDraw();
 			gameEnd();
 			return;
 		}
-		if(stage.getStageData().existsGameOver(unitMainData, unitLeftData, facilityData, enemyData, gameData)) {
+		if(stage.getLabel().existsGameOver(unitMainData, unitLeftData, facilityData, enemyData, gameData)) {
 			new PauseDialog();
 			mainFrame.selectStageDraw();
 			gameEnd();

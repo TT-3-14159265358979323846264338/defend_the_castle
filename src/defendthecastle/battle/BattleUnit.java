@@ -58,15 +58,15 @@ public class BattleUnit extends BattleData{
 		composition = oneUnitData.getUnitDataList();
 		StatusCalculation StatusCalculation = new StatusCalculation(composition);
 		try {
-			rightActionImage = Weapon.getWeaponData(composition.get(savedata.OneUnitData.RIGHT_WEAPON)).getRightActionImage(IMAGE_RATIO);
-			bulletImage = Weapon.getWeaponData(composition.get(savedata.OneUnitData.RIGHT_WEAPON)).getBulletImage(IMAGE_RATIO);
-			hitImage = Weapon.getWeaponData(composition.get(savedata.OneUnitData.RIGHT_WEAPON)).getHitImage(IMAGE_RATIO);
+			rightActionImage = Weapon.getLabel(composition.get(savedata.OneUnitData.RIGHT_WEAPON)).getRightActionImage(IMAGE_RATIO);
+			bulletImage = Weapon.getLabel(composition.get(savedata.OneUnitData.RIGHT_WEAPON)).getBulletImage(IMAGE_RATIO);
+			hitImage = Weapon.getLabel(composition.get(savedata.OneUnitData.RIGHT_WEAPON)).getHitImage(IMAGE_RATIO);
 		}catch(Exception e) {
 			rightActionImage = Arrays.asList(getBlankImage());
 		}
-		rightCoreImage = Core.getCoreData(composition.get(savedata.OneUnitData.CORE)).getActionImage(IMAGE_RATIO);
+		rightCoreImage = Core.getLabel(composition.get(savedata.OneUnitData.CORE)).getActionImage(IMAGE_RATIO);
 		leftCoreImage = EditImage.mirrorImage(rightCoreImage);
-		skillImage = Core.getCoreData(composition.get(savedata.OneUnitData.CORE)).getSkillImage(IMAGE_RATIO);
+		skillImage = Core.getLabel(composition.get(savedata.OneUnitData.CORE)).getSkillImage(IMAGE_RATIO);
 		generatedBuffInformation = StatusCalculation.getRightBuffList();
 		this.positionX = positionX;
 		this.positionY = positionY;
@@ -89,9 +89,9 @@ public class BattleUnit extends BattleData{
 		composition = oneUnitData.getUnitDataList();
 		StatusCalculation StatusCalculation = new StatusCalculation(composition);
 		try {
-			rightActionImage = Weapon.getWeaponData(composition.get(savedata.OneUnitData.LEFT_WEAPON)).getLeftActionImage(IMAGE_RATIO);
-			bulletImage = Weapon.getWeaponData(composition.get(savedata.OneUnitData.LEFT_WEAPON)).getBulletImage(IMAGE_RATIO);
-			hitImage = Weapon.getWeaponData(composition.get(savedata.OneUnitData.LEFT_WEAPON)).getHitImage(IMAGE_RATIO);
+			rightActionImage = Weapon.getLabel(composition.get(savedata.OneUnitData.LEFT_WEAPON)).getLeftActionImage(IMAGE_RATIO);
+			bulletImage = Weapon.getLabel(composition.get(savedata.OneUnitData.LEFT_WEAPON)).getBulletImage(IMAGE_RATIO);
+			hitImage = Weapon.getLabel(composition.get(savedata.OneUnitData.LEFT_WEAPON)).getHitImage(IMAGE_RATIO);
 		}catch(Exception e) {
 			rightActionImage = Arrays.asList(getBlankImage());
 		}
