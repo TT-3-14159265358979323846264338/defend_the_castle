@@ -1,22 +1,22 @@
 package defaultdata;
 
-public enum Handle implements StatusText{
+public enum Handle implements DefaultEnum<String>{
 	ONE(0, "片手"),
 	BOTH(1, "両手");
 	
 	private final int id;
-	private final String text;
+	private final String label;
 	
-	Handle(int id, String status) {
+	Handle(int id, String label) {
 		this.id = id;
-		this.text = status;
+		this.label = label;
 	}
 
 	public int getId() {
 		return id;
 	}
 
-	public String getText() {
-		return text;
+	public String getLabel() {
+		return label;
 	}
 }

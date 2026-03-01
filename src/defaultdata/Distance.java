@@ -1,23 +1,23 @@
 package defaultdata;
 
-public enum Distance implements StatusText{
+public enum Distance implements DefaultEnum<String>{
 	NEAR(0, "近接"),
 	FAR(1, "遠隔"),
 	ALL(2, "遠近");
 	
 	private final int id;
-	private final String text;
+	private final String label;
 	
-	Distance(int id, String status) {
+	Distance(int id, String label) {
 		this.id = id;
-		this.text = status;
+		this.label = label;
 	}
 
 	public int getId() {
 		return id;
 	}
 
-	public String getText() {
-		return text;
+	public String getLabel() {
+		return label;
 	}
 }

@@ -2,7 +2,7 @@ package defaultdata;
 
 import defaultdata.weapon.*;
 
-public enum Weapon implements Id{
+public enum Weapon implements DefaultEnum<WeaponData>{
 	SWORD(0, new No0000JapaneseSword()),
 	BOW(1, new No0001Bow()),
 	SMALL_SHIELD(2, new No0002SmallShield()),
@@ -12,27 +12,22 @@ public enum Weapon implements Id{
 	
 	public static final int NO_WEAPON = -1;
 	private final int id;
-	private final WeaponData WeaponData;
+	private final WeaponData label;
 	
-	Weapon(int id, WeaponData WeaponData) {
+	Weapon(int id, WeaponData label) {
 		this.id = id;
-		this.WeaponData = WeaponData;
+		this.label = label;
 	}
 
 	public int getId() {
 		return id;
 	}
 
-	public WeaponData getWeaponData() {
-		return WeaponData;
+	public WeaponData getLabel() {
+		return label;
 	}
 	
-	public static WeaponData getWeaponData(int id) {
-		for(Weapon i: values()) {
-			if(i.getId() == id) {
-				return i.getWeaponData();
-			}
-		}
-		return null;
+	public static WeaponData getLabel(int id) {
+		return DefaultEnum.getLabel(Weapon.values(), id);
 	}
 }

@@ -1,6 +1,6 @@
 package defaultdata;
 
-public enum WeaponUnit implements StatusText{
+public enum WeaponUnit implements DefaultEnum<String>{
 	MAXHP(0, "最大HP"),
 	HP(1, "HP"),
 	DEFENSE(2, "防御"),
@@ -9,18 +9,18 @@ public enum WeaponUnit implements StatusText{
 	COST(5, "配置コスト");
 	
 	private final int id;
-	private final String text;
+	private final String label;
 	
-	WeaponUnit(int id, String status) {
+	WeaponUnit(int id, String label) {
 		this.id = id;
-		this.text = status;
+		this.label = label;
 	}
 
 	public int getId() {
 		return id;
 	}
 
-	public String getText() {
-		return text;
+	public String getLabel() {
+		return label;
 	}
 }

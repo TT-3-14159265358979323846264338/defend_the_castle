@@ -1,6 +1,6 @@
 package defaultdata;
 
-public enum FacilityUnit implements StatusText{
+public enum FacilityUnit implements DefaultEnum<String>{
 	MAXHP(0, "最大HP"),
 	HP(1, "HP"),
 	DEFENSE(2, "防御"),
@@ -8,18 +8,18 @@ public enum FacilityUnit implements StatusText{
 	BLOCK(4, "足止め数");
 	
 	private final int id;
-	private final String text;
+	private final String label;
 	
-	FacilityUnit(int id, String status) {
+	FacilityUnit(int id, String label) {
 		this.id = id;
-		this.text = status;
+		this.label = label;
 	}
 
 	public int getId() {
 		return id;
 	}
 
-	public String getText() {
-		return text;
+	public String getLabel() {
+		return label;
 	}
 }

@@ -2,7 +2,7 @@ package defaultdata;
 
 import defaultdata.core.*;
 
-public enum Core implements Id{
+public enum Core implements DefaultEnum<CoreData>{
 	NORMAL_CORE(0, new No0000NormalCore()),
 	ATACK_CORE(1, new No0001NormalAtackCore()),
 	DEFENCE_CORE(2, new No0002NormalDefenseCore()),
@@ -11,27 +11,22 @@ public enum Core implements Id{
 	SPEED_CORE(5, new No0005NormalSpeedCore());
 	
 	private final int id;
-	private final CoreData coreData;
+	private final CoreData label;
 	
-	Core(int id, CoreData coreData) {
+	Core(int id, CoreData label) {
 		this.id = id;
-		this.coreData = coreData;
+		this.label = label;
 	}
 
 	public int getId() {
 		return id;
 	}
 
-	public CoreData getCoreData() {
-		return coreData;
+	public CoreData getLabel() {
+		return label;
 	}
 	
-	public static CoreData getCoreData(int id) {
-		for(Core i: values()) {
-			if(i.getId() == id) {
-				return i.getCoreData();
-			}
-		}
-		return null;
+	public static CoreData getLabel(int id) {
+		return DefaultEnum.getLabel(Core.values(), id);
 	}
 }

@@ -175,8 +175,8 @@ public class EditImage{
 		List<BufferedImage> placementImage = new Placement().getPlacementImage(4);
 		IntStream.range(0, placementImage.size()).forEach(i -> stageData.getPlacementPoint().get(i).stream().forEach(j -> g.drawImage(placementImage.get(i), j.get(0).intValue(), j.get(1).intValue(), null)));
 		//設備の表示
-		List<BufferedImage> frontImage = Stream.of(Facility.values()).map(i -> i.getFacilityData().getActionFrontImage(4).get(0)).toList();
-		List<BufferedImage> sideImage = Stream.of(Facility.values()).map(i -> i.getFacilityData().getActionSideImage(4).get(0)).toList();
+		List<BufferedImage> frontImage = Stream.of(Facility.values()).map(i -> i.getLabel().getActionFrontImage(4).get(0)).toList();
+		List<BufferedImage> sideImage = Stream.of(Facility.values()).map(i -> i.getLabel().getActionSideImage(4).get(0)).toList();
 		IntStream.range(0, stageData.getFacility().size()).forEach(i -> drawImage.accept(facilityImage(frontImage, sideImage, stageData, i), stageData.getFacilityPoint().get(i)));
 		g.dispose();
 		return scalingImage(image, ratio / 2);

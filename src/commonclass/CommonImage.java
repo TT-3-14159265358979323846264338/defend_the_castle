@@ -24,7 +24,7 @@ public abstract class CommonImage {
 	 * @return コアデータを格納したstreamを返却する。
 	 */
 	protected Stream<CoreData> allCoreDataStream(){
-		return Stream.of(Core.values()).map(i -> i.getCoreData());
+		return Stream.of(Core.values()).map(i -> i.getLabel());
 	}
 	
 	/**
@@ -41,7 +41,7 @@ public abstract class CommonImage {
 	 * @return 武器データを格納したstreamを返却する。
 	 */
 	protected Stream<WeaponData> allWeaponDataStream(){
-		return Stream.of(Weapon.values()).map(i -> i.getWeaponData());
+		return Stream.of(Weapon.values()).map(i -> i.getLabel());
 	}
 	
 	/**
