@@ -26,10 +26,10 @@ import defaultdata.Atack;
 import defaultdata.core.CoreData;
 import defaultdata.enemy.EnemyData;
 import defaultdata.weapon.WeaponData;
-import defendthecastle.battle.BattleData;
-import defendthecastle.battle.BattleEnemy;
-import defendthecastle.battle.BattleFacility;
-import defendthecastle.battle.BattleUnit;
+import defendthecastle.battle.InternalData.BattleData;
+import defendthecastle.battle.InternalData.BattleEnemy;
+import defendthecastle.battle.InternalData.BattleFacility;
+import defendthecastle.battle.InternalData.BattleUnit;
 import savedata.OneUnitData;
 
 //ユニットデータ取込み
