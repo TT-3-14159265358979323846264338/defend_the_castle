@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
+import defaultdata.Difficulty;
 import defaultdata.Enemy;
 import defaultdata.Facility;
 import defendthecastle.battle.BattleEnemy;
@@ -205,11 +206,11 @@ public class No0005Stage5 extends StageData {
 	}
 
 	@Override
-	public List<Boolean> canClearMerit(BattleUnit[] unitMainData, BattleUnit[] unitLeftData, BattleFacility[] facilityData, BattleEnemy[] enemyData, GameData gameData, double nowDifficulty) {
-		return Arrays.asList(canClearStage(BattleEnemy.NORMAL_MODE, nowDifficulty),
-				hasNotHited(BattleEnemy.NORMAL_MODE, nowDifficulty, facilityData[0]),
-				canClearStage(BattleEnemy.HARD_MODE, nowDifficulty),
-				canNotDefeat(BattleEnemy.HARD_MODE, nowDifficulty, unitMainData, unitLeftData));
+	public List<Boolean> canClearMerit(BattleUnit[] unitMainData, BattleUnit[] unitLeftData, BattleFacility[] facilityData, BattleEnemy[] enemyData, GameData gameData, Difficulty nowDifficulty) {
+		return Arrays.asList(canClearStage(Difficulty.NORMAL, nowDifficulty),
+				hasNotHited(Difficulty.NORMAL, nowDifficulty, facilityData[0]),
+				canClearStage(Difficulty.HARD, nowDifficulty),
+				canNotDefeat(Difficulty.HARD, nowDifficulty, unitMainData, unitLeftData));
 	}
 
 	@Override

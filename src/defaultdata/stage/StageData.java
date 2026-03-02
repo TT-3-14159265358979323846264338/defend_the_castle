@@ -9,6 +9,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import commonclass.EditImage;
+import defaultdata.Difficulty;
 import defaultdata.Facility;
 import defendthecastle.battle.BattleEnemy;
 import defendthecastle.battle.BattleFacility;
@@ -150,12 +151,12 @@ public abstract class StageData {
 	 * @param facilityData - ゲーム終了後の設備データ。{@link defendthecastle.battle.BattleFacility BattleFacility}
 	 * @param enemyData - ゲーム終了後の敵データ。{@link defendthecastle.battle.BattleEnemy BattleEnemy}
 	 * @param gameData - ゲーム終了後のゲームデータ。{@link defendthecastle.battle.GameData gameData}
-	 * @param nowDifficulty - ゲームの難易度。{@link defendthecastle.battle.BattleEnemy#NORMAL_MODE ステータス補正倍率}
+	 * @param nowDifficulty - ゲームの難易度。{@link defaultdata.Difficulty ステータス補正倍率}
 	 * @return 各戦功の達成状況のListを返却する。<br>
 	 * 			達成した場合をtrue, 未達成の場合をfalseとする。<br>
 	 * 			達成判定は{@link StageData}の下部で定義したメソッドを使用する。
 	 */
-	public abstract List<Boolean> canClearMerit(BattleUnit[] unitMainData, BattleUnit[] unitLeftData, BattleFacility[] facilityData, BattleEnemy[] enemyData, GameData gameData, double nowDifficulty);
+	public abstract List<Boolean> canClearMerit(BattleUnit[] unitMainData, BattleUnit[] unitLeftData, BattleFacility[] facilityData, BattleEnemy[] enemyData, GameData gameData, Difficulty nowDifficulty);
 	
 	/**
 	 * 各戦功で獲得可能な報酬。
@@ -336,9 +337,9 @@ public abstract class StageData {
 	 * @param baseDifficulty - 基準となる指定の難易度。
 	 * @param nowDifficulty - 今回のゲームの難易度。
 	 * @return 引数が一致すればtrueを返却する。
-	 * @see {@link defendthecastle.battle.BattleEnemy#NORMAL_MODE ステータス補正倍率}
+	 * @see {@link defaultdata.Difficulty ステータス補正倍率}
 	 */
-	boolean canClearStage(double baseDifficulty, double nowDifficulty) {
+	boolean canClearStage(Difficulty baseDifficulty, Difficulty nowDifficulty) {
 		return baseDifficulty == nowDifficulty;
 	}
 	
@@ -368,10 +369,10 @@ public abstract class StageData {
 	 * @param UnitMainData - ゲーム終了後のユニットデータ。
 	 * @param UnitLeftData - ゲーム終了後のユニットデータ。
 	 * @return 指定の難易度で{@link defendthecastle.battle.BattleUnit#defeatNumber 被撃破数}が全て0であるならばtrueを返却する。
-	 * @see {@link defendthecastle.battle.BattleEnemy#NORMAL_MODE ステータス補正倍率}<br>
+	 * @see {@link defaultdata.Difficulty ステータス補正倍率}<br>
 	 * 		{@link defendthecastle.battle.BattleUnit BattleUnit}
 	 */
-	boolean canNotDefeat(double baseDifficulty, double nowDifficulty, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData) {
+	boolean canNotDefeat(Difficulty baseDifficulty, Difficulty nowDifficulty, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData) {
 		if(canClearStage(baseDifficulty, nowDifficulty)) {
 			return canNotDefeat(UnitMainData, UnitLeftData);
 		}
@@ -402,11 +403,11 @@ public abstract class StageData {
 	 * @param UnitLeftData - ゲーム終了後のユニットデータ。
 	 * @param FacilityData - ゲーム終了後の設備データ。
 	 * @return 指定の難易度で{@link defendthecastle.battle.BattleData#canActivate 設備が生存}し、{@link defendthecastle.battle.BattleUnit#defeatNumber ユニットの被撃破数}が全て0であるならばtrueを返却する。
-	 * @see {@link defendthecastle.battle.BattleEnemy#NORMAL_MODE ステータス補正倍率}<br>
+	 * @see {@link defaultdata.Difficulty ステータス補正倍率}<br>
 	 * 		{@link defendthecastle.battle.BattleUnit BattleUnit}<br>
 	 * 		{@link defendthecastle.battle.BattleFacility BattleFacility}
 	 */
-	boolean canNotDefeat(double baseDifficulty, double nowDifficulty, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData) {
+	boolean canNotDefeat(Difficulty baseDifficulty, Difficulty nowDifficulty, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData) {
 		if(canClearStage(baseDifficulty, nowDifficulty)) {
 			return canNotDefeat(UnitMainData, UnitLeftData, FacilityData);
 		}
@@ -431,7 +432,7 @@ public abstract class StageData {
 	 * @param UnitMainData - ゲーム終了後のユニットデータ。
 	 * @return 指定の難易度で味方の総覚醒回数が指定の値以上であればtrueを返却する。
 	 */
-	boolean existsOverAwakening(double baseDifficulty, double nowDifficulty, int awakeningCount, BattleUnit[] UnitMainData) {
+	boolean existsOverAwakening(Difficulty baseDifficulty, Difficulty nowDifficulty, int awakeningCount, BattleUnit[] UnitMainData) {
 		if(canClearStage(baseDifficulty, nowDifficulty)) {
 			return existsOverAwakening(awakeningCount, UnitMainData);
 		}
@@ -454,7 +455,7 @@ public abstract class StageData {
 	 * @param FacilityData - ゲーム終了後の設備データ。
 	 * @return 指定の難易度で指定した全ての設備が1度も攻撃を受けていないならばtrueを返却する。
 	 */
-	boolean hasNotHited(double baseDifficulty, double nowDifficulty, BattleFacility... FacilityData) {
+	boolean hasNotHited(Difficulty baseDifficulty, Difficulty nowDifficulty, BattleFacility... FacilityData) {
 		if(canClearStage(baseDifficulty, nowDifficulty)) {
 			return hasNotHited(FacilityData);
 		}
