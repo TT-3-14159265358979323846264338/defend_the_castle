@@ -20,10 +20,12 @@ public enum Enemy implements DefaultEnum<EnemyData>{
 		this.label = label;
 	}
 
+	@Override
 	public int getId() {
 		return id;
 	}
 
+	@Override
 	public EnemyData getLabel() {
 		return label;
 	}

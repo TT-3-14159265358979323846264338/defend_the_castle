@@ -15,10 +15,12 @@ public enum Facility implements DefaultEnum<FacilityData>{
 		this.label = label;
 	}
 
+	@Override
 	public int getId() {
 		return id;
 	}
 
+	@Override
 	public FacilityData getLabel() {
 		return label;
 	}

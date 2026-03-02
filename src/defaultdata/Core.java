@@ -18,10 +18,12 @@ public enum Core implements DefaultEnum<CoreData>{
 		this.label = label;
 	}
 
+	@Override
 	public int getId() {
 		return id;
 	}
 
+	@Override
 	public CoreData getLabel() {
 		return label;
 	}

@@ -19,10 +19,12 @@ public enum Weapon implements DefaultEnum<WeaponData>{
 		this.label = label;
 	}
 
+	@Override
 	public int getId() {
 		return id;
 	}
 
+	@Override
 	public WeaponData getLabel() {
 		return label;
 	}

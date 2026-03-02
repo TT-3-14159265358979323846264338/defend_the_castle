@@ -14,10 +14,12 @@ public enum Atack implements DefaultEnum<String>{
 		this.text = label;
 	}
 
+	@Override
 	public int getId() {
 		return id;
 	}
 
+	@Override
 	public String getLabel() {
 		return text;
 	}

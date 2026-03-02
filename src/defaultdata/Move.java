@@ -14,10 +14,12 @@ public enum Move implements DefaultEnum<String>{
 		this.label = label;
 	}
 
+	@Override
 	public int getId() {
 		return id;
 	}
 
+	@Override
 	public String getLabel() {
 		return label;
 	}

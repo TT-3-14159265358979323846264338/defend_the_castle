@@ -17,10 +17,12 @@ public enum Stage implements DefaultEnum<StageData>{
 		this.label = label;
 	}
 
+	@Override
 	public int getId() {
 		return id;
 	}
 
+	@Override
 	public StageData getLabel() {
 		return label;
 	}
