@@ -8,11 +8,11 @@ import java.util.List;
 import defaultdata.Difficulty;
 import defaultdata.Enemy;
 import defaultdata.Facility;
-import defendthecastle.battle.BattleEnemy;
-import defendthecastle.battle.BattleFacility;
-import defendthecastle.battle.BattleUnit;
-import defendthecastle.battle.GameData;
-import defendthecastle.battle.GameTimer;
+import defendthecastle.battle.InternalData.BattleEnemy;
+import defendthecastle.battle.InternalData.BattleFacility;
+import defendthecastle.battle.InternalData.BattleUnit;
+import defendthecastle.battle.InternalData.GameData;
+import defendthecastle.battle.InternalData.GameTimer;
 import savedata.SaveGameProgress;
 
 public class No0003Stage3 extends StageData {

@@ -3,7 +3,7 @@ package defaultdata.atackpattern;
 import java.util.Arrays;
 import java.util.List;
 
-import defendthecastle.battle.BattleData;
+import defendthecastle.battle.InternalData.BattleData;
 
 public class No00NoAtack extends AtackPatternData{
 

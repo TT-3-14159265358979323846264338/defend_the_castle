@@ -3,7 +3,7 @@ package defaultdata.atackpattern;
 import java.util.List;
 
 import defendthecastle.battle.Battle;
-import defendthecastle.battle.BattleData;
+import defendthecastle.battle.InternalData.BattleData;
 
 public abstract class AtackPatternData {
 	protected BattleData myself;

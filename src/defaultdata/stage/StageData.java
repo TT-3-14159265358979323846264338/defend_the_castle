@@ -11,11 +11,11 @@ import java.util.stream.Stream;
 import commonclass.EditImage;
 import defaultdata.Difficulty;
 import defaultdata.Facility;
-import defendthecastle.battle.BattleEnemy;
-import defendthecastle.battle.BattleFacility;
-import defendthecastle.battle.BattleUnit;
-import defendthecastle.battle.GameData;
-import defendthecastle.battle.GameTimer;
+import defendthecastle.battle.InternalData.BattleEnemy;
+import defendthecastle.battle.InternalData.BattleFacility;
+import defendthecastle.battle.InternalData.BattleUnit;
+import defendthecastle.battle.InternalData.GameData;
+import defendthecastle.battle.InternalData.GameTimer;
 import savedata.SaveGameProgress;
 import savedata.SaveItem;
 
@@ -79,8 +79,8 @@ public abstract class StageData {
 	
 	/**
 	 * 配置可能位置の使用条件。
-	 * @param gameTimer - 現在のゲームデータ。{@link defendthecastle.battle.GameTimer GameTimer}
-	 * @param enemyData - 現在の敵データ。{@link defendthecastle.battle.BattleEnemy BattleEnemy}
+	 * @param gameTimer - 現在のゲームデータ。{@link defendthecastle.battle.InternalData.GameTimer GameTimer}
+	 * @param enemyData - 現在の敵データ。{@link defendthecastle.battle.InternalData.BattleEnemy BattleEnemy}
 	 * @return 各配置可能位置が使用可能であればtrueを入りたListを返却する。データの順番は{@link #getPlacementPoint getPlacementPoint}の順に記載する。
 	 */
 	public abstract List<List<Boolean>> canUsePlacement(GameTimer gameTimer, BattleEnemy[] enemyData);
@@ -106,11 +106,11 @@ public abstract class StageData {
 	
 	/**
 	 * ゲームクリア判定を行う。
-	 * @param unitMainData - 現在のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
-	 * @param unitLeftData - 現在のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
-	 * @param facilityData - 現在の設備データ。{@link defendthecastle.battle.BattleFacility BattleFacility}
-	 * @param enemyData - 現在の敵データ。{@link defendthecastle.battle.BattleEnemy BattleEnemy}
-	 * @param gameData - 現在のゲームデータ。{@link defendthecastle.battle.GameData gameData}
+	 * @param unitMainData - 現在のユニットデータ。{@link defendthecastle.battle.InternalData.BattleUnit BattleUnit}
+	 * @param unitLeftData - 現在のユニットデータ。{@link defendthecastle.battle.InternalData.BattleUnit BattleUnit}
+	 * @param facilityData - 現在の設備データ。{@link defendthecastle.battle.InternalData.BattleFacility BattleFacility}
+	 * @param enemyData - 現在の敵データ。{@link defendthecastle.battle.InternalData.BattleEnemy BattleEnemy}
+	 * @param gameData - 現在のゲームデータ。{@link defendthecastle.battle.InternalData.GameData gameData}
 	 * @return ゲームクリアであるならばtrueを返却する。<br>
 	 * 			達成判定は{@link StageData}の下部で定義したメソッドを使用する。
 	 */
@@ -125,11 +125,11 @@ public abstract class StageData {
 	
 	/**
 	 * ゲームオーバー判定を行う。
-	 * @param unitMainData - 現在のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
-	 * @param unitLeftData - 現在のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
-	 * @param facilityData - 現在の設備データ。{@link defendthecastle.battle.BattleFacility BattleFacility}
-	 * @param enemyData - 現在の敵データ。{@link defendthecastle.battle.BattleEnemy BattleEnemy}
-	 * @param gameData - 現在のゲームデータ。{@link defendthecastle.battle.GameData gameData}
+	 * @param unitMainData - 現在のユニットデータ。{@link defendthecastle.battle.InternalData.BattleUnit BattleUnit}
+	 * @param unitLeftData - 現在のユニットデータ。{@link defendthecastle.battle.InternalData.BattleUnit BattleUnit}
+	 * @param facilityData - 現在の設備データ。{@link defendthecastle.battle.InternalData.BattleFacility BattleFacility}
+	 * @param enemyData - 現在の敵データ。{@link defendthecastle.battle.InternalData.BattleEnemy BattleEnemy}
+	 * @param gameData - 現在のゲームデータ。{@link defendthecastle.battle.InternalData.GameData gameData}
 	 * @return ゲームオーバーであるならばtrueを返却する。<br>
 	 * 			達成判定は{@link StageData}の下部で定義したメソッドを使用する。
 	 */
@@ -146,11 +146,11 @@ public abstract class StageData {
 	
 	/**
 	 * 各戦功のクリア状況の判定。
-	 * @param unitMainData - ゲーム終了後のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
-	 * @param unitLeftData - ゲーム終了後のユニットデータ。{@link defendthecastle.battle.BattleUnit BattleUnit}
-	 * @param facilityData - ゲーム終了後の設備データ。{@link defendthecastle.battle.BattleFacility BattleFacility}
-	 * @param enemyData - ゲーム終了後の敵データ。{@link defendthecastle.battle.BattleEnemy BattleEnemy}
-	 * @param gameData - ゲーム終了後のゲームデータ。{@link defendthecastle.battle.GameData gameData}
+	 * @param unitMainData - ゲーム終了後のユニットデータ。{@link defendthecastle.battle.InternalData.BattleUnit BattleUnit}
+	 * @param unitLeftData - ゲーム終了後のユニットデータ。{@link defendthecastle.battle.InternalData.BattleUnit BattleUnit}
+	 * @param facilityData - ゲーム終了後の設備データ。{@link defendthecastle.battle.InternalData.BattleFacility BattleFacility}
+	 * @param enemyData - ゲーム終了後の敵データ。{@link defendthecastle.battle.InternalData.BattleEnemy BattleEnemy}
+	 * @param gameData - ゲーム終了後のゲームデータ。{@link defendthecastle.battle.InternalData.GameData gameData}
 	 * @param nowDifficulty - ゲームの難易度。{@link defaultdata.Difficulty ステータス補正倍率}
 	 * @return 各戦功の達成状況のListを返却する。<br>
 	 * 			達成した場合をtrue, 未達成の場合をfalseとする。<br>
@@ -347,8 +347,8 @@ public abstract class StageData {
 	 * 難易度に関わらずユニットが一度も倒されずクリアしたかどうか判定。
 	 * @param UnitMainData - ゲーム終了後のユニットデータ。
 	 * @param UnitLeftData - ゲーム終了後のユニットデータ。
-	 * @return {@link defendthecastle.battle.BattleUnit#defeatNumber 被撃破数}が全て0であるならばtrueを返却する。
-	 * @see {@link defendthecastle.battle.BattleUnit BattleUnit}
+	 * @return {@link defendthecastle.battle.InternalData.BattleUnit#defeatNumber 被撃破数}が全て0であるならばtrueを返却する。
+	 * @see {@link defendthecastle.battle.InternalData.BattleUnit BattleUnit}
 	 */
 	boolean canNotDefeat(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData) {
 		Predicate<BattleUnit[]> canNotDefeatCheack = (data) -> {
@@ -368,9 +368,9 @@ public abstract class StageData {
 	 * @param nowDifficulty - 今回のゲームの難易度。
 	 * @param UnitMainData - ゲーム終了後のユニットデータ。
 	 * @param UnitLeftData - ゲーム終了後のユニットデータ。
-	 * @return 指定の難易度で{@link defendthecastle.battle.BattleUnit#defeatNumber 被撃破数}が全て0であるならばtrueを返却する。
+	 * @return 指定の難易度で{@link defendthecastle.battle.InternalData.BattleUnit#defeatNumber 被撃破数}が全て0であるならばtrueを返却する。
 	 * @see {@link defaultdata.Difficulty ステータス補正倍率}<br>
-	 * 		{@link defendthecastle.battle.BattleUnit BattleUnit}
+	 * 		{@link defendthecastle.battle.InternalData.BattleUnit BattleUnit}
 	 */
 	boolean canNotDefeat(Difficulty baseDifficulty, Difficulty nowDifficulty, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData) {
 		if(canClearStage(baseDifficulty, nowDifficulty)) {
@@ -384,9 +384,9 @@ public abstract class StageData {
 	 * @param UnitMainData - ゲーム終了後のユニットデータ。
 	 * @param UnitLeftData - ゲーム終了後のユニットデータ。
 	 * @param FacilityData - ゲーム終了後の設備データ。
-	 * @return {@link defendthecastle.battle.BattleData#canActivate 設備が生存}し、{@link defendthecastle.battle.BattleUnit#defeatNumber ユニットの被撃破数}が全て0であるならばtrueを返却する。
-	 * @see {@link defendthecastle.battle.BattleUnit BattleUnit}<br>
-	 * 		{@link defendthecastle.battle.BattleFacility BattleFacility}
+	 * @return {@link defendthecastle.battle.InternalData.BattleData#canActivate 設備が生存}し、{@link defendthecastle.battle.InternalData.BattleUnit#defeatNumber ユニットの被撃破数}が全て0であるならばtrueを返却する。
+	 * @see {@link defendthecastle.battle.InternalData.BattleUnit BattleUnit}<br>
+	 * 		{@link defendthecastle.battle.InternalData.BattleFacility BattleFacility}
 	 */
 	boolean canNotDefeat(BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData) {
 		if(Stream.of(FacilityData).noneMatch(i -> !i.canActivate())) {
@@ -402,10 +402,10 @@ public abstract class StageData {
 	 * @param UnitMainData - ゲーム終了後のユニットデータ。
 	 * @param UnitLeftData - ゲーム終了後のユニットデータ。
 	 * @param FacilityData - ゲーム終了後の設備データ。
-	 * @return 指定の難易度で{@link defendthecastle.battle.BattleData#canActivate 設備が生存}し、{@link defendthecastle.battle.BattleUnit#defeatNumber ユニットの被撃破数}が全て0であるならばtrueを返却する。
+	 * @return 指定の難易度で{@link defendthecastle.battle.InternalData.BattleData#canActivate 設備が生存}し、{@link defendthecastle.battle.InternalData.BattleUnit#defeatNumber ユニットの被撃破数}が全て0であるならばtrueを返却する。
 	 * @see {@link defaultdata.Difficulty ステータス補正倍率}<br>
-	 * 		{@link defendthecastle.battle.BattleUnit BattleUnit}<br>
-	 * 		{@link defendthecastle.battle.BattleFacility BattleFacility}
+	 * 		{@link defendthecastle.battle.InternalData.BattleUnit BattleUnit}<br>
+	 * 		{@link defendthecastle.battle.InternalData.BattleFacility BattleFacility}
 	 */
 	boolean canNotDefeat(Difficulty baseDifficulty, Difficulty nowDifficulty, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData) {
 		if(canClearStage(baseDifficulty, nowDifficulty)) {

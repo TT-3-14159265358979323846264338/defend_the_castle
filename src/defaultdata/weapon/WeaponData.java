@@ -170,17 +170,17 @@ public abstract class WeaponData {
 	 * バフ情報を入力した複数のListを返却する。
 	 * @return List(timing, target, range, status, culculate, effect, interval, max, duration, recast, cost)<br>
 	 * 			<br>
-	 * 			timing - 発生させるタイミングコード。{@link defendthecastle.battle.Buff Buff}の発生タイミングコードで指定。Weaponでは{@link defendthecastle.battle.Buff#SKILL SKILL}, {@link defendthecastle.battle.Buff#DAMAGE DAMAGE}使用不可。<br>
-	 * 			target - 与える対象コード。{@link defendthecastle.battle.Buff Buff}の発生対象コードで指定。<br>
-	 * 			range - 与える範囲コード。{@link defendthecastle.battle.Buff Buff}の効果範囲コードで指定。timingが{@link defendthecastle.battle.Buff#DEFEAT DEFEAT}なら{@link defendthecastle.battle.Buff#ALL ALL}, {@link battle.TARGET TARGET}のみ有効<br>
-	 * 			status - 効果のあるステータスコード。{@link defendthecastle.battle.Buff Buff}の対象ステータスコードで指定。{@link defendthecastle.battle.Buff#MORALE MORALE}, {@link defendthecastle.battle.Buff#GAME_COST GAME_COST} を指定した場合、targetを{@link defendthecastle.battle.Buff#GAME GAME}に指定する必要がある。<br>
-	 * 			culculate - 最終ステータスへの計算方法コード。{@link defendthecastle.battle.Buff Buff}の加減乗除コードで指定。targetが{@link defendthecastle.battle.Buff#GAME GAME}であれば、{@link defendthecastle.battle.Buff#MULTIPLICATION MULTIPLICATION}, {@link defendthecastle.battle.Buff#DIVISION DIVISION}使用不可。<br>
+	 * 			timing - 発生させるタイミングコード。{@link defendthecastle.battle.InternalData.Buff Buff}の発生タイミングコードで指定。Weaponでは{@link defendthecastle.battle.InternalData.Buff#SKILL SKILL}, {@link defendthecastle.battle.InternalData.Buff#DAMAGE DAMAGE}使用不可。<br>
+	 * 			target - 与える対象コード。{@link defendthecastle.battle.InternalData.Buff Buff}の発生対象コードで指定。<br>
+	 * 			range - 与える範囲コード。{@link defendthecastle.battle.InternalData.Buff Buff}の効果範囲コードで指定。timingが{@link defendthecastle.battle.InternalData.Buff#DEFEAT DEFEAT}なら{@link defendthecastle.battle.InternalData.Buff#ALL ALL}, {@link battle.TARGET TARGET}のみ有効<br>
+	 * 			status - 効果のあるステータスコード。{@link defendthecastle.battle.InternalData.Buff Buff}の対象ステータスコードで指定。{@link defendthecastle.battle.InternalData.Buff#MORALE MORALE}, {@link defendthecastle.battle.InternalData.Buff#GAME_COST GAME_COST} を指定した場合、targetを{@link defendthecastle.battle.InternalData.Buff#GAME GAME}に指定する必要がある。<br>
+	 * 			culculate - 最終ステータスへの計算方法コード。{@link defendthecastle.battle.InternalData.Buff Buff}の加減乗除コードで指定。targetが{@link defendthecastle.battle.InternalData.Buff#GAME GAME}であれば、{@link defendthecastle.battle.InternalData.Buff#MULTIPLICATION MULTIPLICATION}, {@link defendthecastle.battle.InternalData.Buff#DIVISION DIVISION}使用不可。<br>
 	 * 			effect - 1回あたりの効果量。intervalを指定した際でも最大値ではないので注意。<br>
-	 * 			interval - 効果の発生間隔[s]。未使用なら{@link defendthecastle.battle.Buff#NONE Buff.NONE}を指定。<br>
-	 * 			max - intervalを指定した時の最大値。未使用なら{@link defendthecastle.battle.Buff#NONE Buff.NONE}を指定。<br>
-	 * 			duration - 効果持続時間[s]。未使用なら{@link defendthecastle.battle.Buff#NONE Buff.NONE}を指定。<br>
-	 * 			recast - 必ず{@link defendthecastle.battle.Buff#NONE Buff.NONE}を指定。<br>
-	 * 			cost - 必ず{@link defendthecastle.battle.Buff#NONE Buff.NONE}を指定。<br>
+	 * 			interval - 効果の発生間隔[s]。未使用なら{@link defendthecastle.battle.InternalData.Buff#NONE Buff.NONE}を指定。<br>
+	 * 			max - intervalを指定した時の最大値。未使用なら{@link defendthecastle.battle.InternalData.Buff#NONE Buff.NONE}を指定。<br>
+	 * 			duration - 効果持続時間[s]。未使用なら{@link defendthecastle.battle.InternalData.Buff#NONE Buff.NONE}を指定。<br>
+	 * 			recast - 必ず{@link defendthecastle.battle.InternalData.Buff#NONE Buff.NONE}を指定。<br>
+	 * 			cost - 必ず{@link defendthecastle.battle.InternalData.Buff#NONE Buff.NONE}を指定。<br>
 	 * 			<br>
 	 * 			バフを保有していない場合、空のArrays.asList()を返却する。
 	 */

@@ -3,7 +3,7 @@ package defaultdata.atackpattern;
 import java.util.Comparator;
 import java.util.List;
 
-import defendthecastle.battle.BattleData;
+import defendthecastle.battle.InternalData.BattleData;
 
 public class No04HighHP extends AtackPatternData{
 	@Override
