@@ -4,6 +4,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import javax.swing.JFrame;
 
+import defaultdata.Difficulty;
 import defaultdata.Stage;
 import defendthecastle.battle.Battle;
 import defendthecastle.composition.MenuComposition;
@@ -82,16 +83,16 @@ public class MainFrame extends JFrame{
 		return new MenuSelectStage(this);
 	}
 	
-	public void battleDraw(Stage stage, double difficultyCorrection) {
+	public void battleDraw(Stage stage, Difficulty difficulty) {
 		setTitle(stage.getLabel().getName());
 		setSize(1235, 600);
 		getContentPane().removeAll();
-		add(createBattle(stage, difficultyCorrection));
+		add(createBattle(stage, difficulty));
 		postProcessing();
 	}
 	
-	Battle createBattle(Stage stage, double difficultyCorrection) {
-		return new Battle(this, scheduler, stage, difficultyCorrection);
+	Battle createBattle(Stage stage, Difficulty difficulty) {
+		return new Battle(this, scheduler, stage, difficulty);
 	}
 	
 	void postProcessing() {

@@ -8,6 +8,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import defaultdata.AtackPattern;
+import defaultdata.Difficulty;
 import defaultdata.Element;
 import defaultdata.Enemy;
 import defaultdata.Move;
@@ -17,18 +18,14 @@ import defaultdata.stage.StageData;
 
 //敵のバトル情報
 public class BattleEnemy extends BattleData{
-	//各難易度でのステータス補正倍率(difficultyCorrection)
-	public static final double NORMAL_MODE = 1;
-	public static final double HARD_MODE = 2;
-	
 	//基礎データ
-	private Move move;
-	private Type type;
-	private List<List<Integer>> route;
+	private final Move move;
+	private final Type type;
+	private final List<List<Integer>> route;
 	private int routeNumber;
-	private int activateTime;
+	private final int activateTime;
 	private int resurrectionCount;
-	private int interval;
+	private final int interval;
 	private final int SOTIE_MORALE = 5;
 	private final int DEFEAT_MORALE = 3;
 	private final int MOVE_DISTANCE = 2;
@@ -41,11 +38,11 @@ public class BattleEnemy extends BattleData{
 	private BattleData blockTarget;
 	
 	//システム関連
-	private Object blockWait = new Object();
-	private MicroSecondsTimerOperation moveTimer;
-	private ScheduleTimerOperation resuscitationTimer;
+	private final Object blockWait = new Object();
+	private final MicroSecondsTimerOperation moveTimer;
+	private final ScheduleTimerOperation resuscitationTimer;
 	
-	BattleEnemy(GameTimer gameTimer, StageData stageData, int number, double difficultyCorrection, ScheduledExecutorService scheduler) {
+	BattleEnemy(GameTimer gameTimer, StageData stageData, int number, Difficulty difficulty, ScheduledExecutorService scheduler) {
 		this.gameTimer = gameTimer;
 		EnemyData EnemyData = Enemy.getLabel(stageData.getEnemy().get(number).get(0));
 		name = EnemyData.getName();
@@ -62,8 +59,8 @@ public class BattleEnemy extends BattleData{
 		interval = stageData.getEnemy().get(number).get(4);
 		element = EnemyData.getElement().stream().toList();
 		atackPatternData = new AtackPattern().getAtackPattern(EnemyData.getAtackPattern());
-		defaultWeaponStatus = weaponStatus(EnemyData, difficultyCorrection);
-		defaultUnitStatus = unitStatus(EnemyData, difficultyCorrection);
+		defaultWeaponStatus = weaponStatus(EnemyData, difficulty.getId());
+		defaultUnitStatus = unitStatus(EnemyData, difficulty.getId());
 		defaultCutStatus = EnemyData.getCutStatus().stream().toList();
 		canActivate = false;
 		super.initialize(scheduler);

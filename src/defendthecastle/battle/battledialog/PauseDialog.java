@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import javax.swing.JDialog;
 
+import defaultdata.Difficulty;
 import defaultdata.Stage;
 import defendthecastle.MainFrame;
 import defendthecastle.battle.BattleEnemy;
@@ -18,28 +19,28 @@ import defendthecastle.battle.GameTimer;
 public class PauseDialog extends JDialog implements WindowListener{
 	private GameTimer gameTimer;
 	
-	public PauseDialog(GameTimer gameTimer, MainFrame MainFrame, Stage stage, double difficultyCorrection) {
-		setDialog(gameTimer);
+	public PauseDialog(GameTimer gameTimer, MainFrame MainFrame, Stage stage, Difficulty difficulty) {
 		setTitle("一時停止");
 		setSize(545, 615);
+		setDialog(gameTimer);
 		setLocationRelativeTo(null);
-		add(new ReturnPanel(this, MainFrame, stage, difficultyCorrection, gameTimer));
+		add(new ReturnPanel(this, MainFrame, stage, difficulty, gameTimer));
 		setVisible(true);
 	}
 	
-	public PauseDialog(Stage stage, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, double difficultyCorrection) {
-		setDialog(null);
+	public PauseDialog(Stage stage, BattleUnit[] UnitMainData, BattleUnit[] UnitLeftData, BattleFacility[] FacilityData, BattleEnemy[] EnemyData, GameData GameData, Difficulty difficulty) {
 		setTitle("戦績");
 		setSize(645, 425);
+		setDialog(null);
 		setLocationRelativeTo(null);
-		add(new ClearPanel(this, stage, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficultyCorrection));
+		add(new ClearPanel(this, stage, UnitMainData, UnitLeftData, FacilityData, EnemyData, GameData, difficulty));
 		setVisible(true);
 	}
 	
 	public PauseDialog() {
-		setDialog(null);
 		setTitle("敗北");
 		setSize(575, 425);
+		setDialog(null);
 		setLocationRelativeTo(null);
 		add(new GameOverPanel(this));
 		setVisible(true);

@@ -8,33 +8,48 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.time.temporal.ValueRange;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 
-import javax.swing.JPanel;
-
+import commonclass.CommonJPanel;
 import defaultdata.Enemy;
 import defaultdata.enemy.EnemyData;
 import defaultdata.stage.StageData;
 import defendthecastle.screendisplay.DisplayStatus;
 
-class AllEnemy extends JPanel implements MouseListener{
-	private List<EnemyData> enemyData;
-	private List<BufferedImage> enemyImage;
-	private List<Integer> enemyCount;
-	private Font font = new Font("Arial", Font.BOLD, 30);
+class AllEnemy extends CommonJPanel implements MouseListener{
+	private final List<EnemyData> enemyData;
+	private final List<BufferedImage> enemyImage;
+	private final List<Integer> enemyCount;
+	private final int RATIO = 2;
+	private final Font font = new Font("Arial", Font.BOLD, 30);
 	private final int SIZE = 100;
 	private final int COLUMN = 4;
 	
-	AllEnemy(StageData StageData) {
-		Function<Integer, Integer> count = (number) -> {
-			return (int) StageData.getEnemy().stream().filter(i -> i.get(0) == number).mapToInt(i -> (i.get(3) < 0)? -100000 :i.get(3) + 1).sum();
-		};
-		enemyData = StageData.getDisplayOrder().stream().map(j -> Enemy.getLabel(j)).toList();
-		enemyImage = enemyData.stream().map(i -> i.getImage(2)).toList();
-		enemyCount = StageData.getDisplayOrder().stream().map(i -> count.apply(i)).toList();
-		setPreferredSize(new Dimension(100, (enemyImage.size() / COLUMN + 1) * SIZE));
+	AllEnemy(StageData stageData) {
+		enemyData = stageData.getDisplayOrder().stream().map(j -> Enemy.getLabel(j)).toList();
+		enemyImage = enemyData.stream().map(i -> i.getImage(RATIO)).toList();
+		enemyCount = stageData.getDisplayOrder().stream().map(i -> enemyCount(stageData, i)).toList();
+		setPreferredSize(createDimension());
 		addMouseListener(this);
+		stillness(defaultWhite());
+	}
+	
+	int enemyCount(StageData stageData, int number) {
+		return (int) stageData.getEnemy().stream().filter(i -> i.get(0) == number).mapToInt(this::count).sum();
+	}
+	
+	/**
+	 * 各敵の総数を調べる。
+	 * @param enemyInformation - 敵情報。
+	 * @return 復活回数が負の値なら∞を表示させるため、過剰な負の値を返す。
+	 * 正の値なら復活回数+1を返す。
+	 */
+	int count(List<Integer> enemyInformation) {
+		return (enemyInformation.get(3) < 0)? -100000 :enemyInformation.get(3) + 1;
+	}
+	
+	Dimension createDimension() {
+		return new Dimension(SIZE, (enemyImage.size() / COLUMN + 1) * SIZE);
 	}
 	
 	@Override
@@ -59,7 +74,7 @@ class AllEnemy extends JPanel implements MouseListener{
 			int y = i / COLUMN * SIZE + 10;
 			if(ValueRange.of(x, x + SIZE - 30).isValidIntValue(e.getX())
 					&& ValueRange.of(y, y + SIZE - 30).isValidIntValue(e.getY())){
-				new DisplayStatus().enemy(enemyData.get(i));
+				displayEnemy(i);
 				break;
 			}
 		}
@@ -72,5 +87,9 @@ class AllEnemy extends JPanel implements MouseListener{
 	}
 	@Override
 	public void mouseExited(MouseEvent e) {
+	}
+	
+	void displayEnemy(int number) {
+		new DisplayStatus().enemy(enemyData.get(number));
 	}
 }

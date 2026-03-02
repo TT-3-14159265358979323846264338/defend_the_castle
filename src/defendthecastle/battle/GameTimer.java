@@ -5,6 +5,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Stream;
 
+import defaultdata.Difficulty;
 import defaultdata.Stage;
 import defendthecastle.MainFrame;
 import defendthecastle.battle.battledialog.PauseDialog;
@@ -12,7 +13,7 @@ import defendthecastle.battle.battledialog.PauseDialog;
 public class GameTimer {
 	private final MainFrame mainFrame;
 	private final Stage stage;
-	private final double difficultyCorrection;
+	private final Difficulty difficulty;
 	private final ScheduledExecutorService scheduler;
 	private GameData gameData;
 	private AwakeUnit awakeUnit;
@@ -33,10 +34,10 @@ public class GameTimer {
 	private final int CLEAR_DELAY = 1000;
 	private final int MONITOR_DELAY = 100;
 	
-	GameTimer(MainFrame mainFrame, Stage stage, double difficultyCorrection, ScheduledExecutorService scheduler){
+	GameTimer(MainFrame mainFrame, Stage stage, Difficulty difficulty, ScheduledExecutorService scheduler){
 		this.mainFrame = mainFrame;
 		this.stage = stage;
-		this.difficultyCorrection = difficultyCorrection;
+		this.difficulty = difficulty;
 		this.scheduler = scheduler;
 		mainTimer = createTimerOperation(scheduler);
 		clearTimer = createTimerOperation(scheduler);
@@ -87,7 +88,7 @@ public class GameTimer {
 	void clearTimerProcess() {
 		clearTimer.updateBeforeTime();
 		if(stage.getLabel().canClear(unitMainData, unitLeftData, facilityData, enemyData, gameData)) {
-			new PauseDialog(stage, unitMainData, unitLeftData, facilityData, enemyData, gameData, difficultyCorrection);
+			new PauseDialog(stage, unitMainData, unitLeftData, facilityData, enemyData, gameData, difficulty);
 			mainFrame.selectStageDraw();
 			gameEnd();
 			return;

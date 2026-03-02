@@ -25,6 +25,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import commonclass.CommonJPanel;
+import defaultdata.Difficulty;
 import defaultdata.Distance;
 import defaultdata.Stage;
 import defendthecastle.MainFrame;
@@ -41,7 +42,7 @@ public class Battle extends CommonJPanel implements MouseListener, MouseMotionLi
 	//ゲームデータ
 	private final MainFrame mainFrame;
 	private final Stage stage;
-	private final double difficultyCorrection;
+	private final Difficulty difficulty;
 	private final GameTimer gameTimer;
 	private final GameData gameData;
 	private final StageImage stageImage;
@@ -79,10 +80,10 @@ public class Battle extends CommonJPanel implements MouseListener, MouseMotionLi
 	private boolean canRangeDraw;
 	
 	//メイン画面制御
-	public Battle(MainFrame mainFrame, ScheduledExecutorService scheduler, Stage stage, double difficultyCorrection) {
+	public Battle(MainFrame mainFrame, ScheduledExecutorService scheduler, Stage stage, Difficulty difficulty) {
 		this.mainFrame = mainFrame;
 		this.stage = stage;
-		this.difficultyCorrection = difficultyCorrection;
+		this.difficulty = difficulty;
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		gameTimer = createGameTimer(scheduler);
@@ -109,7 +110,7 @@ public class Battle extends CommonJPanel implements MouseListener, MouseMotionLi
 	}
 	
 	GameTimer createGameTimer(ScheduledExecutorService scheduler) {
-		return new GameTimer(mainFrame, stage, difficultyCorrection, scheduler);
+		return new GameTimer(mainFrame, stage, difficulty, scheduler);
 	}
 	
 	GameData createGameData() {
@@ -149,7 +150,7 @@ public class Battle extends CommonJPanel implements MouseListener, MouseMotionLi
 	}
 	
 	BattleEnemy createBattleEnemy(int number, ScheduledExecutorService scheduler) {
-		return new BattleEnemy(gameTimer, stage.getLabel(), number, difficultyCorrection, scheduler);
+		return new BattleEnemy(gameTimer, stage.getLabel(), number, difficulty, scheduler);
 	}
 	
 	void install() {
@@ -213,7 +214,7 @@ public class Battle extends CommonJPanel implements MouseListener, MouseMotionLi
 	
 	void stageReturnButtonAction(ActionEvent e){
 		gameTimer.timerPause();
-		new PauseDialog(gameTimer, mainFrame, stage, difficultyCorrection);
+		new PauseDialog(gameTimer, mainFrame, stage, difficulty);
 	}
 	
 	void setUnitButton(JButton button, String name, ActionListener task) {

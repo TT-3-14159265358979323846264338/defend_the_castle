@@ -9,8 +9,8 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
 import commonclass.CommonJPanel;
+import defaultdata.Difficulty;
 import defendthecastle.MainFrame;
-import defendthecastle.battle.BattleEnemy;
 
 //ステージ選択画面
 public class MenuSelectStage extends CommonJPanel{
@@ -42,8 +42,8 @@ public class MenuSelectStage extends CommonJPanel{
 		setLabel(stageLabel, "ステージ選択", 10, 10, 200, 30, font);
 		setLabel(informationLabel, "ステージ情報", 170, 10, 200, 30, font);
 		setButton(returnButton, "戻る", 10, 460, 150, 60, font, this::returnButtonAction);
-		setButton(normalModeButton, "normal", 580, 460, 155, 60, font, this::normalModeButtonAction);
-		setButton(hardModeButton, "hard", 745, 460, 155, 60, font, this::hardModeButtonAction);
+		setButton(normalModeButton, Difficulty.NORMAL.getLabel(), 580, 460, 155, 60, font, this::normalModeButtonAction);
+		setButton(hardModeButton, Difficulty.HARD.getLabel(), 745, 460, 155, 60, font, this::hardModeButtonAction);
 		setScroll(stageScroll, 10, 40, 150, 410, selectPanel);
 		setScroll(meritScroll, 170, 275, 400, 245, meritPanel);
 		setScroll(enemyScroll, 580, 40, 320, 295, enemyPanel);
@@ -80,16 +80,16 @@ public class MenuSelectStage extends CommonJPanel{
 	}
 	
 	void normalModeButtonAction(ActionEvent e) {
-		battleStart(BattleEnemy.NORMAL_MODE);
+		battleStart(Difficulty.NORMAL);
 	}
 	
 	void hardModeButtonAction(ActionEvent e) {
-		battleStart(BattleEnemy.HARD_MODE);
+		battleStart(Difficulty.HARD);
 	}
 	
-	private void battleStart(double mode) {
+	private void battleStart(Difficulty difficulty) {
 		progressData.save(selectPanel.getSelelct());
-		mainFrame.battleDraw(progressData.getActivateStage().get(selectPanel.getSelelct()), mode);
+		mainFrame.battleDraw(progressData.getActivateStage().get(selectPanel.getSelelct()), difficulty);
 	}
 	
 	private void setGameCondition() {

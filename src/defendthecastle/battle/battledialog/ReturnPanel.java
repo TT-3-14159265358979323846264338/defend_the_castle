@@ -1,94 +1,74 @@
 package defendthecastle.battle.battledialog;
 
-import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics;
+import java.awt.event.ActionEvent;
 
 import javax.swing.JButton;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import commonclass.CommonJPanel;
+import defaultdata.Difficulty;
 import defaultdata.Stage;
-import defaultdata.stage.StageData;
 import defendthecastle.MainFrame;
 import defendthecastle.battle.GameTimer;
 
 //戻る・再戦パネル
-class ReturnPanel extends JPanel{
-	private GameCondition GameCondition;
-	private JScrollPane enemyScroll = new JScrollPane();
-	private JScrollPane meritScroll = new JScrollPane();
-	private JButton restartButton = new JButton();
-	private JButton returnButton = new JButton();
-	private JButton retryButton = new JButton();
-	private Font buttonFont = new Font("ＭＳ ゴシック", Font.BOLD, 20);
+class ReturnPanel extends CommonJPanel{
+	private final PauseDialog pauseDialog;
+	private final MainFrame mainFrame;
+	private final GameTimer gameTimer;
+	private final Stage stage;
+	private final Difficulty difficulty;
+	private final GameCondition gameCondition;
+	private final JButton restartButton = new JButton();
+	private final JButton returnButton = new JButton();
+	private final JButton retryButton = new JButton();
+	private final JScrollPane enemyScroll = new JScrollPane();
+	private final JScrollPane meritScroll = new JScrollPane();
+	private final Font font = new Font("ＭＳ ゴシック", Font.BOLD, 20);
 	
-	ReturnPanel(PauseDialog PauseDialog, MainFrame MainFrame, Stage stage, double difficultyCorrection, GameTimer gameTimer) {
-		setBackground(new Color(240, 170, 80));
-		addGameCondition(stage.getLabel(), difficultyCorrection);
-		addEnemyScroll(stage.getLabel());
-		addMeritScroll(stage);
-		addRestartButton(PauseDialog);
-		addReturnButton(PauseDialog, MainFrame, gameTimer);
-		addRetryButton(PauseDialog, MainFrame, stage, difficultyCorrection, gameTimer);
+	ReturnPanel(PauseDialog pauseDialog, MainFrame mainFrame, Stage stage, Difficulty difficulty, GameTimer gameTimer) {
+		this.pauseDialog = pauseDialog;
+		this.mainFrame = mainFrame;
+		this.gameTimer = gameTimer;
+		this.stage = stage;
+		this.difficulty = difficulty;
+		gameCondition = createGameCondition();
+		gameCondition.setBounds(50, 10, 430, 150);
+		add(gameCondition);
+		setButton(restartButton, "再開", 75, 530, 120, 40, font, this::restartButtonAction);
+		setButton(returnButton, "退却", 205, 530, 120, 40, font, this::returnButtonAction);
+		setButton(retryButton, "再挑戦", 335, 530, 120, 40, font, this::retryButtonAction);
+		setScroll(enemyScroll, 50, 170, 430, 200, createAllEnemy());
+		setScroll(meritScroll, 50, 380, 430, 140, createClearMerit());
+		stillness(brown());
 	}
 	
-	@Override
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		GameCondition.setBounds(50, 10, 430, 150);
-		enemyScroll.setBounds(50, 170, 430, 200);
-		enemyScroll.setPreferredSize(enemyScroll.getSize());
-		meritScroll.setBounds(50, 380, 430, 140);
-		meritScroll.setPreferredSize(meritScroll.getSize());
-		restartButton.setBounds(75, 530, 120, 40);
-		returnButton.setBounds(205, 530, 120, 40);
-		retryButton.setBounds(335, 530, 120, 40);
+	GameCondition createGameCondition() {
+		return new GameCondition(stage.getLabel(), difficulty);
 	}
 	
-	void addGameCondition(StageData StageData, double difficultyCorrection) {
-		GameCondition = new GameCondition(StageData, difficultyCorrection);
-		add(GameCondition);
+	AllEnemy createAllEnemy() {
+		return new AllEnemy(stage.getLabel());
 	}
 	
-	void addEnemyScroll(StageData StageData) {
-		enemyScroll.getViewport().setView(new AllEnemy(StageData));
-		add(enemyScroll);
+	PauseClearPanel createClearMerit() {
+		return new PauseClearPanel(stage);
 	}
 	
-	void addMeritScroll(Stage stage) {
-		meritScroll.getViewport().setView(new ClearMerit(stage));
-		add(meritScroll);
+	void restartButtonAction(ActionEvent e) {
+		pauseDialog.disposeDialog();
 	}
 	
-	void addRestartButton(PauseDialog PauseDialog) {
-		add(restartButton);
-		restartButton.addActionListener(_ ->{
-			PauseDialog.disposeDialog();
-		});
-		restartButton.setText("再開");
-		restartButton.setFont(buttonFont);
+	void returnButtonAction(ActionEvent e) {
+		mainFrame.selectStageDraw();
+		gameTimer.gameEnd();
+		pauseDialog.disposeDialog();
 	}
 	
-	void addReturnButton(PauseDialog PauseDialog, MainFrame MainFrame, GameTimer gameTimer) {
-		add(returnButton);
-		returnButton.addActionListener(_ ->{
-			MainFrame.selectStageDraw();
-			gameTimer.gameEnd();
-			PauseDialog.disposeDialog();
-		});
-		returnButton.setText("退却");
-		returnButton.setFont(buttonFont);
-	}
-	
-	void addRetryButton(PauseDialog PauseDialog, MainFrame MainFrame, Stage stage, double difficultyCorrection, GameTimer gameTimer) {
-		add(retryButton);
-		retryButton.addActionListener(_ ->{
-			MainFrame.battleDraw(stage, difficultyCorrection);
-			gameTimer.gameEnd();
-			PauseDialog.disposeDialog();
-		});
-		retryButton.setText("再挑戦");
-		retryButton.setFont(buttonFont);
+	void retryButtonAction(ActionEvent e) {
+		mainFrame.battleDraw(stage, difficulty);
+		gameTimer.gameEnd();
+		pauseDialog.disposeDialog();
 	}
 }
